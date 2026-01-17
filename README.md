@@ -9,7 +9,7 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
 ## ✨ Funkciók
 
 ### Jelenlegi
--  Több fotó feltöltése (JPG, PNG, HEIC támogatás)
+- ✅ Több fotó feltöltése (JPG, PNG, HEIC támogatás)
 - ✅ Automatikus EXIF adat kinyerés
   - Kamera típus és gyártó
   - Objektív információk
