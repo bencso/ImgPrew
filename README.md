@@ -40,7 +40,7 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
 
 ## 🛠️ Technológiák
 ### Backend
-- Python 3.11+
+- Python 3.14.2
 - FastAPI (REST API) *(amennyiben API-ra változtatjuk)*
 - PIL/Pillow (EXIF olvasás)
 - OpenCV (képfeldolgozás, vízjelek)
