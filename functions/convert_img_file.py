@@ -2,6 +2,7 @@ from PIL import Image
 import os
 
 def convert_to_jpg(image_path: str):
+    # TODO: Mikor convertelünk minden dict adat maradjon benne a képen (vagy akár ezt is lehet megmondani hogy mit szeretne a user)
     f_file, f_extension = image_path.split(".")
     if f_extension != "jpg":
         outfile = f_file + ".jpg"
