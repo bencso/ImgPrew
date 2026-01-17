@@ -63,7 +63,7 @@ def get_info(image_path: str):
                 else:
                     image_infos[i] = exif_datas[i]
     except Exception as e:
-        print(f"HIBA: {e}")
+        print(f"HIBA adatok lekérdezése közben: {e}")
         exit(1)
 
 
@@ -76,7 +76,7 @@ def convert_heic_to_jpg(image_path: str):
                 im.save(outfile)
                 return outfile
         except Exception as e:
-            print(f"HIBA történt convertálás közben: {e}")
+            print(f"HIBA konvertálás közben: {e}")
     else:
         return image_path
 
