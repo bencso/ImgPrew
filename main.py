@@ -1,6 +1,9 @@
 from PIL import Image, ExifTags
 from pillow_heif import register_heif_opener
 import os
+from tqdm import tqdm
+import time
+from queue import Queue
 
 register_heif_opener()
 
@@ -18,6 +21,7 @@ image_datas = [
 ]
 
 image_infos = {}
+image_error = []
 
 
 def get_exif_datas(image_path: str):
@@ -82,12 +86,23 @@ def convert_heic_to_jpg(image_path: str):
 
 
 def main():
-    image_path = "imgs/IMG_1827.heic"
-    if not os.path.exists(image_path):
-        print("HIBA: Nem található az alábbi fájl")
-        exit(1)
-    get_info(image_path=image_path)
-    print(image_infos)
+    image_queue = Queue(maxsize=15)
+    image_queue.put("imgs/IMG_1827.heic")
+
+    total_images = image_queue.qsize()
+    with tqdm(total=total_images, desc="Képek feldolgozása") as pbar:
+        while not image_queue.empty():
+            image_path = image_queue.get()
+            if not os.path.exists(image_path):
+                image_error.append(image_path)
+                continue
+            get_info(image_path=image_path)
+            print(image_infos)
+            pbar.update(1)
+        pbar.close()
+    if len(image_error) > 0:
+        print(f"Hiba történt: {str.join(",",image_error)}")
 
 
-main()
+if __name__ == "__main__":
+    main()
