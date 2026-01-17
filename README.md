@@ -8,7 +8,7 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
 
 ## ✨ Funkciók
 
-### Jelenlegi
+### MVP
 - ✅ Több fotó feltöltése (JPG, PNG, HEIC támogatás)
 - ✅ Automatikus EXIF adat kinyerés
   - Kamera típus és gyártó
@@ -18,18 +18,18 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
   - Készítés dátuma
 - Beállítások formázása Instagram captionhöz
 - Egyedi caption sablonok
+- Instagram formátum optimalizálás (1:1, 4:5, 9:16)
 
 ### Tervezett funkciók
-- Vizuális fotógaléria kiválasztással
-- Kiválasztható mely EXIF mezők jelenjenek meg
-- Testreszabható vízjel elhelyezés
+- Vizuális fotógaléria kiválasztással (FRONTEND)
+- Kiválasztható mely EXIF mezők jelenjenek meg (FRONTEND)
+- Testreszabható vízjel elhelyezés (FRONTEND/BACKEND)
   - Pozíció (sarkok, középen, egyedi)
   - Átlátszóság beállítás
   - Méret módosítás
   - Saját logó/szöveg feltöltés
-- Instagram formátum optimalizálás (1:1, 4:5, 9:16)
 - Kötegelt feldolgozás
-- Export beállítások mentése
+- Export beállítások mentése 
 - Előtte/Utána előnézet csúszka
 - Egy kattintásos letöltés
 
