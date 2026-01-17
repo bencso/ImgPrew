@@ -2,11 +2,11 @@ from PIL import Image, ExifTags
 from pillow_heif import register_heif_opener
 import os
 from tqdm import tqdm
-import time
 from queue import Queue
 
 register_heif_opener()
 
+# TODO: Ezt lehet majd változtatni GUI-n belül, hogy mit szeretne a user
 image_datas = [
     "Model",
     "LensModel",
@@ -96,8 +96,9 @@ def main():
             if not os.path.exists(image_path):
                 image_error.append(image_path)
                 continue
+            # IDE JÖN A TÖBBI MÜVELET
             get_info(image_path=image_path)
-            print(image_infos)
+            # --
             pbar.update(1)
         pbar.close()
     if len(image_error) > 0:
