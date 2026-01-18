@@ -37,3 +37,13 @@ SOCIAL_IMAGES_SIZES = {
     6: {"platform": "twitter", "type": "landscape", "width": 1200, "height": 675},
     7: {"platform": "twitter", "type": "square", "width": 1080, "height": 1080},
 }
+
+X_AXIS = [
+    "LEFT",
+    "RIGHT"
+]
+
+Y_AXIS = [
+    "TOP",
+    "BOTTOM"
+]

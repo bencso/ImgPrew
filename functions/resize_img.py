@@ -8,13 +8,12 @@ class ResizeImg:
     def __init__(
         self,
         image_path: Optional[str] = None,
-        image: Optional[ImageFile] = None,  # pyright: ignore[reportInvalidTypeForm]
         sample_size_id: Optional[int] = None,
         height: Optional[int] = None,
         width: Optional[int] = None,
     ):
         self.image_path = image_path
-
+        
         size_config = SOCIAL_IMAGES_SIZES.get(sample_size_id)
         if size_config is not None:
             self.height = size_config.get("height")
@@ -23,7 +22,7 @@ class ResizeImg:
             self.height = height
             self.width = width
 
-        self.img = image if image is not None else Image.open(image_path)
+        self.img = Image.open(image_path)
 
     def resize_img(self):
         try:

@@ -1,11 +1,11 @@
 from pillow_heif import register_heif_opener
 import os
-from PIL import Image
 from tqdm import tqdm
 from queue import Queue
 from functions.convert_img_file import ConvertExtensionImage
 from functions.get_exif_data import GetExifData
 from functions.resize_img import ResizeImg
+from functions.watermark import WaterMarking
 from classes.queueitem import QueueItem
 
 register_heif_opener()
@@ -14,9 +14,10 @@ image_error = []
 
 user_requests = [
     {
-        "convert_img": True,
-        "get_exif": True,
-        "resize_img": True,
+        "convert_img": False,
+        "get_exif": False,
+        "resize_img": False,
+        "watermark": True,
         "image_path": "imgs/18528152692_cb8cf20949_o.png",
         "sample_size_id": 3,
         "allowed_infos": ["FNumber", "Model"],
@@ -36,6 +37,8 @@ def main():
                     "convert_img": user_request["convert_img"],
                     "get_exif": user_request["get_exif"],
                     "resize_img": user_request["resize_img"],
+                    "watermark": user_request["watermark"],
+                    "output_extension": user_request.get("output_extension"),
                     "sample_size_id": user_request.get("sample_size_id"),
                     "allowed_infos": user_request.get("allowed_infos"),
                     "get_exif_datas": user_request.get("get_exif_datas"),
@@ -65,22 +68,28 @@ def main():
                         allowed_infos=user_request["allowed_infos"],
                     )
                     result_convert = convert_image_c.convert_image()
-                    print(result_convert)
                     image_src = result_convert
-                
+
                 if item.get_exif is True:
                     exif_info = GetExifData(
                         image_path=image_src, image_data=user_request["get_exif_datas"]
                     )
                     exif_info = exif_info.get_info()
-                    print(exif_info)
-                    
+
                 if item.resize_img is True:
                     resize_img = ResizeImg(
-                        image_path=image_src, sample_size_id=user_request["sample_size_id"]
+                        image_path=image_src,
+                        sample_size_id=user_request["sample_size_id"],
                     )
                     image_src = resize_img.resize_img()
-                    
+
+                if item.watermark is True:
+                    watermark_img = WaterMarking(
+                        image_path=image_src, text="TESZT", position=["LEFT", "TOP"]
+                    )
+                    image_src = watermark_img.create_watermark()
+
+                print(image_src)
                 image_queue.task_done()
                 pbar.update(1)
         if len(image_error) > 0:
