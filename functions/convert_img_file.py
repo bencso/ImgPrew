@@ -1,8 +1,8 @@
-from PIL import Image
+from PIL import Image, ExifTags
 import os
-from dependencies import ExifTagNames
+from dependencies import ExifTagNames, ImageExtensions
 from functions.get_exif_data import get_exif_datas
-import piexif
+
 
 class ConvertExtensionImage:
 
@@ -11,33 +11,38 @@ class ConvertExtensionImage:
     allowed_info: list[ExifTagNames]
 
     def __init__(
-        self, image_path: str, output_extension: str, allowed_infos: list[ExifTagNames]
-    ) -> None:
+        self,
+        image_path: str,
+        output_extension: ImageExtensions,
+        allowed_infos: list[ExifTagNames],
+    ) -> str:
         self.image_path = image_path
         self.output_extension = output_extension
         self.allowed_info = allowed_infos
 
     def convert_image(self) -> str:
         f_name, f_extension = os.path.splitext(self.image_path)
-        if f_extension != "jpg":
-            outfile = f_name + ".jpg"
+        if f_extension != self.output_extension:
+            outfile = f"{f_name}.{self.output_extension}"
             try:
                 with Image.open(self.image_path) as img:
-                    exif_data = get_exif_datas(self.image_path)
-                    return_exif = {}
-
-                    allowed_set = set(self.allowed_info)
-
-                    for data in exif_data:
-                        tag_id = data["key"]
-                        tag_name = data["value"]
-                        if tag_name in allowed_set:
-                            return_exif[tag_name] = exif_data.get(tag_id)
-                    exif_bytes = piexif.dump(return_exif)
-                    img.save(outfile, exif=exif_bytes)
-                os.remove(self.image_path)
+                    exif = get_exif_datas(img=img)
+                    if exif:
+                        allowed_set = set(self.allowed_info)
+                        filtered_exif = Image.Exif()
+                        for tag_name, value in exif.items():
+                            key = value["key"]
+                            if tag_name in allowed_set:
+                                filtered_exif[key] = value
+                        img.save(outfile, exif=filtered_exif)
+                    else:
+                        img.save(outfile)
                 return outfile
             except Exception as e:
-                print(f"HIBA konvertálás közben: {e}")
+                print(f"HIBA: {e}")
+                import traceback
+
+                traceback.print_exc()
+                return self.image_path
         else:
             return self.image_path

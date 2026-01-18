@@ -20,9 +20,9 @@ def main():
             path="imgs/18528152692_cb8cf20949_o.jpg",
             resize_sizes={"height": 250, "width": 150},
             options={
-                "convert_img": False,
+                "convert_img": True,
                 "get_exif": True,
-                "resize_img": True,
+                "resize_img": False,
             },
         )
     )
@@ -36,6 +36,13 @@ def main():
                 image_error.append(image_src)
                 continue
             # IDE JÖN A TÖBBI MÜVELET
+            if item.convert_img is True:
+                convert_image_c = ConvertExtensionImage(
+                    image_path=image_src,
+                    output_extension="jpeg",
+                    allowed_infos=["FNumber", "Model"],
+                )
+                image_src = convert_image_c.convert_image()
             if item.get_exif is True:
                 exif_info = get_info(image_src)
                 print(exif_info)
