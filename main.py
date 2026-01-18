@@ -107,7 +107,6 @@ def main():
                     )
                     image_src = watermark_img.create_watermark()
 
-
                 print(image_src)
                 image_queue.task_done()
                 pbar.update(1)
