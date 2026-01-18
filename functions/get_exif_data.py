@@ -9,8 +9,10 @@ class GetExifData:
     def __init__(
         self,
         image_path: Optional[str] = None,
-        image: Optional[ImageFile] = None,
-        image_data: Optional[List[EXIF_TAG_NAMES_LIST]] = None,
+        image: Optional[ImageFile] = None,  # pyright: ignore[reportInvalidTypeForm]
+        image_data: Optional[
+            List[EXIF_TAG_NAMES_LIST]  # pyright: ignore[reportInvalidTypeForm]
+        ] = None,
     ) -> None:
         self.image_path = image_path
 
