@@ -18,12 +18,12 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
   - Készítés dátuma
 - Beállítások formázása Instagram captionhöz
 - Egyedi caption sablonok
-- Instagram formátum optimalizálás (1:1, 4:5, 9:16)
+- ✅ Instagram formátum optimalizálás (1:1, 4:5, 9:16)
 
 ### Tervezett funkciók
 - Vizuális fotógaléria kiválasztással (FRONTEND)
-- Kiválasztható mely EXIF mezők jelenjenek meg (FRONTEND)
-- Testreszabható vízjel elhelyezés (FRONTEND/BACKEND)
+- ✅ Kiválasztható mely EXIF mezők jelenjenek meg (✅BACKEND -> FRONTEND)
+- Testreszabható vízjel elhelyezés (FRONTEND/ *(in progress)* BACKEND)
   - Pozíció (sarkok, középen, egyedi)
   - Átlátszóság beállítás
   - Méret módosítás

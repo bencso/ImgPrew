@@ -24,7 +24,7 @@ user_requests = [
         "border": True,
         "image_path": "imgs/18528152692_cb8cf20949_o.jpg",
         "sample_size_id": 3,
-        "border_size": 120,
+        "border_size": 40,
         "allowed_infos": ["FNumber", "Model"],
         "get_exif_datas": ["FNumber", "Model"],
         "output_extension": "png",
