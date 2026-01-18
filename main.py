@@ -17,10 +17,10 @@ def main():
     image_queue = Queue(maxsize=15)
     image_queue.put(
         QueueItem(
-            path="imgs/18528152692_cb8cf20949_o.jpg",
+            path="imgs/18528152692_cb8cf20949_o.png",
             resize_sizes={"height": 250, "width": 150},
             options={
-                "convert_img": True,
+                "convert_img": False,
                 "get_exif": True,
                 "resize_img": False,
             },
@@ -39,7 +39,7 @@ def main():
             if item.convert_img is True:
                 convert_image_c = ConvertExtensionImage(
                     image_path=image_src,
-                    output_extension="jpeg",
+                    output_extension="png",
                     allowed_infos=["FNumber", "Model"],
                 )
                 image_src = convert_image_c.convert_image()

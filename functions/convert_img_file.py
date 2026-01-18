@@ -29,12 +29,12 @@ class ConvertExtensionImage:
                     exif = get_exif_datas(img=img)
                     if exif:
                         allowed_set = set(self.allowed_info)
-                        filtered_exif = Image.Exif()
+                        exif_data = Image.Exif()
                         for tag_name, value in exif.items():
                             key = value["key"]
                             if tag_name in allowed_set:
-                                filtered_exif[key] = value
-                        img.save(outfile, exif=filtered_exif)
+                                exif_data[key] = value["value"]
+                        img.save(outfile, exif=exif_data)
                     else:
                         img.save(outfile)
                 return outfile
