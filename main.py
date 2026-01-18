@@ -2,6 +2,7 @@ from pillow_heif import register_heif_opener
 import os
 from tqdm import tqdm
 from queue import Queue
+from PIL import ImageOps, Image
 from functions.convert_img_file import ConvertExtensionImage
 from functions.get_exif_data import GetExifData
 from functions.resize_img import ResizeImg
@@ -18,8 +19,12 @@ user_requests = [
         "get_exif": False,
         "resize_img": False,
         "watermark": True,
-        "image_path": "imgs/18528152692_cb8cf20949_o.png",
+        "watermark_text": "LAJOSKÉRI",
+        "watermark_position": ["LEFT", "BOTTOM"],
+        "border": True,
+        "image_path": "imgs/18528152692_cb8cf20949_o.jpg",
         "sample_size_id": 3,
+        "border_size": 120,
         "allowed_infos": ["FNumber", "Model"],
         "get_exif_datas": ["FNumber", "Model"],
         "output_extension": "png",
@@ -38,6 +43,10 @@ def main():
                     "get_exif": user_request["get_exif"],
                     "resize_img": user_request["resize_img"],
                     "watermark": user_request["watermark"],
+                    "watermark_text": user_request["watermark_text"],
+                    "watermark_position": user_request["watermark_position"],
+                    "border": user_request["border"],
+                    "border_size": user_request["border_size"],
                     "output_extension": user_request.get("output_extension"),
                     "sample_size_id": user_request.get("sample_size_id"),
                     "allowed_infos": user_request.get("allowed_infos"),
@@ -83,11 +92,21 @@ def main():
                     )
                     image_src = resize_img.resize_img()
 
+                if item.border is True:
+                    img = Image.open(image_src)
+                    img_with_border = ImageOps.expand(
+                        img, border=user_request["border_size"], fill="white"
+                    )
+                    img_with_border.save(image_src)
+
                 if item.watermark is True:
                     watermark_img = WaterMarking(
-                        image_path=image_src, text="TESZT", position=["LEFT", "TOP"]
+                        image_path=image_src,
+                        text=str(user_request["watermark_text"]),
+                        position=user_request["watermark_position"],
                     )
                     image_src = watermark_img.create_watermark()
+
 
                 print(image_src)
                 image_queue.task_done()
