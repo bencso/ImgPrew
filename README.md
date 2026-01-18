@@ -9,6 +9,7 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
 ## ✨ Funkciók
 
 ### MVP
+
 - ✅ Több fotó feltöltése (JPG, PNG, HEIC támogatás)
 - ✅ Automatikus EXIF adat kinyerés
   - Kamera típus és gyártó
@@ -21,37 +22,44 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
 - ✅ Instagram formátum optimalizálás (1:1, 4:5, 9:16)
 
 ### Tervezett funkciók
+
 - Vizuális fotógaléria kiválasztással (FRONTEND)
 - ✅ Kiválasztható mely EXIF mezők jelenjenek meg (✅BACKEND -> FRONTEND)
-- Testreszabható vízjel elhelyezés (FRONTEND/ *(in progress)* BACKEND)
+- Testreszabható vízjel elhelyezés (FRONTEND/ _(in progress)_ BACKEND)
   - Pozíció (sarkok, középen, egyedi)
   - Átlátszóság beállítás
   - Méret módosítás
   - Saját logó/szöveg feltöltés
 - Kötegelt feldolgozás
-- Export beállítások mentése 
+- Export beállítások mentése
+  - Végén: hasheléses módszerrel tárolhatjuk, és ezeket meg lehet osztani is majd akár
 - Előtte/Utána előnézet csúszka
 - Egy kattintásos letöltés
 
 ### Jövőbeli ötletek
+
 - 📱 Blogszerűen feltöltés a saját weboldalra
 - 🎨 Egyedi presetek
 - 🔗 Közvetlen Instagram API integráció
 
 ## 🛠️ Technológiák
+
 ### Backend
+
 - Python 3.14.2
-- FastAPI (REST API) *(amennyiben API-ra változtatjuk)*
+- FastAPI (REST API) _(amennyiben API-ra változtatjuk)_
 - PIL/Pillow (EXIF olvasás)
 - OpenCV (képfeldolgozás, vízjelek)
-- SQLite / PostgreSQL *(még kérdéses, hogy lokalisan tudják a userek futtatni, vagy legyen futtatva, ennek függvényében lesz ez eldöntve)*
+- SQLite / PostgreSQL _(még kérdéses, hogy lokalisan tudják a userek futtatni, vagy legyen futtatva, ennek függvényében lesz ez eldöntve)_
 
 ### Frontend
+
 - NextJS
 - TailwindCSS
 - shadcn
 
 ### További könyvtárak
+
 - `pillow-heif` (HEIC támogatás)
 - `python-multipart` (fájl feltöltés FastAPI-ban)
 
@@ -80,9 +88,10 @@ MIT License - Szabadon használható és módosítható
 ---
 
 **Státusz:** 🚧 Aktív fejlesztés alatt  
-**Indulás:** 2026. január  
+**Indulás:** 2026. január
 
 ---
+
 ## 💭 Megjegyzések
 
 Ez a projekt része a full-stack fejlesztés tanulásának Python és NextJS használatával.

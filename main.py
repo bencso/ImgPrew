@@ -79,6 +79,7 @@ def main():
                     result_convert = convert_image_c.convert_image()
                     image_src = result_convert
 
+                # TODO: Hogy szövegeket alkothassunk belőle akár instára stb. ezeket ma még megoldani, nem nagy dolog, csak egy replace stringes megoldás lesz majd :)
                 if item.get_exif is True:
                     exif_info = GetExifData(
                         image_path=image_src, image_data=user_request["get_exif_datas"]
