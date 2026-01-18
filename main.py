@@ -1,10 +1,9 @@
-from PIL import Image, ExifTags
 from pillow_heif import register_heif_opener
 import os
 from tqdm import tqdm
 from queue import Queue
 from functions.convert_img_file import ConvertExtensionImage
-from functions.get_exif_data import get_info
+from functions.get_exif_data import GetExifData
 from functions.resize_img import resize_img
 from classes.queueitem import QueueItem
 
@@ -17,10 +16,10 @@ def main():
     image_queue = Queue(maxsize=15)
     image_queue.put(
         QueueItem(
-            path="imgs/18528152692_cb8cf20949_o.png",
+            path="imgs/18528152692_cb8cf20949_o.jpg",
             resize_sizes={"height": 250, "width": 150},
             options={
-                "convert_img": False,
+                "convert_img": True,
                 "get_exif": True,
                 "resize_img": False,
             },
@@ -44,7 +43,9 @@ def main():
                 )
                 image_src = convert_image_c.convert_image()
             if item.get_exif is True:
-                exif_info = get_info(image_src)
+                print(image_src)
+                exif_info = GetExifData(image_path=image_src, image=None)
+                exif_info = exif_info.get_info()
                 print(exif_info)
             if item.resize_img is True:
                 resize_img(

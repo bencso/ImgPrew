@@ -1,6 +1,6 @@
 from typing import Literal
 
-ExifTagNames = Literal[
+EXIF_TAG_NAMES_LIST = [
     # Kamera adatok
     "Make",
     "Model",
@@ -21,7 +21,7 @@ ExifTagNames = Literal[
     "GPSInfo",
 ]
 
-ImageExtensions = Literal[
+IMAGE_EXTENSIONS = [
     "avif",
     "jpg",
     "jpeg",

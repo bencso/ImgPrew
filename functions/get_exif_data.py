@@ -1,19 +1,29 @@
 from PIL import Image, ExifTags, ImageFile
-from dependencies import ExifTagNames
+from dependencies import EXIF_TAG_NAMES_LIST
+from typing import List, Optional
+
 
 class GetExifData:
-    image_path = str
-    image_datas = list[ExifTagNames]
-    img = ImageFile
-    
     image_infos = {}
 
-    def __init__(self, image_path: str, image_data: list[ExifTagNames]) -> None:
+    def __init__(
+        self,
+        image_path: Optional[str] = None,
+        image: Optional[ImageFile] = None,
+        image_data: Optional[List[EXIF_TAG_NAMES_LIST]] = None,
+    ) -> None:
         self.image_path = image_path
-        self.img = Image.open(self.image_path)
-        self.image_datas = image_data
 
-    def get_exif_datas(img: ImageFile) -> dict | None:
+        if self.image_path:
+            img = Image.open(self.image_path)
+        else:
+            img = image
+        self.img = img
+
+        self.image_datas = image_data if image_data is not None else EXIF_TAG_NAMES_LIST
+        self.exif_data = self.get_exif_datas(img)
+
+    def get_exif_datas(self, img: ImageFile) -> dict | None:
         exif_datas = {}
         try:
             exif_data = img.getexif()
@@ -31,7 +41,7 @@ class GetExifData:
 
     def get_info(self) -> dict:
         try:
-            exif_datas = self.get_exif_datas(img=self.img)
+            exif_datas = self.exif_data
             if exif_datas is None:
                 pass
             for i in exif_datas:
@@ -57,7 +67,7 @@ class GetExifData:
                             self.image_infos[i] = f"ISO {int(value)}"
                         case _:
                             self.image_infos[i] = f"{value}"
-                return self.image_infos
+            return self.image_infos
         except Exception as e:
             print(f"HIBA történt exif adat kinyerés közben: {e}")
-            return self.image_infods
+            return self.image_infos
