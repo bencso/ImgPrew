@@ -98,4 +98,4 @@ Ez a projekt része a full-stack fejlesztés tanulásának Python és NextJS has
 
 ---
 
-**⭐ Ha tetszik a projekt és az ötlet, örülek egy csillagnak :D**
+**⭐ Ha tetszik a projekt és az ötlet, örülök egy csillagnak :D**
