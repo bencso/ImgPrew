@@ -40,7 +40,7 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
 
 - 📱 Blogszerűen feltöltés a saját weboldalra
 - 🎨 Egyedi presetek
-- 🔗 Közvetlen Instagram API integráció
+- 🔗 Közvetlen Instagram/Közösségi oldal API integráció *(feltöltés)*
 
 ## 🛠️ Technológiák
 
