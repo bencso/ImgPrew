@@ -2,7 +2,8 @@ from PIL import ImageDraw, Image, ImageFont, ImageStat
 from typing import Optional
 from dependencies import X_AXIS, Y_AXIS
 
-
+# TODO: text: Ez legyen majd egy Class vagy dict..., itt meg lehessen adni szöveget, font familyt, font size-t és weight-et
+# TODO: Pozició lehessen középre is majd
 class WaterMarking:
     def __init__(
         self,

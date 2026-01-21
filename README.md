@@ -26,9 +26,9 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
 - Vizuális fotógaléria kiválasztással (FRONTEND)
 - ✅ Kiválasztható mely EXIF mezők jelenjenek meg (✅ BACKEND -> FRONTEND)
 - Testreszabható vízjel elhelyezés (FRONTEND/ _(in progress)_ BACKEND)
-  - Pozíció (sarkok, középen, egyedi)
+  - Pozíció (✅ sarkok, középen, egyedi)
   - Átlátszóság beállítás
-  - Méret módosítás
+  - ✅ Méret módosítás
   - Saját logó/szöveg feltöltés
 - Kötegelt feldolgozás
 - Export beállítások mentése
