@@ -14,13 +14,21 @@ class ConvertExtensionImage:
             EXIF_TAG_NAMES_LIST  # pyright: ignore[reportInvalidTypeForm]
         ],
     ) -> str:
+        f_name, f_ext = os.path.splitext(image_path)
+
         self.image = image
         self.image_path = image_path
-        self.output_extension = output_extension
         self.allowed_info = allowed_infos
 
+        self.f_name = f_name
+        self.f_ext = f_ext
+
+        self.output_extension = output_extension
+
+        if output_extension is None:
+            self.output_extension = f_ext
+
     def convert_image(self) -> dict | None:
-        f_name, f_ext = os.path.splitext(self.image_path)
 
         try:
             exif = GetExifData(image=self.image).get_exif_datas(self.image)
@@ -41,12 +49,12 @@ class ConvertExtensionImage:
                 if self.image.mode not in ("RGB", "RGBA"):
                     self.image = self.image.convert("RGBA")
 
-            ext = self.output_extension or f_ext
+            ext = self.output_extension or self.f_ext
             ext = ext.lstrip(".")
 
             return {
                 "img": self.image,
-                "filename": f"{f_name}.{ext}",
+                "filename": f"{self.f_name}.{ext}",
                 "exif": exif_data,
             }
         except Exception as e:
