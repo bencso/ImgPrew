@@ -17,14 +17,14 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
   - ISO, rekesz, záridő
   - Fókusztávolság
   - Készítés dátuma
-- Beállítások formázása Instagram captionhöz
+- ✅ Beállítások formázása Instagram captionhöz
 - Egyedi caption sablonok
 - ✅ Instagram formátum optimalizálás (1:1, 4:5, 9:16)
 
 ### Tervezett funkciók
 
 - Vizuális fotógaléria kiválasztással (FRONTEND)
-- ✅ Kiválasztható mely EXIF mezők jelenjenek meg (✅BACKEND -> FRONTEND)
+- ✅ Kiválasztható mely EXIF mezők jelenjenek meg (✅ BACKEND -> FRONTEND)
 - Testreszabható vízjel elhelyezés (FRONTEND/ _(in progress)_ BACKEND)
   - Pozíció (sarkok, középen, egyedi)
   - Átlátszóság beállítás
