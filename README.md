@@ -46,6 +46,7 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
 - 🎨 Egyedi presetek
 - 🔗 Közvetlen Instagram/Közösségi oldal API integráció _(feltöltés)_
   -> _META API általi korlátozás:_ csak Business Account-os felhasználók tudnak postolást végezni API-n keresztül
+  -> Pinterest (?)
 
 ## 🛠️ Technológiák
 
