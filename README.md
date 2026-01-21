@@ -35,6 +35,8 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
   - Végén: hasheléses módszerrel tárolhatjuk, és ezeket meg lehet osztani is majd akár
 - Előtte/Utána előnézet csúszka
 - Egy kattintásos letöltés
+- LUT kezelések a képekre
+- Fotó szerkesztések (fényerő stb.)
 
 ### Jövőbeli ötletek
 
