@@ -40,7 +40,7 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
 
 - 📱 Blogszerűen feltöltés a saját weboldalra
 - 🎨 Egyedi presetek
-- 🔗 Közvetlen Instagram API integráció
+- 🔗 Közvetlen Instagram/Közösségi oldal API integráció *(feltöltés)*
 
 ## 🛠️ Technológiák
 
@@ -98,4 +98,4 @@ Ez a projekt része a full-stack fejlesztés tanulásának Python és NextJS has
 
 ---
 
-**⭐ Ha tetszik a projekt és az ötlet, örülek egy csillagnak :D**
+**⭐ Ha tetszik a projekt és az ötlet, örülök egy csillagnak :D**
