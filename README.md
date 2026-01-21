@@ -18,7 +18,7 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
   - Fókusztávolság
   - Készítés dátuma
 - ✅ Beállítások formázása Instagram captionhöz
-- Egyedi caption sablonok
+- ✅ Egyedi caption sablonok (elérhető lesz amikor lesz DB a kezelése megvan)
 - ✅ Instagram formátum optimalizálás (1:1, 4:5, 9:16)
 
 ### Tervezett funkciók
@@ -40,8 +40,8 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
 
 - 📱 Blogszerűen feltöltés a saját weboldalra
 - 🎨 Egyedi presetek
-- 🔗 Közvetlen Instagram/Közösségi oldal API integráció *(feltöltés)* 
-    -> *META API általi korlátozás:* csak Business Account-os felhasználók tudnak postolást végezni API-n keresztül
+- 🔗 Közvetlen Instagram/Közösségi oldal API integráció _(feltöltés)_
+  -> _META API általi korlátozás:_ csak Business Account-os felhasználók tudnak postolást végezni API-n keresztül
 
 ## 🛠️ Technológiák
 
