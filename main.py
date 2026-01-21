@@ -8,6 +8,8 @@ from functions.get_exif_data import GetExifData
 from functions.resize_img import ResizeImg
 from functions.watermark import WaterMarking
 from classes.queueitem import QueueItem
+from PIL import Image
+import re
 
 register_heif_opener()
 
@@ -16,12 +18,12 @@ image_error = []
 user_requests = [
     {
         "convert_img": False,
-        "get_exif": False,
+        "get_exif": True,
         "resize_img": False,
-        "watermark": True,
+        "watermark": False,
+        "border": False,
         "watermark_text": "LAJOSKÉRI",
         "watermark_position": ["LEFT", "BOTTOM"],
-        "border": True,
         "image_path": "imgs/18528152692_cb8cf20949_o.jpg",
         "sample_size_id": 3,
         "border_size": 40,
@@ -85,6 +87,18 @@ def main():
                         image_path=image_src, image_data=user_request["get_exif_datas"]
                     )
                     exif_info = exif_info.get_info()
+                    keys = list(exif_info.keys())
+
+                    replace_string = "Model: [Model] FNumber: [FNumber] [Józsikaa]"
+                    keys_check_pattern = re.compile(r"\[.*?\]", re.IGNORECASE)
+
+                    for x in keys_check_pattern.findall(replace_string):
+                        key_pattern = x[1:][:-1]
+                        if key_pattern in keys:
+                            replace_string = replace_string.replace(
+                                x, exif_info[key_pattern]
+                            )
+                    print(replace_string)
 
                 if item.resize_img is True:
                     resize_img = ResizeImg(
@@ -98,7 +112,8 @@ def main():
                     img_with_border = ImageOps.expand(
                         img, border=user_request["border_size"], fill="white"
                     )
-                    img_with_border.save(image_src)
+                    exif_data = img.getexif()
+                    img_with_border.save(image_src, exif=exif_data)
 
                 if item.watermark is True:
                     watermark_img = WaterMarking(
@@ -108,7 +123,6 @@ def main():
                     )
                     image_src = watermark_img.create_watermark()
 
-                print(image_src)
                 image_queue.task_done()
                 pbar.update(1)
         if len(image_error) > 0:
