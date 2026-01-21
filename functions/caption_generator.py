@@ -3,7 +3,7 @@ import re
 
 
 class CaptionGenerator:
-    def __init__(self, exif_info, instagram_caption: str):
+    def __init__(self, exif_info: dict, instagram_caption: str):
         self.exif_info = exif_info
         self.instagram_caption = instagram_caption
 

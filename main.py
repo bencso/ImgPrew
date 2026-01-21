@@ -10,7 +10,7 @@ from functions.watermark import WaterMarking
 from functions.caption_generator import CaptionGenerator
 from classes.queueitem import QueueItem
 from PIL import Image
-from dependencies import CAPTION_REGEX
+from dependencies import CAPTIONS_SAMPLES
 
 register_heif_opener()
 
@@ -24,7 +24,8 @@ user_requests = [
         "watermark": False,
         "border": False,
         "caption_generate": True,
-        "instagram_caption": f"Ez nagyon komoly kép lesz!\nModel: [Model]\nFNumber: [FNumber] [Józsikaa]",
+        "caption_generate_id": None,
+        "instagram_caption": f"Ez nagyon komoly kép lesz!\n[Model]",
         "watermark_text": "LAJOSKÉRI",
         "watermark_position": ["LEFT", "BOTTOM"],
         "image_path": "imgs/18528152692_cb8cf20949_o.jpg",
@@ -48,10 +49,11 @@ def main():
                     "get_exif": user_request["get_exif"],
                     "resize_img": user_request["resize_img"],
                     "caption_generate": user_request["caption_generate"],
+                    "caption_generate_id": user_request["caption_generate_id"],
+                    "instagram_caption": user_request["instagram_caption"],
                     "watermark": user_request["watermark"],
                     "watermark_text": user_request["watermark_text"],
                     "watermark_position": user_request["watermark_position"],
-                    "instagram_caption": user_request["instagram_caption"],
                     "border": user_request["border"],
                     "border_size": user_request["border_size"],
                     "output_extension": user_request.get("output_extension"),
@@ -93,9 +95,16 @@ def main():
                     exif_info = exif_info.get_info()
 
                 if item.caption_generate is True:
+                    if user_request["caption_generate_id"] is None:
+                        instagram_caption = user_request["instagram_caption"]
+                    else:
+                        instagram_caption = (
+                            CAPTIONS_SAMPLES.get(user_request["caption_generate_id"])
+                            or user_request["instagram_caption"]
+                        )
                     caption = CaptionGenerator(
                         exif_info=exif_info,
-                        instagram_caption=user_request["instagram_caption"],
+                        instagram_caption=instagram_caption,
                     ).generate()
                     print(caption)
 

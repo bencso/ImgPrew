@@ -49,3 +49,7 @@ Y_AXIS = [
 ]
 
 CAPTION_REGEX=r"\[.*?\]"
+
+CAPTIONS_SAMPLES={
+    "pro": "Camera: [model]\nFNumber: [FNumber]"
+}
