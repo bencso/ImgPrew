@@ -10,6 +10,7 @@ from functions.watermark import WaterMarking
 from classes.queueitem import QueueItem
 from PIL import Image
 import re
+from dependencies import CAPTION_REGEX
 
 register_heif_opener()
 
@@ -22,6 +23,7 @@ user_requests = [
         "resize_img": False,
         "watermark": False,
         "border": False,
+        "instagram_caption": f"Ez nagyon komoly kép lesz!\nModel: [Model]\nFNumber: [FNumber] [Józsikaa]",
         "watermark_text": "LAJOSKÉRI",
         "watermark_position": ["LEFT", "BOTTOM"],
         "image_path": "imgs/18528152692_cb8cf20949_o.jpg",
@@ -47,6 +49,7 @@ def main():
                     "watermark": user_request["watermark"],
                     "watermark_text": user_request["watermark_text"],
                     "watermark_position": user_request["watermark_position"],
+                    "instagram_caption": user_request["instagram_caption"],
                     "border": user_request["border"],
                     "border_size": user_request["border_size"],
                     "output_extension": user_request.get("output_extension"),
@@ -81,24 +84,22 @@ def main():
                     result_convert = convert_image_c.convert_image()
                     image_src = result_convert
 
-                # TODO: Hogy szövegeket alkothassunk belőle akár instára stb. ezeket ma még megoldani, nem nagy dolog, csak egy replace stringes megoldás lesz majd :)
+                # TODO: Majd áttenni a regex replace-s dolgot is külön Class-ba (Caption Generate) -> és ez is egy functions lesz amit lehet beállítani
                 if item.get_exif is True:
                     exif_info = GetExifData(
                         image_path=image_src, image_data=user_request["get_exif_datas"]
                     )
                     exif_info = exif_info.get_info()
+
                     keys = list(exif_info.keys())
+                    caption = user_request["instagram_caption"]
+                    keys_check_pattern = re.compile(CAPTION_REGEX, re.IGNORECASE)
 
-                    replace_string = "Model: [Model] FNumber: [FNumber] [Józsikaa]"
-                    keys_check_pattern = re.compile(r"\[.*?\]", re.IGNORECASE)
-
-                    for x in keys_check_pattern.findall(replace_string):
+                    for x in keys_check_pattern.findall(caption):
                         key_pattern = x[1:][:-1]
                         if key_pattern in keys:
-                            replace_string = replace_string.replace(
-                                x, exif_info[key_pattern]
-                            )
-                    print(replace_string)
+                            caption = caption.replace(x, exif_info[key_pattern])
+                    print(caption)
 
                 if item.resize_img is True:
                     resize_img = ResizeImg(

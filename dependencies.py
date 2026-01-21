@@ -47,3 +47,5 @@ Y_AXIS = [
     "TOP",
     "BOTTOM"
 ]
+
+CAPTION_REGEX=r"\[.*?\]"
