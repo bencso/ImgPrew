@@ -2,23 +2,24 @@ from PIL import ImageDraw, Image, ImageFont, ImageStat
 from typing import Optional
 from dependencies import X_AXIS, Y_AXIS
 
+
 # TODO: text: Ez legyen majd egy Class vagy dict..., itt meg lehessen adni szöveget, font familyt, font size-t és weight-et
 # TODO: Pozició lehessen középre is majd
 class WaterMarking:
     def __init__(
         self,
-        image_path: str,
+        image: Image.Image,
         text: str,
         position: Optional[tuple[X_AXIS, Y_AXIS] | tuple[int, int]],  # type: ignore
     ) -> None:
-        self.image_path = image_path
+        self.img = image
         self.text = text
         self.position = position
         self.font_path = "/Users/bence/Documents/Munka/Fejlesztes/ImgPrew/fonts/Montserrat-VariableFont_wght.ttf"
         self.font_weight = 600
 
-    def get_font_color(self, img):
-        grayscale = img.convert("L")
+    def get_font_color(self):
+        grayscale = self.img.convert("L")
         stat = ImageStat.Stat(grayscale)
         brightness = stat.mean[0]
 
@@ -29,8 +30,8 @@ class WaterMarking:
 
         return font_color
 
-    def calculate_font_size(self, img):
-        min_dimension = min(img.width, img.height)
+    def calculate_font_size(self):
+        min_dimension = min(self.img.width, self.img.height)
 
         font_size = int(min_dimension * 0.030)
         font_size = max(18, min(font_size, 60))
@@ -38,16 +39,14 @@ class WaterMarking:
         return font_size
 
     def create_watermark(self):
-        img = Image.open(self.image_path)
+        if self.img.mode != "RGBA":
+            self.img = self.img.convert("RGBA")
 
-        if img.mode != "RGBA":
-            img = img.convert("RGBA")
-
-        txt_layer = Image.new("RGBA", img.size, (255, 255, 255, 0))
+        txt_layer = Image.new("RGBA", self.img.size, (255, 255, 255, 0))
         draw = ImageDraw.Draw(txt_layer)
 
         text = self.text
-        font_size = self.calculate_font_size(img)
+        font_size = self.calculate_font_size()
         font = ImageFont.truetype(self.font_path, font_size)
         font.set_variation_by_axes([self.font_weight])
 
@@ -60,20 +59,18 @@ class WaterMarking:
             if x == "LEFT":
                 x = 20
             elif x == "RIGHT":
-                x = img.width - text_width - 40
+                x = self.img.width - text_width - 40
             if y == "TOP":
                 y = 20
             elif y == "BOTTOM":
-                y = img.height - text_height - 40
+                y = self.img.height - text_height - 40
 
         text_position = (x, y)
-        font_color = self.get_font_color(img)
+        font_color = self.get_font_color()
         draw.text(text_position, text, font=font, fill=font_color)
 
-        watermarked = Image.alpha_composite(img, txt_layer)
+        watermarked = Image.alpha_composite(self.img, txt_layer)
 
-        if self.image_path.lower().endswith((".jpg", ".jpeg")):
-            watermarked = watermarked.convert("RGB")
+        watermarked = watermarked.convert("RGB")
 
-        watermarked.save(self.image_path)
-        return self.image_path
+        return watermarked

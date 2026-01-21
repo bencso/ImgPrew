@@ -8,23 +8,20 @@ class GetExifData:
 
     def __init__(
         self,
-        image_path: Optional[str] = None,
+        image: Image.Image,
         image_data: Optional[
             List[EXIF_TAG_NAMES_LIST]  # pyright: ignore[reportInvalidTypeForm]
         ] = None,
     ) -> None:
-        self.image_path = image_path
-
-        img = Image.open(self.image_path)
-        self.img = img
-
+        self.img = image
         self.image_datas = image_data if image_data is not None else EXIF_TAG_NAMES_LIST
-        self.exif_data = self.get_exif_datas(img)
+        self.exif_data = self.get_exif_datas(self.img)
 
     def get_exif_datas(self, img: ImageFile) -> dict | None:
         exif_datas = {}
         try:
             exif_data = img.getexif()
+            
             for key, value in exif_data.items():
                 if key in ExifTags.TAGS:
                     tag_name = ExifTags.TAGS[key]

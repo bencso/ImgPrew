@@ -8,48 +8,47 @@ class ConvertExtensionImage:
     def __init__(
         self,
         image_path: str,
+        image: Image.Image,
         output_extension: IMAGE_EXTENSIONS,  # pyright: ignore[reportInvalidTypeForm]
         allowed_infos: list[
             EXIF_TAG_NAMES_LIST  # pyright: ignore[reportInvalidTypeForm]
         ],
     ) -> str:
+        self.image = image
         self.image_path = image_path
         self.output_extension = output_extension
         self.allowed_info = allowed_infos
 
-    def convert_image(self) -> str:
-        f_name, f_extension = os.path.splitext(self.image_path)
-        outfile = f"{f_name}.{self.output_extension}"
-
-        if f_extension.lower() == f".{self.output_extension.lower()}":
-            return self.image_path
+    def convert_image(self) -> dict | None:
+        f_name, f_ext = os.path.splitext(self.image_path)
 
         try:
-            with Image.open(self.image_path) as img:
-                exif = GetExifData(image=img).get_exif_datas(img)
-                exif_data = None
-                if exif:
-                    allowed_set = set(self.allowed_info)
-                    exif_data = Image.Exif()
-                    for tag_name, value in exif.items():
-                        key = value["key"]
-                        if tag_name in allowed_set:
-                            exif_data[key] = value["value"]
-                
-                if self.output_extension.lower() in ["jpg", "jpeg"]:
-                    if img.mode in ("RGBA", "LA", "P"):
-                        img = img.convert("RGB")
-                elif self.output_extension.lower() == "png":
-                    if img.mode not in ("RGB", "RGBA"):
-                        img = img.convert("RGBA")
-                
-                if exif_data:
-                    img.save(outfile, exif=exif_data)
-                else:
-                    img.save(outfile)
-                return outfile
+            exif = GetExifData(image=self.image).get_exif_datas(self.image)
+            exif_data = None
+
+            if exif:
+                allowed_set = set(self.allowed_info)
+                exif_data = Image.Exif()
+                for tag_name, value in exif.items():
+                    key = value["key"]
+                    if tag_name in allowed_set:
+                        exif_data[key] = value["value"]
+
+            if self.output_extension.lower() in ["jpg", "jpeg"]:
+                if self.image.mode in ("RGBA", "LA", "P"):
+                    self.image = self.image.convert("RGB")
+            elif self.output_extension.lower() == "png":
+                if self.image.mode not in ("RGB", "RGBA"):
+                    self.image = self.image.convert("RGBA")
+
+            ext = self.output_extension or f_ext
+            ext = ext.lstrip(".")
+
+            return {
+                "img": self.image,
+                "filename": f"{f_name}.{ext}",
+                "exif": exif_data,
+            }
         except Exception as e:
             print(f"HIBA: {e}")
-            return Image.open(self.image_path)
-        else:
-            return outfile
+            return None

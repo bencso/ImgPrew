@@ -18,7 +18,6 @@ image_error = []
 
 user_requests = [
     {
-        "convert_img": False,
         "get_exif": True,
         "resize_img": False,
         "watermark": False,
@@ -29,11 +28,11 @@ user_requests = [
         "watermark_text": "LAJOSKÉRI",
         "watermark_position": ["LEFT", "BOTTOM"],
         "image_path": "imgs/18528152692_cb8cf20949_o.jpg",
-        "sample_size_id": 3,
+        "sample_size_id": 2,
         "border_size": 40,
         "allowed_infos": ["FNumber", "Model"],
         "get_exif_datas": ["FNumber", "Model"],
-        "output_extension": "png",
+        "output_extension": "jpg",
     }
 ]
 
@@ -45,7 +44,6 @@ def main():
             QueueItem(
                 path=user_request["image_path"],
                 options={
-                    "convert_img": user_request["convert_img"],
                     "get_exif": user_request["get_exif"],
                     "resize_img": user_request["resize_img"],
                     "caption_generate": user_request["caption_generate"],
@@ -60,12 +58,12 @@ def main():
                     "sample_size_id": user_request.get("sample_size_id"),
                     "allowed_infos": user_request.get("allowed_infos"),
                     "get_exif_datas": user_request.get("get_exif_datas"),
-                    "output_extension": user_request.get("output_extension"),
                 },
             )
         )
 
         total_images = image_queue.qsize()
+
         with tqdm(total=total_images, desc="Képek feldolgozása") as pbar:
             while not image_queue.empty():
                 item = image_queue.get()
@@ -77,62 +75,77 @@ def main():
                     pbar.update(1)
                     continue
 
-                exif_info = None
+                with Image.open(item.image_src) as image:
+                    exif_info = None
+                    exif = image.getexif()
+                    exif_bytes = exif.tobytes() if exif else None
 
-                if item.convert_img is True:
-                    convert_image_c = ConvertExtensionImage(
+                    if item.get_exif is True or item.caption_generate is True:
+                        exif_info_class = GetExifData(
+                            image=image, image_data=user_request["get_exif_datas"]
+                        )
+                        exif_info = exif_info_class.get_info()
+
+                    if item.caption_generate is True:
+                        if user_request["caption_generate_id"] is None:
+                            instagram_caption = user_request["instagram_caption"]
+                        else:
+                            instagram_caption = (
+                                CAPTIONS_SAMPLES.get(
+                                    user_request["caption_generate_id"]
+                                )
+                                or user_request["instagram_caption"]
+                            )
+                        caption = CaptionGenerator(
+                            exif_info=exif_info,
+                            instagram_caption=instagram_caption,
+                        ).generate()
+                        print(caption)
+
+                    if item.resize_img is True:
+                        resize_img = ResizeImg(
+                            image=image,
+                            sample_size_id=user_request["sample_size_id"],
+                        )
+                        image = resize_img.resize_img()
+
+                    if item.border is True:
+                        img_with_border = ImageOps.expand(
+                            image=image,
+                            border=user_request["border_size"],
+                            fill="white",
+                        )
+                        image = img_with_border
+
+                    if item.watermark is True:
+                        watermark_img = WaterMarking(
+                            image=image,
+                            text=str(user_request["watermark_text"]),
+                            position=user_request["watermark_position"],
+                        )
+                        image = watermark_img.create_watermark()
+
+                    image.info["exif"] = exif_bytes
+
+                    convert_image = ConvertExtensionImage(
                         image_path=image_src,
+                        image=image,
                         output_extension=user_request["output_extension"],
                         allowed_infos=user_request["allowed_infos"],
                     )
-                    result_convert = convert_image_c.convert_image()
-                    image_src = result_convert
 
-                if item.get_exif is True:
-                    exif_info = GetExifData(
-                        image_path=image_src, image_data=user_request["get_exif_datas"]
-                    )
-                    exif_info = exif_info.get_info()
+                    result_convert = convert_image.convert_image()
 
-                if item.caption_generate is True:
-                    if user_request["caption_generate_id"] is None:
-                        instagram_caption = user_request["instagram_caption"]
+                    if isinstance(result_convert, dict):
+                        c_image = result_convert["img"]
+                        c_exif = result_convert["exif"]
+                        c_file = result_convert["filename"]
+                        c_image.save(c_file, exif=c_exif)
                     else:
-                        instagram_caption = (
-                            CAPTIONS_SAMPLES.get(user_request["caption_generate_id"])
-                            or user_request["instagram_caption"]
-                        )
-                    caption = CaptionGenerator(
-                        exif_info=exif_info,
-                        instagram_caption=instagram_caption,
-                    ).generate()
-                    print(caption)
+                        image.save(image_src, exif=exif_bytes)
 
-                if item.resize_img is True:
-                    resize_img = ResizeImg(
-                        image_path=image_src,
-                        sample_size_id=user_request["sample_size_id"],
-                    )
-                    image_src = resize_img.resize_img()
-
-                if item.border is True:
-                    img = Image.open(image_src)
-                    img_with_border = ImageOps.expand(
-                        img, border=user_request["border_size"], fill="white"
-                    )
-                    exif_data = img.getexif()
-                    img_with_border.save(image_src, exif=exif_data)
-
-                if item.watermark is True:
-                    watermark_img = WaterMarking(
-                        image_path=image_src,
-                        text=str(user_request["watermark_text"]),
-                        position=user_request["watermark_position"],
-                    )
-                    image_src = watermark_img.create_watermark()
-
-                image_queue.task_done()
-                pbar.update(1)
+                    image_queue.task_done()
+                    pbar.update(1)
         if len(image_error) > 0:
             print(f"Hiba történt: {str.join(",",image_error)}")
 
