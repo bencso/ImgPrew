@@ -40,10 +40,13 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
 
 ### Jövőbeli ötletek
 
-- 📱 Blogszerűen feltöltés a saját weboldalra
+- 📱 Saját Portfolió weboldal létrehozásnak a lehetősége (Amint elkészült a kép töltheti fel a galériába)
+- 🗺️ Képek elhelyezése térképen (hol jártunk, emlékek oldal)
+  - OpenStreetMap és az EXIF adatok (ha nincs exif adat, manuálisan) segítségével elhelyezhetjük a térképre emlékeinket/képeinket
 - 🎨 Egyedi presetek
 - 🔗 Közvetlen Instagram/Közösségi oldal API integráció _(feltöltés)_
   -> _META API általi korlátozás:_ csak Business Account-os felhasználók tudnak postolást végezni API-n keresztül
+  -> Pinterest (?)
 
 ## 🛠️ Technológiák
 
