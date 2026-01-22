@@ -40,12 +40,14 @@ SOCIAL_IMAGES_SIZES = {
 
 X_AXIS = [
     "LEFT",
-    "RIGHT"
+    "RIGHT",
+    "CENTER"
 ]
 
 Y_AXIS = [
     "TOP",
-    "BOTTOM"
+    "BOTTOM",
+    "CENTER"
 ]
 
 CAPTION_REGEX=r"\[.*?\]"

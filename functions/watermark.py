@@ -60,10 +60,15 @@ class WaterMarking:
                 x = 20
             elif x == "RIGHT":
                 x = self.img.width - text_width - 40
+            elif x == "CENTER":
+                print(self.img.width)
+                x = (self.img.width/2)-(text_width/2)
             if y == "TOP":
                 y = 20
             elif y == "BOTTOM":
                 y = self.img.height - text_height - 40
+            elif y == "CENTER":
+                y = (self.img.height/2)-(text_height/2)
 
         text_position = (x, y)
         font_color = self.get_font_color()
