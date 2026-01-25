@@ -27,9 +27,9 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
 - ✅ Kiválasztható mely EXIF mezők jelenjenek meg (✅ BACKEND -> FRONTEND)
 - Testreszabható vízjel elhelyezés (FRONTEND/ _(in progress)_ BACKEND)
   - Pozíció (✅ sarkok, középen, egyedi)
-  - Átlátszóság beállítás
+  - ✅ Átlátszóság beállítás
   - ✅ Méret módosítás
-  - Saját logó/szöveg feltöltés
+  - Saját logó/szöveg feltöltés _(in progress)_
 - Kötegelt feldolgozás
 - Export beállítások mentése
   - Végén: hasheléses módszerrel tárolhatjuk, és ezeket meg lehet osztani is majd akár
