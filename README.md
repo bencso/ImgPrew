@@ -37,13 +37,12 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
 - Export beállítások mentése
   - Végén: hasheléses módszerrel tárolhatjuk, és ezeket meg lehet osztani is majd akár
 - Előtte/Utána előnézet csúszka (FRONTEND)
-- Egy kattintásos letöltés
 
 ### Jövőbeli ötletek
 
-- 📱 Saját Portfolió weboldal létrehozásnak a lehetősége (Amint elkészült a kép töltheti fel a galériába)
-- 🗺️ Képek elhelyezése térképen (hol jártunk, emlékek oldal)
-  - OpenStreetMap és az EXIF adatok (ha nincs exif adat, manuálisan) segítségével elhelyezhetjük a térképre emlékeinket/képeinket
+- 📱 Saját Portfolió weboldal létrehozásnak a lehetősége *(Amint elkészült a kép töltheti fel a saját galériájába)*
+- 🗺️ Képek elhelyezése térképen *(hol jártunk, emlékek oldal)*
+  - OpenStreetMap és az EXIF adatok *(ha nincs exif adat, manuálisan megadni a helyszínt)* segítségével helyezhetjük el a térképre emlékeinket/képeinket
 - 🎨 Egyedi presetek
 - 🔗 Közvetlen Instagram/Közösségi oldal API integráció _(feltöltés)_
   -> _META API általi korlátozás:_ csak Business Account-os felhasználók tudnak postolást végezni API-n keresztül
