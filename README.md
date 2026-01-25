@@ -21,7 +21,7 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
 - ✅ Egyedi caption sablonok (elérhető lesz amikor lesz DB a kezelése megvan)
 - ✅ Instagram formátum optimalizálás (1:1, 4:5, 9:16)
 - ✅ Kiválasztható mely EXIF mezők jelenjenek meg (✅ BACKEND -> FRONTEND)
-- Testreszabható vízjel elhelyezés (FRONTEND/  ✅ BACKEND)
+- Testreszabható vízjel elhelyezés (FRONTEND/ ✅ BACKEND)
   - ✅ Pozíció (sarkok, középen, egyedi)
   - ✅ Átlátszóság beállítás
   - ✅ Méret módosítás
@@ -40,9 +40,9 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
 
 ### Jövőbeli ötletek
 
-- 📱 Saját Portfolió weboldal létrehozásnak a lehetősége *(Amint elkészült a kép töltheti fel a saját galériájába)*
-- 🗺️ Képek elhelyezése térképen *(hol jártunk, emlékek oldal)*
-  - OpenStreetMap és az EXIF adatok *(ha nincs exif adat, manuálisan megadni a helyszínt)* segítségével helyezhetjük el a térképre emlékeinket/képeinket
+- 📱 Saját Portfolió weboldal létrehozásnak a lehetősége _(Amint elkészült a kép töltheti fel a saját galériájába)_
+- 🗺️ Képek elhelyezése térképen _(hol jártunk, emlékek oldal)_
+  - OpenStreetMap és az EXIF adatok _(ha nincs exif adat, manuálisan megadni a helyszínt)_ segítségével helyezhetjük el a térképre emlékeinket/képeinket
 - 🎨 Egyedi presetek
 - 🔗 Közvetlen Instagram/Közösségi oldal API integráció _(feltöltés)_
   -> _META API általi korlátozás:_ csak Business Account-os felhasználók tudnak postolást végezni API-n keresztül
