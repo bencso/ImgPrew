@@ -14,22 +14,25 @@ from dependencies import CAPTIONS_SAMPLES
 
 register_heif_opener()
 
+# TODO: Mai feladatok: Watermark: Saját logó/szöveg feltöltés
+
 image_error = []
 
 user_requests = [
     {
-        "get_exif": True,
+        "get_exif": False,
         "resize_img": False,
         "watermark": True,
         "border": False,
-        "caption_generate": True,
+        "caption_generate": False,
         "caption_generate_id": None,
         "instagram_caption": f"Ez nagyon komoly kép lesz!\n[Model]",
         "watermark_text": "LAJOSKÉRI",
+        "watermark_opacity": 1,
         "watermark_position": ["CENTER", "BOTTOM"],
-        "image_path": "imgs/18528152692_cb8cf20949_o.jpg",
+        "image_path": "imgs/kep.jpeg",
         "sample_size_id": 2,
-        "border_size": 40,
+        "border_size": 20,
         "allowed_infos": ["FNumber", "Model"],
         "get_exif_datas": ["FNumber", "Model"],
         "output_extension": "jpg",
@@ -51,6 +54,7 @@ def main():
                     "instagram_caption": user_request["instagram_caption"],
                     "watermark": user_request["watermark"],
                     "watermark_text": user_request["watermark_text"],
+                    "watermark_opacity": user_request["watermark_opacity"],
                     "watermark_position": user_request["watermark_position"],
                     "border": user_request["border"],
                     "border_size": user_request["border_size"],
@@ -122,6 +126,7 @@ def main():
                             image=image,
                             text=str(user_request["watermark_text"]),
                             position=user_request["watermark_position"],
+                            text_opacity=user_request["watermark_opacity"],
                         )
                         image = watermark_img.create_watermark()
 
@@ -140,9 +145,15 @@ def main():
                         c_image = result_convert["img"]
                         c_exif = result_convert["exif"]
                         c_file = result_convert["filename"]
-                        c_image.save(c_file, exif=c_exif)
+                        if c_exif is None:
+                            c_image.save(image_src)
+                        else:
+                            c_image.save(c_file, exif=c_exif)
                     else:
-                        image.save(image_src, exif=exif_bytes)
+                        if exif_bytes is None:
+                            image.save(image_src)
+                        else:
+                            image.save(image_src, exif=exif_bytes)
 
                     image_queue.task_done()
                     pbar.update(1)

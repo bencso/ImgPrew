@@ -10,10 +10,12 @@ class WaterMarking:
         self,
         image: Image.Image,
         text: str,
+        text_opacity: Optional[str],
         position: Optional[tuple[X_AXIS, Y_AXIS] | tuple[int, int]],  # type: ignore
     ) -> None:
         self.img = image
         self.text = text
+        self.text_opacity = text_opacity
         self.position = position
         self.font_path = "/Users/bence/Documents/Munka/Fejlesztes/ImgPrew/fonts/Montserrat-VariableFont_wght.ttf"
         self.font_weight = 600
@@ -24,9 +26,9 @@ class WaterMarking:
         brightness = stat.mean[0]
 
         if brightness < 128:
-            font_color = (255, 255, 255, 80)
+            font_color = [255, 255, 255, 80]
         else:
-            font_color = (0, 0, 0, 80)
+            font_color = [0, 0, 0, 80]
 
         return font_color
 
@@ -62,16 +64,19 @@ class WaterMarking:
                 x = self.img.width - text_width - 40
             elif x == "CENTER":
                 print(self.img.width)
-                x = (self.img.width/2)-(text_width/2)
+                x = (self.img.width / 2) - (text_width / 2)
             if y == "TOP":
                 y = 20
             elif y == "BOTTOM":
                 y = self.img.height - text_height - 40
             elif y == "CENTER":
-                y = (self.img.height/2)-(text_height/2)
+                y = (self.img.height / 2) - (text_height / 2)
 
         text_position = (x, y)
-        font_color = self.get_font_color()
+        [R, G, B, A] = self.get_font_color()
+        font_color = (R, G, B, A)
+        if self.text_opacity is not None:
+            font_color = (R, G, B, self.text_opacity*100)
         draw.text(text_position, text, font=font, fill=font_color)
 
         watermarked = Image.alpha_composite(self.img, txt_layer)
