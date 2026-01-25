@@ -31,6 +31,7 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
   - ✅ Méret módosítás
   - ✅ Saját logó/szöveg feltöltés
 - LUT kezelések a képekre
+  - Pillow LUT tools
 - Fotó szerkesztések (fényerő stb.)
 - Kötegelt feldolgozás
 - Export beállítások mentése
