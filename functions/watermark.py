@@ -86,8 +86,7 @@ class WaterMarking:
         watermarked = watermarked.convert("RGB")
 
         return watermarked
-    
-    # TODO: Megcsinálni, hogy ha a kép png, akkor maradjon is transparency a kép háttere...
+
     def create_watermark_image(self):
         if self.img.mode != "RGBA":
             self.img = self.img.convert("RGBA")
@@ -96,9 +95,12 @@ class WaterMarking:
 
         watermark_image = Image.open(self.watermark_image)
         watermark_image_png = watermark_image.convert("RGBA")
-        watermark_image_png= ImageOps.fit(
-                watermark_image_png, SIZE, method=Image.Resampling.LANCZOS, centering=(0.5, 0.5)
-            )
+        watermark_image_png = ImageOps.fit(
+            watermark_image_png,
+            SIZE,
+            method=Image.Resampling.LANCZOS,
+            centering=(0.5, 0.5),
+        )
 
         x, y = self.position
         if type(x) == str and type(y) == str:
@@ -118,7 +120,7 @@ class WaterMarking:
 
         image_position = (int(x), int(y))
         test = self.img.copy()
-        test.paste(watermark_image_png, image_position)
+        test.paste(watermark_image_png, image_position, mask=watermark_image_png)
         test.show()
 
         return self.img
