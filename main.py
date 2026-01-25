@@ -14,7 +14,7 @@ from dependencies import CAPTIONS_SAMPLES
 
 register_heif_opener()
 
-# TODO: Mai feladatok: Watermark: Saját logó/szöveg feltöltés
+# TODO: Mai feladatok: Watermark: Saját logó feltöltés
 
 image_error = []
 
@@ -29,7 +29,8 @@ user_requests = [
         "instagram_caption": f"Ez nagyon komoly kép lesz!\n[Model]",
         "watermark_text": "LAJOSKÉRI",
         "watermark_opacity": 1,
-        "watermark_position": ["CENTER", "BOTTOM"],
+        "watermark_image": "imgs/teszt.png",
+        "watermark_position": ["RIGHT", "BOTTOM"],
         "image_path": "imgs/kep.jpeg",
         "sample_size_id": 2,
         "border_size": 20,
@@ -54,6 +55,7 @@ def main():
                     "instagram_caption": user_request["instagram_caption"],
                     "watermark": user_request["watermark"],
                     "watermark_text": user_request["watermark_text"],
+                    "watermark_image": user_request["watermark_image"],
                     "watermark_opacity": user_request["watermark_opacity"],
                     "watermark_position": user_request["watermark_position"],
                     "border": user_request["border"],
@@ -126,9 +128,14 @@ def main():
                             image=image,
                             text=str(user_request["watermark_text"]),
                             position=user_request["watermark_position"],
+                            watermark_image=user_request["watermark_image"],
                             text_opacity=user_request["watermark_opacity"],
                         )
-                        image = watermark_img.create_watermark()
+                        
+                        if(len(user_request["watermark_image"]) > 0 ):
+                            image = watermark_img.create_watermark_image()
+                        else:
+                            image = watermark_img.create_watermark()
 
                     image.info["exif"] = exif_bytes
 
