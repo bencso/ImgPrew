@@ -82,7 +82,6 @@ class WaterMarking:
         draw.text(text_position, text, font=font, fill=font_color)
 
         watermarked = Image.alpha_composite(self.img, txt_layer)
-
         watermarked = watermarked.convert("RGB")
 
         return watermarked
@@ -92,7 +91,6 @@ class WaterMarking:
             self.img = self.img.convert("RGBA")
 
         SIZE = (300, 300)
-
         watermark_image = Image.open(self.watermark_image)
         watermark_image_png = watermark_image.convert("RGBA")
         watermark_image_png = ImageOps.fit(
@@ -119,8 +117,8 @@ class WaterMarking:
                 y = (self.img.height / 2) - (watermark_image_png.height / 2)
 
         image_position = (int(x), int(y))
-        test = self.img.copy()
-        test.paste(watermark_image_png, image_position, mask=watermark_image_png)
-        test.show()
+        
+        self.img.paste(watermark_image_png, image_position, mask=watermark_image_png)
+        self.img.show()
 
         return self.img

@@ -3,7 +3,7 @@ from typing import Optional
 from dependencies import SOCIAL_IMAGES_SIZES
 import os
 
-
+# TODO: Azt megcsinálni, hogy majd be lehessen állítani hogy mi legyen középen (centering-gel kell majd játszadozni)
 class ResizeImg:
     def __init__(
         self,
