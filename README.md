@@ -20,10 +20,6 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
 - ✅ Beállítások formázása Instagram captionhöz
 - ✅ Egyedi caption sablonok (elérhető lesz amikor lesz DB a kezelése megvan)
 - ✅ Instagram formátum optimalizálás (1:1, 4:5, 9:16)
-
-### Tervezett funkciók
-
-- Vizuális fotógaléria kiválasztással (FRONTEND)
 - ✅ Kiválasztható mely EXIF mezők jelenjenek meg (✅ BACKEND -> FRONTEND)
 - Testreszabható vízjel elhelyezés (FRONTEND/  ✅ BACKEND)
   - ✅ Pozíció (sarkok, középen, egyedi)
@@ -32,10 +28,14 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
   - ✅ Saját logó/szöveg feltöltés
 - LUT kezelések a képekre
   - Pillow LUT tools
-- Fotó szerkesztések (fényerő stb.)
-- Kötegelt feldolgozás
 - Export beállítások mentése
   - Végén: hasheléses módszerrel tárolhatjuk, és ezeket meg lehet osztani is majd akár
+
+### Tervezett funkciók
+
+- Vizuális fotógaléria kiválasztással (FRONTEND)
+- Fotó szerkesztések (fényerő stb.)
+- Kötegelt feldolgozás
 - Előtte/Utána előnézet csúszka (FRONTEND)
 
 ### Jövőbeli ötletek
