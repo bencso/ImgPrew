@@ -11,9 +11,8 @@ from functions.caption_generator import CaptionGenerator
 from classes.queueitem import QueueItem
 from PIL import Image
 from dependencies import CAPTIONS_SAMPLES
-from geopy.geocoders import Nominatim
-from io import BytesIO
 import piexif
+import re
 
 register_heif_opener()
 
@@ -34,12 +33,17 @@ user_requests = [
         "watermark_opacity": 1,
         "watermark_image": "imgs/teszt.png",
         "watermark_position": ["RIGHT", "BOTTOM"],
-        "image_path": "imgs/IMG_1839.HEIC",
+        "image_path": "imgs/IMG_1840.jpg",
         "sample_size_id": 2,
         "border_size": 20,
         "allowed_infos": [],
-        "get_exif_datas": ["GPSLatitude", "GPSLongitude"],
-        "output_extension": "jpeg",
+        "get_exif_datas": [
+            "GPSLatitude",
+            "GPSLongitude",
+            "GPSLongitudeRef",
+            "GPSLatitudeRef",
+        ],
+        "output_extension": "",
     }
 ]
 
@@ -85,24 +89,77 @@ def main():
                     continue
 
                 with Image.open(item.image_src) as img:
-                    s = BytesIO()
-                    img.save(s, format="JPEG", exif=img.info.get("exif"))
-                    s.seek(0)
-
-                    exif = piexif.load(s.getvalue())
-                    exif_bytes_default = piexif.dump(exif)
-                    image = img
+                    exif_bytes = img.info.get("exif")
+                    if exif_bytes:
+                        exif_dict = piexif.load(exif_bytes)
+                        exif_bytes_default = piexif.dump(exif_dict)
+                    else:
+                        exif_dict = {}
+                        exif_bytes_default = None
+                    image = img.copy()
 
                     # Exif adat kinyerés
                     if item.get_exif is True or item.caption_generate is True:
                         exif_info_class = GetExifData(
                             image=image, image_data=user_request["get_exif_datas"]
                         )
+                        
                         exif_info = exif_info_class.get_info()
-                        # piexif.GPSIFD.GPSLongitude = ((degrees, 1), (minutes, 1), (seconds, 10000)).
-                        # piexif.GPSIFD.GPSLongitudeRef = 'E' (east) / 'W' (west)
-                        # TODO: Ezt kell majd átalakítani normális koordinátára utánanézni hogy lehet ezt
-                        print(exif)
+                        # TODO: Ezeket áttenni külön funkcióba, és megcsinálni egy térképes megjelenítésre alkalmas teszt felületet
+                        #? piexif.GPSIFD.GPSLongitude = ((degrees, 1), (minutes, 1), (seconds, 10000)).
+                        #? piexif.GPSIFD.GPSLongitudeRef = 'E' (east) / 'W' (west)
+                        #!   40/1   → 40 fok
+                        #!   95/1   → 95 perc => 60 perc = 1 fok
+                        #!   940/1000 → 0.94 másodperc => 3600 másodperc = 1 fok
+                        #!   S / W -> negatív előjel
+                        gpslong = exif_info["GPSLongitude"][1:-1]
+                        gpslong_r = (
+                            str(exif_info["GPSLongitudeRef"]).strip("b'").strip("")
+                        )
+                        gpslong_parts = []
+                        for part in re.split(r"\),\s*\(", gpslong):
+                            gpslong_parts.append(
+                                [
+                                    item.strip()
+                                    for item in part.strip("()").strip().split(",")
+                                ]
+                            )
+                        [d, m, s] = gpslong_parts
+                        d_val = float(d[0]) / float(d[1])
+                        m_val = float(m[0]) / float(m[1])
+                        s_val = float(s[0]) / float(s[1])
+                        long = d_val + m_val + s_val
+                        if gpslong_r == "S" or gpslong_r == "W":
+                            long = -long
+
+                        gpslat = exif_info["GPSLatitude"][1:-1]
+                        gpslat_r = (
+                            str(exif_info["GPSLatitudeRef"]).strip("b'").strip("")
+                        )
+                        gpslat_parts = []
+                        for part in re.split(r"\),\s*\(", gpslat):
+                            gpslat_parts.append(
+                                [
+                                    item.strip()
+                                    for item in part.strip("()").strip().split(",")
+                                ]
+                            )
+                        [d, m, s] = gpslat_parts
+                        d_val = float(d[0]) / float(d[1])
+                        m_val = float(m[0]) / float(m[1])
+                        s_val = float(s[0]) / float(s[1])
+                        lat = d_val + m_val + s_val
+                        if gpslat_r == "S" or gpslat_r == "W":
+                            lat = -lat
+
+                        print(
+                            f"{int(float(d[0])/float(d[1]))}° {int(float(m[0])/float(m[1]))}' {float(s[0])/float(s[1]):.2f}\" {gpslat_r}"
+                        )
+                        print(
+                            f"{int(float(gpslong_parts[0][0])/float(gpslong_parts[0][1]))}° {int(float(gpslong_parts[1][0])/float(gpslong_parts[1][1]))}' {float(gpslong_parts[2][0])/float(gpslong_parts[2][1]):.2f}\" {gpslong_r}"
+                        )
+
+                        print(f"lat:{lat} long: {long}")
 
                     # Caption generálás
                     if item.caption_generate is True:
@@ -153,12 +210,11 @@ def main():
                         else:
                             image = watermark_img.create_watermark()
 
-                    image.info["exif"] = exif_bytes_default
-
                     # Képkonvertálás
                     convert_image = ConvertExtensionImage(
                         image_path=image_src,
                         image=image,
+                        exif_data=exif_dict,
                         output_extension=user_request["output_extension"],
                         allowed_infos=user_request["allowed_infos"],
                     )
@@ -169,12 +225,12 @@ def main():
                         c_image = result_convert["img"]
                         c_exif = result_convert["exif"]
                         c_file = result_convert["filename"]
-                        if c_exif is None:
-                            c_image.save(image_src)
-                        else:
+                        if c_exif:
                             c_image.save(c_file, exif=c_exif)
+                        else:
+                            c_image.save(c_file)
                     else:
-                        if exif is None:
+                        if exif_bytes_default is None:
                             image.save(image_src)
                         else:
                             image.save(image_src, exif=exif_bytes_default)

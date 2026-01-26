@@ -9,7 +9,7 @@ class GetExifData:
 
     def __init__(
         self,
-        image: Image.Image,
+        image: Image.Image, 
         image_data: Optional[
             List[EXIF_TAG_NAMES_LIST]  # pyright: ignore[reportInvalidTypeForm]
         ] = None,
@@ -18,16 +18,21 @@ class GetExifData:
         self.image_datas = (
             image_data if image_data and len(image_data) > 0 else EXIF_TAG_NAMES_LIST
         )
-        self.exif_data = self.get_exif_datas(self.img)
+        self.exif_data = self.get_exif_datas()
 
-    def get_exif_datas(self, img: ImageFile) -> dict | None:
+    def get_exif_datas(self) -> dict | None:
         exif_datas = {}
         try:
-            exif = piexif.load(self.img.getvalue())
+            exif_bytes = self.img.info.get("exif")
+            print(exif_bytes)
+            if exif_bytes:
+                exif_dict = piexif.load(exif_bytes)
+            else:
+                pass
             for ifd in ("0th", "Exif", "GPS", "1st"):
-                for tag in exif[ifd]:
+                for tag in exif_dict[ifd]:
                     tag_name = piexif.TAGS[ifd][tag]["name"]
-                    exif_datas[tag_name] = {"key": tag, "value": exif[ifd][tag]}
+                    exif_datas[tag_name] = {"key": tag, "value": exif_dict[ifd][tag]}
             return exif_datas
         except:
             return None

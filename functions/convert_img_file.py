@@ -1,7 +1,8 @@
-from PIL import Image, ImageFile
+from PIL import Image
 import os
 from dependencies import EXIF_TAG_NAMES_LIST, IMAGE_EXTENSIONS
 from functions.get_exif_data import GetExifData
+import piexif
 
 
 class ConvertExtensionImage:
@@ -10,6 +11,7 @@ class ConvertExtensionImage:
         image_path: str,
         image: Image.Image,
         output_extension: IMAGE_EXTENSIONS,  # pyright: ignore[reportInvalidTypeForm]
+        exif_data: any,
         allowed_infos: list[
             EXIF_TAG_NAMES_LIST  # pyright: ignore[reportInvalidTypeForm]
         ],
@@ -27,26 +29,24 @@ class ConvertExtensionImage:
         self.f_name = f_name
         self.f_ext = f_ext
 
-        self.output_extension = output_extension
-
-        if output_extension is None:
-            self.output_extension = f_ext
+        self.output_extension = f_ext if output_extension is None else output_extension
+        self.exif_data = exif_data
 
     def convert_image(self) -> dict | None:
-
         try:
-            exif = GetExifData(image=self.image).get_exif_datas(self.image)
-            exif_data = None
-
-            if exif:
+            exif_bytes = None
+            if self.exif_data:
                 allowed_set = set(self.allowed_info)
-                exif_data = self.image.getexif()
-                filtered_exif = Image.Exif()
-                for tag_name, value in exif.items():
-                    key = value["key"]
-                    if tag_name in allowed_set and key in exif_data:
-                        exif_data[key] = value["value"]
-                exif_data = filtered_exif
+                filtered_exif = {}
+                for ifd in ("0th", "Exif", "GPS", "1st"):
+                    filtered_exif[ifd] = {}
+                    for tag in self.exif_data.get(ifd, {}):
+                        tag_name = piexif.TAGS[ifd][tag]["name"]
+                        if tag_name in allowed_set:
+                            filtered_exif[ifd][tag] = self.exif_data[ifd][tag]
+                for ifd in ("thumbnail",):
+                    filtered_exif[ifd] = self.exif_data.get(ifd, None)
+                exif_bytes = piexif.dump(filtered_exif)
 
             if self.output_extension.lower() in ["jpg", "jpeg"]:
                 if self.image.mode in ("RGBA", "LA", "P"):
@@ -61,7 +61,7 @@ class ConvertExtensionImage:
             return {
                 "img": self.image,
                 "filename": f"{self.f_name}.{ext}",
-                "exif": exif_data.tobytes() if exif_data else None,
+                "exif": exif_bytes,
             }
         except Exception as e:
             print(f"HIBA: {e}")
