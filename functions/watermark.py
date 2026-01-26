@@ -119,6 +119,5 @@ class WaterMarking:
         image_position = (int(x), int(y))
         
         self.img.paste(watermark_image_png, image_position, mask=watermark_image_png)
-        self.img.show()
 
         return self.img

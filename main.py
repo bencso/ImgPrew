@@ -20,9 +20,9 @@ image_error = []
 
 user_requests = [
     {
-        "get_exif": False,
+        "get_exif": True,
         "resize_img": False,
-        "watermark": True,
+        "watermark": False,
         "border": False,
         "caption_generate": False,
         "caption_generate_id": None,
@@ -31,12 +31,12 @@ user_requests = [
         "watermark_opacity": 1,
         "watermark_image": "imgs/teszt.png",
         "watermark_position": ["RIGHT", "BOTTOM"],
-        "image_path": "imgs/kep.jpeg",
+        "image_path": "imgs/IMG_1838 2.HEIC",
         "sample_size_id": 2,
         "border_size": 20,
-        "allowed_infos": ["FNumber", "Model"],
-        "get_exif_datas": ["FNumber", "Model"],
-        "output_extension": "jpg",
+        "allowed_infos": [],
+        "get_exif_datas": [],
+        "output_extension": "jpeg",
     }
 ]
 
@@ -86,12 +86,14 @@ def main():
                     exif = image.getexif()
                     exif_bytes = exif.tobytes() if exif else None
 
+                    # Exif adat kinyerés
                     if item.get_exif is True or item.caption_generate is True:
                         exif_info_class = GetExifData(
                             image=image, image_data=user_request["get_exif_datas"]
                         )
                         exif_info = exif_info_class.get_info()
 
+                    # Caption generálás
                     if item.caption_generate is True:
                         if user_request["caption_generate_id"] is None:
                             instagram_caption = user_request["instagram_caption"]
@@ -108,6 +110,7 @@ def main():
                         ).generate()
                         print(caption)
 
+                    # Kép átméretezés
                     if item.resize_img is True:
                         resize_img = ResizeImg(
                             image=image,
@@ -115,6 +118,7 @@ def main():
                         )
                         image = resize_img.resize_img()
 
+                    # Képkeret hozzáadás
                     if item.border is True:
                         img_with_border = ImageOps.expand(
                             image=image,
@@ -123,6 +127,7 @@ def main():
                         )
                         image = img_with_border
 
+                    # Vízjelezés
                     if item.watermark is True:
                         watermark_img = WaterMarking(
                             image=image,
@@ -131,14 +136,15 @@ def main():
                             watermark_image=user_request["watermark_image"],
                             text_opacity=user_request["watermark_opacity"],
                         )
-                        
-                        if(len(user_request["watermark_image"]) > 0 ):
+
+                        if len(user_request["watermark_image"]) > 0:
                             image = watermark_img.create_watermark_image()
                         else:
                             image = watermark_img.create_watermark()
 
                     image.info["exif"] = exif_bytes
 
+                    # Képkonvertálás
                     convert_image = ConvertExtensionImage(
                         image_path=image_src,
                         image=image,
@@ -165,7 +171,7 @@ def main():
                     image_queue.task_done()
                     pbar.update(1)
         if len(image_error) > 0:
-            print(f"Hiba történt: {str.join(",",image_error)}")
+            print(f"Hiba történt: {str.join(',',image_error)}")
 
 
 if __name__ == "__main__":

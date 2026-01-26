@@ -14,14 +14,15 @@ class GetExifData:
         ] = None,
     ) -> None:
         self.img = image
-        self.image_datas = image_data if image_data is not None else EXIF_TAG_NAMES_LIST
+        self.image_datas = (
+            image_data if image_data and len(image_data) > 0 else EXIF_TAG_NAMES_LIST
+        )
         self.exif_data = self.get_exif_datas(self.img)
 
     def get_exif_datas(self, img: ImageFile) -> dict | None:
         exif_datas = {}
         try:
             exif_data = img.getexif()
-            
             for key, value in exif_data.items():
                 if key in ExifTags.TAGS:
                     tag_name = ExifTags.TAGS[key]
@@ -37,8 +38,8 @@ class GetExifData:
     def get_info(self) -> dict:
         try:
             exif_datas = self.exif_data
-            if exif_datas is None:
-                pass
+            if not exif_datas:
+                return self.image_infos
             for i in exif_datas:
                 if i.lower() in list(map(str.lower, self.image_datas)):
                     value = exif_datas[i]["value"]

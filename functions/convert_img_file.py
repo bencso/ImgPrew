@@ -18,7 +18,7 @@ class ConvertExtensionImage:
 
         self.image = image
         self.image_path = image_path
-        self.allowed_info = allowed_infos
+        self.allowed_info = allowed_infos if allowed_infos and len(allowed_infos.count) > 0 else EXIF_TAG_NAMES_LIST
 
         self.f_name = f_name
         self.f_ext = f_ext
@@ -36,11 +36,13 @@ class ConvertExtensionImage:
 
             if exif:
                 allowed_set = set(self.allowed_info)
-                exif_data = Image.Exif()
+                exif_data = self.image.getexif()
+                filtered_exif = Image.Exif()
                 for tag_name, value in exif.items():
                     key = value["key"]
-                    if tag_name in allowed_set:
-                        exif_data[key] = value["value"]
+                    if tag_name in allowed_set and key in exif_data:
+                        filtered_exif[key] = exif_data[key]
+                exif_data = filtered_exif
 
             if self.output_extension.lower() in ["jpg", "jpeg"]:
                 if self.image.mode in ("RGBA", "LA", "P"):
@@ -55,7 +57,7 @@ class ConvertExtensionImage:
             return {
                 "img": self.image,
                 "filename": f"{self.f_name}.{ext}",
-                "exif": exif_data,
+                "exif": exif_data.tobytes() if exif_data else None,
             }
         except Exception as e:
             print(f"HIBA: {e}")
