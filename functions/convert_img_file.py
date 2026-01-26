@@ -41,7 +41,7 @@ class ConvertExtensionImage:
                 for tag_name, value in exif.items():
                     key = value["key"]
                     if tag_name in allowed_set and key in exif_data:
-                        filtered_exif[key] = exif_data[key]
+                        exif_data[key] = value["value"]
                 exif_data = filtered_exif
 
             if self.output_extension.lower() in ["jpg", "jpeg"]:

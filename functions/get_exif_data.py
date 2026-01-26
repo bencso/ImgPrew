@@ -38,8 +38,8 @@ class GetExifData:
     def get_info(self) -> dict:
         try:
             exif_datas = self.exif_data
-            if not exif_datas:
-                return self.image_infos
+            if exif_datas is None:
+                pass
             for i in exif_datas:
                 if i.lower() in list(map(str.lower, self.image_datas)):
                     value = exif_datas[i]["value"]
