@@ -16,8 +16,6 @@ import re
 
 register_heif_opener()
 
-# TODO: Mai feladatok: Watermark: Saját logó feltöltés
-
 image_error = []
 
 user_requests = [
