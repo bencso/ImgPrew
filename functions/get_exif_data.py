@@ -2,7 +2,6 @@ from PIL import Image, ExifTags, ImageFile
 from dependencies import EXIF_TAG_NAMES_LIST
 from typing import List, Optional
 import piexif
-from io import BytesIO
 
 
 class GetExifData:
@@ -24,10 +23,7 @@ class GetExifData:
     def get_exif_datas(self, img: ImageFile) -> dict | None:
         exif_datas = {}
         try:
-            s = BytesIO()
-            self.img.save(s, format="JPEG", exif=img.info.get("exif"))
-            s.seek(0)
-            exif = piexif.load(s.getvalue())
+            exif = piexif.load(self.img.getvalue())
             for ifd in ("0th", "Exif", "GPS", "1st"):
                 for tag in exif[ifd]:
                     tag_name = piexif.TAGS[ifd][tag]["name"]

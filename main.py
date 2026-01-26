@@ -12,6 +12,8 @@ from classes.queueitem import QueueItem
 from PIL import Image
 from dependencies import CAPTIONS_SAMPLES
 from geopy.geocoders import Nominatim
+from io import BytesIO
+import piexif
 
 register_heif_opener()
 
@@ -82,10 +84,14 @@ def main():
                     pbar.update(1)
                     continue
 
-                with Image.open(item.image_src) as image:
-                    exif_info = None
-                    exif = image.getexif()
-                    exif_bytes = exif.tobytes() if exif else None
+                with Image.open(item.image_src) as img:
+                    s = BytesIO()
+                    img.save(s, format="JPEG", exif=img.info.get("exif"))
+                    s.seek(0)
+
+                    exif = piexif.load(s.getvalue())
+                    exif_bytes_default = piexif.dump(exif)
+                    image = img
 
                     # Exif adat kinyerés
                     if item.get_exif is True or item.caption_generate is True:
@@ -96,10 +102,7 @@ def main():
                         # piexif.GPSIFD.GPSLongitude = ((degrees, 1), (minutes, 1), (seconds, 10000)).
                         # piexif.GPSIFD.GPSLongitudeRef = 'E' (east) / 'W' (west)
                         # TODO: Ezt kell majd átalakítani normális koordinátára utánanézni hogy lehet ezt
-                        lat = exif_info["GPSLatitude"]
-                        long = exif_info["GPSLongitude"]
-
-                        print(lat, long)
+                        print(exif)
 
                     # Caption generálás
                     if item.caption_generate is True:
@@ -150,7 +153,7 @@ def main():
                         else:
                             image = watermark_img.create_watermark()
 
-                    image.info["exif"] = exif_bytes
+                    image.info["exif"] = exif_bytes_default
 
                     # Képkonvertálás
                     convert_image = ConvertExtensionImage(
@@ -171,10 +174,10 @@ def main():
                         else:
                             c_image.save(c_file, exif=c_exif)
                     else:
-                        if exif_bytes is None:
+                        if exif is None:
                             image.save(image_src)
                         else:
-                            image.save(image_src, exif=exif_bytes)
+                            image.save(image_src, exif=exif_bytes_default)
 
                     image_queue.task_done()
                     pbar.update(1)
