@@ -17,6 +17,7 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
   - ISO, rekesz, záridő
   - Fókusztávolság
   - Készítés dátuma
+  - Lokáció
 - ✅ Beállítások formázása Instagram captionhöz
 - ✅ Egyedi caption sablonok (elérhető lesz amikor lesz DB a kezelése megvan)
 - ✅ Instagram formátum optimalizálás (1:1, 4:5, 9:16)
@@ -41,7 +42,7 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
 ### Jövőbeli ötletek
 
 - 📱 Saját Portfolió weboldal létrehozásnak a lehetősége _(Amint elkészült a kép töltheti fel a saját galériájába)_
-- 🗺️ Képek elhelyezése térképen _(hol jártunk, emlékek oldal)_
+- 🗺️ Képek elhelyezése térképen _(hol jártunk, emlékek oldal)_ _(elkezdve, kialakítása folyamatban)_
   - OpenStreetMap és az EXIF adatok _(ha nincs exif adat, manuálisan megadni a helyszínt)_ segítségével helyezhetjük el a térképre emlékeinket/képeinket
 - 🎨 Egyedi presetek
 - 🔗 Közvetlen Instagram/Közösségi oldal API integráció _(feltöltés)_
