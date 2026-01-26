@@ -18,7 +18,11 @@ class ConvertExtensionImage:
 
         self.image = image
         self.image_path = image_path
-        self.allowed_info = allowed_infos if allowed_infos and len(allowed_infos.count) > 0 else EXIF_TAG_NAMES_LIST
+        self.allowed_info = (
+            allowed_infos
+            if allowed_infos and len(allowed_infos.count) > 0
+            else EXIF_TAG_NAMES_LIST
+        )
 
         self.f_name = f_name
         self.f_ext = f_ext
