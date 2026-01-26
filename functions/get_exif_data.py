@@ -1,6 +1,8 @@
 from PIL import Image, ExifTags, ImageFile
 from dependencies import EXIF_TAG_NAMES_LIST
 from typing import List, Optional
+import piexif
+from io import BytesIO
 
 
 class GetExifData:
@@ -22,15 +24,14 @@ class GetExifData:
     def get_exif_datas(self, img: ImageFile) -> dict | None:
         exif_datas = {}
         try:
-            exif_data = img.getexif()
-            for key, value in exif_data.items():
-                if key in ExifTags.TAGS:
-                    tag_name = ExifTags.TAGS[key]
-                    exif_datas[tag_name] = {"key": key, "value": value}
-            # További exif adatok lekérdezése
-            exif_ifd = exif_data.get_ifd(ExifTags.IFD.Exif)
-            for tag, value in exif_ifd.items():
-                exif_datas[ExifTags.TAGS.get(tag)] = {"key": tag, "value": value}
+            s = BytesIO()
+            self.img.save(s, format="JPEG", exif=img.info.get("exif"))
+            s.seek(0)
+            exif = piexif.load(s.getvalue())
+            for ifd in ("0th", "Exif", "GPS", "1st"):
+                for tag in exif[ifd]:
+                    tag_name = piexif.TAGS[ifd][tag]["name"]
+                    exif_datas[tag_name] = {"key": tag, "value": exif[ifd][tag]}
             return exif_datas
         except:
             return None

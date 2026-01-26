@@ -11,6 +11,7 @@ from functions.caption_generator import CaptionGenerator
 from classes.queueitem import QueueItem
 from PIL import Image
 from dependencies import CAPTIONS_SAMPLES
+from geopy.geocoders import Nominatim
 
 register_heif_opener()
 
@@ -31,11 +32,11 @@ user_requests = [
         "watermark_opacity": 1,
         "watermark_image": "imgs/teszt.png",
         "watermark_position": ["RIGHT", "BOTTOM"],
-        "image_path": "imgs/IMG_1838 2.HEIC",
+        "image_path": "imgs/IMG_1839.HEIC",
         "sample_size_id": 2,
         "border_size": 20,
         "allowed_infos": [],
-        "get_exif_datas": [],
+        "get_exif_datas": ["GPSLatitude", "GPSLongitude"],
         "output_extension": "jpeg",
     }
 ]
@@ -92,6 +93,13 @@ def main():
                             image=image, image_data=user_request["get_exif_datas"]
                         )
                         exif_info = exif_info_class.get_info()
+                        # piexif.GPSIFD.GPSLongitude = ((degrees, 1), (minutes, 1), (seconds, 10000)).
+                        # piexif.GPSIFD.GPSLongitudeRef = 'E' (east) / 'W' (west)
+                        # TODO: Ezt kell majd átalakítani normális koordinátára utánanézni hogy lehet ezt
+                        lat = exif_info["GPSLatitude"]
+                        long = exif_info["GPSLongitude"]
+
+                        print(lat, long)
 
                     # Caption generálás
                     if item.caption_generate is True:
