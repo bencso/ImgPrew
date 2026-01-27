@@ -12,8 +12,6 @@ from classes.queueitem import QueueItem
 from PIL import Image
 from dependencies import CAPTIONS_SAMPLES
 import piexif
-import reverse_geocoder
-import re
 
 register_heif_opener()
 
@@ -104,57 +102,7 @@ def main():
                         )
 
                         exif_info = exif_info_class.get_info()
-                        # TODO: Ezeket áttenni külön funkcióba, és megcsinálni egy térképes megjelenítésre alkalmas teszt felületet
-                        # ? piexif.GPSIFD.GPSLongitude = ((degrees, 1), (minutes, 1), (seconds, 10000)).
-                        # ? piexif.GPSIFD.GPSLongitudeRef = 'E' (east) / 'W' (west)
-                        #!   40/1   → 40 fok
-                        #!   95/1   → 95 perc => 60 perc = 1 fok
-                        #!   940/1000 → 0.94 másodperc => 3600 másodperc = 1 fok
-                        #!   S / W -> negatív előjel
-                        gpslong = exif_info["GPSLongitude"][1:-1]
-                        gpslong_r = (
-                            str(exif_info["GPSLongitudeRef"]).strip("b'").strip("")
-                        )
-                        gpslong_parts = []
-                        for part in re.split(r"\),\s*\(", gpslong):
-                            gpslong_parts.append(
-                                [
-                                    item.strip()
-                                    for item in part.strip("()").strip().split(",")
-                                ]
-                            )
-                        [d, m, s] = gpslong_parts
-                        d_val = float(d[0]) / float(d[1])
-                        m_val = float(m[0]) / float(m[1])
-                        s_val = float(s[0]) / float(s[1])
-                        long = d_val + m_val / 60 + s_val / 3600
-                        if gpslong_r == "S" or gpslong_r == "W":
-                            long = -long
-
-                        gpslat = exif_info["GPSLatitude"][1:-1]
-                        gpslat_r = (
-                            str(exif_info["GPSLatitudeRef"]).strip("b'").strip("")
-                        )
-                        gpslat_parts = []
-                        for part in re.split(r"\),\s*\(", gpslat):
-                            gpslat_parts.append(
-                                [
-                                    item.strip()
-                                    for item in part.strip("()").strip().split(",")
-                                ]
-                            )
-                        [d, m, s] = gpslat_parts
-                        d_val = float(d[0]) / float(d[1])
-                        m_val = float(m[0]) / float(m[1])
-                        s_val = float(s[0]) / float(s[1])
-                        lat = d_val + m_val / 60 + s_val / 3600
-                        if gpslat_r == "S" or gpslat_r == "W":
-                            lat = -lat
-
-                        geocoding = reverse_geocoder.search((lat, long))
-                        print(
-                            f"{str(geocoding[0]["name"]).encode().decode("utf-8")} - {geocoding[0]["admin1"]} - {geocoding[0]["cc"]}"
-                        )
+                        print(exif_info)
 
                     # Caption generálás
                     if item.caption_generate is True:

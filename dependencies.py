@@ -11,7 +11,6 @@ EXIF_TAG_NAMES_LIST = [
     "TileWidth",
     "TileLength",
     "ExifTag",
-    "GPSTag",
     "ExposureTime",
     "FNumber",
     "ExposureProgram",
