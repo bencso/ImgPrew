@@ -44,6 +44,7 @@ EXIF_TAG_NAMES_LIST = [
     "LensSpecification",
     "LensMake",
     "LensModel",
+    "GPS",
     "GPSLatitudeRef",
     "GPSLatitude",
     "GPSLongitudeRef",

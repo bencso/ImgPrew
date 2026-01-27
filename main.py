@@ -35,6 +35,7 @@ user_requests = [
         "border_size": 20,
         "allowed_infos": [],
         "get_exif_datas": [
+            "GPS",
             "GPSLatitude",
             "GPSLongitude",
             "GPSLongitudeRef",

@@ -44,8 +44,9 @@ class GetExifData:
             exif_datas = self.exif_data
             if exif_datas is None:
                 pass
+            image_list = list(map(str.lower, self.image_datas))
             for i in exif_datas:
-                if i.lower() in list(map(str.lower, self.image_datas)):
+                if i.lower() in image_list:
                     value = exif_datas[i]["value"]
                     match i:
                         case "FNumber":
@@ -65,10 +66,10 @@ class GetExifData:
                                 self.image_infos[i] = f"1/{round(1 / exposure)}s"
                         case "ISOSpeedRatings":
                             self.image_infos[i] = f"ISO {int(value)}"
-                        case ("GPSLongitude" | "GPSLatitude" | "GPSLongitudeRef" | "GPSLatitudeRef"):
-                            self.image_infos[i] = self.get_location()
                         case _:
                             self.image_infos[i] = f"{value}"
+            if "GPS".lower() in image_list:
+                self.image_infos["GPS"] = self.get_location() or "Ismeretlen"
             return self.image_infos
         except Exception as e:
             print(f"HIBA történt exif adat kinyerés közben: {e}")
@@ -108,4 +109,6 @@ class GetExifData:
             latitude = -latitude
 
         geocoding = reverse_geocoder.search((latitude, longitude))
-        return  f"{geocoding[0]['name']} - {geocoding[0]['admin1']} - {geocoding[0]['cc']}"
+        return (
+            f"{geocoding[0]['name']} - {geocoding[0]['admin1']} - {geocoding[0]['cc']}"
+        )
