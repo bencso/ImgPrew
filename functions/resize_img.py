@@ -4,6 +4,8 @@ from dependencies import SOCIAL_IMAGES_SIZES
 import os
 
 # TODO: Azt megcsinálni, hogy majd be lehessen állítani hogy mi legyen középen (centering-gel kell majd játszadozni)
+# TODO: Ha mondjuk egy álló kép van és extendeődik vizszintesre akkor lehessen ugy is hogy a két oldalán "border" jelenik meg, illetve
+# több ilyen variácót is lehessen hogy ne menjen tönkre a kép, hanem igy is lehessen optimalizálni a méretét a képnek
 class ResizeImg:
     def __init__(
         self,
