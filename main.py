@@ -17,6 +17,7 @@ register_heif_opener()
 
 image_error = []
 
+
 user_requests = [
     {
         "get_exif": True,
@@ -79,6 +80,21 @@ def main():
             while not image_queue.empty():
                 item = image_queue.get()
                 image_src = item.image_src
+
+                # TODO: Folytatni!
+                # TODO: 3D LUT .cube fájlok beolvasása:
+                #   -> ki kell szürni elsőnek a headert (TITLE, LUT_3D_SIZE, DOMAIN_MIN, DOMAIN_MAX, kommentek amik #-el kezdődnek)
+                #   -> minden sor 3 float-ból áll RGB
+                #   -> majd az ImageFilter.Color3DLUT konstruktornak átadni a LUT_3D_SIZE-t, illetve a RGB Táblázatot ami *flat*elve van / vagy tuple (alapból az)
+
+                f = open("luts/PictureFX-Acros-100-II-RedFilter.cube")
+                native_lut = f.read()
+                native_lut_tags = native_lut.split(f"\n\n")
+                lut_dataset = native_lut_tags.pop()
+                lut_size = native_lut_tags.pop()
+                lut_size = int(lut_size.split("\n")[1:][0].split(" ")[1:][0])
+                print(lut_size)
+                print(lut_dataset)
 
                 if not os.path.exists(image_src):
                     image_error.append(image_src)

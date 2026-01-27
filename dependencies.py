@@ -45,13 +45,6 @@ EXIF_TAG_NAMES_LIST = [
     "LensMake",
     "LensModel",
     "GPS",
-    "GPSLatitudeRef",
-    "GPSLatitude",
-    "GPSLongitudeRef",
-    "GPSLongitude",
-    "GPSTimeStamp",
-    "GPSDateStamp",
-    "GPSHPositioningError",
 ]
 
 IMAGE_EXTENSIONS = [
@@ -73,20 +66,10 @@ SOCIAL_IMAGES_SIZES = {
     7: {"platform": "twitter", "type": "square", "width": 1080, "height": 1080},
 }
 
-X_AXIS = [
-    "LEFT",
-    "RIGHT",
-    "CENTER"
-]
+X_AXIS = ["LEFT", "RIGHT", "CENTER"]
 
-Y_AXIS = [
-    "TOP",
-    "BOTTOM",
-    "CENTER"
-]
+Y_AXIS = ["TOP", "BOTTOM", "CENTER"]
 
-CAPTION_REGEX=r"\[.*?\]"
+CAPTION_REGEX = r"\[.*?\]"
 
-CAPTIONS_SAMPLES={
-    "pro": "Camera: [model]\nFNumber: [FNumber]"
-}
+CAPTIONS_SAMPLES = {"pro": "Camera: [model]\nFNumber: [FNumber]"}
