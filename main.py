@@ -12,6 +12,7 @@ from classes.queueitem import QueueItem
 from PIL import Image
 from dependencies import CAPTIONS_SAMPLES
 import piexif
+import reverse_geocoder
 import re
 
 register_heif_opener()
@@ -31,7 +32,7 @@ user_requests = [
         "watermark_opacity": 1,
         "watermark_image": "imgs/teszt.png",
         "watermark_position": ["RIGHT", "BOTTOM"],
-        "image_path": "imgs/IMG_1840.jpg",
+        "image_path": "imgs/IMG_1842.jpg",
         "sample_size_id": 2,
         "border_size": 20,
         "allowed_infos": [],
@@ -101,11 +102,11 @@ def main():
                         exif_info_class = GetExifData(
                             image=image, image_data=user_request["get_exif_datas"]
                         )
-                        
+
                         exif_info = exif_info_class.get_info()
                         # TODO: Ezeket áttenni külön funkcióba, és megcsinálni egy térképes megjelenítésre alkalmas teszt felületet
-                        #? piexif.GPSIFD.GPSLongitude = ((degrees, 1), (minutes, 1), (seconds, 10000)).
-                        #? piexif.GPSIFD.GPSLongitudeRef = 'E' (east) / 'W' (west)
+                        # ? piexif.GPSIFD.GPSLongitude = ((degrees, 1), (minutes, 1), (seconds, 10000)).
+                        # ? piexif.GPSIFD.GPSLongitudeRef = 'E' (east) / 'W' (west)
                         #!   40/1   → 40 fok
                         #!   95/1   → 95 perc => 60 perc = 1 fok
                         #!   940/1000 → 0.94 másodperc => 3600 másodperc = 1 fok
@@ -126,7 +127,7 @@ def main():
                         d_val = float(d[0]) / float(d[1])
                         m_val = float(m[0]) / float(m[1])
                         s_val = float(s[0]) / float(s[1])
-                        long = d_val + m_val + s_val
+                        long = d_val + m_val / 60 + s_val / 3600
                         if gpslong_r == "S" or gpslong_r == "W":
                             long = -long
 
@@ -146,18 +147,14 @@ def main():
                         d_val = float(d[0]) / float(d[1])
                         m_val = float(m[0]) / float(m[1])
                         s_val = float(s[0]) / float(s[1])
-                        lat = d_val + m_val + s_val
+                        lat = d_val + m_val / 60 + s_val / 3600
                         if gpslat_r == "S" or gpslat_r == "W":
                             lat = -lat
 
+                        geocoding = reverse_geocoder.search((lat, long))
                         print(
-                            f"{int(float(d[0])/float(d[1]))}° {int(float(m[0])/float(m[1]))}' {float(s[0])/float(s[1]):.2f}\" {gpslat_r}"
+                            f"{str(geocoding[0]["name"]).encode().decode("utf-8")} - {geocoding[0]["admin1"]} - {geocoding[0]["cc"]}"
                         )
-                        print(
-                            f"{int(float(gpslong_parts[0][0])/float(gpslong_parts[0][1]))}° {int(float(gpslong_parts[1][0])/float(gpslong_parts[1][1]))}' {float(gpslong_parts[2][0])/float(gpslong_parts[2][1]):.2f}\" {gpslong_r}"
-                        )
-
-                        print(f"lat:{lat} long: {long}")
 
                     # Caption generálás
                     if item.caption_generate is True:
