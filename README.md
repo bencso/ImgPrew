@@ -62,7 +62,7 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
 - FastAPI (REST API) _(amennyiben API-ra változtatjuk)_
 - PIL/Pillow (EXIF olvasás)
 - OpenCV (képfeldolgozás, vízjelek)
-- SQLite / PostgreSQL _(még kérdéses, hogy lokalisan tudják a userek futtatni, vagy legyen futtatva, ennek függvényében lesz ez eldöntve)_
+- PostgreSQL
 
 ### Frontend
 
