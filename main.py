@@ -9,9 +9,10 @@ from functions.resize_img import ResizeImg
 from functions.watermark import WaterMarking
 from functions.caption_generator import CaptionGenerator
 from classes.queueitem import QueueItem
-from PIL import Image
+from PIL import Image, ImageFilter
 from dependencies import CAPTIONS_SAMPLES
 import piexif
+import re
 
 register_heif_opener()
 
@@ -20,7 +21,7 @@ image_error = []
 
 user_requests = [
     {
-        "get_exif": True,
+        "get_exif": False,
         "resize_img": False,
         "watermark": False,
         "border": False,
@@ -87,15 +88,6 @@ def main():
                 #   -> minden sor 3 float-ból áll RGB
                 #   -> majd az ImageFilter.Color3DLUT konstruktornak átadni a LUT_3D_SIZE-t, illetve a RGB Táblázatot ami *flat*elve van / vagy tuple (alapból az)
 
-                f = open("luts/PictureFX-Acros-100-II-RedFilter.cube")
-                native_lut = f.read()
-                native_lut_tags = native_lut.split(f"\n\n")
-                lut_dataset = native_lut_tags.pop()
-                lut_size = native_lut_tags.pop()
-                lut_size = int(lut_size.split("\n")[1:][0].split(" ")[1:][0])
-                print(lut_size)
-                print(lut_dataset)
-
                 if not os.path.exists(image_src):
                     image_error.append(image_src)
                     image_queue.task_done()
@@ -137,6 +129,48 @@ def main():
                             instagram_caption=instagram_caption,
                         ).generate()
                         print(caption)
+
+                    # LUT
+                    if item.lut is True:
+                        with open(user_request.get("lut_path")) as f:
+                            native_lut = f.read()
+
+                            LUT_SIZE_REGEX = r"^LUT_3D_SIZE\s+(\d+)"
+                            LUT_DATA_REGEX = r"^#LUT data points\s"
+
+                            lut_size_match = re.search(
+                                LUT_SIZE_REGEX, native_lut, re.MULTILINE
+                            )
+                            lut_size = (
+                                int(lut_size_match.group(1)) if lut_size_match else None
+                            )
+                            lut_data_match = re.search(
+                                LUT_DATA_REGEX, native_lut, re.MULTILINE
+                            )
+
+                            if lut_data_match:
+                                lut_data_index = lut_data_match.start()
+                                lut_lines = native_lut[lut_data_index:].splitlines()
+                                if lut_lines and lut_lines[0].startswith(
+                                    "#LUT data points"
+                                ):
+                                    lut_lines = lut_lines[1:]
+                                if lut_size is not None:
+                                    lut_table = []
+                                    for line in lut_lines:
+                                        line = line.strip()
+                                        if not line:
+                                            continue
+                                        if len(lut_table) < lut_size**3:
+                                            parts = line.strip().split()
+                                            if len(parts) == 3:
+                                                r, g, b = map(float, parts)
+                                                lut_table.append((r, g, b))
+                            else:
+                                pass
+
+                            lut = ImageFilter.Color3DLUT(lut_size, lut_table)
+                            image = image.filter(lut)
 
                     # Kép átméretezés
                     if item.resize_img is True:
