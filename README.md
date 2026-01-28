@@ -1,6 +1,9 @@
 # ImgPrew 📸
 
-> Fotó előkészítő eszköz fotósoknak - EXIF adatok kinyerés, vízjel hozzáadás, és képek felkészítése közösségi médiára stílusosan, akár képek feltöltése.
+> Fotó workflow eszköz fotósoknak - EXIF adatok kinyerés, vízjel hozzáadás, és képek felkészítése közösségi médiára stílusosan.
+
+> [!important]
+> Fontos, ezzel az alkalmazással nem fogsz tudni kiváltani egy PROFI képszerkesztőt (mint például a Lightroom), de fotóidat, vagy szerkesztett képeidet fel tudod készíteni a közösségi médiára való feltöltésre.
 
 ## 🎯 Projekt célja
 
@@ -10,7 +13,7 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
 
 ### MVP
 
-- ✅ Több fotó feltöltése (JPG, PNG, HEIC támogatás)
+- ✅ Több fotó feltöltése (`JPG`, `PNG`, `HEIC` támogatás)
 - ✅ Automatikus EXIF adat kinyerés
   - Kamera típus és gyártó
   - Objektív információk
@@ -21,16 +24,17 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
 - ✅ Beállítások formázása Instagram captionhöz
 - ✅ Egyedi caption sablonok (elérhető lesz amikor lesz DB a kezelése megvan)
 - ✅ Instagram formátum optimalizálás (1:1, 4:5, 9:16)
-- ✅ Kiválasztható mely EXIF mezők jelenjenek meg (✅ BACKEND -> FRONTEND)
-- Testreszabható vízjel elhelyezés (FRONTEND/ ✅ BACKEND)
+- ✅ Kiválasztható mely EXIF mezők jelenjenek meg
+- ✅ Testreszabható vízjel elhelyezés
   - ✅ Pozíció (sarkok, középen, egyedi)
   - ✅ Átlátszóság beállítás
   - ✅ Méret módosítás
   - ✅ Saját logó/szöveg feltöltés
 - LUT kezelések a képekre *(folyamatban)*
-  - Pillow LUT tools
+  - `.cube` kiterjesztés ✅
 - Export beállítások mentése
-  - Végén: hasheléses módszerrel tárolhatjuk, és ezeket meg lehet osztani is majd akár
+  - **Müködési elv tervezete:** Beadjuk a hasht hogy ezt a beállítást melyik képekre szeretnénk, és a kiválaszott képeket a beállítás alapján elkészíti
+  - **Megj.:** hasheléses módszerrel tárolhatjuk, és ezeket meg lehet osztani is majd akár.
 
 ### Tervezett funkciók
 
@@ -45,6 +49,7 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
 - 🗺️ Képek elhelyezése térképen _(hol jártunk, emlékek oldal)_ _(elkezdve, kialakítása folyamatban)_
   - OpenStreetMap és az EXIF adatok _(ha nincs exif adat, manuálisan megadni a helyszínt)_ segítségével helyezhetjük el a térképre emlékeinket/képeinket
 - 🎨 Egyedi presetek
+- 🖼️ Nagyobb képszerkesztési funkciók bevezetése (Curves, Masking, ...) - amelyeket nagyobb képszerkesztő alkalmazások is tudnak
 - 🔗 Közvetlen Instagram/Közösségi oldal API integráció _(feltöltés)_
   -> _META API általi korlátozás:_ csak Business Account-os felhasználók tudnak postolást végezni API-n keresztül
   -> Pinterest (?)
@@ -57,7 +62,7 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
 - FastAPI (REST API) _(amennyiben API-ra változtatjuk)_
 - PIL/Pillow (EXIF olvasás)
 - OpenCV (képfeldolgozás, vízjelek)
-- SQLite / PostgreSQL _(még kérdéses, hogy lokalisan tudják a userek futtatni, vagy legyen futtatva, ennek függvényében lesz ez eldöntve)_
+- PostgreSQL
 
 ### Frontend
 
