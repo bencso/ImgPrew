@@ -33,7 +33,8 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
 - LUT kezelések a képekre *(folyamatban)*
   - .cube kiterjesztés ✅
 - Export beállítások mentése
-  - Végén: hasheléses módszerrel tárolhatjuk, és ezeket meg lehet osztani is majd akár
+  - **Müködési elv tervezete:** Beadjuk a hasht hogy ezt a beállítást melyik képekre szeretnénk, és a kiválaszott képeket a beállítás alapján elkészíti
+  - **Megj.:** hasheléses módszerrel tárolhatjuk, és ezeket meg lehet osztani is majd akár.
 
 ### Tervezett funkciók
 
