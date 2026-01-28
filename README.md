@@ -1,6 +1,8 @@
 # ImgPrew 📸
 
-> Fotó előkészítő eszköz fotósoknak - EXIF adatok kinyerés, vízjel hozzáadás, és képek felkészítése közösségi médiára stílusosan, akár képek feltöltése.
+> Fotó "előkészítő" eszköz fotósoknak - EXIF adatok kinyerés, vízjel hozzáadás, és képek felkészítése közösségi médiára stílusosan.
+
+[!NOTE] Fontos, ezzel az alkalmazással nem fogod tudni kiváltani egy Profi képszerkesztő funkcióit (mint például a Lightroom), de fotóidat, vagy szerkesztett képeidet fel tudod készíteni a közösségi médiára való feltöltésre.
 
 ## 🎯 Projekt célja
 
