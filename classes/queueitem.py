@@ -1,5 +1,5 @@
 class QueueItem:
-    ALLOWED_FEATURES = {"convert_img", "get_exif", "resize_img","watermark", "border","caption_generate"}
+    ALLOWED_FEATURES = {"convert_img", "get_exif", "resize_img","watermark", "border","caption_generate", "lut"}
 
     image_src: str
 
