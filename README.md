@@ -13,7 +13,7 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
 
 ### MVP
 
-- ✅ Több fotó feltöltése (JPG, PNG, HEIC támogatás)
+- ✅ Több fotó feltöltése (`JPG`, `PNG`, `HEIC` támogatás)
 - ✅ Automatikus EXIF adat kinyerés
   - Kamera típus és gyártó
   - Objektív információk
@@ -24,14 +24,14 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
 - ✅ Beállítások formázása Instagram captionhöz
 - ✅ Egyedi caption sablonok (elérhető lesz amikor lesz DB a kezelése megvan)
 - ✅ Instagram formátum optimalizálás (1:1, 4:5, 9:16)
-- ✅ Kiválasztható mely EXIF mezők jelenjenek meg (✅ BACKEND -> FRONTEND)
-- Testreszabható vízjel elhelyezés (FRONTEND/ ✅ BACKEND)
+- ✅ Kiválasztható mely EXIF mezők jelenjenek meg
+- ✅ Testreszabható vízjel elhelyezés
   - ✅ Pozíció (sarkok, középen, egyedi)
   - ✅ Átlátszóság beállítás
   - ✅ Méret módosítás
   - ✅ Saját logó/szöveg feltöltés
 - LUT kezelések a képekre *(folyamatban)*
-  - .cube kiterjesztés ✅
+  - `.cube` kiterjesztés ✅
 - Export beállítások mentése
   - **Müködési elv tervezete:** Beadjuk a hasht hogy ezt a beállítást melyik képekre szeretnénk, és a kiválaszott képeket a beállítás alapján elkészíti
   - **Megj.:** hasheléses módszerrel tárolhatjuk, és ezeket meg lehet osztani is majd akár.
