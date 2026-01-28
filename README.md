@@ -31,7 +31,7 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
   - ✅ Méret módosítás
   - ✅ Saját logó/szöveg feltöltés
 - LUT kezelések a képekre *(folyamatban)*
-  - Pillow LUT tools
+  - .cube kiterjesztés ✅
 - Export beállítások mentése
   - Végén: hasheléses módszerrel tárolhatjuk, és ezeket meg lehet osztani is majd akár
 
