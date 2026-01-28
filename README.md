@@ -2,7 +2,7 @@
 
 > Fotó workflow eszköz fotósoknak - EXIF adatok kinyerés, vízjel hozzáadás, és képek felkészítése közösségi médiára stílusosan.
 
-> [!NOTE]
+> [!important]
 > Fontos, ezzel az alkalmazással nem fogsz tudni kiváltani egy PROFI képszerkesztőt (mint például a Lightroom), de fotóidat, vagy szerkesztett képeidet fel tudod készíteni a közösségi médiára való feltöltésre.
 
 ## 🎯 Projekt célja
