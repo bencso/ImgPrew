@@ -3,7 +3,7 @@
 > Fotó "előkészítő" eszköz fotósoknak - EXIF adatok kinyerés, vízjel hozzáadás, és képek felkészítése közösségi médiára stílusosan.
 
 > [!NOTE]
-> Fontos, ezzel az alkalmazással nem fogod tudni kiváltani egy Profi képszerkesztő funkcióit (mint például a Lightroom), de fotóidat, vagy szerkesztett képeidet fel tudod készíteni a közösségi médiára való feltöltésre.
+> Fontos, ezzel az alkalmazással nem fogsz tudni kiváltani egy PROFI képszerkesztőt (mint például a Lightroom), de fotóidat, vagy szerkesztett képeidet fel tudod készíteni a közösségi médiára való feltöltésre.
 
 ## 🎯 Projekt célja
 
