@@ -48,6 +48,7 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
 - 🗺️ Képek elhelyezése térképen _(hol jártunk, emlékek oldal)_ _(elkezdve, kialakítása folyamatban)_
   - OpenStreetMap és az EXIF adatok _(ha nincs exif adat, manuálisan megadni a helyszínt)_ segítségével helyezhetjük el a térképre emlékeinket/képeinket
 - 🎨 Egyedi presetek
+- 🖼️ Nagyobb képszerkesztési funkciók bevezetése (Curves, Masking, ...) - amelyeket nagyobb képszerkesztő alkalmazások is tudnak
 - 🔗 Közvetlen Instagram/Közösségi oldal API integráció _(feltöltés)_
   -> _META API általi korlátozás:_ csak Business Account-os felhasználók tudnak postolást végezni API-n keresztül
   -> Pinterest (?)
