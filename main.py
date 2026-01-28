@@ -21,22 +21,29 @@ image_error = []
 
 user_requests = [
     {
+        "image_path": "imgs/pexels-anete-lusina-4792478.jpg",
+        #############################################
         "get_exif": False,
         "resize_img": False,
         "watermark": False,
         "border": False,
         "caption_generate": False,
-        "lut": False,
-        "caption_generate_id": None,
+        "lut": True,
+        #############################################
         "instagram_caption": f"Ez nagyon komoly kép lesz!\n[Model]",
+        "caption_generate_id": None,
+        #############################################
+        "watermark_position": ["RIGHT", "BOTTOM"],
         "watermark_text": "LAJOSKÉRI",
         "watermark_opacity": 1,
-        "watermark_image": "imgs/teszt.png",
-        "watermark_position": ["RIGHT", "BOTTOM"],
-        "image_path": "imgs/IMG_1842.jpg",
+        "watermark_image": "imgs/pexels-anete-lusina-4792478.jpg",
+        #############################################
         "sample_size_id": 2,
+        #############################################
         "border_size": 20,
+        #############################################
         "lut_path": "luts/PictureFX-Acros-100-II-RedFilter.cube",
+        #############################################
         "allowed_infos": [],
         "get_exif_datas": [
             "GPS",
@@ -45,6 +52,7 @@ user_requests = [
             "GPSLongitudeRef",
             "GPSLatitudeRef",
         ],
+        #############################################
         "output_extension": "",
     }
 ]
@@ -134,7 +142,7 @@ def main():
                             native_lut = f.read()
 
                             LUT_SIZE_REGEX = r"^LUT_3D_SIZE\s+(\d+)"
-                            LUT_DATA_REGEX = r"^#LUT data points\s"
+                            LUT_DATA_REGEX = r"^\s*-?\d+\.\d+\s+-?\d+\.\d+\s+-?\d+\.\d+"
 
                             lut_size_match = re.search(
                                 LUT_SIZE_REGEX, native_lut, re.MULTILINE
@@ -149,12 +157,6 @@ def main():
                             if lut_data_match:
                                 lut_data_index = lut_data_match.start()
                                 lut_lines = native_lut[lut_data_index:].splitlines()
-                                # TODO: ITT MAJD LEHETNE EZT PONTOSABBAN MI VAN AKKOR HA NEM IGY KEZDŐDIK , 
-                                # regexet rá, hogyha 1.000 1.00 1.000 sorral kezdődik valami onnantól nézni
-                                if lut_lines and lut_lines[0].startswith(
-                                    "#LUT data points"
-                                ):
-                                    lut_lines = lut_lines[1:]
                                 if lut_size is not None:
                                     lut_table = []
                                     for line in lut_lines:
@@ -166,8 +168,8 @@ def main():
                                             if len(parts) == 3:
                                                 r, g, b = map(float, parts)
                                                 lut_table.append((r, g, b))
-                            else:
-                                pass
+                                else:
+                                    pass
 
                             lut = ImageFilter.Color3DLUT(lut_size, lut_table)
                             image = image.filter(lut)
