@@ -86,12 +86,6 @@ def main():
                 item = image_queue.get()
                 image_src = item.image_src
 
-                # TODO: Folytatni!
-                # TODO: 3D LUT .cube fájlok beolvasása:
-                #   -> ki kell szürni elsőnek a headert (TITLE, LUT_3D_SIZE, DOMAIN_MIN, DOMAIN_MAX, kommentek amik #-el kezdődnek)
-                #   -> minden sor 3 float-ból áll RGB
-                #   -> majd az ImageFilter.Color3DLUT konstruktornak átadni a LUT_3D_SIZE-t, illetve a RGB Táblázatot ami *flat*elve van / vagy tuple (alapból az)
-
                 if not os.path.exists(image_src):
                     image_error.append(image_src)
                     image_queue.task_done()
@@ -155,6 +149,8 @@ def main():
                             if lut_data_match:
                                 lut_data_index = lut_data_match.start()
                                 lut_lines = native_lut[lut_data_index:].splitlines()
+                                # TODO: ITT MAJD LEHETNE EZT PONTOSABBAN MI VAN AKKOR HA NEM IGY KEZDŐDIK , 
+                                # regexet rá, hogyha 1.000 1.00 1.000 sorral kezdődik valami onnantól nézni
                                 if lut_lines and lut_lines[0].startswith(
                                     "#LUT data points"
                                 ):
