@@ -16,3 +16,12 @@ class CaptionGenerator:
             if key_pattern in keys:
                 caption = caption.replace(x, self.exif_info[key_pattern])
         return caption
+
+    def getKeys(self):
+        keys = []
+        caption = self.instagram_caption
+        keys_check_pattern = re.compile(CAPTION_REGEX, re.IGNORECASE)
+        for x in keys_check_pattern.findall(caption):
+            key_pattern = x[1:][:-1]
+            keys.append(key_pattern)
+        return keys

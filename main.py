@@ -10,7 +10,7 @@ from functions.watermark import WaterMarking
 from functions.caption_generator import CaptionGenerator
 from classes.queueitem import QueueItem
 from PIL import Image, ImageFilter
-from dependencies import CAPTIONS_SAMPLES
+from dependencies import CAPTIONS_SAMPLES, LUT_SIZE_REGEX, LUT_DATA_REGEX
 import piexif
 import re
 
@@ -21,16 +21,16 @@ image_error = []
 
 user_requests = [
     {
-        "image_path": "imgs/pexels-anete-lusina-4792478.jpg",
+        "image_path": "imgs/IMG_1840.jpg",
         #############################################
         "get_exif": False,
         "resize_img": False,
         "watermark": False,
         "border": False,
-        "caption_generate": False,
-        "lut": True,
+        "caption_generate": True,
+        "lut": False,
         #############################################
-        "instagram_caption": f"Ez nagyon komoly kép lesz!\n[Model]",
+        "instagram_caption": f"📸 [Model] | ƒ/[FNumber] | ⏱ [ExposureTime]s | 📍 [GPS]",
         "caption_generate_id": None,
         #############################################
         "watermark_position": ["RIGHT", "BOTTOM"],
@@ -46,6 +46,9 @@ user_requests = [
         #############################################
         "allowed_infos": [],
         "get_exif_datas": [
+            "Model",
+            "FNumber",
+            "ExposureTime",
             "GPS",
             "GPSLatitude",
             "GPSLongitude",
@@ -112,37 +115,43 @@ def main():
 
                     # Exif adat kinyerés
                     if item.get_exif is True or item.caption_generate is True:
+                        if item.caption_generate is True:
+                            if user_request["caption_generate_id"] is None:
+                                instagram_caption = user_request["instagram_caption"]
+                            else:
+                                instagram_caption = (
+                                    CAPTIONS_SAMPLES.get(
+                                        user_request["caption_generate_id"]
+                                    )
+                                    or user_request["instagram_caption"]
+                                )
+                            caption = CaptionGenerator(
+                                exif_info=None,
+                                instagram_caption=instagram_caption,
+                            )
+                            captions_keys = caption.getKeys()
+                            if captions_keys not in user_request["get_exif_datas"]:
+                                user_request["get_exif_datas"].extend(captions_keys)
                         exif_info_class = GetExifData(
                             image=image, image_data=user_request["get_exif_datas"]
                         )
 
                         exif_info = exif_info_class.get_info()
+                        caption = CaptionGenerator(
+                            exif_info=exif_info,
+                            instagram_caption=instagram_caption,
+                        )
                         print(exif_info)
 
                     # Caption generálás
                     if item.caption_generate is True:
-                        if user_request["caption_generate_id"] is None:
-                            instagram_caption = user_request["instagram_caption"]
-                        else:
-                            instagram_caption = (
-                                CAPTIONS_SAMPLES.get(
-                                    user_request["caption_generate_id"]
-                                )
-                                or user_request["instagram_caption"]
-                            )
-                        caption = CaptionGenerator(
-                            exif_info=exif_info,
-                            instagram_caption=instagram_caption,
-                        ).generate()
+                        caption = caption.generate()
                         print(caption)
 
                     # LUT
                     if item.lut is True:
                         with open(user_request.get("lut_path")) as f:
                             native_lut = f.read()
-
-                            LUT_SIZE_REGEX = r"^LUT_3D_SIZE\s+(\d+)"
-                            LUT_DATA_REGEX = r"^\s*-?\d+\.\d+\s+-?\d+\.\d+\s+-?\d+\.\d+"
 
                             lut_size_match = re.search(
                                 LUT_SIZE_REGEX, native_lut, re.MULTILINE

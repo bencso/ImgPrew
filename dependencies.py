@@ -45,7 +45,14 @@ EXIF_TAG_NAMES_LIST = [
     "LensMake",
     "LensModel",
     "GPS",
+    "GPSLatitude",
+    "GPSLongitude",
+    "GPSLongitudeRef",
+    "GPSLatitudeRef",
 ]
+
+LUT_SIZE_REGEX = r"^LUT_3D_SIZE\s+(\d+)"
+LUT_DATA_REGEX = r"^\s*-?\d+\.\d+\s+-?\d+\.\d+\s+-?\d+\.\d+"
 
 IMAGE_EXTENSIONS = [
     "avif",
@@ -72,4 +79,16 @@ Y_AXIS = ["TOP", "BOTTOM", "CENTER"]
 
 CAPTION_REGEX = r"\[.*?\]"
 
-CAPTIONS_SAMPLES = {"pro": "Camera: [model]\nFNumber: [FNumber]"}
+CAPTIONS_SAMPLES = {
+    "insta": "📸 [Model] | ƒ/[FNumber] | ⏱ [ExposureTime]s | 📍 [GPS]",
+    "basic": "Shot on [Model] 📸",
+    "detailed": "📷 [Make] [Model]\n🔍 [LensModel]\nƒ/[FNumber]",
+    "exposure": "⏱ [ExposureTime]s | ISO [ISOSpeedRatings]",
+    "full": "📷 [Make] [Model]\n🔍 [LensModel]\nƒ/[FNumber] | ⏱ [ExposureTime]s | ISO [ISOSpeedRatings]",
+    "date": "📅 [DateTimeOriginal]",
+    "location": "📍 [GPS]",
+    "fb": "📅 [DateTimeOriginal] | [Model]",
+    "twitter": "🐦 [Model] | ISO [ISOSpeedRatings]",
+    "lens": "🔍 [LensMake] [LensModel]",
+    "all": "📷 [Make] [Model]\n🔍 [LensModel]\nƒ/[FNumber] | ⏱ [ExposureTime]s | ISO [ISOSpeedRatings]\n📅 [DateTimeOriginal]\n📍 [GPS]",
+}
