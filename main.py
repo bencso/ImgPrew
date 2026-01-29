@@ -35,7 +35,7 @@ user_requests = [
         "caption_generate": True,
         "lut": False,
         #############################################
-        "instagram_caption": f"📸 [Model] | ƒ/[FNumber] | ⏱ [ExposureTime]s | 📍 [GPS]",
+        "instagram_caption": f"📸 [Model] | [FNumber] | ⏱ [ExposureTime] | 📍 [GPS]",
         "caption_generate_id": None,
         #############################################
         "watermark_position": ["RIGHT", "BOTTOM"],

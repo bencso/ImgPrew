@@ -80,15 +80,15 @@ Y_AXIS = ["TOP", "BOTTOM", "CENTER"]
 CAPTION_REGEX = r"\[.*?\]"
 
 CAPTIONS_SAMPLES = {
-    "insta": "📸 [Model] | ƒ/[FNumber] | ⏱ [ExposureTime]s | 📍 [GPS]",
+    "insta": "📸 [Model] | [FNumber] | ⏱ [ExposureTime]s | 📍 [GPS]",
     "basic": "Shot on [Model] 📸",
-    "detailed": "📷 [Make] [Model]\n🔍 [LensModel]\nƒ/[FNumber]",
+    "detailed": "📷 [Make] [Model]\n🔍 [LensModel]\n[FNumber]",
     "exposure": "⏱ [ExposureTime]s | ISO [ISOSpeedRatings]",
-    "full": "📷 [Make] [Model]\n🔍 [LensModel]\nƒ/[FNumber] | ⏱ [ExposureTime]s | ISO [ISOSpeedRatings]",
+    "full": "📷 [Make] [Model]\n🔍 [LensModel]\n[FNumber] | ⏱ [ExposureTime] | ISO [ISOSpeedRatings]",
     "date": "📅 [DateTimeOriginal]",
     "location": "📍 [GPS]",
     "fb": "📅 [DateTimeOriginal] | [Model]",
     "twitter": "🐦 [Model] | ISO [ISOSpeedRatings]",
     "lens": "🔍 [LensMake] [LensModel]",
-    "all": "📷 [Make] [Model]\n🔍 [LensModel]\nƒ/[FNumber] | ⏱ [ExposureTime]s | ISO [ISOSpeedRatings]\n📅 [DateTimeOriginal]\n📍 [GPS]",
+    "all": "📷 [Make] [Model]\n🔍 [LensModel]\n[FNumber] | ⏱ [ExposureTime] | ISO [ISOSpeedRatings]\n📅 [DateTimeOriginal]\n📍 [GPS]",
 }

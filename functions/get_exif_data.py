@@ -54,7 +54,7 @@ class GetExifData:
                                 f_value = value[0] / value[1]
                             else:
                                 f_value = float(value)
-                            self.image_infos[i] = f"f/{f_value}"
+                            self.image_infos[i] = f"ƒ/{"{:.2f}".format(f_value)}"
                         case "ExposureTime":
                             if isinstance(value, (tuple, list)):
                                 exposure = value[0] / value[1]
@@ -63,11 +63,14 @@ class GetExifData:
                             if exposure >= 1:
                                 self.image_infos[i] = f"{int(exposure)}s"
                             else:
-                                self.image_infos[i] = f"1/{round(1 / exposure)}s"
+                                self.image_infos[i] = f"1/{round(1 / exposure)} s"
                         case "ISOSpeedRatings":
                             self.image_infos[i] = f"ISO {int(value)}"
                         case _:
-                            self.image_infos[i] = f"{value}"
+                            if isinstance(value, bytes):
+                                self.image_infos[i] = f"{value.decode('utf-8')}"
+                            else:
+                                self.image_infos[i] = f"{value}"
             if "GPS".lower() in image_list:
                 self.image_infos["GPS"] = self.get_location() or "Ismeretlen"
             return self.image_infos
@@ -109,6 +112,7 @@ class GetExifData:
             latitude = -latitude
 
         geocoding = reverse_geocoder.search((latitude, longitude))
+        # TODO: UTF-8 kódolás megoldása majd
         return (
-            f"{geocoding[0]['name']} - {geocoding[0]['admin1']} - {geocoding[0]['cc']}"
+            f"{str(geocoding[0]['name'])} - {str(geocoding[0]['admin1'])} - {str(geocoding[0]['cc'])}"
         )
