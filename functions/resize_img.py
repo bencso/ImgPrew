@@ -1,7 +1,8 @@
-from PIL import Image, ImageFile, ImageOps
+from PIL import Image, ImageOps
 from typing import Optional
 from dependencies import SOCIAL_IMAGES_SIZES
-import os
+import logging
+
 
 # TODO: Azt megcsinálni, hogy majd be lehessen állítani hogy mi legyen középen (centering-gel kell majd játszadozni)
 # TODO: Ha mondjuk egy álló kép van és extendeődik vizszintesre akkor lehessen ugy is hogy a két oldalán "border" jelenik meg, illetve
@@ -31,5 +32,5 @@ class ResizeImg:
             )
             return resized_img
         except Exception as ex:
-            print(f"HIBA resize közben: {ex}")
+            logging.error(f"Resize: {ex}")
             return self.img

@@ -3,7 +3,7 @@ from dependencies import EXIF_TAG_NAMES_LIST
 from typing import List, Optional
 import piexif
 import reverse_geocoder
-import re
+import logging
 
 
 class GetExifData:
@@ -72,7 +72,7 @@ class GetExifData:
                 self.image_infos["GPS"] = self.get_location() or "Ismeretlen"
             return self.image_infos
         except Exception as e:
-            print(f"HIBA történt exif adat kinyerés közben: {e}")
+            logging.error(f"Exif adat kinyerés: {e}")
             return self.image_infos
 
     def get_location(self) -> str:

@@ -65,7 +65,6 @@ class WaterMarking:
             elif x == "RIGHT":
                 x = self.img.width - text_width - 40
             elif x == "CENTER":
-                print(self.img.width)
                 x = (self.img.width / 2) - (text_width / 2)
             if y == "TOP":
                 y = 20
@@ -107,7 +106,6 @@ class WaterMarking:
             elif x == "RIGHT":
                 x = self.img.width - watermark_image_png.width - 40
             elif x == "CENTER":
-                print(self.img.width)
                 x = (self.img.width / 2) - (watermark_image_png.width / 2)
             if y == "TOP":
                 y = 20

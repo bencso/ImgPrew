@@ -3,6 +3,7 @@ import os
 from dependencies import EXIF_TAG_NAMES_LIST, IMAGE_EXTENSIONS
 from functions.get_exif_data import GetExifData
 import piexif
+import logging
 
 
 class ConvertExtensionImage:
@@ -64,5 +65,5 @@ class ConvertExtensionImage:
                 "exif": exif_bytes,
             }
         except Exception as e:
-            print(f"HIBA: {e}")
+            logging.error(f"HIBA: {e}")
             return None
