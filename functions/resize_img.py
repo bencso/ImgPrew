@@ -5,8 +5,6 @@ import logging
 
 
 # TODO: Azt megcsinálni, hogy majd be lehessen állítani hogy mi legyen középen (centering-gel kell majd játszadozni)
-# TODO: Ha mondjuk egy álló kép van és extendeődik vizszintesre akkor lehessen ugy is hogy a két oldalán "border" jelenik meg, illetve
-# több ilyen variácót is lehessen hogy ne menjen tönkre a kép, hanem igy is lehessen optimalizálni a méretét a képnek
 class ResizeImg:
     def __init__(
         self,
@@ -14,6 +12,7 @@ class ResizeImg:
         sample_size_id: Optional[int] = None,
         height: Optional[int] = None,
         width: Optional[int] = None,
+        expand: Optional[bool] = None,
     ):
         size_config = SOCIAL_IMAGES_SIZES.get(sample_size_id)
         if size_config is not None:
@@ -23,14 +22,29 @@ class ResizeImg:
             self.height = height
             self.width = width
         self.img = image
+        self.expand = expand if expand else False
+
+    def expandImg(self):
+        result = Image.new("RGB", (self.width, self.height), (255, 255, 255))
+        self.img.thumbnail((self.width, self.height), Image.Resampling.LANCZOS)
+        x_offset = (self.width - self.img.width) // 2
+        y_offset = (self.height - self.img.height) // 2
+        result.paste(self.img, (x_offset, y_offset))
+        return result
 
     def resize_img(self):
         try:
-            SIZE = (self.width, self.height)
-            resized_img = ImageOps.fit(
-                self.img, SIZE, method=Image.Resampling.LANCZOS, centering=(0.5, 0.5)
-            )
-            return resized_img
+            if self.expand == False:
+                SIZE = (self.width, self.height)
+                resized_img = ImageOps.fit(
+                    self.img,
+                    SIZE,
+                    method=Image.Resampling.LANCZOS,
+                    centering=(0.5, 0.5),
+                )
+                return resized_img
+            else:
+                return self.expandImg()
         except Exception as ex:
             logging.error(f"Resize: {ex}")
             return self.img

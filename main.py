@@ -23,16 +23,16 @@ register_heif_opener()
 
 image_error = []
 
-
+# TODO: User be tudja az expandolást állítani hogy resize-nál expand/fit, illetve hogy milyen háttér szín legyen!
 user_requests = [
     {
-        "image_path": "imgs/IMG_1840.jpg",
+        "image_path": "imgs/korpuszpro.png",
         #############################################
         "get_exif": False,
-        "resize_img": False,
+        "resize_img": True,
         "watermark": False,
         "border": False,
-        "caption_generate": True,
+        "caption_generate": False,
         "lut": False,
         #############################################
         "instagram_caption": f"📸 [Model] | [FNumber] | ⏱ [ExposureTime] | 📍 [GPS]",
@@ -41,9 +41,9 @@ user_requests = [
         "watermark_position": ["RIGHT", "BOTTOM"],
         "watermark_text": "LAJOSKÉRI",
         "watermark_opacity": 1,
-        "watermark_image": "imgs/pexels-anete-lusina-4792478.jpg",
+        "watermark_image": "imgs/test.png",
         #############################################
-        "sample_size_id": 2,
+        "sample_size_id": 1,
         #############################################
         "border_size": 20,
         #############################################
@@ -205,9 +205,10 @@ def main():
                             resize_img = ResizeImg(
                                 image=image,
                                 sample_size_id=user_request["sample_size_id"],
+                                expand=True
                             )
                             image = resize_img.resize_img()
-
+                            
                         # Képkeret hozzáadás
                         if item.border is True:
                             logging.info("Képkeret hozzáadása...")
