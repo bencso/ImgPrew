@@ -23,7 +23,6 @@ register_heif_opener()
 
 image_error = []
 
-# TODO: User be tudja az expandolást állítani hogy resize-nál expand/fit, illetve hogy milyen háttér szín legyen!
 user_requests = [
     {
         "image_path": "imgs/korpuszpro.png",
@@ -36,7 +35,7 @@ user_requests = [
         "lut": False,
         #############################################
         "instagram_caption": f"📸 [Model] | [FNumber] | ⏱ [ExposureTime] | 📍 [GPS]",
-        "caption_generate_id": None,
+        "caption_generate_id": 1,
         #############################################
         "watermark_position": ["RIGHT", "BOTTOM"],
         "watermark_text": "LAJOSKÉRI",
@@ -44,6 +43,8 @@ user_requests = [
         "watermark_image": "imgs/test.png",
         #############################################
         "sample_size_id": 1,
+        "expand": True,
+        "expand_bg": None,
         #############################################
         "border_size": 20,
         #############################################
@@ -90,6 +91,8 @@ def main():
                     "border_size": user_request["border_size"],
                     "output_extension": user_request.get("output_extension"),
                     "sample_size_id": user_request.get("sample_size_id"),
+                    "expand": user_request["expand"],
+                    "expand_bg": user_request["expand_bg"],
                     "allowed_infos": user_request.get("allowed_infos"),
                     "get_exif_datas": user_request.get("get_exif_datas"),
                 },
@@ -205,10 +208,11 @@ def main():
                             resize_img = ResizeImg(
                                 image=image,
                                 sample_size_id=user_request["sample_size_id"],
-                                expand=True
+                                expand=user_request["expand"],
+                                expand_bg=user_request["expand_bg"],
                             )
                             image = resize_img.resize_img()
-                            
+
                         # Képkeret hozzáadás
                         if item.border is True:
                             logging.info("Képkeret hozzáadása...")

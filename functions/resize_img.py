@@ -13,6 +13,7 @@ class ResizeImg:
         height: Optional[int] = None,
         width: Optional[int] = None,
         expand: Optional[bool] = None,
+        expand_bg: Optional[str] = None,
     ):
         size_config = SOCIAL_IMAGES_SIZES.get(sample_size_id)
         if size_config is not None:
@@ -23,9 +24,11 @@ class ResizeImg:
             self.width = width
         self.img = image
         self.expand = expand if expand else False
+        # TODO: Ellenörzést csinálni hogy valid szín legyen
+        self.expand_bg = expand_bg if expand_bg else (255, 255, 255)
 
     def expandImg(self):
-        result = Image.new("RGB", (self.width, self.height), (255, 255, 255))
+        result = Image.new("RGB", (self.width, self.height), self.expand_bg)
         self.img.thumbnail((self.width, self.height), Image.Resampling.LANCZOS)
         x_offset = (self.width - self.img.width) // 2
         y_offset = (self.height - self.img.height) // 2

@@ -30,8 +30,9 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
   - ✅ Átlátszóság beállítás
   - ✅ Méret módosítás
   - ✅ Saját logó/szöveg feltöltés
-- LUT kezelések a képekre *(folyamatban)*
-  - `.cube` kiterjesztés ✅
+- ✅ LUT kezelések a képekre
+  - ✅ `.cube` kiterjesztés
+  - Késöbb akár a többire is
 - Export beállítások mentése
   - **Müködési elv tervezete:** Beadjuk a hasht hogy ezt a beállítást melyik képekre szeretnénk, és a kiválaszott képeket a beállítás alapján elkészíti
   - **Megj.:** hasheléses módszerrel tárolhatjuk, és ezeket meg lehet osztani is majd akár.
