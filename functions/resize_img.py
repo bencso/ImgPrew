@@ -2,7 +2,7 @@ from PIL import Image, ImageOps
 from typing import Optional
 from dependencies import SOCIAL_IMAGES_SIZES
 import logging
-
+from .valid_colors import validColors
 
 # TODO: Azt megcsinálni, hogy majd be lehessen állítani hogy mi legyen középen (centering-gel kell majd játszadozni)
 class ResizeImg:
@@ -24,8 +24,7 @@ class ResizeImg:
             self.width = width
         self.img = image
         self.expand = expand if expand else False
-        # TODO: Ellenörzést csinálni hogy valid szín legyen
-        self.expand_bg = expand_bg if expand_bg else (255, 255, 255)
+        self.expand_bg = validColors(expand_bg)
 
     def expandImg(self):
         result = Image.new("RGB", (self.width, self.height), self.expand_bg)

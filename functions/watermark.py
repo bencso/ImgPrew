@@ -3,7 +3,6 @@ from typing import Optional
 from dependencies import X_AXIS, Y_AXIS
 from PIL import ImageOps
 
-
 # TODO: text: Ez legyen majd egy Class vagy dict..., itt meg lehessen adni szöveget, font familyt, font size-t és weight-et
 class WaterMarking:
     def __init__(
