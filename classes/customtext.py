@@ -2,8 +2,6 @@ from typing import Optional
 from functions.valid_colors import validColors
 from dependencies import FONT_SIZES, FONT_WEIGHTS
 from PIL import ImageDraw, Image, ImageFont, ImageStat, ImageColor
-from io import BytesIO
-
 
 class Text:
     def __init__(
@@ -20,14 +18,17 @@ class Text:
         self.opacity = int(opacity)
         self.color = self.get_font_color(color=color)
         self.fontfamily = "fonts/Montserrat-VariableFont_wght.ttf"
+        # TODO: Bármilyen érték majd késöbb!
         self.fontsize = (
             FONT_SIZES.get(size) if FONT_SIZES.get(size) else self.calculate_font_size()
         )
+        # TODO: Bármilyen érték majd késöbb!
         self.fontweight = (
             FONT_WEIGHTS.get(weight)
             if FONT_WEIGHTS.get(weight)
             else int(FONT_WEIGHTS.get("normal"))
         )
+        # TODO: Bármilyen font_family késöbb!
         # req = requests.get(self.fontfamily)
         # self.font = ImageFont.truetype(BytesIO(req.content), self.fontsize)
         self.font = ImageFont.truetype(self.fontfamily, self.fontsize)
@@ -69,6 +70,7 @@ class Text:
         text_width = bbox[2] - bbox[0]
         text_height = bbox[3] - bbox[1]
 
+        # TODO: Késöbb itt is bármilyen érték lehessen!
         if type(x) == str and type(y) == str:
             if x == "LEFT":
                 x = 20
@@ -93,5 +95,4 @@ class Text:
 
         position = self.get_position(position=position, bbox=bbox)
         draw.text(position, self.text, font=self.font, fill=self.color)
-        txt_layer.show()
         return txt_layer

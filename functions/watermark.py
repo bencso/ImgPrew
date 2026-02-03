@@ -1,9 +1,8 @@
-from PIL import ImageDraw, Image, ImageFont, ImageStat
+from PIL import Image
 from typing import Optional
 from dependencies import X_AXIS, Y_AXIS
 from PIL import ImageOps
 from classes.customtext import Text
-
 
 class WaterMarking:
     def __init__(
