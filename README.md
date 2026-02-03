@@ -41,7 +41,7 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
 
 - Vizuális fotógaléria kiválasztással (FRONTEND)
 - Fotó szerkesztések (fényerő stb.)
-- Kötegelt feldolgozás
+- Kötegelt feldolgozás -> képek albumokba rendezett letöltése
 - Előtte/Utána előnézet csúszka (FRONTEND)
 
 ### Jövőbeli ötletek
