@@ -63,6 +63,34 @@ IMAGE_EXTENSIONS = [
     "webp",
 ]
 
+FONT_SIZES = {
+    "small": 13,
+    "body": 16,
+    "medium": 16,
+    "large": 18,
+    "x-large": 24,
+    "xx-large": 32,
+    "xxx-large": 48,
+    "heading_large": 64,
+}
+
+FONT_WEIGHTS = {
+    "thin": 100,
+    "extra_light": 200,
+    "light": 300,
+    "normal": 400,
+    "medium": 500,
+    "semi_bold": 600,
+    "bold": 700,
+    "extra_bold": 800,
+    "black": 900,
+    "hairline": 100,
+    "regular": 400,
+    "body": 400,
+    "heading": 700,
+}
+
+
 SOCIAL_IMAGES_SIZES = {
     1: {"platform": "instagram", "type": "square", "width": 1080, "height": 1080},
     2: {"platform": "instagram", "type": "portrait", "width": 1080, "height": 1350},

@@ -14,6 +14,8 @@ from dependencies import CAPTIONS_SAMPLES, LUT_SIZE_REGEX, LUT_DATA_REGEX
 import piexif
 import re
 import logging
+import os
+from classes.customtext import Text
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
@@ -29,7 +31,7 @@ user_requests = [
         #############################################
         "get_exif": False,
         "resize_img": True,
-        "watermark": False,
+        "watermark": True,
         "border": False,
         "caption_generate": False,
         "lut": False,
@@ -37,10 +39,13 @@ user_requests = [
         "instagram_caption": f"📸 [Model] | [FNumber] | ⏱ [ExposureTime] | 📍 [GPS]",
         "caption_generate_id": 1,
         #############################################
-        "watermark_position": ["RIGHT", "BOTTOM"],
+        "watermark_position": ["CENTER", "BOTTOM"],
         "watermark_text": "LAJOSKÉRI",
-        "watermark_opacity": 1,
-        "watermark_image": "imgs/test.png",
+        "watermark_opacity": 100,
+        "watermark_size": "heading_large",
+        "watermark_color": "red",
+        "watermark_weight": "heading",
+        "watermark_image": "",
         #############################################
         "sample_size_id": 1,
         "expand": True,
@@ -86,6 +91,9 @@ def main():
                     "watermark_text": user_request["watermark_text"],
                     "watermark_image": user_request["watermark_image"],
                     "watermark_opacity": user_request["watermark_opacity"],
+                    "watermark_weight": user_request["watermark_weight"],
+                    "watermark_size": user_request["watermark_size"],
+                    "watermark_color": user_request["watermark_color"],
                     "watermark_position": user_request["watermark_position"],
                     "border": user_request["border"],
                     "border_size": user_request["border_size"],
@@ -228,10 +236,16 @@ def main():
                             logging.info("Vízjel hozzáadása...")
                             watermark_img = WaterMarking(
                                 image=image,
-                                text=str(user_request["watermark_text"]),
+                                text=Text(
+                                    text=str(user_request["watermark_text"]),
+                                    color=user_request["watermark_color"],
+                                    size=user_request["watermark_size"],
+                                    weight=user_request["watermark_weight"],
+                                    opacity=int(user_request["watermark_opacity"]),
+                                    image=image,
+                                ),
                                 position=user_request["watermark_position"],
                                 watermark_image=user_request["watermark_image"],
-                                text_opacity=user_request["watermark_opacity"],
                             )
 
                             if len(user_request["watermark_image"]) > 0:
