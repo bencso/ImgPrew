@@ -120,3 +120,9 @@ CAPTIONS_SAMPLES = {
     "lens": "🔍 [LensMake] [LensModel]",
     "all": "📷 [Make] [Model]\n🔍 [LensModel]\n[FNumber] | ⏱ [ExposureTime] | ISO [ISOSpeedRatings]\n📅 [DateTimeOriginal]\n📍 [GPS]",
 }
+
+REPLACEMENTS = {
+    "keruelet": "kerület",
+    "varos": "város",
+    "megye": "megye"
+}

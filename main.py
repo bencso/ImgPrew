@@ -27,17 +27,17 @@ image_error = []
 
 user_requests = [
     {
-        "image_path": "imgs/korpuszpro.png",
+        "image_path": "imgs/IMG_1876.jpg",
         #############################################
         "get_exif": False,
         "resize_img": True,
         "watermark": True,
         "border": False,
-        "caption_generate": False,
+        "caption_generate": True,
         "lut": False,
         #############################################
-        "instagram_caption": f"📸 [Model] | [FNumber] | ⏱ [ExposureTime] | 📍 [GPS]",
-        "caption_generate_id": 1,
+        "custom_caption": None,
+        "caption_generate_id": "insta",
         #############################################
         "watermark_position": ["CENTER", "BOTTOM"],
         "watermark_text": "LAJOSKÉRI",
@@ -51,7 +51,7 @@ user_requests = [
         "expand": True,
         "expand_bg": None,
         #############################################
-        "border_size": 20,
+        "border_size": 2,
         #############################################
         "lut_path": "luts/PictureFX-Acros-100-II-RedFilter.cube",
         #############################################
@@ -61,10 +61,6 @@ user_requests = [
             "FNumber",
             "ExposureTime",
             "GPS",
-            "GPSLatitude",
-            "GPSLongitude",
-            "GPSLongitudeRef",
-            "GPSLatitudeRef",
         ],
         #############################################
         "output_extension": "",
@@ -84,7 +80,7 @@ def main():
                     "resize_img": user_request["resize_img"],
                     "caption_generate": user_request["caption_generate"],
                     "caption_generate_id": user_request["caption_generate_id"],
-                    "instagram_caption": user_request["instagram_caption"],
+                    "custom_caption": user_request["custom_caption"],
                     "lut": user_request["lut"],
                     "lut_path": user_request["lut_path"],
                     "watermark": user_request["watermark"],
@@ -137,33 +133,36 @@ def main():
                         if item.get_exif is True or item.caption_generate is True:
                             if item.caption_generate is True:
                                 if user_request["caption_generate_id"] is None:
-                                    instagram_caption = user_request[
-                                        "instagram_caption"
-                                    ]
+                                    instagram_caption = user_request["custom_caption"]
                                 else:
                                     instagram_caption = (
                                         CAPTIONS_SAMPLES.get(
                                             user_request["caption_generate_id"]
                                         )
-                                        or user_request["instagram_caption"]
+                                        or user_request["custom_caption"]
                                     )
                                 caption = CaptionGenerator(
                                     exif_info=None,
                                     instagram_caption=instagram_caption,
                                 )
                                 captions_keys = caption.getKeys()
-                                if captions_keys not in user_request["get_exif_datas"]:
-                                    user_request["get_exif_datas"].extend(captions_keys)
+                                for key in captions_keys:
+                                    if key not in user_request["get_exif_datas"]:
+                                        user_request["get_exif_datas"].extend(
+                                            captions_keys
+                                        )
+
                             exif_info_class = GetExifData(
                                 image=image, image_data=user_request["get_exif_datas"]
                             )
-
+                            exif_info_class = GetExifData(
+                                image=image, image_data=user_request["get_exif_datas"]
+                            )
                             exif_info = exif_info_class.get_info()
                             caption = CaptionGenerator(
                                 exif_info=exif_info,
                                 instagram_caption=instagram_caption,
                             )
-                            logging.info(f"EXIF adatok: {exif_info}")
 
                         # Caption generálás
                         if item.caption_generate is True:
