@@ -7,11 +7,11 @@
 
 ## 🎯 Projekt célja
 
-Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi média munkafolyamatot: automatikusan kinyeri a kamera beállításokat (EXIF adatok), testreszabható vízjeleket ad hozzá, és akár formázza a képeket közösségi médiára - mindezt egy helyen.
+Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi média munkafolyamatot: automatikusan kinyeri a kamera beállításokat (EXIF adatok), testreszabható vízjeleket ad hozzá, és formázza a képeket közösségi médiára - mindezt egy helyen.
 
 ## ✨ Funkciók
 
-### MVP
+### MVP ✅ **KÉSZ** (Console prototípus működik)
 
 - ✅ Több fotó feltöltése (`JPG`, `PNG`, `HEIC` támogatás)
 - ✅ Automatikus EXIF adat kinyerés
@@ -22,7 +22,6 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
   - Készítés dátuma
   - Lokáció
 - ✅ Beállítások formázása Instagram captionhöz
-- ✅ Egyedi caption sablonok (elérhető lesz amikor lesz DB a kezelése megvan)
 - ✅ Instagram formátum optimalizálás (1:1, 4:5, 9:16)
 - ✅ Kiválasztható mely EXIF mezők jelenjenek meg
 - ✅ Testreszabható vízjel elhelyezés
@@ -30,19 +29,26 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
   - ✅ Átlátszóság beállítás
   - ✅ Méret módosítás
   - ✅ Saját logó/szöveg feltöltés
-- ✅ LUT kezelések a képekre
-  - ✅ `.cube` kiterjesztés
-  - Késöbb akár a többire is
-- Export beállítások mentése
-  - **Müködési elv tervezete:** Beadjuk a hasht hogy ezt a beállítást melyik képekre szeretnénk, és a kiválaszott képeket a beállítás alapján elkészíti
-  - **Megj.:** hasheléses módszerrel tárolhatjuk, és ezeket meg lehet osztani is majd akár.
+- ✅ LUT kezelések a képekre (`.cube` kiterjesztés)
+
+### 🚀 **Következő fázis: Webalkalmazás átépítés**
+
+**FastAPI + WebSocket alapú architektúra**
+
+```
+Console MVP → FastAPI REST API → WebSocket real-time UI
+```
 
 ### Tervezett funkciók
 
-- Vizuális fotógaléria kiválasztással (FRONTEND)
-- Fotó szerkesztések (fényerő stb.)
-- Kötegelt feldolgozás -> képek albumokba rendezett letöltése
-- Előtte/Utána előnézet csúszka (FRONTEND)
+- Real-time feldolgozási visszajelzések
+- Webes drag&drop fájlfeltöltés
+- Élő előnézetek
+- Egyidejű több kép feldolgozás
+- Vizuális fotógaléria kiválasztással (NextJS)
+- Kötegelt feldolgozás → ZIP letöltés
+- Előtte/Utána előnézet csúszka
+- Export presetek mentése és megosztása
 
 ### Jövőbeli ötletek
 
@@ -57,24 +63,35 @@ Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi m
 
 ## 🛠️ Technológiák
 
-### Backend
+### Backend **(Átépítés alatt)**
 
-- Python 3.14.2
-- FastAPI (REST API) _(amennyiben API-ra változtatjuk)_
-- PIL/Pillow (EXIF olvasás)
-- OpenCV (képfeldolgozás, vízjelek)
-- PostgreSQL
+```
+FastAPI + WebSocket
+│
+├── PIL/Pillow (EXIF + képfeldolgozás)
+├── OpenCV (vízjelek, LUT-ok)
+├── pillow-heif (HEIC)
+└── PostgreSQL (presetek, felhasználók)
+```
 
-### Frontend
+### Frontend **(Tervezés alatt)**
 
-- NextJS
-- TailwindCSS
-- shadcn
+```
+NextJS + App Router
+├── TailwindCSS + shadcn/ui
+└── Framer Motion
+```
 
-### További könyvtárak
+## 🔄 **Jelenlegi állapot**
 
-- `pillow-heif` (HEIC támogatás)
-- `python-multipart` (fájl feltöltés FastAPI-ban)
+```
+✅ MVP core logika
+✅ EXIF parser + vízjel + LUT
+✅ Caption generátor
+
+⏳ FastAPI + WebSocket átépítés
+⏳ NextJS frontend fejlesztés
+```
 
 ## 💡 Miért ez a projekt?
 
@@ -86,29 +103,30 @@ Ez a projekt egyszerre praktikus és remek tanulási lehetőség full-stack fejl
 
 ## 🤝 Közreműködés
 
-Ez egy tanulási projekt, amíg nem növi ki magát, de javaslatokat és visszajelzéseket mindig szívesen fogadok! Nyugodtan nyiss issue-t vagy küldj PR-t.
+Ez egy tanulási projekt, amíg nem növi ki magát, de javaslatokat és visszajelzéseket mindig szívesen fogadok! PR-ek, issue-k, ötletek mindig szívesen látottak.
 
 ## 📄 Licensz
 
-MIT License - Szabadon használható és módosítható
+MIT License
 
----
+***
 
-## 🏁 Első lépések
+## 🏁 MVP telepítése
 
-> Hamarosan - A telepítési útmutató hozzáadásra kerül amint az MVP elkészül.
+```bash
+git clone [repo]
+cd imgprew
+pip install -r requirements.txt
+python main.py
+```
 
----
+**Web verzió demó:** Hamarosan
 
-**Státusz:** 🚧 Aktív fejlesztés alatt  
-**Indulás:** 2026. január
+***
 
----
+**Státusz:** 🚀 **FASTAPI + WS backendre való átépítés folyamatban**  
+**Indulás:** 2026. január  
 
-## 💭 Megjegyzések
+***
 
-Ez a projekt része a full-stack fejlesztés tanulásának Python és NextJS használatával.
-
----
-
-**⭐ Ha tetszik a projekt és az ötlet, örülök egy csillagnak :D**
+**⭐ Ha tetszik a projekt és az ötlet, örülök egy csillagnak! :D**
