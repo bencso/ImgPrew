@@ -1,5 +1,5 @@
 from PIL import Image
-from dependencies import EXIF_TAG_NAMES_LIST,REPLACEMENTS
+from dependencies import EXIF_TAG_NAMES_LIST, REPLACEMENTS
 from typing import List, Optional
 import piexif
 import reverse_geocoder
@@ -78,8 +78,8 @@ class GetExifData:
         except Exception as e:
             logging.error(f"Exif adat kinyerés: {e}")
             return self.image_infos
-    
-    def hu_fix(self,text: str) -> str:
+
+    def hu_fix(self, text: str) -> str:
         for k, v in REPLACEMENTS.items():
             text = re.sub(rf"\b{k}\b", v, text)
         return text
@@ -119,4 +119,3 @@ class GetExifData:
 
         geocoding = reverse_geocoder.search((latitude, longitude))
         return f"{self.hu_fix(geocoding[0]['name'])} - {self.hu_fix(geocoding[0]['admin1'])} - {self.hu_fix(geocoding[0]['cc'])}"
-

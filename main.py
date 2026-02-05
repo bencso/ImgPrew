@@ -1,20 +1,28 @@
-from pillow_heif import register_heif_opener
+# DEFAULT DEPS
 import os
+import piexif
+import re
+import logging
+import io
 from tqdm import tqdm
 from queue import Queue
-from PIL import ImageOps, Image
+
+# PILLOW
+from PIL import ImageOps, Image, ImageFilter
+from pillow_heif import register_heif_opener
+
+# FUNCTIONS
 from functions.convert_img_file import ConvertExtensionImage
 from functions.get_exif_data import GetExifData
 from functions.resize_img import ResizeImg
 from functions.watermark import WaterMarking
 from functions.caption_generator import CaptionGenerator
-from classes.queueitem import QueueItem
-from PIL import Image, ImageFilter
+
+# DEPENDENCIES
 from dependencies import CAPTIONS_SAMPLES, LUT_SIZE_REGEX, LUT_DATA_REGEX
-import piexif
-import re
-import logging
-import os
+
+# CLASSES
+from classes.queueitem import QueueItem
 from classes.customtext import Text
 
 logging.basicConfig(
@@ -27,12 +35,12 @@ image_error = []
 
 user_requests = [
     {
-        "image_path": "imgs/IMG_1876.jpg",
+        "image_path": "imgs/image-mesh-gradient.png",
         #############################################
-        "get_exif": False,
+        "get_exif": True,
         "resize_img": True,
         "watermark": True,
-        "border": False,
+        "border": True,
         "caption_generate": True,
         "lut": False,
         #############################################
@@ -42,18 +50,19 @@ user_requests = [
         "watermark_position": ["CENTER", "BOTTOM"],
         "watermark_text": "LAJOSKÉRI",
         "watermark_opacity": 100,
-        "watermark_size": "heading_large",
+        "watermark_size": "small",
         "watermark_color": "red",
         "watermark_weight": "heading",
         "watermark_image": "",
         #############################################
         "sample_size_id": 1,
-        "expand": True,
+        "expand": False,
         "expand_bg": None,
         #############################################
-        "border_size": 2,
+        "border_size": 14,
         #############################################
-        "lut_path": "luts/PictureFX-Acros-100-II-RedFilter.cube",
+        # "lut_path": "luts/PictureFX-Acros-100-II-RedFilter.cube",
+        "lut_path": None,
         #############################################
         "allowed_infos": [],
         "get_exif_datas": [
@@ -127,12 +136,13 @@ def main():
                         else:
                             exif_dict = {}
                             exif_bytes_default = None
+
                         image = img.copy()
 
                         # Exif adat kinyerés
                         if item.get_exif is True or item.caption_generate is True:
                             if item.caption_generate is True:
-                                if user_request["caption_generate_id"] is None:
+                                if user_request["custom_caption"] is not None:
                                     instagram_caption = user_request["custom_caption"]
                                 else:
                                     instagram_caption = (
@@ -155,9 +165,6 @@ def main():
                             exif_info_class = GetExifData(
                                 image=image, image_data=user_request["get_exif_datas"]
                             )
-                            exif_info_class = GetExifData(
-                                image=image, image_data=user_request["get_exif_datas"]
-                            )
                             exif_info = exif_info_class.get_info()
                             caption = CaptionGenerator(
                                 exif_info=exif_info,
@@ -174,6 +181,7 @@ def main():
                             logging.info(
                                 f"LUT alkalmazása: {user_request.get('lut_path')}"
                             )
+                            # TODO: KÜLÖN FUNCTIONS-BE TENNI
                             with open(user_request.get("lut_path")) as f:
                                 native_lut = f.read()
 
@@ -212,17 +220,18 @@ def main():
                         # Kép átméretezés
                         if item.resize_img is True:
                             logging.info("Kép átméretezése...")
-                            resize_img = ResizeImg(
+                            with ResizeImg(
                                 image=image,
                                 sample_size_id=user_request["sample_size_id"],
                                 expand=user_request["expand"],
                                 expand_bg=user_request["expand_bg"],
-                            )
-                            image = resize_img.resize_img()
+                            ) as resize_img:
+                                image = resize_img.resize_img()
 
                         # Képkeret hozzáadás
                         if item.border is True:
                             logging.info("Képkeret hozzáadása...")
+                            # TODO: KÜLÖN FUNCTIONS-BE TENNI, __a bytesio miatt__
                             img_with_border = ImageOps.expand(
                                 image=image,
                                 border=user_request["border_size"],
@@ -233,7 +242,7 @@ def main():
                         # Vízjelezés
                         if item.watermark is True:
                             logging.info("Vízjel hozzáadása...")
-                            watermark_img = WaterMarking(
+                            with WaterMarking(
                                 image=image,
                                 text=Text(
                                     text=str(user_request["watermark_text"]),
@@ -245,39 +254,37 @@ def main():
                                 ),
                                 position=user_request["watermark_position"],
                                 watermark_image=user_request["watermark_image"],
-                            )
-
-                            if len(user_request["watermark_image"]) > 0:
-                                image = watermark_img.create_watermark_image()
-                            else:
-                                image = watermark_img.create_watermark()
+                            ) as watermark_img:
+                                if len(user_request["watermark_image"]) > 0:
+                                    image = watermark_img.create_watermark_image()
+                                else:
+                                    image = watermark_img.create_watermark()
 
                         # Képkonvertálás
-                        convert_image = ConvertExtensionImage(
+                        with ConvertExtensionImage(
                             image_path=image_src,
                             image=image,
                             exif_data=exif_dict,
                             output_extension=user_request["output_extension"],
                             allowed_infos=user_request["allowed_infos"],
-                        )
+                        ) as convert_image:
+                            result_convert = convert_image.convert_image()
 
-                        result_convert = convert_image.convert_image()
-
-                        if isinstance(result_convert, dict):
-                            c_image = result_convert["img"]
-                            c_exif = result_convert["exif"]
-                            c_file = result_convert["filename"]
-                            if c_exif:
-                                c_image.save(c_file, exif=c_exif)
+                            if isinstance(result_convert, dict):
+                                c_image = result_convert["img"]
+                                c_exif = result_convert["exif"]
+                                c_file = result_convert["filename"]
+                                if c_exif:
+                                    c_image.save(c_file, exif=c_exif)
+                                else:
+                                    c_image.save(c_file)
+                                logging.info(f"Sikeres kép feldolgozás. {c_file}")
                             else:
-                                c_image.save(c_file)
-                            logging.info(f"Sikeres kép feldolgozás. {c_file}")
-                        else:
-                            if exif_bytes_default is None:
-                                image.save(image_src)
-                            else:
-                                image.save(image_src, exif=exif_bytes_default)
-                            logging.info(f"Sikeres kép feldolgozás. {image_src}")
+                                if exif_bytes_default is None:
+                                    image.save(image_src)
+                                else:
+                                    image.save(image_src, exif=exif_bytes_default)
+                                logging.info(f"Sikeres kép feldolgozás. {image_src}")
                 except Exception as e:
                     logging.error(f"Hiba a kép feldolgozása közben: {image_src} - {e}")
                 finally:

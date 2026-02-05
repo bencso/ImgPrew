@@ -4,6 +4,7 @@ from dependencies import EXIF_TAG_NAMES_LIST, IMAGE_EXTENSIONS
 from functions.get_exif_data import GetExifData
 import piexif
 import logging
+import io
 
 
 class ConvertExtensionImage:
@@ -32,6 +33,15 @@ class ConvertExtensionImage:
 
         self.output_extension = f_ext if output_extension is None else output_extension
         self.exif_data = exif_data
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, *args):
+        self.buffer = io.BytesIO()
+        self.image.save(self.buffer, format="PNG")
+        self.buffer.seek(0)
+
 
     def convert_image(self) -> dict | None:
         try:

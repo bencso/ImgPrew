@@ -3,6 +3,7 @@ from typing import Optional
 from dependencies import X_AXIS, Y_AXIS
 from PIL import ImageOps
 from classes.customtext import Text
+import io
 
 class WaterMarking:
     def __init__(
@@ -16,6 +17,14 @@ class WaterMarking:
         self.position = position
         self.watermark_image = watermark_image
         self.text = text
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, *args):
+        self.buffer = io.BytesIO()
+        self.img.save(self.buffer, format="PNG")
+        self.buffer.seek(0)
 
     def create_watermark(self):
         if self.img.mode != "RGBA":

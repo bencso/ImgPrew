@@ -3,6 +3,7 @@ from typing import Optional
 from dependencies import SOCIAL_IMAGES_SIZES
 import logging
 from .valid_colors import validColors
+import io
 
 class ResizeImg:
     def __init__(
@@ -21,9 +22,17 @@ class ResizeImg:
         else:
             self.height = height
             self.width = width
-        self.img = image
+        self.img = image.copy() 
         self.expand = expand if expand else False
         self.expand_bg = validColors(expand_bg)
+    
+    def __enter__(self):
+        return self
+    
+    def __exit__(self, *args):
+        self.buffer = io.BytesIO()
+        self.img.save(self.buffer, format="PNG")
+        self.buffer.seek(0)
 
     def expandImg(self):
         result = Image.new("RGB", (self.width, self.height), self.expand_bg)
