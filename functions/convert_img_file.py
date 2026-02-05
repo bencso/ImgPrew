@@ -43,7 +43,7 @@ class ConvertExtensionImage:
         self.buffer.seek(0)
 
 
-    def convert_image(self) -> dict | None:
+    def apply(self) -> dict | None:
         try:
             exif_bytes = None
             if self.exif_data:

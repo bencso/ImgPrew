@@ -3,12 +3,13 @@ from functions.valid_colors import validColors
 from dependencies import FONT_SIZES, FONT_WEIGHTS
 from PIL import ImageDraw, Image, ImageFont, ImageStat, ImageColor
 
+
 class Text:
     def __init__(
         self,
         text: str,
         color: Optional[str],
-        size: Optional[str],
+        size: Optional[str | int],
         weight: Optional[str],
         opacity: Optional[int],
         image: Image.Image,
@@ -18,17 +19,25 @@ class Text:
         self.opacity = int(opacity)
         self.color = self.get_font_color(color=color)
         self.fontfamily = "fonts/Montserrat-VariableFont_wght.ttf"
-        # TODO: Bármilyen érték majd késöbb!
         self.fontsize = (
-            FONT_SIZES.get(size) if FONT_SIZES.get(size) else self.calculate_font_size()
+            size
+            if type(size) == int
+            else (
+                FONT_SIZES.get(size)
+                if FONT_SIZES.get(size)
+                else self.calculate_font_size()
+            )
         )
-        # TODO: Bármilyen érték majd késöbb!
         self.fontweight = (
-            FONT_WEIGHTS.get(weight)
-            if FONT_WEIGHTS.get(weight)
-            else int(FONT_WEIGHTS.get("normal"))
+            weight
+            if type(weight) == int
+            else (
+                FONT_WEIGHTS.get(weight)
+                if FONT_WEIGHTS.get(weight)
+                else int(FONT_WEIGHTS.get("normal"))
+            )
         )
-        # TODO: Bármilyen font_family késöbb!
+        # TODO: Bármilyen font_family késöbb ez majd csak a végén!
         # req = requests.get(self.fontfamily)
         # self.font = ImageFont.truetype(BytesIO(req.content), self.fontsize)
         self.font = ImageFont.truetype(self.fontfamily, self.fontsize)

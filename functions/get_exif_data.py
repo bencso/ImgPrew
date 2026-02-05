@@ -40,11 +40,11 @@ class GetExifData:
         except:
             return None
 
-    def get_info(self) -> dict:
+    def get_info(self) -> dict | None:
         try:
             exif_datas = self.exif_data
             if exif_datas is None:
-                pass
+                return None
             image_list = list(map(str.lower, self.image_datas))
             for i in exif_datas:
                 if i.lower() in image_list:

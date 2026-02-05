@@ -34,7 +34,7 @@ class ResizeImg:
         self.img.save(self.buffer, format="PNG")
         self.buffer.seek(0)
 
-    def expandImg(self):
+    def expandImg(self) -> Image:
         result = Image.new("RGB", (self.width, self.height), self.expand_bg)
         self.img.thumbnail((self.width, self.height), Image.Resampling.LANCZOS)
         x_offset = (self.width - self.img.width) // 2
@@ -42,7 +42,7 @@ class ResizeImg:
         result.paste(self.img, (x_offset, y_offset))
         return result
 
-    def resize_img(self):
+    def apply(self) -> Image:
         try:
             if self.expand == False:
                 SIZE = (self.width, self.height)

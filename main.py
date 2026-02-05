@@ -1,9 +1,7 @@
 # DEFAULT DEPS
 import os
 import piexif
-import re
 import logging
-import io
 from tqdm import tqdm
 from queue import Queue
 
@@ -17,9 +15,11 @@ from functions.get_exif_data import GetExifData
 from functions.resize_img import ResizeImg
 from functions.watermark import WaterMarking
 from functions.caption_generator import CaptionGenerator
+from functions.lut import Lut
+from functions.border import Border
 
 # DEPENDENCIES
-from dependencies import CAPTIONS_SAMPLES, LUT_SIZE_REGEX, LUT_DATA_REGEX
+from dependencies import CAPTIONS_SAMPLES
 
 # CLASSES
 from classes.queueitem import QueueItem
@@ -42,7 +42,7 @@ user_requests = [
         "watermark": True,
         "border": True,
         "caption_generate": True,
-        "lut": False,
+        "lut": True,
         #############################################
         "custom_caption": None,
         "caption_generate_id": "insta",
@@ -50,19 +50,20 @@ user_requests = [
         "watermark_position": ["CENTER", "BOTTOM"],
         "watermark_text": "LAJOSKÉRI",
         "watermark_opacity": 100,
-        "watermark_size": "small",
+        "watermark_size": 45,
         "watermark_color": "red",
-        "watermark_weight": "heading",
-        "watermark_image": "",
+        "watermark_weight": 900,
+        "watermark_image": "/lfaafa/gag.png",
         #############################################
         "sample_size_id": 1,
-        "expand": False,
+        "expand": True,
         "expand_bg": None,
         #############################################
         "border_size": 14,
+        "border_color": "FFFFF",
         #############################################
-        # "lut_path": "luts/PictureFX-Acros-100-II-RedFilter.cube",
-        "lut_path": None,
+        "lut_path": "luts/PictureFX-Acros-100-II-RedFilter.cube",
+        # "lut_path": None,
         #############################################
         "allowed_infos": [],
         "get_exif_datas": [
@@ -102,6 +103,7 @@ def main():
                     "watermark_position": user_request["watermark_position"],
                     "border": user_request["border"],
                     "border_size": user_request["border_size"],
+                    "border_color": user_request["border_color"],
                     "output_extension": user_request.get("output_extension"),
                     "sample_size_id": user_request.get("sample_size_id"),
                     "expand": user_request["expand"],
@@ -177,45 +179,13 @@ def main():
                             logging.info(f"Generált caption: {caption}")
 
                         # LUT
-                        if item.lut is True:
-                            logging.info(
-                                f"LUT alkalmazása: {user_request.get('lut_path')}"
-                            )
-                            # TODO: KÜLÖN FUNCTIONS-BE TENNI
-                            with open(user_request.get("lut_path")) as f:
-                                native_lut = f.read()
-
-                                lut_size_match = re.search(
-                                    LUT_SIZE_REGEX, native_lut, re.MULTILINE
-                                )
-                                lut_size = (
-                                    int(lut_size_match.group(1))
-                                    if lut_size_match
-                                    else None
-                                )
-                                lut_data_match = re.search(
-                                    LUT_DATA_REGEX, native_lut, re.MULTILINE
-                                )
-
-                                if lut_data_match:
-                                    lut_data_index = lut_data_match.start()
-                                    lut_lines = native_lut[lut_data_index:].splitlines()
-                                    if lut_size is not None:
-                                        lut_table = []
-                                        for line in lut_lines:
-                                            line = line.strip()
-                                            if not line:
-                                                continue
-                                            if len(lut_table) < lut_size**3:
-                                                parts = line.strip().split()
-                                                if len(parts) == 3:
-                                                    r, g, b = map(float, parts)
-                                                    lut_table.append((r, g, b))
-                                    else:
-                                        pass
-
-                                lut = ImageFilter.Color3DLUT(lut_size, lut_table)
-                                image = image.filter(lut)
+                        if item.lut is True and user_request["lut_path"] is not None:
+                            logging.info(f"LUT alkalmazása: {user_request["lut_path"]}")
+                            with Lut(
+                                image=image,
+                                lut_path=user_request["lut_path"],
+                            ) as lut:
+                                image = lut.apply()
 
                         # Kép átméretezés
                         if item.resize_img is True:
@@ -226,18 +196,17 @@ def main():
                                 expand=user_request["expand"],
                                 expand_bg=user_request["expand_bg"],
                             ) as resize_img:
-                                image = resize_img.resize_img()
+                                image = resize_img.apply()
 
                         # Képkeret hozzáadás
                         if item.border is True:
                             logging.info("Képkeret hozzáadása...")
-                            # TODO: KÜLÖN FUNCTIONS-BE TENNI, __a bytesio miatt__
-                            img_with_border = ImageOps.expand(
+                            with Border(
                                 image=image,
-                                border=user_request["border_size"],
-                                fill="white",
-                            )
-                            image = img_with_border
+                                border_size=user_request["border_size"],
+                                color=user_request["border_color"],
+                            ) as border:
+                                image = border.apply()
 
                         # Vízjelezés
                         if item.watermark is True:
@@ -245,20 +214,18 @@ def main():
                             with WaterMarking(
                                 image=image,
                                 text=Text(
+                                    image=image,
                                     text=str(user_request["watermark_text"]),
                                     color=user_request["watermark_color"],
                                     size=user_request["watermark_size"],
                                     weight=user_request["watermark_weight"],
                                     opacity=int(user_request["watermark_opacity"]),
-                                    image=image,
                                 ),
                                 position=user_request["watermark_position"],
-                                watermark_image=user_request["watermark_image"],
                             ) as watermark_img:
-                                if len(user_request["watermark_image"]) > 0:
-                                    image = watermark_img.create_watermark_image()
-                                else:
-                                    image = watermark_img.create_watermark()
+                                image = watermark_img.apply(
+                                    watermark_image=user_request["watermark_image"]
+                                )
 
                         # Képkonvertálás
                         with ConvertExtensionImage(
@@ -268,7 +235,7 @@ def main():
                             output_extension=user_request["output_extension"],
                             allowed_infos=user_request["allowed_infos"],
                         ) as convert_image:
-                            result_convert = convert_image.convert_image()
+                            result_convert = convert_image.apply()
 
                             if isinstance(result_convert, dict):
                                 c_image = result_convert["img"]
