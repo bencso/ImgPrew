@@ -50,7 +50,6 @@ export const LeftSide = ({ isDesktop }: { isDesktop: ReactNode }) => {
             gap={4}
         >
             <Box>
-
                 <Flex
                     p="4"
                     borderBottomWidth={"1px"}
@@ -75,6 +74,7 @@ export const LeftSide = ({ isDesktop }: { isDesktop: ReactNode }) => {
 
                 {/*#region LINKS*/}
                 {
+                    isDesktop &&
                     links.map((link, index) => {
                         return <Link href={link.link || "/"} key={index}><Box
                             p="4"
@@ -110,6 +110,7 @@ export const LeftSide = ({ isDesktop }: { isDesktop: ReactNode }) => {
             <Flex
                 p="4"
                 borderTopWidth="1px"
+                hidden={!isDesktop}
                 borderColor="border.disabled"
                 color="fg.disabled"
                 justifyContent={collapsed ? "center" : "start"}
@@ -118,7 +119,7 @@ export const LeftSide = ({ isDesktop }: { isDesktop: ReactNode }) => {
                 gap={4}
             >
                 <ColormodeSwitcher />
-                <LanguageSwitcher/>
+                <LanguageSwitcher />
             </Flex>
         </Flex>
     );

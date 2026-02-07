@@ -110,7 +110,10 @@ export const ImageDropZone = () => {
     })
 
     return (
-        <Stack maxW="xl" w={"full"}>
+        <Stack
+            w="full"
+            maxW={{ base: "md", sm: "xl", md: "50%" }}
+        >
             <FileUpload.RootProvider value={fileUpload} >
                 <FileUpload.HiddenInput />
                 <FileUpload.Dropzone w={"full"} backgroundColor={"teal.subtle/30"} transition={"all 0.2s ease-in-out"} cursor={"pointer"} _hover={{ backgroundColor: "teal.subtle/40" }}>

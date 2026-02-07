@@ -3,6 +3,7 @@
 import {
   Center,
   Splitter,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { useLocalStorage } from "react-use";
 import { ReactNode } from "react";
@@ -11,11 +12,13 @@ import { LeftSide } from "./sidebar/leftside";
 const DEFAULT_SIZES = [20, 80];
 
 export default function SiteSplitter({ children }: { children: ReactNode }) {
-  const orientation = "horizontal";
+  const orientation = useBreakpointValue<"horizontal" | "vertical">({
+    base: "vertical",
+    md: "horizontal",
+  });
   const isDesktop = orientation === "horizontal";
 
   const [sizes, setSizes] = useLocalStorage<number[]>("splitter-sizes", DEFAULT_SIZES);
-
 
   return (
     <Splitter.Root
