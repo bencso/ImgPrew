@@ -1,8 +1,7 @@
-import { Heading } from "@chakra-ui/react";
-import Link from "next/link";
+import { ImageDropZone } from "@/components/upload/dropzone";
 
 export default function Page() {
     return (
-        <Link href={"/"}>/teszt</Link>
+        <ImageDropZone />
     )
 }

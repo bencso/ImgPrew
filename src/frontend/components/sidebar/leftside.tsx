@@ -96,7 +96,6 @@ export const LeftSide = ({ isDesktop }: { isDesktop: ReactNode }) => {
                                 borderLeftColor: "teal.fg",
                                 bg: "bg.emphasized",
                                 color: "fg.default",
-                                fontWeight: "600",
                                 "& svg": { color: "teal.fg" },
                             }}
                         >
