@@ -219,3 +219,6 @@ __marimo__/
 .streamlit/secrets.toml
 fonts/*
 .DS_Store
+
+node_modules/
+.next
