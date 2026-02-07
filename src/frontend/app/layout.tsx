@@ -3,6 +3,7 @@
 import SiteSplitter from "@/components/sitesplitter";
 import { ColorModeProvider } from "@/components/ui/color-mode";
 import { Provider } from "@/components/ui/provider";
+import { Toaster } from "@/components/ui/toaster";
 import { LangugeProvider } from "@/providers/languageprovider";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -12,9 +13,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Provider>
           <ColorModeProvider>
             <LangugeProvider>
-                <SiteSplitter>
-                  {children}
-                </SiteSplitter>
+              <SiteSplitter>
+                <Toaster />
+                {children}
+              </SiteSplitter>
             </LangugeProvider>
           </ColorModeProvider>
         </Provider>
