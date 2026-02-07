@@ -13,6 +13,7 @@ import { LuGalleryThumbnails, LuHouse } from "react-icons/lu";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import LanguageSwitcher from "./languageswitch";
+import { ProfileMenu } from "./profilemenu";
 
 interface Link {
     name?: string;
@@ -34,8 +35,8 @@ export const LeftSide = ({ isDesktop }: { isDesktop: ReactNode }) => {
             icon: <LuHouse size={22} />
         },
         {
-            name: "Képek",
-            link: "/gallery",
+            name: "Létrehozás",
+            link: "/create",
             icon: <LuGalleryThumbnails size={22} />
         }
     ]
@@ -50,27 +51,30 @@ export const LeftSide = ({ isDesktop }: { isDesktop: ReactNode }) => {
             gap={4}
         >
             <Box>
-                <Flex
-                    p="4"
-                    borderBottomWidth={"1px"}
-                    borderColor="border.disabled"
-                    borderRadius={0}
-                    color="fg.disabled"
-                    backgroundColor="bg.subtle"
-                    justifyContent={collapsed ? "center" : "start"}
-                    alignItems={"center"}
-                    _hover={{ bg: "bg.muted" }}
-                >
-                    <Flex gap={2} alignItems={"center"}>
-                        <Avatar.Root>
-                            <Avatar.Fallback name="Shane Nelson" />
-                        </Avatar.Root>
+                <ProfileMenu>
+                    <Flex
+                        cursor={"pointer"}
+                        p="4"
+                        borderBottomWidth={"1px"}
+                        borderColor="border.disabled"
+                        borderRadius={0}
+                        color="fg.disabled"
+                        backgroundColor="bg.subtle"
+                        justifyContent={collapsed ? "center" : "start"}
+                        alignItems={"center"}
+                        _hover={{ bg: "bg.muted" }}
+                    >
+                        <Flex gap={2} alignItems={"center"}>
+                            <Avatar.Root>
+                                <Avatar.Fallback name="Shane Nelson" />
+                            </Avatar.Root>
 
-                        <Box hidden={Boolean(collapsed)} fontWeight="bold" textStyle="label" color="fg.default">
-                            Bencso
-                        </Box>
+                            <Box hidden={Boolean(collapsed)} fontWeight="bold" textStyle="label" color="fg.default">
+                                Bencso
+                            </Box>
+                        </Flex>
                     </Flex>
-                </Flex>
+                </ProfileMenu>
 
                 {/*#region LINKS*/}
                 {

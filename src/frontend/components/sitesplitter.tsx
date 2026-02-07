@@ -2,6 +2,7 @@
 
 import {
   Center,
+  Flex,
   Splitter,
   useBreakpointValue,
 } from "@chakra-ui/react";
@@ -14,11 +15,12 @@ const DEFAULT_SIZES = [20, 80];
 export default function SiteSplitter({ children }: { children: ReactNode }) {
   const orientation = useBreakpointValue<"horizontal" | "vertical">({
     base: "vertical",
-    md: "horizontal",
+    lg: "horizontal",
   });
   const isDesktop = orientation === "horizontal";
 
   const [sizes, setSizes] = useLocalStorage<number[]>("splitter-sizes", DEFAULT_SIZES);
+
 
   return (
     <Splitter.Root
@@ -28,9 +30,9 @@ export default function SiteSplitter({ children }: { children: ReactNode }) {
           collapsible: isDesktop,
           collapsedSize: 5,
           minSize: 10,
-          maxSize: 15,
+          maxSize: 20,
         },
-        { id: "b", minSize: 80 },
+        { id: "b", minSize: isDesktop ? 80 : 90 },
       ]}
       onResizeEnd={(e) => setSizes(e.size)}
       borderWidth="1px"
@@ -48,9 +50,9 @@ export default function SiteSplitter({ children }: { children: ReactNode }) {
       </Splitter.ResizeTrigger>}
 
       <Splitter.Panel id="b">
-        <Center boxSize="full" textStyle="2xl">
+        <Flex justifyContent={"center"} alignItems={isDesktop?"center":"start"} boxSize="full" textStyle="2xl" p={{ smDown: 6, smToMd: 8, mdTo2xl: 10 }}>
           {children}
-        </Center>
+        </Flex>
       </Splitter.Panel>
     </Splitter.Root>
   );

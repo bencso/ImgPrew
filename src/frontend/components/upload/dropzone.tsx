@@ -1,11 +1,8 @@
 "use client"
 
-import { Box, Button, Code, FileUpload, FileUploadFileChangeDetails, Float, Icon, Stack, useFileUpload, useFileUploadContext, UseFileUploadReturn } from "@chakra-ui/react"
-import { LuTrash, LuUpload } from "react-icons/lu"
-import { FileChangeDetails } from "@zag-js/file-upload";
+import { Box, Button, FileUpload, Float, Icon, Stack, useFileUpload, useFileUploadContext } from "@chakra-ui/react"
+import { LuEraser, LuTrash, LuUpload } from "react-icons/lu"
 import { toaster } from "../ui/toaster";
-import { useEffect } from "react";
-import { HiUpload } from "react-icons/hi";
 
 const MAX_FILES = 5;
 const ACCEPTED_FILES = [
@@ -16,22 +13,6 @@ const ACCEPTED_FILES = [
     "image/webp"
 ];
 
-const ConditionalDropzone = () => {
-    return (
-        <FileUpload.Dropzone backgroundColor={"teal.subtle/30"} _hover={{ backgroundColor: "teal.subtle/40" }}>
-            <Icon size="2xl" color="teal.fg">
-                <LuUpload />
-            </Icon>
-            <FileUpload.DropzoneContent>
-                <Box>Húzza be a feltölteni kívánt fájlokat</Box>
-                <Box color="fg.muted">{ACCEPTED_FILES.map((file) => {
-                    return (file.includes("image/") && file.split("image/")[1]);
-                }).join(", ")}</Box>
-            </FileUpload.DropzoneContent>
-        </FileUpload.Dropzone>
-    )
-}
-
 const FileUploadList = () => {
     const fileUpload = useFileUploadContext();
     const files = fileUpload.acceptedFiles;
@@ -41,7 +22,12 @@ const FileUploadList = () => {
     return (
         <FileUpload.ItemGroup
             display="grid"
-            gridTemplateColumns="repeat(3, minmax(0, 1fr))"
+            p={0}
+            gridTemplateColumns={{
+                smDown: "repeat(1, minmax(0,1fr))",
+                smToXl: "repeat(2, minmax(0, 1fr))",
+                xl: "repeat(3, minmax(0, 1fr))",
+            }}
             gap={3}
         >
             {files.map((file, index) => (
@@ -49,6 +35,7 @@ const FileUploadList = () => {
                     key={`${file.name}-${index}`}
                     file={file}
                     p={3}
+                    w={"full"}
                     borderWidth="1px"
                     borderRadius="md"
                     justifyContent={"center"}
@@ -76,9 +63,15 @@ const FileUploadList = () => {
                         <FileUpload.ItemName fontSize={"xs"} />
                     </Box>
 
-                    <Float placement="top-end">
+                    <Float placement="top-end" offset={{
+                        mdDown: 4,
+                        mdTo2xl: 3,
+                    }}>
                         <FileUpload.ItemDeleteTrigger
-                            boxSize="6"
+                            boxSize={{
+                                mdDown: "8",
+                                mdTo2xl: "6"
+                            }}
                             borderRadius="full"
                             bg="teal.border"
                             color="bg.muted"
@@ -97,22 +90,25 @@ const FileUploadList = () => {
 export const ImageDropZone = () => {
     const fileUpload = useFileUpload({
         maxFiles: MAX_FILES,
-        onFileChange(details) {
+        accept: ACCEPTED_FILES.join(","),
+        onFileReject(details) {
             console.log(details);
-            if (details.rejectedFiles.length > 0) {
+            if (details.files.length > 0) {
                 console.log("HIBA");
                 toaster.create({
-                    description: "Az engedett feltöltési méret: 5 darab",
+                    title: "Hiba történt feltöltés közben!",
+                    description: `Maximum ${MAX_FILES} fájlt tölthetsz fel.`,
                     type: "error",
                 })
             }
+            return details.files = [];
         },
     })
 
     return (
         <Stack
             w="full"
-            maxW={{ base: "md", sm: "xl", md: "50%" }}
+            maxW={{ base: "md", sm: "xl", lgTo2xl: "2xl" }}
         >
             <FileUpload.RootProvider value={fileUpload} >
                 <FileUpload.HiddenInput />
@@ -127,8 +123,18 @@ export const ImageDropZone = () => {
                         }).join(", ")}</Box>
                     </FileUpload.DropzoneContent>
                 </FileUpload.Dropzone>
-                <FileUploadList />
+                {
+                    fileUpload.acceptedFiles.length > 1 && <FileUpload.ClearTrigger mb={2}><Button colorPalette={"teal"} variant={"surface"}><LuEraser /> Összes törlése</Button></FileUpload.ClearTrigger>
+                }
+                <Box overflowY={"scroll"}
+                    scrollbar={"hidden"}
+                    maxH={350} w={"full"} >
+                    <FileUploadList />
+                </Box>
             </FileUpload.RootProvider>
+            {
+                fileUpload.acceptedFiles.length > 0 && <Button variant={"subtle"} colorPalette={"black"}>Tovább</Button>
+            }
         </Stack>
     )
 };
