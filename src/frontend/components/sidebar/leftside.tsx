@@ -8,10 +8,11 @@ import {
     useSplitterContext,
 } from "@chakra-ui/react";
 import ColormodeSwitcher from "../sidebar/colormodeswitch";
-import { Fragment, ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { LuGalleryThumbnails, LuHouse } from "react-icons/lu";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
+import LanguageSwitcher from "./languageswitch";
 
 interface Link {
     name?: string;
@@ -118,7 +119,7 @@ export const LeftSide = ({ isDesktop }: { isDesktop: ReactNode }) => {
                 gap={4}
             >
                 <ColormodeSwitcher />
-                <ColormodeSwitcher />
+                <LanguageSwitcher/>
             </Flex>
         </Flex>
     );

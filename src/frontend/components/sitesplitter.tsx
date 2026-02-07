@@ -40,9 +40,9 @@ export default function SiteSplitter({ children }: { children: ReactNode }) {
       </Splitter.Panel>
 
       {isDesktop && <Splitter.ResizeTrigger id="a:b">
-        <Splitter.ResizeTriggerSeparator/>
-      <Splitter.ResizeTriggerIndicator hidden />
-        </Splitter.ResizeTrigger>}
+        <Splitter.ResizeTriggerSeparator />
+        <Splitter.ResizeTriggerIndicator hidden />
+      </Splitter.ResizeTrigger>}
 
       <Splitter.Panel id="b">
         <Center boxSize="full" textStyle="2xl">
