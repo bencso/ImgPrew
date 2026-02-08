@@ -10,6 +10,7 @@ app = FastAPI()
 async def ws_check(websocket: WebSocket):
     await websocket.accept()
     imgs = []
+    slices = None
     try:
         while True:
             try:
@@ -20,12 +21,18 @@ async def ws_check(websocket: WebSocket):
 
             if "bytes" in server_message:
                 file_bytes = server_message["bytes"]
-                img_stream = io.BytesIO(file_bytes)
-                with Image.open(img_stream) as img:
-                    imgs.append(img)
+                if slices:
+                    for x in slices:
+                        start = x["start"]
+                        end = x["end"]
+                        img_stream = io.BytesIO(file_bytes[start:end])
+                        with Image.open(img_stream) as img:
+                            img.show()
             if "text" in server_message:
                 wsmess = WebSocketMessage.message_from_server(server_message["text"])
-                sender = WebSocketMessage("success", f"Az új kapcsolat sikeresen létrejött")
+                sender = WebSocketMessage(
+                    "success", f"Az új kapcsolat sikeresen létrejött"
+                )
 
                 if wsmess.message == "connect":
                     await websocket.send_text(sender.send())
@@ -33,7 +40,8 @@ async def ws_check(websocket: WebSocket):
                     sender.message = wsmess.message
                     sender.data = wsmess.data if wsmess.data else "Ismeretlen hiba"
                     await websocket.send_text(sender.send())
-                if wsmess.message == "upload":
+                if wsmess.message == "fileUpload":
+                    slices = wsmess.data["slices"]
                     sender.message = "success"
                     sender.data = "Sikeres fájlfeltöltés"
                     await websocket.send_text(sender.send())

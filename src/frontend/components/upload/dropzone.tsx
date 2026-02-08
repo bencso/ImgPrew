@@ -155,7 +155,6 @@ export const ImageDropZone = () => {
                 })
             );
 
-            /**EZ MAJD VISSZAADNI TUDJUK A HATÁROKAT */
             const array = bufferArrays.reduce(
                 (acc: { start: number; end: number }[], curr) => {
                     const start = acc.length ? acc[acc.length - 1].end : 0;
@@ -168,11 +167,6 @@ export const ImageDropZone = () => {
                     return acc;
                 },
                 []
-            );
-
-
-            console.log(
-                array
             );
 
             const totalLength = buffers.reduce(
@@ -188,9 +182,12 @@ export const ImageDropZone = () => {
                 offset += buffer.byteLength;
             }
             ws.current?.send(JSON.stringify({
-                type: "files",
-                count: buffers.length,
-                totalBytes: totalLength
+                message: "fileUpload",
+                data: {
+                    count: buffers.length,
+                    totalBytes: totalLength,
+                    slices: array
+                }
             }));
             ws.current?.send(combined);
         }
