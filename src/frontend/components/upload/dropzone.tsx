@@ -5,6 +5,7 @@ import { LuEraser, LuTrash, LuUpload } from "react-icons/lu"
 import { toaster } from "../ui/toaster";
 import { useWebsocket } from "@/providers/websocketprovider";
 import { useEffect, useState } from "react";
+import { handleMessage } from "@/websocket/handlers/handleMessage";
 
 const MAX_FILES = 5;
 const ACCEPTED_FILES = [
@@ -90,7 +91,7 @@ const FileUploadList = () => {
 }
 
 export const ImageDropZone = () => {
-
+    const { ws } = useWebsocket();
 
     const fileUpload = useFileUpload({
         maxFiles: MAX_FILES,
@@ -103,21 +104,16 @@ export const ImageDropZone = () => {
                     title: "Hiba történt feltöltés közben!",
                     description: `Maximum ${MAX_FILES} fájlt tölthetsz fel.`,
                     type: "error",
-                })
+                });
             }
             return details.files = [];
         },
     })
 
-    const { ws } = useWebsocket();
 
     useEffect(() => {
         const wscurr = ws.current;
         if (!wscurr) return;
-
-        const handleMessage = (event: MessageEvent) => {
-            console.log(event.data);
-        };
 
         wscurr.addEventListener("message", handleMessage);
 
@@ -129,26 +125,35 @@ export const ImageDropZone = () => {
         };
     }, [ws]);
 
-    const fileSend = () => {
+    const fileSend = async () => {
         var files = fileUpload.acceptedFiles;
-        for (const file of files) {
+        let readFile = (file: File) => {
+            new Promise<ArrayBuffer>((resolve, reject) => {
+                var reader = new FileReader();
+                var rawData = new ArrayBuffer();
 
-            var reader = new FileReader();
-            var rawData = new ArrayBuffer(32);
-            reader.onloadend = function () { }
-            reader.onload = function (e) {
-                if (e.target?.result && (e.target.result instanceof ArrayBuffer)) {
-                    console.log(e.target);
-                    rawData = e.target?.result;
-                    let upload = new Uint8Array(rawData);
-                    ws.current?.send(JSON.stringify({
-                        message: "upload",
-                        data: upload
-                    }));
+                reader.onloadend = function () { }
+
+                reader.onload = function (e) {
+                    if (e.target?.result && (e.target.result instanceof ArrayBuffer)) {
+                        rawData = e.target?.result;
+                        resolve(rawData);
+                    } else reject("Nem megfelelő fájl feltöltése. Kérjük, próbálja újra!");
                 }
-            }
-            reader.readAsArrayBuffer(file);
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            }).catch((error) => {
+                ws.current?.send(JSON.stringify({ message: 'error', data: error }));
+            });
         }
+        try {
+            const filePromise = await Promise.all(files.map((file) => readFile(file)));
+
+        }
+        catch {
+            ws.current?.send(JSON.stringify({ message: 'error', data: `Hiba történt a fájlok feltöltése közben` }));
+        }
+
     }
 
 

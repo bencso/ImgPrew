@@ -14,7 +14,7 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         if (mounted.current) return;
-        mounted.current = true
+        mounted.current = true;
 
         const socket = new WebSocket("ws://localhost:8000/ws/");
         wsRef.current = socket;
