@@ -90,8 +90,8 @@ const FileUploadList = () => {
 }
 
 export const ImageDropZone = () => {
-    const { ws } = useWebsocket();
-    
+
+
     const fileUpload = useFileUpload({
         maxFiles: MAX_FILES,
         accept: ACCEPTED_FILES.join(","),
@@ -109,12 +109,48 @@ export const ImageDropZone = () => {
         },
     })
 
+    const { ws } = useWebsocket();
+
     useEffect(() => {
-        let wscurr = ws.current;
-        wscurr?.addEventListener("message", (message)=>{
-            console.log(message.data);
-        });
-    }, [ws.current]);
+        const wscurr = ws.current;
+        if (!wscurr) return;
+
+        const handleMessage = (event: MessageEvent) => {
+            console.log(event.data);
+        };
+
+        wscurr.addEventListener("message", handleMessage);
+
+        return () => {
+            wscurr.removeEventListener("message", handleMessage);
+            if (wscurr.readyState === wscurr.OPEN) {
+                wscurr.close();
+            }
+        };
+    }, [ws]);
+
+    const fileSend = () => {
+        var files = fileUpload.acceptedFiles;
+        for (const file of files) {
+
+            var reader = new FileReader();
+            var rawData = new ArrayBuffer(32);
+            reader.onloadend = function () { }
+            reader.onload = function (e) {
+                if (e.target?.result && (e.target.result instanceof ArrayBuffer)) {
+                    console.log(e.target);
+                    rawData = e.target?.result;
+                    let upload = new Uint8Array(rawData);
+                    ws.current?.send(JSON.stringify({
+                        message: "upload",
+                        data: upload
+                    }));
+                }
+            }
+            reader.readAsArrayBuffer(file);
+        }
+    }
+
 
     return (
         <Stack
@@ -135,7 +171,9 @@ export const ImageDropZone = () => {
                     </FileUpload.DropzoneContent>
                 </FileUpload.Dropzone>
                 {
-                    fileUpload.acceptedFiles.length > 1 && <FileUpload.ClearTrigger mb={2}><Button colorPalette={"teal"} variant={"surface"}><LuEraser /> Összes törlése</Button></FileUpload.ClearTrigger>
+                    fileUpload.acceptedFiles.length > 1 && <Button as="div" smDown={{ w: "full" }} gap={3} onClick={() => fileUpload.clearFiles()} colorPalette="blackAlpha" variant="outline">
+                        Minden törlés
+                    </Button>
                 }
                 <Box overflowY={"scroll"}
                     scrollbar={"hidden"}
@@ -143,9 +181,9 @@ export const ImageDropZone = () => {
                     <FileUploadList />
                 </Box>
             </FileUpload.RootProvider>
-            {
-                fileUpload.acceptedFiles.length > 0 && <Button variant={"subtle"} colorPalette={"black"}>Tovább</Button>
-            }
+            <Button as="div" onClick={fileSend} colorPalette="teal" variant="surface">
+                Tovább
+            </Button>
         </Stack>
     )
 };
