@@ -3,14 +3,26 @@
 import { createContext, RefObject, useContext, useEffect, useMemo, useRef } from 'react'
 
 interface WebsocketContextProps {
-    ws: RefObject<WebSocket | null>
+    ws: RefObject<WebSocket | null>;
+    sendMessage({ message, data }: ServerMessage): void
 }
+
+interface ServerMessage { message: string, data?: string | null };
 
 export const WebsocketContext = createContext<WebsocketContextProps | null>(null)
 
 export function WebsocketProvider({ children }: { children: React.ReactNode }) {
     const wsRef = useRef<WebSocket | null>(null);
     const mounted = useRef(false);
+
+    function sendMessage({ message, data }: ServerMessage) {
+        let serverMsg = {} as ServerMessage;
+        serverMsg.message = message
+        if (data) {
+            serverMsg.data = data
+        }
+        wsRef.current?.send(JSON.stringify(serverMsg));
+    }
 
     useEffect(() => {
         if (mounted.current) return;
@@ -20,7 +32,7 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
         wsRef.current = socket;
 
         socket.addEventListener("open", () => {
-            wsRef.current?.send(JSON.stringify({ message: 'connect' }));
+            sendMessage({ message: 'connect'});
         });
 
         socket.addEventListener("error", (event) => {
@@ -34,7 +46,7 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
     }, [])
 
     const contextValue = useMemo<WebsocketContextProps>(
-        () => ({ ws: wsRef }),
+        () => ({ ws: wsRef, sendMessage: sendMessage }),
         []
     )
 

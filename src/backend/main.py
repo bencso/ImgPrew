@@ -1,7 +1,5 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from PIL import Image
-import base64
-import json
 import io
 from .classes.wsmessage import WebSocketMessage
 
@@ -11,10 +9,15 @@ app = FastAPI()
 @app.websocket("/ws/")
 async def ws_check(websocket: WebSocket):
     await websocket.accept()
+    imgs = []
     try:
-        imgs = []
         while True:
-            server_message = await websocket.receive()
+            try:
+                server_message = await websocket.receive()
+            except RuntimeError:
+                print("A kliens bontotta a kapcsolatot")
+                break
+
             if "bytes" in server_message:
                 file_bytes = server_message["bytes"]
                 img_stream = io.BytesIO(file_bytes)
@@ -22,9 +25,8 @@ async def ws_check(websocket: WebSocket):
                     imgs.append(img)
             if "text" in server_message:
                 wsmess = WebSocketMessage.message_from_server(server_message["text"])
-                sender = WebSocketMessage("success", f"Sikeres kapcsolat")
+                sender = WebSocketMessage("success", f"Az új kapcsolat sikeresen létrejött")
 
-                print(wsmess.message)
                 if wsmess.message == "connect":
                     await websocket.send_text(sender.send())
                 if wsmess.message == "error":
@@ -36,6 +38,6 @@ async def ws_check(websocket: WebSocket):
                     sender.data = "Sikeres fájlfeltöltés"
                     await websocket.send_text(sender.send())
                 if wsmess.message == "close":
-                    pass
+                    break
     except WebSocketDisconnect:
         print("A kliens bontotta a kapcsolatot")

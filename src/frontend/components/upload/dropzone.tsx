@@ -91,7 +91,7 @@ const FileUploadList = () => {
 }
 
 export const ImageDropZone = () => {
-    const { ws } = useWebsocket();
+    const { ws, sendMessage } = useWebsocket();
 
     const fileUpload = useFileUpload({
         maxFiles: MAX_FILES,
@@ -137,21 +137,23 @@ export const ImageDropZone = () => {
                 reader.onload = function (e) {
                     if (e.target?.result && (e.target.result instanceof ArrayBuffer)) {
                         rawData = e.target?.result;
-                        resolve(rawData);
+                        {/* FIXIT: EZT MEGOLDANI MERT ITT EZ TUTI NEM JÓ */}
+                        resolve(e.target.result);
                     } else reject("Nem megfelelő fájl feltöltése. Kérjük, próbálja újra!");
                 }
                 reader.onerror = reject;
                 reader.readAsArrayBuffer(file);
             }).catch((error) => {
-                ws.current?.send(JSON.stringify({ message: 'error', data: error }));
+                sendMessage({ message: 'error', data: error });
             });
         }
         try {
             const filePromise = await Promise.all(files.map((file) => readFile(file)));
+            console.log(filePromise);
 
         }
         catch {
-            ws.current?.send(JSON.stringify({ message: 'error', data: `Hiba történt a fájlok feltöltése közben` }));
+            sendMessage({ message: 'error', data: `Hiba történt a fájlok feltöltése közben` });
         }
 
     }
