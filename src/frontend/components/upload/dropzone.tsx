@@ -3,6 +3,8 @@
 import { Box, Button, FileUpload, Float, Icon, Stack, useFileUpload, useFileUploadContext } from "@chakra-ui/react"
 import { LuEraser, LuTrash, LuUpload } from "react-icons/lu"
 import { toaster } from "../ui/toaster";
+import { useWebsocket } from "@/providers/websocketprovider";
+import { useEffect, useState } from "react";
 
 const MAX_FILES = 5;
 const ACCEPTED_FILES = [
@@ -88,6 +90,8 @@ const FileUploadList = () => {
 }
 
 export const ImageDropZone = () => {
+    const { ws } = useWebsocket();
+    
     const fileUpload = useFileUpload({
         maxFiles: MAX_FILES,
         accept: ACCEPTED_FILES.join(","),
@@ -104,6 +108,13 @@ export const ImageDropZone = () => {
             return details.files = [];
         },
     })
+
+    useEffect(() => {
+        let wscurr = ws.current;
+        wscurr?.addEventListener("message", (message)=>{
+            console.log(message.data);
+        });
+    }, [ws.current]);
 
     return (
         <Stack

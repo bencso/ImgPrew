@@ -28,7 +28,7 @@ export function LangugeProvider({
 export function useLanguage() {
     const context = useContext(LanguageContext);
     if (!context) {
-        throw new Error("useLanguage must be used within a StateContextProvider");
+        throw new Error("useLanguage must be used within a LanguageContext.Provider");
     }
     return context;
 }
