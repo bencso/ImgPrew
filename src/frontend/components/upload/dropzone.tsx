@@ -127,30 +127,72 @@ export const ImageDropZone = () => {
 
     const fileSend = async () => {
         var files = fileUpload.acceptedFiles;
-        let readFile = (file: File) => {
-            new Promise<ArrayBuffer>((resolve, reject) => {
-                var reader = new FileReader();
-                var rawData = new ArrayBuffer();
+        const readFile = (file: File): Promise<ArrayBuffer> => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
 
-                reader.onloadend = function () { }
+                reader.onloadend = () => { };
 
-                reader.onload = function (e) {
-                    if (e.target?.result && (e.target.result instanceof ArrayBuffer)) {
-                        rawData = e.target?.result;
-                        {/* FIXIT: EZT MEGOLDANI MERT ITT EZ TUTI NEM JÓ */}
-                        resolve(e.target.result);
-                    } else reject("Nem megfelelő fájl feltöltése. Kérjük, próbálja újra!");
-                }
-                reader.onerror = reject;
+                reader.onload = () => {
+                    if (reader.result instanceof ArrayBuffer) {
+                        resolve(reader.result);
+                    } else {
+                        reject(new Error("Nem ArrayBuffer"));
+                    }
+                };
+
+                reader.onerror = () => reject(reader.error);
                 reader.readAsArrayBuffer(file);
-            }).catch((error) => {
-                sendMessage({ message: 'error', data: error });
             });
-        }
-        try {
-            const filePromise = await Promise.all(files.map((file) => readFile(file)));
-            console.log(filePromise);
+        };
 
+        try {
+            const bufferArrays: number[] = [];
+            const buffers = await Promise.all(
+                files.map(async file => {
+                    bufferArrays.push(file.size);
+                    return await readFile(file)
+                })
+            );
+
+            /**EZ MAJD VISSZAADNI TUDJUK A HATÁROKAT */
+            const array = bufferArrays.reduce(
+                (acc: { start: number; end: number }[], curr) => {
+                    const start = acc.length ? acc[acc.length - 1].end : 0;
+
+                    acc.push({
+                        start,
+                        end: start + curr
+                    });
+
+                    return acc;
+                },
+                []
+            );
+
+
+            console.log(
+                array
+            );
+
+            const totalLength = buffers.reduce(
+                (sum, buf) => sum + buf.byteLength,
+                0
+            );
+
+            const combined = new Uint8Array(totalLength);
+            let offset = 0;
+
+            for (const buffer of buffers) {
+                combined.set(new Uint8Array(buffer), offset);
+                offset += buffer.byteLength;
+            }
+            ws.current?.send(JSON.stringify({
+                type: "files",
+                count: buffers.length,
+                totalBytes: totalLength
+            }));
+            ws.current?.send(combined);
         }
         catch {
             sendMessage({ message: 'error', data: `Hiba történt a fájlok feltöltése közben` });
