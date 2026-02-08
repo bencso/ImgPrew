@@ -13,5 +13,10 @@ export const handleMessage = (event: MessageEvent) => {
                 description: data ? data : ERROR_MESSAGE,
                 type: "error",
             });
+        case "success":
+            toaster.create({
+                title: data,
+                type: "success",
+            });
     }
 };
