@@ -1,6 +1,4 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-import json
-import io
 import base64
 from .classes.wsmessage import WebSocketMessage
 
@@ -24,15 +22,14 @@ async def ws_check(websocket: WebSocket):
             if "bytes" in server_message:
                 imgs.clear()
                 file_bytes = server_message["bytes"]
-                if slices:
-                    for slice_part in slices:
-                        start = slice_part["start"]
-                        end = slice_part["end"]
-                        byte = file_bytes[start:end]
-                        img_stream = io.BytesIO(byte)
-                        imgs.append(img_stream)
-                    sender.message = "success"
-                    sender.data = "Sikeres fájlfeltöltés"
+                #! Memoryview: nem készít másolatot a bájtokról, csak egy ablakot nyit az eredeti bájtok fölött
+                file_view = memoryview(file_bytes)
+                #! Külön szeletekben küldjük, mert igy gyorsabb
+                for slice_part in slices:
+                    part_view = file_view[slice_part["start"] : slice_part["end"]]
+                    part = base64.b64encode(part_view).decode("ascii")
+                    sender.message = "filesuccess"
+                    sender.data = part
                     await websocket.send_text(sender.send())
             if "text" in server_message:
                 wsmess = WebSocketMessage.message_from_server(server_message["text"])

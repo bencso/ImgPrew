@@ -1,5 +1,3 @@
-'use client'
-
 import { createContext, RefObject, useContext, useEffect, useMemo, useRef } from 'react'
 
 interface WebsocketContextProps {

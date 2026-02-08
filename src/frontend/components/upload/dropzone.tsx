@@ -1,11 +1,12 @@
 "use client"
 
 import { Box, Button, FileUpload, Float, Icon, Stack, useFileUpload, useFileUploadContext } from "@chakra-ui/react"
-import { LuEraser, LuTrash, LuUpload } from "react-icons/lu"
+import { LuTrash, LuUpload } from "react-icons/lu"
 import { toaster } from "../ui/toaster";
-import { useWebsocket } from "@/providers/websocketprovider";
-import { useEffect, useState } from "react";
+import { ServerMessage, useWebsocket } from "@/providers/websocketprovider";
+import { RefObject, useEffect } from "react";
 import { handleMessage } from "@/websocket/handlers/handleMessage";
+import { useWorkSession } from "@/providers/sessionprovider";
 import { uploadFile } from "@/websocket/handlers/fileUpload";
 
 const MAX_FILES = 5;
@@ -19,6 +20,7 @@ const ACCEPTED_FILES = [
 
 const FileUploadList = () => {
     const fileUpload = useFileUploadContext();
+
     const files = fileUpload.acceptedFiles;
 
     if (files.length === 0) return null;
@@ -91,8 +93,12 @@ const FileUploadList = () => {
     )
 }
 
-export const ImageDropZone = () => {
-    const { ws, sendMessage } = useWebsocket();
+export const ImageDropZone = ({ ws, sendMessage }: {
+    ws: RefObject<WebSocket | null>;
+    sendMessage({ message, data }: ServerMessage): void
+}) => {
+    const { setStep } = useWorkSession();
+
 
     const fileUpload = useFileUpload({
         maxFiles: MAX_FILES,
@@ -112,19 +118,7 @@ export const ImageDropZone = () => {
     })
 
 
-    useEffect(() => {
-        const wscurr = ws.current;
-        if (!wscurr) return;
 
-        wscurr.addEventListener("message", handleMessage);
-
-        return () => {
-            wscurr.removeEventListener("message", handleMessage);
-            if (wscurr.readyState === wscurr.OPEN) {
-                wscurr.close();
-            }
-        };
-    }, [ws]);
 
 
     return (

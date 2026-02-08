@@ -5,6 +5,8 @@ import { ColorModeProvider } from "@/components/ui/color-mode";
 import { Provider } from "@/components/ui/provider";
 import { Toaster } from "@/components/ui/toaster";
 import { LangugeProvider } from "@/providers/languageprovider";
+import { WorkSessionProvider } from "@/providers/sessionprovider";
+import { WebsocketProvider } from "@/providers/websocketprovider";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -13,10 +15,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Provider>
           <ColorModeProvider>
             <LangugeProvider>
-              <SiteSplitter>
-                <Toaster />
-                {children}
-              </SiteSplitter>
+              <WorkSessionProvider>
+                <WebsocketProvider>
+                  <SiteSplitter>
+                    <Toaster />
+                    {children}
+                  </SiteSplitter>
+                </WebsocketProvider>
+              </WorkSessionProvider>
             </LangugeProvider>
           </ColorModeProvider>
         </Provider>

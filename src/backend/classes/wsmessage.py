@@ -11,7 +11,7 @@ class WebSocketMessage:
         return {"message": self.message, "data": self.data}
     
     def send(self):
-        return json.dumps({"message": self.message, "data": self.data})
+        return str(json.dumps({"message": self.message, "data": self.data}))
 
     @classmethod
     def message_from_server(cls, server_message) -> "WebSocketMessage":
