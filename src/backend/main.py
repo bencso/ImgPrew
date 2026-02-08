@@ -1,5 +1,5 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from PIL import Image
+import json
 import io
 from .classes.wsmessage import WebSocketMessage
 
@@ -20,14 +20,20 @@ async def ws_check(websocket: WebSocket):
                 break
 
             if "bytes" in server_message:
+                imgs.clear()
                 file_bytes = server_message["bytes"]
                 if slices:
-                    for x in slices:
-                        start = x["start"]
-                        end = x["end"]
-                        img_stream = io.BytesIO(file_bytes[start:end])
-                        with Image.open(img_stream) as img:
-                            img.show()
+                    for slice_part in slices:
+                        start = slice_part["start"]
+                        end = slice_part["end"]
+                        byte = file_bytes[start:end]
+                        img_stream = io.BytesIO(byte)
+                        imgs.append(img_stream)
+                        await websocket.send_text(
+                            WebSocketMessage(
+                                message="successUpload", data=str(byte)
+                            ).send()
+                        )
             if "text" in server_message:
                 wsmess = WebSocketMessage.message_from_server(server_message["text"])
                 sender = WebSocketMessage(

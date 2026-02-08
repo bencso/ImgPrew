@@ -7,7 +7,7 @@ interface WebsocketContextProps {
     sendMessage({ message, data }: ServerMessage): void
 }
 
-interface ServerMessage { message: string, data?: string | null };
+export interface ServerMessage { message: string, data?: string | null };
 
 export const WebsocketContext = createContext<WebsocketContextProps | null>(null)
 
@@ -32,7 +32,7 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
         wsRef.current = socket;
 
         socket.addEventListener("open", () => {
-            sendMessage({ message: 'connect'});
+            sendMessage({ message: 'connect' });
         });
 
         socket.addEventListener("error", (event) => {
