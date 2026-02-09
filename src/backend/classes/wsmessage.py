@@ -9,7 +9,7 @@ class WebSocketMessage:
 
     def to_dict(self):
         return {"message": self.message, "data": self.data}
-    
+
     def send(self):
         return str(json.dumps({"message": self.message, "data": self.data}))
 

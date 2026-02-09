@@ -6,7 +6,9 @@ interface WorkSessionContextProps {
     step: number;
     setStep: Dispatch<SetStateAction<number>>;
     imgs: string[];
-    setImgs: Dispatch<SetStateAction<string[]>>
+    setImgs: Dispatch<SetStateAction<string[]>>;
+    selectedImg: number;
+    setSelectedImg: Dispatch<SetStateAction<number>>;
 }
 
 export const WorkSessionContext = createContext<WorkSessionContextProps | null>(null);
@@ -18,10 +20,11 @@ export function WorkSessionProvider({
 }) {
     const [imgs, setImgs] = useState<string[]>([]);
     const [step, setStep] = useState<number>(0);
+    const [selectedImg, setSelectedImg] = useState<number>(0);
 
     const contextValue = useMemo<WorkSessionContextProps>(
-        () => ({ imgs, setImgs, step, setStep }),
-        [imgs, setImgs,step,setStep]
+        () => ({ imgs, setImgs, step, setStep, selectedImg, setSelectedImg }),
+        [imgs, setImgs, step, setStep, selectedImg, setSelectedImg]
     );
 
     return <WorkSessionContext.Provider value={contextValue}>{children}</WorkSessionContext.Provider>

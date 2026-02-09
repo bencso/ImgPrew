@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Box,
   Center,
   Flex,
   Splitter,
@@ -36,7 +37,8 @@ export default function SiteSplitter({ children }: { children: ReactNode }) {
       ]}
       onResizeEnd={(e) => setSizes(e.size)}
       borderWidth="1px"
-      minH="100vh"
+      overflow={"hidden"}
+      minH={"100dvh"}
       defaultSize={sizes}
       orientation={orientation}
     >
@@ -49,10 +51,8 @@ export default function SiteSplitter({ children }: { children: ReactNode }) {
         <Splitter.ResizeTriggerIndicator hidden />
       </Splitter.ResizeTrigger>}
 
-      <Splitter.Panel id="b">
-        <Flex justifyContent={"center"} alignItems={isDesktop?"center":"start"} boxSize="full" textStyle="2xl" p={{ smDown: 6, smToMd: 8, mdTo2xl: 10 }}>
-          {children}
-        </Flex>
+      <Splitter.Panel id="b" boxSize="full" textStyle="2xl">
+        {children}
       </Splitter.Panel>
     </Splitter.Root>
   );

@@ -118,15 +118,19 @@ export const ImageDropZone = ({ ws, sendMessage }: {
     })
 
 
-
-
-
     return (
         <Stack
-            w="full"
             maxW={{ base: "md", sm: "xl", lgTo2xl: "2xl" }}
+            w={"full"}
+            h={"100vh"}
+            display={"flex"}
+            flexDirection={"column"}
+            justifyContent={"center"}
+            mx={"auto"}
+            p={4}
+            alignItems={"center"}
         >
-            <FileUpload.RootProvider value={fileUpload} >
+            <FileUpload.RootProvider value={fileUpload} w="full" >
                 <FileUpload.HiddenInput />
                 <FileUpload.Dropzone w={"full"} backgroundColor={"teal.subtle/30"} transition={"all 0.2s ease-in-out"} cursor={"pointer"} _hover={{ backgroundColor: "teal.subtle/40" }}>
                     <Icon size="2xl" color="teal.fg">
@@ -150,7 +154,7 @@ export const ImageDropZone = ({ ws, sendMessage }: {
                     <FileUploadList />
                 </Box>
             </FileUpload.RootProvider>
-            <Button as="div" onClick={() => uploadFile({ fileUpload, ws, sendMessage })} colorPalette="teal" variant="surface">
+            <Button w={"full"} as="div" onClick={() => uploadFile({ fileUpload, ws, sendMessage })} colorPalette="teal" variant="surface">
                 Tovább
             </Button>
         </Stack>
