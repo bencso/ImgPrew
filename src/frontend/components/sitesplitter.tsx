@@ -19,7 +19,6 @@ export default function SiteSplitter({ children }: { children: ReactNode }) {
     lg: "horizontal",
   });
   const isDesktop = orientation === "horizontal";
-
   const [sizes, setSizes] = useLocalStorage<number[]>("splitter-sizes", DEFAULT_SIZES);
 
 
@@ -38,7 +37,8 @@ export default function SiteSplitter({ children }: { children: ReactNode }) {
       onResizeEnd={(e) => setSizes(e.size)}
       borderWidth="1px"
       overflow={"hidden"}
-      minH={"100dvh"}
+      minH={"100svh"}
+      h={"full"}
       defaultSize={sizes}
       orientation={orientation}
     >
@@ -51,7 +51,7 @@ export default function SiteSplitter({ children }: { children: ReactNode }) {
         <Splitter.ResizeTriggerIndicator hidden />
       </Splitter.ResizeTrigger>}
 
-      <Splitter.Panel id="b" boxSize="full" textStyle="2xl">
+      <Splitter.Panel id="b" minH={isDesktop ? "100vh" : "full"} h={"full"} boxSize="full" textStyle="2xl">
         {children}
       </Splitter.Panel>
     </Splitter.Root>

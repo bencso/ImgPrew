@@ -1,13 +1,12 @@
 "use client"
 
-import { Box, Button, FileUpload, Float, Icon, Stack, useFileUpload, useFileUploadContext } from "@chakra-ui/react"
-import { LuTrash, LuUpload } from "react-icons/lu"
+import { Box, Button, FileUpload, Icon, Stack, useFileUpload } from "@chakra-ui/react"
+import { LuUpload } from "react-icons/lu"
 import { toaster } from "../ui/toaster";
-import { ServerMessage, useWebsocket } from "@/providers/websocketprovider";
-import { RefObject, useEffect } from "react";
-import { handleMessage } from "@/websocket/handlers/handleMessage";
-import { useWorkSession } from "@/providers/sessionprovider";
+import { ServerMessage } from "@/providers/websocketprovider";
+import { RefObject } from "react";
 import { uploadFile } from "@/websocket/handlers/fileUpload";
+import { FileUploadList } from "./fileuploadlist";
 
 const MAX_FILES = 5;
 const ACCEPTED_FILES = [
@@ -18,87 +17,10 @@ const ACCEPTED_FILES = [
     "image/webp"
 ];
 
-const FileUploadList = () => {
-    const fileUpload = useFileUploadContext();
-
-    const files = fileUpload.acceptedFiles;
-
-    if (files.length === 0) return null;
-
-    return (
-        <FileUpload.ItemGroup
-            display="grid"
-            p={0}
-            gridTemplateColumns={{
-                smDown: "repeat(1, minmax(0,1fr))",
-                smToXl: "repeat(2, minmax(0, 1fr))",
-                xl: "repeat(3, minmax(0, 1fr))",
-            }}
-            gap={3}
-        >
-            {files.map((file, index) => (
-                <FileUpload.Item
-                    key={`${file.name}-${index}`}
-                    file={file}
-                    p={3}
-                    w={"full"}
-                    borderWidth="1px"
-                    borderRadius="md"
-                    justifyContent={"center"}
-                    position="relative"
-                    _hover={{ bg: "bg.muted" }}
-                >
-                    <Box
-                        display="flex"
-                        flexDirection={"column"}
-                        alignItems="center"
-                        w={"100%"}
-                        justifyContent={"center"}
-                        gap={2}
-                    >
-                        <FileUpload.ItemPreviewImage
-                            userSelect="none"
-                            draggable={false}
-                            maxH={"100px"}
-                            w={"100%"}
-                            minH={"100px"}
-                            borderRadius={"sm"}
-                            h={"full"}
-                            objectFit={"cover"}
-                        />
-                        <FileUpload.ItemName fontSize={"xs"} />
-                    </Box>
-
-                    <Float placement="top-end" offset={{
-                        mdDown: 4,
-                        mdTo2xl: 3,
-                    }}>
-                        <FileUpload.ItemDeleteTrigger
-                            boxSize={{
-                                mdDown: "8",
-                                mdTo2xl: "6"
-                            }}
-                            borderRadius="full"
-                            bg="teal.border"
-                            color="bg.muted"
-                            _hover={{ bg: "teal.500", color: "bg.muted" }}
-                        >
-                            <LuTrash size={14} />
-                        </FileUpload.ItemDeleteTrigger>
-                    </Float>
-                </FileUpload.Item>
-            ))}
-        </FileUpload.ItemGroup>
-
-    )
-}
-
 export const ImageDropZone = ({ ws, sendMessage }: {
     ws: RefObject<WebSocket | null>;
     sendMessage({ message, data }: ServerMessage): void
 }) => {
-    const { setStep } = useWorkSession();
-
 
     const fileUpload = useFileUpload({
         maxFiles: MAX_FILES,
@@ -116,7 +38,6 @@ export const ImageDropZone = ({ ws, sendMessage }: {
             return details.files = [];
         },
     })
-
 
     return (
         <Stack
@@ -154,9 +75,11 @@ export const ImageDropZone = ({ ws, sendMessage }: {
                     <FileUploadList />
                 </Box>
             </FileUpload.RootProvider>
-            <Button w={"full"} as="div" onClick={() => uploadFile({ fileUpload, ws, sendMessage })} colorPalette="teal" variant="surface">
-                Tovább
-            </Button>
+            {
+                fileUpload.acceptedFiles.length > 0 && <Button w={"full"} as="div" onClick={() => uploadFile({ fileUpload, ws, sendMessage })} colorPalette="teal" variant="surface">
+                    Tovább
+                </Button>
+            }
         </Stack>
     )
 };

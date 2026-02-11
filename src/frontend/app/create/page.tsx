@@ -1,26 +1,87 @@
 "use client";
 
+import { EditItem, EditItemProp, InputTypes } from "@/components/editing/edititem";
 import { ImageDropZone } from "@/components/upload/dropzone";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useWebsocket } from "@/providers/websocketprovider";
 import { handleMessage } from "@/websocket/handlers/handleMessage";
-import { Box, Grid, GridItem, Stack } from "@chakra-ui/react";
+import { Box, Grid, GridItem, Stack, useBreakpoint, useBreakpointValue } from "@chakra-ui/react";
 import { Image } from "@chakra-ui/react"
 import { useEffect, useState } from "react";
 import { LuCrop } from "react-icons/lu";
 
+const editItemsTestArray: EditItemProp[] = [
+    {
+        function: "toggleVisibility",
+        icon: <LuCrop />,
+        inputs: [
+            {
+                name: "isVisible",
+                inputType: InputTypes.CHECKBOX
+            }
+        ]
+    },
+    {
+        function: "changeTitle",
+        icon: <LuCrop />,
+        inputs: [
+            {
+                name: "title",
+                inputType: "text"
+            }
+        ]
+    },
+    {
+        function: "setCategory",
+        icon: <LuCrop />,
+        inputs: [
+            {
+                name: "category",
+                inputType: "select",
+                options: ["News", "Blog", "Tutorial"]
+            }
+        ]
+    },
+    {
+        function: "setPublishDate",
+        icon: <LuCrop />,
+        inputs: [
+            {
+                name: "publishDate",
+                inputType: "date"
+            }
+        ]
+    },
+    {
+        function: "complexFunction",
+        icon: <LuCrop />,
+        inputs: [
+            {
+                name: "enabled",
+                inputType: InputTypes.CHECKBOX
+            },
+            {
+                name: "count",
+                inputType: "number"
+            }
+        ]
+    }
+];
+
 {
     //TODO: Majd megoldani a 100svh-s dolgokat! :D 
 }
-
 export default function Page() {
     const { step, imgs, setStep, setImgs, setSelectedImg, selectedImg } = useWorkSession();
     const { ws, sendMessage } = useWebsocket();
     const [selectedImage, setSelectedImage] = useState<string>();
+    const isMd = useBreakpointValue(
+        { base: false, sm: false, md: false, lg: true, xl: true },
+        { ssr: false, fallback: "md" }
+    );
 
     useEffect(() => {
         setSelectedImage(imgs[selectedImg]);
-        console.log(selectedImage);
     }, [selectedImg, imgs]);
 
     useEffect(() => {
@@ -42,7 +103,7 @@ export default function Page() {
         /*TODO: Megcsinálni a betöltödést meg a skeletonokat stb.*/
     }
     return (
-        <Box h={"full"} minH={"full"}>
+        <Box h={"full"} w={"full"} minH={isMd ? "100vh" : "full"} >
             {step === 0 && (
                 <ImageDropZone ws={ws} sendMessage={sendMessage} />
             )}
@@ -51,13 +112,22 @@ export default function Page() {
                 <Stack
                     maxW={"full"}
                     w={"full"}
+                    minH={isMd ? "100vh" : "full"}
+                    h="full"
                     display={"flex"}
                     flexDirection={"column"}
                     mx={"auto"}
                 >
-                    <Grid w={"full"} h={"100dvh"} templateColumns="1fr 60px" gap={4}>
+                    <Grid
+                        w="full"
+                        h={"full"}
+                        
+                        templateColumns={isMd ? "1fr 60px" : "1fr"}
+                        templateRows={isMd ? "1fr" : "1fr 60px"}
+                        gap={4}
+                    >
                         <GridItem
-                            h="full"
+                            h={"full"}
                             p={12}
                             display="flex"
                             flexDirection="column"
@@ -114,29 +184,14 @@ export default function Page() {
                                 </Grid>
                             )}
                         </GridItem>
-                        <GridItem borderStart={"2px solid"} borderColor={"bg.muted"} display={"flex"}>
-                            <Box
-                                p="4"
-                                display={"flex"}
-                                borderBottomWidth={"1px"}
-                                borderColor="border.disabled"
-                                textDecoration={"none"}
-                                alignItems={"center"}
-                                gap={4}
-                                borderRightWidth="2px"
-                                borderLeftColor={"border.disabled"}
-                                borderRadius={0}
-                                color="fg.muted"
-                                _hover={{ bg: "bg.muted" }}
-                                _currentPage={{
-                                    borderLeftColor: "teal.fg",
-                                    bg: "bg.emphasized",
-                                    color: "fg.default",
-                                    "& svg": { color: "teal.fg" },
-                                }}
-                            >
-                                <LuCrop />
-                            </Box>
+                        <GridItem minH={isMd ? "100vh" : "full"} h={"full"} borderStart={"2px solid"} borderColor={"bg.muted"} display={"flex"} flexDirection={isMd ? "column" : "row"}>
+                            {
+                                editItemsTestArray.map((item, index) => {
+                                    return (
+                                        <EditItem key={index} items={item} />
+                                    )
+                                })
+                            }
                         </GridItem>
                     </Grid>
                 </Stack>
