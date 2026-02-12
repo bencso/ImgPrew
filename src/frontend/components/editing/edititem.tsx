@@ -1,21 +1,6 @@
-import { Box, Field, Icon, Input, Popover, Portal, Stack, useBreakpoint, useBreakpointValue, useMediaQuery } from "@chakra-ui/react";
-import { HTMLInputTypeAttribute, ReactNode, useEffect, useRef, useState } from "react";
-
-export enum InputTypes {
-    CHECKBOX = "checkbox"
-}
-
-interface FunctionProp {
-    name: string;
-    inputType: InputTypes | HTMLInputTypeAttribute;
-    options?: any[];
-}
-
-export interface EditItemProp {
-    function: string;
-    icon?: ReactNode;
-    inputs?: FunctionProp[];
-}
+import { EditItemProp, InputTypes } from "@/interfaces/interface";
+import { Box, Field, Input, Popover, Portal, Stack, useBreakpointValue } from "@chakra-ui/react";
+import { useState } from "react";
 
 const activeStyle =
 {
@@ -25,9 +10,6 @@ const activeStyle =
     "& svg": { color: "teal.fg" },
 }
 
-
-
-//TODO: REDUX TELEPÍTÉSE ÉS AZZOL MEGOLDANI A STATE MANAGMENTET
 export const EditItem = ({ items }: { items: EditItemProp }) => {
     const isMd = useBreakpointValue(
         { base: false, sm: false, md: false, lg: true, xl: true },

@@ -1,11 +1,12 @@
 "use client";
 
-import { EditItem, EditItemProp, InputTypes } from "@/components/editing/edititem";
+import { EditItem } from "@/components/editing/edititem";
 import { ImageDropZone } from "@/components/upload/dropzone";
+import { EditItemProp, InputTypes } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useWebsocket } from "@/providers/websocketprovider";
 import { handleMessage } from "@/websocket/handlers/handleMessage";
-import { Box, Grid, GridItem, Stack, useBreakpoint, useBreakpointValue } from "@chakra-ui/react";
+import { Box, Grid, GridItem, Stack, useBreakpointValue } from "@chakra-ui/react";
 import { Image } from "@chakra-ui/react"
 import { useEffect, useState } from "react";
 import { LuCrop } from "react-icons/lu";
@@ -68,17 +69,20 @@ const editItemsTestArray: EditItemProp[] = [
     }
 ];
 
-{
-    //TODO: Majd megoldani a 100svh-s dolgokat! :D 
-}
 export default function Page() {
-    const { step, imgs, setStep, setImgs, setSelectedImg, selectedImg } = useWorkSession();
+    const { step, imgs, setStep, setImgs, setSelectedImg, selectedImg, functions, addFunction } = useWorkSession();
     const { ws, sendMessage } = useWebsocket();
     const [selectedImage, setSelectedImage] = useState<string>();
     const isMd = useBreakpointValue(
         { base: false, sm: false, md: false, lg: true, xl: true },
         { ssr: false, fallback: "md" }
     );
+
+    useEffect(() => {
+        editItemsTestArray.map((item) => {
+            //TODO: Majd itt kell felvenni
+        });
+    }, []);
 
     useEffect(() => {
         setSelectedImage(imgs[selectedImg]);
@@ -102,6 +106,8 @@ export default function Page() {
     {
         /*TODO: Megcsinálni a betöltödést meg a skeletonokat stb.*/
     }
+
+
     return (
         <Box h={"full"} w={"full"} minH={isMd ? "100vh" : "full"} >
             {step === 0 && (
@@ -121,7 +127,7 @@ export default function Page() {
                     <Grid
                         w="full"
                         h={"full"}
-                        
+
                         templateColumns={isMd ? "1fr 60px" : "1fr"}
                         templateRows={isMd ? "1fr" : "1fr 60px"}
                         gap={4}
@@ -197,6 +203,5 @@ export default function Page() {
                 </Stack>
             )}
         </Box>
-
     )
 }
