@@ -70,7 +70,7 @@ const editItemsTestArray: EditItemProp[] = [
 ];
 
 export default function Page() {
-    const { step, imgs, setStep, setImgs, setSelectedImg, selectedImg, functions, addFunction } = useWorkSession();
+    const { step, imgs, setStep, setImgs, setSelectedImg, selectedImg, addFunction } = useWorkSession();
     const { ws, sendMessage } = useWebsocket();
     const [selectedImage, setSelectedImage] = useState<string>();
     const isMd = useBreakpointValue(
@@ -80,7 +80,9 @@ export default function Page() {
 
     useEffect(() => {
         editItemsTestArray.map((item) => {
-            //TODO: Majd itt kell felvenni
+            if (item.inputs) {
+                addFunction(item.function, item.inputs);
+            }
         });
     }, []);
 
@@ -102,11 +104,6 @@ export default function Page() {
             });
         };
     }, [ws]);
-
-    {
-        /*TODO: Megcsinálni a betöltödést meg a skeletonokat stb.*/
-    }
-
 
     return (
         <Box h={"full"} w={"full"} minH={isMd ? "100vh" : "full"} >
@@ -194,7 +191,7 @@ export default function Page() {
                             {
                                 editItemsTestArray.map((item, index) => {
                                     return (
-                                        <EditItem key={index} items={item} />
+                                        <EditItem ws={ws} key={index}  items={item} />
                                     )
                                 })
                             }

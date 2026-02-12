@@ -40,6 +40,8 @@ async def ws_check(websocket: WebSocket):
                     sender.message = wsmess.message
                     sender.data = wsmess.data if wsmess.data else "Ismeretlen hiba"
                     await websocket.send_text(sender.send())
+                if wsmess.message == "function":
+                    print(wsmess.data)
                 if wsmess.message == "fileUpload":
                     slices = wsmess.data["slices"]
                 if wsmess.message == "close":

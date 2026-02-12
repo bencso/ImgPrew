@@ -1,4 +1,5 @@
 import { EditItemProp, InputTypes } from "@/interfaces/interface";
+import { useWorkSession } from "@/providers/sessionprovider";
 import { Box, Field, Input, Popover, Portal, Stack, useBreakpointValue } from "@chakra-ui/react";
 import { useState } from "react";
 
@@ -10,13 +11,17 @@ const activeStyle =
     "& svg": { color: "teal.fg" },
 }
 
-export const EditItem = ({ items }: { items: EditItemProp }) => {
+export const EditItem = ({ items, ws }: { items: EditItemProp, ws: any }) => {
+    const { editFunction } = useWorkSession();
     const isMd = useBreakpointValue(
         { base: false, sm: false, md: false, lg: true, xl: true },
         { ssr: false, }
     );
 
     const [open, setOpen] = useState(false);
+    const handleChange = (event: any, name: string) => {
+        editFunction(ws, items.function, name, event.target.value)
+    }
     return (
         <Popover.Root open={open}
             onOpenChange={(e) => setOpen(e.open)} positioning={{ placement: isMd ? "left" : "top-start" }}>
@@ -72,7 +77,7 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
                                                 return (
                                                     <Field.Root key={index}>
                                                         <Field.Label>{item.name}</Field.Label>
-                                                        <Input type={item.inputType} placeholder="40px" />
+                                                        <Input onChange={(event) => handleChange(event, item.name)} type={item.inputType} placeholder="40px" />
                                                     </Field.Root>
                                                 )
                                         }
