@@ -9,8 +9,9 @@ import { handleMessage } from "@/websocket/handlers/handleMessage";
 import { Box, Grid, GridItem, Stack, useBreakpointValue } from "@chakra-ui/react";
 import { Image } from "@chakra-ui/react"
 import { useEffect, useState } from "react";
-import { LuCrop } from "react-icons/lu";
+import { LuAArrowDown, LuCrop } from "react-icons/lu";
 
+//TODO: Késöbb ugyis ez APIn keresztül jön át
 const editItemsTestArray: EditItemProp[] = [
     {
         function: "toggleVisibility",
@@ -55,11 +56,12 @@ const editItemsTestArray: EditItemProp[] = [
     },
     {
         function: "complexFunction",
-        icon: <LuCrop />,
+        icon: <LuAArrowDown />,
         inputs: [
             {
                 name: "enabled",
-                inputType: InputTypes.CHECKBOX
+                inputType: InputTypes.CHECKBOX,
+                options: ["true", "false"]
             },
             {
                 name: "count",
@@ -71,8 +73,8 @@ const editItemsTestArray: EditItemProp[] = [
 
 export default function Page() {
     const { step, imgs, setStep, setImgs, setSelectedImg, selectedImg, addFunction } = useWorkSession();
-    const { ws, sendMessage } = useWebsocket();
     const [selectedImage, setSelectedImage] = useState<string>();
+    const { ws, sendMessage } = useWebsocket();
     const isMd = useBreakpointValue(
         { base: false, sm: false, md: false, lg: true, xl: true },
         { ssr: false, fallback: "md" }
@@ -191,7 +193,7 @@ export default function Page() {
                             {
                                 editItemsTestArray.map((item, index) => {
                                     return (
-                                        <EditItem ws={ws} key={index}  items={item} />
+                                        <EditItem key={index} items={item} />
                                     )
                                 })
                             }

@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
-
 import { FunctionsInputs, FunctionsState, FunctionProp, InputTypes } from "@/interfaces/interface";
 
 export const useFunctionsStore = create<FunctionsState>()(

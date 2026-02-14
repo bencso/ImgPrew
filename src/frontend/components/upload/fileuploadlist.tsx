@@ -54,8 +54,8 @@ export const FileUploadList = () => {
 
                     <Float placement="bottom-center" offset={"55%"}>
                         <FileUpload.ItemDeleteTrigger
-                        minH={10}
-                        minW={10}
+                            minH={10}
+                            minW={10}
                             borderRadius="full"
                             bg="teal.border/70"
                             color="bg.muted"

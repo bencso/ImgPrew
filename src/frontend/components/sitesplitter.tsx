@@ -1,9 +1,6 @@
 "use client";
 
 import {
-  Box,
-  Center,
-  Flex,
   Splitter,
   useBreakpointValue,
 } from "@chakra-ui/react";

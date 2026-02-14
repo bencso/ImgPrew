@@ -1,6 +1,7 @@
 import { EditItemProp, InputTypes } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
-import { Box, Field, Input, Popover, Portal, Stack, useBreakpointValue } from "@chakra-ui/react";
+import { useWebsocket } from "@/providers/websocketprovider";
+import { Box, Checkbox, Field, Input, Popover, Portal, Stack, Text, useBreakpointValue } from "@chakra-ui/react";
 import { useState } from "react";
 
 const activeStyle =
@@ -11,17 +12,14 @@ const activeStyle =
     "& svg": { color: "teal.fg" },
 }
 
-export const EditItem = ({ items, ws }: { items: EditItemProp, ws: any }) => {
-    const { editFunction } = useWorkSession();
+export const EditItem = ({ items }: { items: EditItemProp }) => {
     const isMd = useBreakpointValue(
         { base: false, sm: false, md: false, lg: true, xl: true },
         { ssr: false, }
     );
 
     const [open, setOpen] = useState(false);
-    const handleChange = (event: any, name: string) => {
-        editFunction(ws, items.function, name, event.target.value)
-    }
+
     return (
         <Popover.Root open={open}
             onOpenChange={(e) => setOpen(e.open)} positioning={{ placement: isMd ? "left" : "top-start" }}>
@@ -62,33 +60,53 @@ export const EditItem = ({ items, ws }: { items: EditItemProp, ws: any }) => {
                     <Popover.Content>
                         <Popover.Arrow />
                         <Popover.Body>
-                            <Stack gap="4">
-                                {
-                                    items.inputs && items.inputs.map((item, index) => {
-                                        switch (item.inputType) {
-
-                                            case InputTypes.CHECKBOX:
-                                                return (
-                                                    <Field.Root key={index}>
-                                                        <Field.Label>{item.name}</Field.Label>
-                                                    </Field.Root>
-                                                )
-                                            default:
-                                                return (
-                                                    <Field.Root key={index}>
-                                                        <Field.Label>{item.name}</Field.Label>
-                                                        <Input onChange={(event) => handleChange(event, item.name)} type={item.inputType} placeholder="40px" />
-                                                    </Field.Root>
-                                                )
-                                        }
-                                    })
-                                }
-                            </Stack>
+                            <Item items={items} />
                         </Popover.Body>
                         <Popover.CloseTrigger />
                     </Popover.Content>
                 </Popover.Positioner>
             </Portal>
         </Popover.Root>
+    )
+}
+
+const Item = ({ items }: { items: EditItemProp }) => {
+    const { editFunction } = useWorkSession();
+    const { ws } = useWebsocket();
+    const handleChange = (event: any, name: string) => {
+        editFunction(ws, items.function, name, event.target.value)
+    }
+
+    return (
+        <Stack gap="4">
+            {
+                items.inputs && items.inputs.map((item, index) => {
+                    switch (item.inputType) {
+                        case InputTypes.CHECKBOX:
+                            return (
+                                <Box key={index} display={"flex"} flexDirection={"column"}>
+                                    <Text marginBottom={2}>{item.name}</Text>
+                                    <Box display={"flex"} flexDirection={"column"} gap={2}>
+                                        {item.options?.map((option, optionI) => {
+                                            return (<Checkbox.Root key={optionI} variant="outline" colorPalette="gray">
+                                                <Checkbox.HiddenInput />
+                                                <Checkbox.Control />
+                                                <Checkbox.Label>{option}</Checkbox.Label>
+                                            </Checkbox.Root>)
+                                        })}
+                                    </Box>
+                                </Box>
+                            )
+                        default:
+                            return (
+                                <Field.Root key={index}>
+                                    <Field.Label>{item.name}</Field.Label>
+                                    <Input onChange={(event) => handleChange(event, item.name)} type={item.inputType} placeholder="40px" />
+                                </Field.Root>
+                            )
+                    }
+                })
+            }
+        </Stack>
     )
 }
