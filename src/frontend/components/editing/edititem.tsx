@@ -88,8 +88,8 @@ const Item = ({ items }: { items: EditItemProp }) => {
                                     <Text marginBottom={2}>{item.name}</Text>
                                     <Box display={"flex"} flexDirection={"column"} gap={2}>
                                         {item.options?.map((option, optionI) => {
-                                            return (<Checkbox.Root onChange={(event) => {
-                                                handleChange(item.name, {[option]: event.target.hasAttribute("checked")} );
+                                            return (<Checkbox.Root onChange={(event: any) => {0
+                                                handleChange(item.name, {[option]: event.target.checked} );
                                             }} key={optionI} variant="outline" colorPalette="gray">
                                                 <Checkbox.HiddenInput />
                                                 <Checkbox.Control />

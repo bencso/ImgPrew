@@ -46,8 +46,11 @@ export const useFunctionsStore = create<FunctionsState>()(
           (inp) => inp.name === inputName
         );
         if (!inputItem) return;
-        
-        inputItem.value = { ...inputItem.value, ...value }
+
+        if (inputItem.input === "checkbox")
+          inputItem.value = { ...inputItem.value, ...value }
+        else
+          inputItem.value = value;
 
         ws.current?.send(
           JSON.stringify({
@@ -55,7 +58,7 @@ export const useFunctionsStore = create<FunctionsState>()(
             data: {
               name: functionName,
               input: inputName,
-              value,
+              value: inputItem.value,
             },
           })
         );
