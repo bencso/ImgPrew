@@ -46,12 +46,8 @@ export const useFunctionsStore = create<FunctionsState>()(
           (inp) => inp.name === inputName
         );
         if (!inputItem) return;
-
-        console.log(JSON.stringify(existingFunction.inputs));
-
-        const inputValue = inputItem.value;
-        console.log(inputValue);
-        inputItem.value = {...inputItem.value, ...value}
+        
+        inputItem.value = { ...inputItem.value, ...value }
 
         ws.current?.send(
           JSON.stringify({

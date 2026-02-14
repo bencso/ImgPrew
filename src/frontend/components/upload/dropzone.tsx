@@ -26,9 +26,7 @@ export const ImageDropZone = ({ ws, sendMessage }: {
         maxFiles: MAX_FILES,
         accept: ACCEPTED_FILES.join(","),
         onFileReject(details) {
-            console.log(details);
             if (details.files.length > 0) {
-                console.log("HIBA");
                 toaster.create({
                     title: "Hiba történt feltöltés közben!",
                     description: `Maximum ${MAX_FILES} fájlt tölthetsz fel.`,
