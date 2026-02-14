@@ -13,7 +13,7 @@ export const useFunctionsStore = create<FunctionsState>()(
 
           switch (input.inputType) {
             case InputTypes.CHECKBOX:
-              value = [];
+              value = {};
               break;
             case "number":
               value = 0;
@@ -47,7 +47,11 @@ export const useFunctionsStore = create<FunctionsState>()(
         );
         if (!inputItem) return;
 
-        inputItem.value = value;
+        console.log(JSON.stringify(existingFunction.inputs));
+
+        const inputValue = inputItem.value;
+        console.log(inputValue);
+        inputItem.value = {...inputItem.value, ...value}
 
         ws.current?.send(
           JSON.stringify({

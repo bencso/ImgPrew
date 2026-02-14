@@ -73,8 +73,8 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
 const Item = ({ items }: { items: EditItemProp }) => {
     const { editFunction } = useWorkSession();
     const { ws } = useWebsocket();
-    const handleChange = (event: any, name: string) => {
-        editFunction(ws, items.function, name, event.target.value)
+    const handleChange = (name: string, value: any) => {
+        editFunction(ws, items.function, name, value)
     }
 
     return (
@@ -88,7 +88,9 @@ const Item = ({ items }: { items: EditItemProp }) => {
                                     <Text marginBottom={2}>{item.name}</Text>
                                     <Box display={"flex"} flexDirection={"column"} gap={2}>
                                         {item.options?.map((option, optionI) => {
-                                            return (<Checkbox.Root key={optionI} variant="outline" colorPalette="gray">
+                                            return (<Checkbox.Root onChange={(event) => {
+                                                handleChange(item.name, {[option]: event.target.hasAttribute("checked")} );
+                                            }} key={optionI} variant="outline" colorPalette="gray">
                                                 <Checkbox.HiddenInput />
                                                 <Checkbox.Control />
                                                 <Checkbox.Label>{option}</Checkbox.Label>
@@ -101,7 +103,7 @@ const Item = ({ items }: { items: EditItemProp }) => {
                             return (
                                 <Field.Root key={index}>
                                     <Field.Label>{item.name}</Field.Label>
-                                    <Input onChange={(event) => handleChange(event, item.name)} type={item.inputType} placeholder="40px" />
+                                    <Input onChange={(event) => handleChange(item.name, event.target.value)} type={item.inputType} placeholder="40px" />
                                 </Field.Root>
                             )
                     }
