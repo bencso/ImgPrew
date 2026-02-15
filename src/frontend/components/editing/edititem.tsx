@@ -71,10 +71,10 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
 }
 
 const Item = ({ items }: { items: EditItemProp }) => {
-    const { editFunction } = useWorkSession();
+    const { editFunction, selectedImg } = useWorkSession();
     const { ws } = useWebsocket();
     const handleChange = (name: string, value: any) => {
-        editFunction(ws, items.function, name, value)
+        editFunction(ws, selectedImg, items.function, name, value)
     }
 
     return (
@@ -88,8 +88,9 @@ const Item = ({ items }: { items: EditItemProp }) => {
                                     <Text marginBottom={2}>{item.name}</Text>
                                     <Box display={"flex"} flexDirection={"column"} gap={2}>
                                         {item.options?.map((option, optionI) => {
-                                            return (<Checkbox.Root onChange={(event: any) => {0
-                                                handleChange(item.name, {[option]: event.target.checked} );
+                                            return (<Checkbox.Root onChange={(event: any) => {
+                                                0
+                                                handleChange(item.name, { [option]: event.target.checked });
                                             }} key={optionI} variant="outline" colorPalette="gray">
                                                 <Checkbox.HiddenInput />
                                                 <Checkbox.Control />

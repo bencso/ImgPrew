@@ -20,6 +20,7 @@ export interface FunctionsState {
     addFunction: (name: string, inputs: FunctionProp[]) => void;
     editFunction: (
         ws: RefObject<WebSocket | null>,
+        selectedImg: number,
         functionName: string,
         inputName: string,
         value: any
@@ -37,6 +38,7 @@ export interface WorkSessionContextProps {
     addFunction: (name: string, inputs: FunctionProp[]) => void;
     editFunction: (
         ws: RefObject<WebSocket | null>,
+        selectedImg: number,
         functionName: string,
         inputName: string,
         value: any

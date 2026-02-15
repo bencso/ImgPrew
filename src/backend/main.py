@@ -1,5 +1,7 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 import base64
+from PIL import Image
+import io
 from .classes.wsmessage import WebSocketMessage
 
 app = FastAPI()
@@ -20,6 +22,8 @@ async def ws_check(websocket: WebSocket):
                 break
 
             if "bytes" in server_message:
+                if not slices:
+                    continue
                 imgs.clear()
                 file_bytes = server_message["bytes"]
                 #! Memoryview: nem készít másolatot a bájtokról, csak egy ablakot nyit az eredeti bájtok fölött
@@ -30,6 +34,7 @@ async def ws_check(websocket: WebSocket):
                     part = base64.b64encode(part_view).decode("ascii")
                     sender.message = "filesuccess"
                     sender.data = part
+                    imgs.append(part)
                     await websocket.send_text(sender.send())
             if "text" in server_message:
                 wsmess = WebSocketMessage.message_from_server(server_message["text"])
@@ -41,7 +46,15 @@ async def ws_check(websocket: WebSocket):
                     sender.data = wsmess.data if wsmess.data else "Ismeretlen hiba"
                     await websocket.send_text(sender.send())
                 if wsmess.message == "function":
-                    print(wsmess.data)
+                    try:
+                        img_index = int(wsmess.data["selectedImg"])
+                        img_base64 = imgs[img_index]
+
+                        img_bytes = base64.b64decode(img_base64)
+                        img = Image.open(io.BytesIO(img_bytes))
+
+                    except (IndexError, KeyError, ValueError) as e:
+                        print("Hiba a kép megnyitásakor:", e)
                 if wsmess.message == "fileUpload":
                     slices = wsmess.data["slices"]
                 if wsmess.message == "close":

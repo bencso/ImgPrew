@@ -35,7 +35,7 @@ export const useFunctionsStore = create<FunctionsState>()(
         });
       }),
 
-    editFunction: (ws, functionName, inputName, value) =>
+    editFunction: (ws, selectedImg, functionName, inputName, value) =>
       set((state) => {
         const existingFunction = state.functions.find(
           (fn) => fn.name === functionName
@@ -56,6 +56,7 @@ export const useFunctionsStore = create<FunctionsState>()(
           JSON.stringify({
             message: "function",
             data: {
+              selectedImg,
               name: functionName,
               input: inputName,
               value: inputItem.value,
