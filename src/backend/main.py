@@ -2,6 +2,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from PIL import Image
 from .classes.wsmessage import WebSocketMessage
 from .classes.uploadedimage import UploadedImage
+from .functions.get_exif_data import GetExifData, EXIF_TAG_NAMES_LIST
 
 app = FastAPI()
 
@@ -49,7 +50,8 @@ async def ws_check(websocket: WebSocket):
                         img_index = int(wsmess.data["selectedImg"])
                         img = imgs[img_index]
                         img = img.get_img()
-                        img.show()
+                        test = GetExifData(img, ["FNumber"])
+                        print(test.get_info())
                     except (IndexError, KeyError, ValueError) as e:
                         print("Hiba a kép megnyitásakor:", e)
                 if wsmess.message == "fileUpload":
