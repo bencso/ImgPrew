@@ -2,11 +2,11 @@
 
 import { Box, Button, FileUpload, Icon, Stack, useFileUpload } from "@chakra-ui/react"
 import { LuUpload } from "react-icons/lu"
-import { toaster } from "../ui/toaster";
+import { toaster } from "@/components/ui/toaster";
 import { ServerMessage } from "@/providers/websocketprovider";
 import { RefObject } from "react";
 import { uploadFile } from "@/websocket/handlers/fileUpload";
-import { FileUploadList } from "./fileuploadlist";
+import { FileUploadList } from "@/components/upload/fileuploadlist";
 
 const MAX_FILES = 5;
 const ACCEPTED_FILES = [

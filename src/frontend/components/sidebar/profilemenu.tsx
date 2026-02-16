@@ -1,6 +1,6 @@
-import { Box, Button, Menu, Portal } from "@chakra-ui/react"
+import { Box, Menu, Portal } from "@chakra-ui/react"
 import { ReactNode } from "react"
-import { LuClipboardPaste, LuCopy, LuLogOut, LuScissors, LuSettings } from "react-icons/lu"
+import { LuLogOut, LuSettings } from "react-icons/lu"
 
 
 export const ProfileMenu = ({ children }: { children: ReactNode }) => {

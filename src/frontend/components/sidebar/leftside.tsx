@@ -4,16 +4,15 @@ import {
     Avatar,
     Box,
     Flex,
-    LinkBox,
     useSplitterContext,
 } from "@chakra-ui/react";
-import ColormodeSwitcher from "../sidebar/colormodeswitch";
+import ColormodeSwitcher from "@/components/sidebar/colormodeswitch";
 import { ReactNode, useEffect, useState } from "react";
 import { LuGalleryThumbnails, LuHouse } from "react-icons/lu";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import LanguageSwitcher from "./languageswitch";
-import { ProfileMenu } from "./profilemenu";
+import LanguageSwitcher from "@/components/sidebar/languageswitch";
+import { ProfileMenu } from "@/components/sidebar/profilemenu";
 
 interface Link {
     name?: string;
