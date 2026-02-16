@@ -1,7 +1,7 @@
 import { EditItemProp, InputTypes } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useWebsocket } from "@/providers/websocketprovider";
-import { Box, Checkbox, Field, Input, Popover, Portal, Stack, Text, useBreakpointValue } from "@chakra-ui/react";
+import { Box, Checkbox, createListCollection, Field, Input, Popover, Portal, Select, Stack, Text, useBreakpointValue } from "@chakra-ui/react";
 import { useState } from "react";
 
 const activeStyle =
@@ -77,27 +77,45 @@ const Item = ({ items }: { items: EditItemProp }) => {
         editFunction(ws, selectedImg, items.function, name, value)
     }
 
+
+
     return (
         <Stack gap="4">
             {
                 items.inputs && items.inputs.map((item, index) => {
+                    const collection = createListCollection({
+                        items: item.options ?? []
+                    });
+
                     switch (item.inputType) {
-                        case InputTypes.CHECKBOX:
+                        case InputTypes.select:
                             return (
                                 <Box key={index} display={"flex"} flexDirection={"column"}>
-                                    <Text marginBottom={2}>{item.name}</Text>
-                                    <Box display={"flex"} flexDirection={"column"} gap={2}>
-                                        {item.options?.map((option, optionI) => {
-                                            return (<Checkbox.Root onChange={(event: any) => {
-                                                0
-                                                handleChange(item.name, { [option]: event.target.checked });
-                                            }} key={optionI} variant="outline" colorPalette="gray">
-                                                <Checkbox.HiddenInput />
-                                                <Checkbox.Control />
-                                                <Checkbox.Label>{option}</Checkbox.Label>
-                                            </Checkbox.Root>)
-                                        })}
-                                    </Box>
+                                    <Text marginBottom={4}>{item.name}</Text>
+                                    <Select.Root multiple collection={collection} size="sm" >
+                                        <Select.HiddenSelect />
+                                        <Select.Label>Válassza ki a kivánt exif adatokat</Select.Label>
+                                        <Select.Control>
+                                            <Select.Trigger>
+                                                <Select.ValueText placeholder="Select framework" />
+                                            </Select.Trigger>
+                                            <Select.IndicatorGroup>
+                                                <Select.Indicator />
+                                            </Select.IndicatorGroup>
+                                        </Select.Control>
+                                        <Portal>
+                                            <Select.Positioner>
+                                                <Select.Content>
+                                                    {item.options?.map((option) => (
+                                                        <Select.Item item={option} key={option}>
+                                                            {option}
+                                                            <Select.ItemIndicator />
+                                                        </Select.Item>
+                                                    ))}
+                                                </Select.Content>
+                                            </Select.Positioner>
+                                        </Portal>
+                                    </Select.Root>
                                 </Box>
                             )
                         default:

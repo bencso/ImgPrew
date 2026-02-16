@@ -1,7 +1,7 @@
 import { Dispatch, HTMLInputTypeAttribute, ReactNode, RefObject, SetStateAction } from "react";
 
 export enum InputTypes {
-    CHECKBOX = "checkbox"
+    select = "select"
 }
 
 export interface FunctionsInputs {

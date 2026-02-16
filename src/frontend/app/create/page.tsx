@@ -2,24 +2,77 @@
 
 import { EditItem } from "@/components/editing/edititem";
 import { ImageDropZone } from "@/components/upload/dropzone";
-import { EditItemProp, InputTypes } from "@/interfaces/interface";
+import { EditItemProp } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useWebsocket } from "@/providers/websocketprovider";
 import { handleMessage } from "@/websocket/handlers/handleMessage";
 import { Box, Grid, GridItem, Stack, useBreakpointValue } from "@chakra-ui/react";
 import { Image } from "@chakra-ui/react"
 import { useEffect, useState } from "react";
-import { LuAArrowDown, LuCrop } from "react-icons/lu";
+import { LuAArrowDown, LuCrop, LuTags } from "react-icons/lu";
 
 //TODO: Késöbb ugyis ez APIn keresztül jön át
 const editItemsTestArray: EditItemProp[] = [
     {
-        function: "toggleVisibility",
-        icon: <LuCrop />,
+        function: "get_exif",
+        icon: <LuTags />,
         inputs: [
             {
                 name: "isVisible",
-                inputType: InputTypes.CHECKBOX
+                inputType: "select",
+                //TODO: Ezt akkor átadni hogy mik érhetőek el az adott képen, mikor megnyitja a képet majd ezt megoldani
+                options: [
+                    "Make",
+                    "Model",
+                    "Orientation",
+                    "XResolution",
+                    "YResolution",
+                    "ResolutionUnit",
+                    "Software",
+                    "DateTime",
+                    "HostComputer",
+                    "TileWidth",
+                    "TileLength",
+                    "ExifTag",
+                    "ExposureTime",
+                    "FNumber",
+                    "ExposureProgram",
+                    "ISOSpeedRatings",
+                    "ExifVersion",
+                    "DateTimeOriginal",
+                    "DateTimeDigitized",
+                    "OffsetTime",
+                    "OffsetTimeOriginal",
+                    "OffsetTimeDigitized",
+                    "ShutterSpeedValue",
+                    "ApertureValue",
+                    "BrightnessValue",
+                    "ExposureBiasValue",
+                    "MeteringMode",
+                    "Flash",
+                    "FocalLength",
+                    "SubjectArea",
+                    "MakerNote",
+                    "SubSecTimeOriginal",
+                    "SubSecTimeDigitized",
+                    "ColorSpace",
+                    "PixelXDimension",
+                    "PixelYDimension",
+                    "SensingMethod",
+                    "SceneType",
+                    "ExposureMode",
+                    "WhiteBalance",
+                    "DigitalZoomRatio",
+                    "FocalLengthIn35mmFilm",
+                    "LensSpecification",
+                    "LensMake",
+                    "LensModel",
+                    "GPS",
+                    "GPSLatitude",
+                    "GPSLongitude",
+                    "GPSLongitudeRef",
+                    "GPSLatitudeRef",
+                ]
             }
         ]
     },
@@ -58,11 +111,6 @@ const editItemsTestArray: EditItemProp[] = [
         function: "complexFunction",
         icon: <LuAArrowDown />,
         inputs: [
-            {
-                name: "enabled",
-                inputType: InputTypes.CHECKBOX,
-                options: ["true", "false"]
-            },
             {
                 name: "count",
                 inputType: "number"

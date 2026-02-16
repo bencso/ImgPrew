@@ -24,6 +24,13 @@ export const handleMessage = (event: MessageEvent, setStep?: Dispatch<SetStateAc
                 type: "success",
             });
             break;
+        case "functionSuccess":
+            toaster.create({
+                title: "Sikeres művelet",
+                type: "success",
+            });
+            console.log(data);
+            break;
         case "filesuccess":
             if (setStep) setStep(1);
             if (setImgs) setImgs((prev) => {
