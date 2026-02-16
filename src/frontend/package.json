@@ -1,5 +1,4 @@
 {
-<<<<<<< Updated upstream
   "name": "frontend",
   "version": "0.1.0",
   "private": true,
@@ -9,8 +8,6 @@
     "start": "next start",
     "lint": "eslint"
   },
-=======
->>>>>>> Stashed changes
   "dependencies": {
     "@chakra-ui/react": "^3.32.0",
     "@emotion/react": "^11.14.0",
@@ -27,13 +24,6 @@
     "ws": "^8.19.0",
     "zustand": "^5.0.11"
   },
-<<<<<<< Updated upstream
-=======
-  "optionalDependencies": {
-    "bufferutil": "^4.1.0",
-    "utf-8-validate": "^6.0.6"
-  },
->>>>>>> Stashed changes
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
@@ -42,14 +32,10 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
-<<<<<<< Updated upstream
     "typescript": "^5"
   },
   "optionalDependencies": {
     "bufferutil": "^4.1.0",
     "utf-8-validate": "^6.0.6"
-=======
-    "typescript": "5.9.3"
->>>>>>> Stashed changes
   }
 }
