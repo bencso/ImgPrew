@@ -1,8 +1,7 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-import base64
 from PIL import Image
-import io
 from .classes.wsmessage import WebSocketMessage
+from .classes.uploadedimage import UploadedImage
 
 app = FastAPI()
 
@@ -10,7 +9,7 @@ app = FastAPI()
 @app.websocket("/ws/")
 async def ws_check(websocket: WebSocket):
     await websocket.accept()
-    imgs = []
+    imgs: list[UploadedImage] = []
     slices = None
     sender = WebSocketMessage("info", f"Az új kapcsolat sikeresen létrejött")
     try:
@@ -31,10 +30,10 @@ async def ws_check(websocket: WebSocket):
                 #! Külön szeletekben küldjük, mert igy gyorsabb
                 for slice_part in slices:
                     part_view = file_view[slice_part["start"] : slice_part["end"]]
-                    part = base64.b64encode(part_view).decode("ascii")
+                    img = UploadedImage(part_view)
+                    imgs.append(img)
                     sender.message = "filesuccess"
-                    sender.data = part
-                    imgs.append(part)
+                    sender.data = img.encode_bytes()
                     await websocket.send_text(sender.send())
             if "text" in server_message:
                 wsmess = WebSocketMessage.message_from_server(server_message["text"])
@@ -48,11 +47,9 @@ async def ws_check(websocket: WebSocket):
                 if wsmess.message == "function":
                     try:
                         img_index = int(wsmess.data["selectedImg"])
-                        img_base64 = imgs[img_index]
-
-                        img_bytes = base64.b64decode(img_base64)
-                        img = Image.open(io.BytesIO(img_bytes))
-
+                        img = imgs[img_index]
+                        img = img.get_img()
+                        img.show()
                     except (IndexError, KeyError, ValueError) as e:
                         print("Hiba a kép megnyitásakor:", e)
                 if wsmess.message == "fileUpload":
