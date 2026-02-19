@@ -1,21 +1,31 @@
 'use client';
 
-import { WorkSessionContextProps } from '@/interfaces/interface';
+import { CustomImage, WorkSessionContextProps, WorkSessionProviderProps } from '@/interfaces/interface';
 import { useFunctionsStore } from '@/stores/functionsStore';
-import { createContext, useContext, useMemo, useState, ReactNode } from 'react';
+import { createContext, useContext, useMemo, useState, useEffect } from 'react';
+import { useWebsocket } from './websocketprovider';
 
 export const WorkSessionContext = createContext<WorkSessionContextProps | null>(null);
 
-interface WorkSessionProviderProps {
-    children: ReactNode;
-}
 
 export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
     const [imgs, setImgs] = useState<string[]>([]);
     const [step, setStep] = useState<number>(0);
     const [selectedImg, setSelectedImg] = useState<number>(0);
+    const [sessionData, setSessionData] = useState<CustomImage[]>([]);
+
+    const { sendMessage } = useWebsocket();
 
     const { functions, addFunction, editFunction } = useFunctionsStore();
+
+    useEffect(() => {
+        if (imgs.length > 0) {
+            sendMessage({
+                message: "initImage",
+                data: selectedImg.toString()
+            })
+        }
+    }, [selectedImg, imgs]);
 
     const contextValue = useMemo<WorkSessionContextProps>(() => ({
         imgs,
@@ -26,8 +36,10 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
         setSelectedImg,
         functions,
         addFunction,
-        editFunction
-    }), [imgs, step, selectedImg, functions]);
+        editFunction,
+        sessionData,
+        setSessionData
+    }), [imgs, step, selectedImg, functions, sessionData]);
 
     return (
         <WorkSessionContext.Provider value={contextValue}>

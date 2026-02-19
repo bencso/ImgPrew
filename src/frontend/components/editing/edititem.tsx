@@ -1,7 +1,7 @@
 import { EditItemProp, InputTypes } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useWebsocket } from "@/providers/websocketprovider";
-import { Box, Checkbox, createListCollection, Field, Input, Popover, Portal, Select, Stack, Text, useBreakpointValue } from "@chakra-ui/react";
+import { Box, createListCollection, Field, Input, Popover, Portal, Select, Stack, Text, useBreakpointValue } from "@chakra-ui/react";
 import { useState } from "react";
 
 const activeStyle =
@@ -78,7 +78,6 @@ const Item = ({ items }: { items: EditItemProp }) => {
     }
 
 
-
     return (
         <Stack gap="4">
             {
@@ -94,10 +93,9 @@ const Item = ({ items }: { items: EditItemProp }) => {
                                     <Text marginBottom={4}>{item.name}</Text>
                                     <Select.Root multiple collection={collection} size="sm" >
                                         <Select.HiddenSelect />
-                                        <Select.Label>Válassza ki a kivánt exif adatokat</Select.Label>
                                         <Select.Control>
                                             <Select.Trigger>
-                                                <Select.ValueText placeholder="Select framework" />
+                                                <Select.ValueText placeholder="Válassza ki a kivánt exif adatokat" />
                                             </Select.Trigger>
                                             <Select.IndicatorGroup>
                                                 <Select.Indicator />

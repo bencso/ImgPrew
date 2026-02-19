@@ -12,8 +12,8 @@ export const useFunctionsStore = create<FunctionsState>()(
           let value: any;
 
           switch (input.inputType) {
-            case InputTypes.CHECKBOX:
-              value = {};
+            case InputTypes.select:
+              value = [];
               break;
             case "number":
               value = 0;

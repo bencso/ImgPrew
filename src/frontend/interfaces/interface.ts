@@ -4,6 +4,21 @@ export enum InputTypes {
     select = "select"
 }
 
+export interface CustomImage {
+    id: number;
+    exifDatas?: string[];
+    caption?: string;
+}
+
+
+export interface SessionStore {
+    sessionData: CustomImage[];
+    addImage: () => void;
+    setSessionData: (data: CustomImage[]) => void;
+    getSelectedImageExif: (id: number) => string[];
+    setExifDataForImage: (id: number, exif: string[]) => CustomImage | undefined;
+}
+
 export interface FunctionsInputs {
     name: string;
     input: InputTypes | HTMLInputTypeAttribute;
@@ -27,6 +42,7 @@ export interface FunctionsState {
     ) => void;
 }
 
+
 export interface WorkSessionContextProps {
     step: number;
     setStep: Dispatch<SetStateAction<number>>;
@@ -34,6 +50,8 @@ export interface WorkSessionContextProps {
     setImgs: Dispatch<SetStateAction<string[]>>;
     selectedImg: number;
     setSelectedImg: Dispatch<SetStateAction<number>>;
+    sessionData: CustomImage[];
+    setSessionData: Dispatch<SetStateAction<CustomImage[]>>;
     functions: FunctionItem[];
     addFunction: (name: string, inputs: FunctionProp[]) => void;
     editFunction: (
@@ -44,7 +62,6 @@ export interface WorkSessionContextProps {
         value: any
     ) => void;
 }
-
 
 export interface FunctionProp {
     name: string;
@@ -57,3 +74,8 @@ export interface EditItemProp {
     icon?: ReactNode;
     inputs?: FunctionProp[];
 }
+
+export interface WorkSessionProviderProps {
+    children: ReactNode;
+}
+

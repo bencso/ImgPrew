@@ -2,7 +2,7 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 import json
 from .classes.wsmessage import WebSocketMessage
 from .classes.uploadedimage import UploadedImage
-from .functions.get_exif_data import GetExifData, EXIF_TAG_NAMES_LIST
+from .functions.get_exif_data import GetExifData
 
 app = FastAPI()
 
@@ -33,7 +33,7 @@ async def ws_check(websocket: WebSocket):
                     part_view = file_view[slice_part["start"] : slice_part["end"]]
                     img = UploadedImage(part_view)
                     imgs.append(img)
-                    sender.message = "filesuccess"
+                    sender.message = "fileSuccess"
                     sender.data = img.encode_bytes()
                     await websocket.send_text(sender.send())
             if "text" in server_message:
@@ -45,20 +45,20 @@ async def ws_check(websocket: WebSocket):
                     sender.message = wsmess.message
                     sender.data = wsmess.data if wsmess.data else "Ismeretlen hiba"
                     await websocket.send_text(sender.send())
-                if wsmess.message == "function":
+                if wsmess.message == "initImage":
                     try:
-                        img_index = int(wsmess.data["selectedImg"])
+                        print(wsmess.data)
+                        img_index = int(wsmess.data)
                         img = imgs[img_index]
                         img = img.get_img()
-                        
-                        match wsmess.data["name"]:
-                            case "get_exif":
-                                test = GetExifData(img, ["FNumber"])
-                                sender.data = json.dumps({
-                                    "exif_datas": list(test.get_exif_datas().keys())
-                                })
-                                sender.message = "functionSuccess"
-                                await websocket.send_text(sender.send())
+                        test = GetExifData(img, ["FNumber"])
+                        sender.message = "initSuccess"
+                        exif_datas = test.get_exif_datas()
+                        exif_keys = list(exif_datas.keys()) if isinstance(exif_datas, dict) else list(exif_datas or [])
+                        sender.data = json.dumps(
+                            {"exifDatas": exif_keys, "id": img_index}
+                        )
+                        await websocket.send_text(sender.send())
                     except (IndexError, KeyError, ValueError) as e:
                         print("Hiba a kép megnyitásakor:", e)
                 if wsmess.message == "fileUpload":

@@ -49,7 +49,7 @@ export const FileUploadList = () => {
                             h={"full"}
                             objectFit={"cover"}
                         />
-                        <FileUpload.ItemName fontSize={"xs"} />
+                        <FileUpload.ItemName fontSize={"xs"} maxW={"90%"} />
                     </Box>
 
                     <Float placement="bottom-center" offset={"55%"}>

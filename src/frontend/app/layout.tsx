@@ -15,14 +15,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Provider>
           <ColorModeProvider>
             <LangugeProvider>
-              <WorkSessionProvider>
-                <WebsocketProvider>
+              <WebsocketProvider>
+                <WorkSessionProvider>
                   <SiteSplitter>
                     <Toaster />
                     {children}
                   </SiteSplitter>
-                </WebsocketProvider>
-              </WorkSessionProvider>
+                </WorkSessionProvider>
+              </WebsocketProvider>
             </LangugeProvider>
           </ColorModeProvider>
         </Provider>

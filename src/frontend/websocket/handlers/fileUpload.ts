@@ -1,4 +1,3 @@
-import { useWorkSession } from "@/providers/sessionprovider";
 import { ServerMessage } from "@/providers/websocketprovider";
 import { UseFileUploadReturn } from "@chakra-ui/react";
 import { RefObject } from "react";
@@ -65,6 +64,7 @@ export const uploadFile = async ({ fileUpload, ws, sendMessage }: uploadFileProp
             combined.set(new Uint8Array(buffer), offset);
             offset += buffer.byteLength;
         }
+        
         ws.current?.send(JSON.stringify({
             message: "fileUpload",
             data: {
