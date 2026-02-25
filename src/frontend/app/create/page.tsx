@@ -1,5 +1,6 @@
 "use client";
 
+import CustomTagEditor from "@/components/editing/customTagEditor";
 import { EditItem } from "@/components/editing/edititem";
 import { ImageDropZone } from "@/components/upload/dropzone";
 import { EditItemProp } from "@/interfaces/interface";
@@ -45,12 +46,15 @@ export default function Page() {
                             inputType: "select",
                             options: exif,
                         },
+                        {
+                            name: "Caption",
+                            inputType: "customElement",
+                            options: <CustomTagEditor/>,
+                        },
                     ],
                 },
             ].filter(Boolean) as EditItemProp[]
         );
-
-
     }, [sessionData, selectedImg]);
 
     useMemo(() => {

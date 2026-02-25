@@ -2,7 +2,7 @@ import { EditItemProp, InputTypes } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useWebsocket } from "@/providers/websocketprovider";
 import { Box, createListCollection, Field, Input, Popover, Portal, Select, Stack, Text, useBreakpointValue } from "@chakra-ui/react";
-import { useState } from "react";
+import React, { Fragment, useState } from "react";
 
 const activeStyle =
 {
@@ -83,7 +83,7 @@ const Item = ({ items }: { items: EditItemProp }) => {
             {
                 items.inputs && items.inputs.map((item, index) => {
                     const collection = createListCollection({
-                        items: item.options ?? []
+                        items: ((item.options instanceof Array) && item.options) ? item.options : []
                     });
 
                     switch (item.inputType) {
@@ -104,7 +104,7 @@ const Item = ({ items }: { items: EditItemProp }) => {
                                         <Portal>
                                             <Select.Positioner>
                                                 <Select.Content>
-                                                    {item.options?.map((option) => (
+                                                    {(item.options instanceof Array) && item.options?.map((option) => (
                                                         <Select.Item item={option} key={option}>
                                                             {option}
                                                             <Select.ItemIndicator />
@@ -114,6 +114,13 @@ const Item = ({ items }: { items: EditItemProp }) => {
                                             </Select.Positioner>
                                         </Portal>
                                     </Select.Root>
+                                </Box>
+                            )
+                        case InputTypes.customElement:
+                            return (
+                                <Box key={index} display={"flex"} flexDirection={"column"}>
+                                    <Text marginBottom={4}>{item.name}</Text>
+                                    {React.isValidElement(item.options) && <Fragment>{item.options}</Fragment>}
                                 </Box>
                             )
                         default:

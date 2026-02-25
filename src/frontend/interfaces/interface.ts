@@ -1,7 +1,8 @@
-import { Dispatch, HTMLInputTypeAttribute, ReactNode, RefObject, SetStateAction } from "react";
+import React, { Dispatch, HTMLInputTypeAttribute, ReactNode, RefObject, SetStateAction } from "react";
 
 export enum InputTypes {
-    select = "select"
+    select = "select",
+    customElement = "customElement"
 }
 
 export interface CustomImage {
@@ -66,7 +67,7 @@ export interface WorkSessionContextProps {
 export interface FunctionProp {
     name: string;
     inputType: InputTypes | HTMLInputTypeAttribute;
-    options?: any[];
+    options?: any[] | HTMLElement | ReactNode | null;
 }
 
 export interface EditItemProp {
