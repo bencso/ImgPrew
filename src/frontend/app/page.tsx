@@ -2,19 +2,20 @@
 
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
-import { Box, Tag, Textarea } from "@chakra-ui/react";
-import { useEffect, useMemo, useRef, useState } from "react";
-
+import { Box, Button, Tag } from "@chakra-ui/react";
+import { useMemo, useRef, useState } from "react";
+import EmojiPicker, { EmojiClickData, Theme } from 'emoji-picker-react';
+import { LuLaugh } from "react-icons/lu";
 
 export default function Page() {
   const editorRef = useRef<HTMLTextAreaElement>(null);
-
+  const [emojiOpen, setEmojiOpen] = useState<boolean>(false);
   const { getSelectedImageExif } = useSessionStore();
   const { selectedImg } = useWorkSession();
   const [tags, setTags] = useState<string[]>([]);
   const tagRegex = /\[([^\]]+)\]/g;
 
-  useEffect(() => {
+  useMemo(() => {
     const exifs = getSelectedImageExif(selectedImg);
     exifs && setTags(exifs);
   }, [selectedImg]);
@@ -45,6 +46,29 @@ export default function Page() {
     }
   }
 
+  function emojiClick(emojiObject: EmojiClickData) {
+    const emoji = emojiObject.emoji;
+    const nextNode = document.createTextNode("");
+    nextNode.textContent = emoji;
+
+    const selection = window.getSelection();
+    if (!selection?.rangeCount) return;
+
+    const range = selection?.getRangeAt(0);
+
+    if (range) {
+      range.deleteContents();
+      range.insertNode(nextNode)
+      range.insertNode(nextNode);
+
+      range.setStartAfter(nextNode);
+      range.collapse(true);
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+      editorRef.current?.focus();
+    }
+  }
+
   function insertTag(text: string) {
     if (tags.includes(text)) {
       createTag(text);
@@ -52,12 +76,9 @@ export default function Page() {
   }
 
 
-
   return (
     <Box h="full" px={30}>
-
       <Box>
-        <p>Tagek:</p>
         <Tag.Root onClick={() => { insertTag("tag") }} transition={"all 2ms"} _hover={{ backgroundColor: "teal.800", borderColor: "teal.950" }} size={"xl"} key={1} rounded="full">
           <Tag.Label>{"tag"}</Tag.Label>
         </Tag.Root>
@@ -69,12 +90,23 @@ export default function Page() {
           )
         })}</Box>
       </Box>
+      <Box position={"relative"}>
+        <Button mb={2} onClick={() => {
+        setEmojiOpen(!emojiOpen);
+      }}>
+        <LuLaugh />
+      </Button>
+      <Box position={"absolute"}>
+        <EmojiPicker theme={Theme.AUTO} open={emojiOpen} autoFocusSearch onEmojiClick={emojiClick} />
+      </Box>
+      </Box>
       <Box
+      mt={12}
         ref={editorRef}
         contentEditable
         suppressContentEditableWarning
         backgroundColor={"teal.900"}
-        onInput={(e) => {
+        onInput={() => {
           var cleanedText;
           const selection = window.getSelection();
           if (!selection?.rangeCount) return;

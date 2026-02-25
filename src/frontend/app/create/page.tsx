@@ -8,8 +8,8 @@ import { useWebsocket } from "@/providers/websocketprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { handleMessage } from "@/websocket/handlers/handleMessage";
 import { Box, Grid, GridItem, Stack, useBreakpointValue } from "@chakra-ui/react";
-import { Image } from "@chakra-ui/react"
-import { useEffect, useState } from "react";
+import { Image } from "@chakra-ui/react";
+import { useEffect, useMemo, useState } from "react";
 import { LuTags } from "react-icons/lu";
 
 export default function Page() {
@@ -24,7 +24,7 @@ export default function Page() {
         { ssr: false, fallback: "md" }
     );
 
-    useEffect(() => {
+    useMemo(() => {
         editItems.map((item) => {
             if (item.inputs) {
                 addFunction(item.function, item.inputs);
@@ -32,7 +32,7 @@ export default function Page() {
         });
     }, []);
 
-    useEffect(() => {
+    useMemo(() => {
         const exif = getSelectedImageExif(selectedImg);
         setEditItems(
             [
@@ -53,7 +53,7 @@ export default function Page() {
 
     }, [sessionData, selectedImg]);
 
-    useEffect(() => {
+    useMemo(() => {
         setSelectedImage(imgs[selectedImg]);
     }, [selectedImg, imgs]);
 
