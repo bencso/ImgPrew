@@ -2,7 +2,7 @@
 
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
-import { Box, Button, Float, Tag, useBreakpointValue } from "@chakra-ui/react";
+import { Box, Button, Flex, Float, ScrollArea, Tag, useBreakpointValue } from "@chakra-ui/react";
 import { useMemo, useRef, useState } from "react";
 import { EmojiClickData, EmojiStyle, SkinTonePickerLocation, SkinTones, SuggestionMode, Theme } from 'emoji-picker-react';
 import { LuLaugh } from "react-icons/lu";
@@ -18,8 +18,8 @@ export default function CustomTagEditor() {
     const [tags, setTags] = useState<string[]>([]);
     const tagRegex = /\[([^\]]+)\]/g;
     const [savedSelection, setSavedSelection] = useState<Range | null>(null);
-    const isMd = useBreakpointValue(
-        { base: false, sm: false, md: false, lg: true, xl: true },
+    const isTableSize = useBreakpointValue(
+        { base: false, sm: false, md: false, lg: false, xl: true },
         { ssr: false, fallback: "md" }
     );
 
@@ -57,6 +57,7 @@ export default function CustomTagEditor() {
         const nextNode = document.createTextNode("");
         span.className = "customTag";
         span.style.userSelect = "all";
+        span.contentEditable = "false";
         span.textContent = tag;
         Object.assign(span.style, {
             display: "inline-flex",
@@ -71,6 +72,9 @@ export default function CustomTagEditor() {
             cursor: "default",
             margin: "0 0.25rem 0.25rem 0"
         });
+        onclick = () => {
+            range.deleteContents();
+        }
 
         if (range) {
             range.deleteContents();
@@ -105,6 +109,7 @@ export default function CustomTagEditor() {
             selection?.removeAllRanges();
             selection?.addRange(range);
             editorRef.current?.focus();
+            setEmojiOpen(false);
         }
     }
 
@@ -142,41 +147,103 @@ export default function CustomTagEditor() {
 
 
     return (
-        <Box h="full">
-            <Box>
-                {/* <Box mt={3} display={"flex"} flexWrap={"wrap"} spaceX={2} spaceY={2}>{tags.map((tag, index) => {
-                    return (
-                        <Tag.Root onClick={() => {
-                            insertTag(tag);
-                        }} colorScheme={"teal"} size={"xl"} key={index} rounded="full">
-                            <Tag.Label>{tag}</Tag.Label>
-                        </Tag.Root>
-                    )
-                })}</Box> */}
+        <Box display="flex" flexDirection={isTableSize ? "column" : "column"} w={"full"} h="full" gap="2">
+            <Box display="flex" flexDirection="row" flex="1" gap="2">
+                <ScrollArea.Root width="100%" size="xs" scrollbar="hidden">
+                    <ScrollArea.Viewport
+                        css={{
+                            "--scroll-shadow-size": "3rem",
+                            maskImage: "linear-gradient(to right, #000 85%, transparent)",
+                            "&[data-at-top=false]": {
+                                maskImage: "linear-gradient(to right, #000 85%, transparent)",
+                            },
+                            "&[data-at-bottom=false]": {
+                                maskImage: "linear-gradient(to right, #000 85%, transparent)",
+                            },
+                            "&[data-at-top=true][data-at-bottom=true]": {
+                                maskImage: "linear-gradient(to right, #000, #000)",
+                            },
+                        }}
+                    >
+                        <ScrollArea.Content>
+                            <Flex gap="1.5" flexWrap="nowrap" align="center" py="1">
+                                {tags.map((tag, index) => (
+                                    <Tag.Root
+                                        key={tag + index}
+                                        onClick={() => insertTag(tag)}
+                                        colorScheme="teal"
+                                        size="lg"
+                                        rounded="full"
+                                        css={{
+                                            scrollSnapAlign: "start",
+                                            flexShrink: 0,
+                                        }}
+                                    >
+                                        <Tag.Label>{tag}</Tag.Label>
+                                    </Tag.Root>
+                                ))}
+                                <Box w="3rem" flexShrink={0} />
+                            </Flex>
+                        </ScrollArea.Content>
+                    </ScrollArea.Viewport>
+                </ScrollArea.Root>
+                {isTableSize && (
+                    <Flex justify="flex-end" mb="1">
+                        <Button
+                            size="sm"
+                            onClick={() => {
+                                saveSelection();
+                                setEmojiOpen(!emojiOpen);
+                            }}
+                            colorPalette="teal"
+                            variant="ghost"
+                            css={{ flexShrink: 0 }}
+                        >
+                            <LuLaugh />
+                        </Button>
+                        <Float placement={"middle-start"} offset={20}>
+                            <EmojiPicker
+                                height={350}
+                                width={320}
+                                defaultSkinTone={SkinTones.LIGHT}
+                                emojiStyle={EmojiStyle.FACEBOOK}
+                                lazyLoadEmojis
+                                searchPlaceHolder="Keresés"
+                                suggestedEmojisMode={SuggestionMode.FREQUENT}
+                                skinTonePickerLocation={SkinTonePickerLocation.PREVIEW}
+                                theme={colorMode === "dark" ? Theme.DARK : Theme.LIGHT}
+                                open={emojiOpen}
+                                onEmojiClick={emojiClick}
+                            />
+                        </Float>
+                    </Flex>
+                )}
             </Box>
-            <Box>
-                {isMd && <><Button mb={2} size={"sm"} onClick={() => {
-                    saveSelection();
-                    setEmojiOpen(!emojiOpen);
-                }} colorPalette="teal" variant="ghost">
-                    <LuLaugh />
-                </Button>
-                    <Float placement={"middle-end"} offset={"-40"}>
-                        <EmojiPicker height={350} defaultSkinTone={SkinTones.LIGHT} emojiStyle={EmojiStyle.FACEBOOK} lazyLoadEmojis searchPlaceHolder="Keresés" suggestedEmojisMode={SuggestionMode.FREQUENT} skinTonePickerLocation={SkinTonePickerLocation.PREVIEW} theme={colorMode === "dark" ? Theme.DARK : Theme.LIGHT} open={emojiOpen} onEmojiClick={emojiClick} />
-                    </Float></>}
                 <Box
-                    mt={3}
-                    borderColor={"teal"}
+                    flex="1"
+                    minH="120px"
+                    maxH="400px"
+                    width="100%"
+                    minW="100%"
+                    maxW="100%"
+                    borderColor="teal"
                     borderWidth={1}
                     ref={editorRef}
-                    focusRing={"none"}
+                    focusRing="none"
                     contentEditable
                     suppressContentEditableWarning
-                    p={3}
-                    borderRadius={"lg"}
+                    p="3"
+                    borderRadius="lg"
+                    overflowY="auto"
                     onInput={changeTextTag}
+                    css={{
+                        boxSizing: 'border-box',
+                        '&:focus': {
+                            borderColor: 'teal.6',
+                            boxShadow: '0 0 0 2px rgba(45, 212, 191, 0.2)',
+                        },
+                    }}
                 />
             </Box>
-        </Box>
     )
 }
