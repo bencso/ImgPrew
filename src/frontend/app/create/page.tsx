@@ -10,7 +10,7 @@ import { handleMessage } from "@/websocket/handlers/handleMessage";
 import { Box, Grid, GridItem, Stack, useBreakpointValue } from "@chakra-ui/react";
 import { Image } from "@chakra-ui/react"
 import { useEffect, useState } from "react";
-import { LuAArrowDown, LuTags } from "react-icons/lu";
+import { LuTags } from "react-icons/lu";
 
 export default function Page() {
     const { step, imgs, setStep, setImgs, setSelectedImg, selectedImg, addFunction } = useWorkSession();

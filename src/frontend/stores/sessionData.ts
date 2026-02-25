@@ -5,6 +5,7 @@ import { immer } from "zustand/middleware/immer";
 export const useSessionStore = create<SessionStore>()(
     immer((set, get) => ({
         sessionData: [],
+        caption: "",
         setSessionData: (data) => set({ sessionData: data }),
         addImage: () => {
             set((state) => {
