@@ -11,7 +11,7 @@ import { handleMessage } from "@/websocket/handlers/handleMessage";
 import { Box, Grid, GridItem, Stack, useBreakpointValue } from "@chakra-ui/react";
 import { Image } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
-import { LuTags } from "react-icons/lu";
+import { LuCaptions, LuTags } from "react-icons/lu";
 
 export default function Page() {
     const { step, imgs, setStep, setImgs, setSelectedImg, selectedImg, addFunction } = useWorkSession();
@@ -37,8 +37,8 @@ export default function Page() {
         setEditItems(
             [
                 {
-                    function: "get_exif",
-                    icon: <LuTags />,
+                    function: "create_caption",
+                    icon: <LuCaptions />,
                     inputs: [
                         {
                             name: "",
