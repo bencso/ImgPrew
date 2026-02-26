@@ -14,10 +14,11 @@ export default function CaptionBlock() {
     const [selectedSample, setSelectedSample] = useState<string | null>(null);
 
     const [emojiOpen, setEmojiOpen] = useState<boolean>(false);
-    const { getSelectedImageExif, sessionData } = useSessionStore();
+    const { getSelectedImageExif, sessionData, getCaptionSamples } = useSessionStore();
     const { selectedImg } = useWorkSession();
     const { colorMode } = useColorMode();
 
+    const [captionSamples, setCaptionSamples] = useState<string[]>([]);
     const [tags, setTags] = useState<string[]>([]);
     const tagRegex = /\[([^\]]+)\]/g;
     const [savedSelection, setSavedSelection] = useState<Range | null>(null);
@@ -46,7 +47,10 @@ export default function CaptionBlock() {
 
     useMemo(() => {
         const exifs = getSelectedImageExif(selectedImg);
+        const samples = getCaptionSamples(selectedImg);
         exifs && setTags(exifs);
+        console.log(samples);
+        samples && setCaptionSamples(samples);
     }, [sessionData, selectedImg]);
 
     function createTag(tag: string) {
@@ -149,7 +153,9 @@ export default function CaptionBlock() {
     }
 
     const collection = createListCollection({
-        items: ((tags instanceof Array) && tags) ? tags : []
+        items: captionSamples ?? [],
+        itemToValue: (item: any) => item.item,
+        itemToString: (item: any) => item.key
     });
 
 
@@ -160,7 +166,7 @@ export default function CaptionBlock() {
                  * SAMPLE VÁLASZTÓ
                  */
             }
-            <Text fontSize={"sm"} color={"fg.muted"}>Samplek:</Text>
+            <Text fontSize={"sm"} color={"fg.muted"}>Előre létrehozott caption-ök:</Text>
             <Box display="flex" flexDirection="row" gap={4}>
                 <Select.Root
                     variant={"subtle"}
@@ -183,12 +189,15 @@ export default function CaptionBlock() {
                     <Portal>
                         <Select.Positioner w={"fit"}>
                             <Select.Content w={"fit"}>
-                                {tags.map((tag) => (
-                                    <Select.Item item={tag} key={tag}>
+                                {
+                                    //TODO: Egy typeot példányosítani neki :)
+                                }
+                                {captionSamples.map((tag: any) => (
+                                    <Select.Item item={tag} key={tag.key}>
                                         <Stack gap="0">
-                                            <Select.ItemText>{tag}</Select.ItemText>
+                                            <Select.ItemText>{tag.key}</Select.ItemText>
                                             <Span color="fg.muted" textStyle="xs">
-                                                description
+                                                {tag.item}
                                             </Span>
                                         </Stack>
                                         <Select.ItemIndicator />
@@ -199,7 +208,13 @@ export default function CaptionBlock() {
                     </Portal>
                 </Select.Root>
                 <Button size={"sm"} variant={"surface"} colorPalette={"teal"} onClick={() => {
-                    console.log(selectedSample);
+                    if (editorRef.current) {
+                        {
+                            // TODO: ITT EZ NEM LESZ JÓ, SZÓVAL NEM ÁTIRNI KELL HANEM UGY KELL MAJD MEGCSINÁLNI HOGY
+                            //  VÉGIG TERÁLUNK A SAMPLEN és egyesével betesszük mintha irnánk akár vagy egy külön functiont kell ráirni majd :)
+                        }
+                        editorRef.current.innerText = selectedSample || "";
+                    }
                 }}>
                     Alkalmaz
                 </Button>

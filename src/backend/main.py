@@ -3,6 +3,8 @@ import json
 from .classes.wsmessage import WebSocketMessage
 from .classes.uploadedimage import UploadedImage
 from .functions.get_exif_data import GetExifData
+from .functions.caption_generator import CaptionGenerator
+from .dependencies import CAPTIONS_SAMPLES
 
 app = FastAPI()
 
@@ -55,8 +57,9 @@ async def ws_check(websocket: WebSocket):
                         sender.message = "initSuccess"
                         exif_datas = test.get_exif_datas()
                         exif_keys = list(exif_datas.keys()) if isinstance(exif_datas, dict) else list(exif_datas or [])
+                        caption_sample = CaptionGenerator(exif_info=exif_keys).getSampleForPhoto() or []
                         sender.data = json.dumps(
-                            {"exifDatas": exif_keys, "id": img_index}
+                            {"exifDatas": exif_keys, "id": img_index, "caption_samples": caption_sample}
                         )
                         await websocket.send_text(sender.send())
                     except (IndexError, KeyError, ValueError) as e:

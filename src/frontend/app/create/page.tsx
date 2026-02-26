@@ -18,7 +18,7 @@ export default function Page() {
     const [selectedImage, setSelectedImage] = useState<string>();
     const [editItems, setEditItems] = useState<EditItemProp[]>([]);
     const { ws, sendMessage } = useWebsocket();
-    const { getSelectedImageExif, sessionData, setExifDataForImage, addImage } = useSessionStore();
+    const { sessionData, setExifDataForImage,setCaptionSamplesForImage, addImage } = useSessionStore();
 
     const isMd = useBreakpointValue(
         { base: false, sm: false, md: false, lg: true, xl: true },
@@ -61,7 +61,7 @@ export default function Page() {
         if (!wscurr) return;
 
         const messageHandler = (event: MessageEvent) => {
-            handleMessage(event, setStep, setImgs, setExifDataForImage, addImage);
+            handleMessage(event, setStep, setImgs, setExifDataForImage, setCaptionSamplesForImage, addImage);
         };
 
         wscurr.addEventListener("message", messageHandler);

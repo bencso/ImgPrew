@@ -6,12 +6,12 @@ import { Dispatch, SetStateAction } from "react";
 
 const ERROR_MESSAGE = "Ismeretlen, kérjük próbálja újra";
 
-
 export const handleMessage = (
     event: MessageEvent,
     setStep?: Dispatch<SetStateAction<number>>,
     setImgs?: Dispatch<SetStateAction<string[]>>,
     setExifDataForImage?: (id: number, exif: string[]) => CustomImage | undefined,
+    setCaptionSamplesForImage?: (id: number, captionSamples: string[]) => CustomImage | undefined,
     addImage?: () => void
 ) => {
     let rawMessage = JSON.parse(event.data);
@@ -33,9 +33,10 @@ export const handleMessage = (
             });
             break;
         case "initSuccess":
-            const { exifDatas, id } = JSON.parse(data);
+            const { exifDatas, id, caption_samples } = JSON.parse(data);
             if (setExifDataForImage) setExifDataForImage(id, exifDatas);
-
+            console.log(caption_samples);
+            if (setCaptionSamplesForImage) setCaptionSamplesForImage(id, caption_samples);
             break;
         case "functionSuccess":
             toaster.create({

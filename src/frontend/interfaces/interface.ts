@@ -8,6 +8,7 @@ export enum InputTypes {
 export interface CustomImage {
     id: number;
     exifDatas?: string[];
+    captionSamples?: string[];
     caption?: string;
 }
 
@@ -18,6 +19,8 @@ export interface SessionStore {
     setSessionData: (data: CustomImage[]) => void;
     getSelectedImageExif: (id: number) => string[];
     setExifDataForImage: (id: number, exif: string[]) => CustomImage | undefined;
+    getCaptionSamples: (id: number) => string[];
+    setCaptionSamplesForImage: (id: number, captionSamples: string[]) => CustomImage | undefined;
 }
 
 export interface FunctionsInputs {

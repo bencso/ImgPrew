@@ -1,7 +1,6 @@
 from PIL import Image
 import os
 from dependencies import EXIF_TAG_NAMES_LIST, IMAGE_EXTENSIONS
-from functions.get_exif_data import GetExifData
 import piexif
 import logging
 import io

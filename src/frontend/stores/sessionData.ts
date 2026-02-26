@@ -23,10 +23,24 @@ export const useSessionStore = create<SessionStore>()(
                 }
             })
         },
-        getSelectedImageExif: (id) => {
+        getSelectedImageExif: (id: number) => {
             const image = get().sessionData.find(image => image.id === id);
             return image?.exifDatas || [];
         },
         // ----- EXIF ADATOK -----
+        // ----- CAPTION SAMPLES ADATOK -----
+        setCaptionSamplesForImage: (id: number, exif: string[]) => {
+            set((state) => {
+                const image = state.sessionData.find(image => image.id === id);
+                if (image) {
+                    image.captionSamples = exif;
+                }
+            })
+        },
+        getCaptionSamples: (id: number) => {
+            const image = get().sessionData.find(image => image.id === id);
+            return image?.captionSamples || [];
+        },
+        // ----- CAPTION SAMPLES ADATOK -----
     }))
 );
