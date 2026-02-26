@@ -95,7 +95,7 @@ const Item = ({ items }: { items: EditItemProp }) => {
                                         <Select.HiddenSelect />
                                         <Select.Control>
                                             <Select.Trigger>
-                                                <Select.ValueText placeholder="Válassza ki a kivánt exif adatokat" />
+                                                <Select.ValueText placeholder="Válasszon..." />
                                             </Select.Trigger>
                                             <Select.IndicatorGroup>
                                                 <Select.Indicator />

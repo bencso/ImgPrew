@@ -1,6 +1,6 @@
 "use client";
 
-import CustomTagEditor from "@/components/editing/customTagEditor";
+import CaptionBlock from "@/components/editing/caption/captionBlock";
 import { EditItem } from "@/components/editing/edititem";
 import { ImageDropZone } from "@/components/upload/dropzone";
 import { EditItemProp } from "@/interfaces/interface";
@@ -34,22 +34,16 @@ export default function Page() {
     }, []);
 
     useMemo(() => {
-        const exif = getSelectedImageExif(selectedImg);
         setEditItems(
             [
-                exif.length > 0 && {
+                {
                     function: "get_exif",
                     icon: <LuTags />,
                     inputs: [
                         {
-                            name: "Exif adatok",
-                            inputType: "select",
-                            options: exif,
-                        },
-                        {
-                            name: "Caption",
+                            name: "",
                             inputType: "customElement",
-                            options: <CustomTagEditor/>,
+                            options: <CaptionBlock />,
                         },
                     ],
                 },

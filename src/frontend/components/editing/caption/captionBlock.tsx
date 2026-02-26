@@ -2,27 +2,30 @@
 
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
-import { Box, Button, Flex, Float, ScrollArea, Tag, useBreakpointValue } from "@chakra-ui/react";
+import { Box, Button, createListCollection, Flex, Float, Portal, ScrollArea, Select, Separator, Span, Stack, Tag, Text, useBreakpointValue } from "@chakra-ui/react";
 import { useMemo, useRef, useState } from "react";
 import { EmojiClickData, EmojiStyle, SkinTonePickerLocation, SkinTones, SuggestionMode, Theme } from 'emoji-picker-react';
 import { LuLaugh } from "react-icons/lu";
 import { useColorMode } from "@/components/ui/color-mode";
 import dynamic from "next/dynamic";
 
-export default function CustomTagEditor() {
+export default function CaptionBlock() {
     const editorRef = useRef<HTMLTextAreaElement>(null);
+    const [selectedSample, setSelectedSample] = useState<string | null>(null);
+
     const [emojiOpen, setEmojiOpen] = useState<boolean>(false);
-    const { getSelectedImageExif } = useSessionStore();
+    const { getSelectedImageExif, sessionData } = useSessionStore();
     const { selectedImg } = useWorkSession();
     const { colorMode } = useColorMode();
+
     const [tags, setTags] = useState<string[]>([]);
     const tagRegex = /\[([^\]]+)\]/g;
     const [savedSelection, setSavedSelection] = useState<Range | null>(null);
+
     const isTableSize = useBreakpointValue(
         { base: false, sm: false, md: false, lg: false, xl: true },
         { ssr: false, fallback: "md" }
     );
-
 
     const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false });
 
@@ -44,7 +47,7 @@ export default function CustomTagEditor() {
     useMemo(() => {
         const exifs = getSelectedImageExif(selectedImg);
         exifs && setTags(exifs);
-    }, [selectedImg]);
+    }, [sessionData, selectedImg]);
 
     function createTag(tag: string) {
         const selection = window.getSelection();
@@ -145,11 +148,70 @@ export default function CustomTagEditor() {
         }
     }
 
+    const collection = createListCollection({
+        items: ((tags instanceof Array) && tags) ? tags : []
+    });
+
 
     return (
         <Box display="flex" flexDirection={isTableSize ? "column" : "column"} w={"full"} h="full" gap="2">
+            {
+                /*
+                 * SAMPLE VÁLASZTÓ
+                 */
+            }
+            <Text fontSize={"sm"} color={"fg.muted"}>Samplek:</Text>
+            <Box display="flex" flexDirection="row" gap={4}>
+                <Select.Root
+                    variant={"subtle"}
+                    collection={collection}
+                    size="sm"
+                    scrollbar={"hidden"}
+                    onSelect={(e) => {
+                        setSelectedSample(e.value);
+                    }}
+                >
+                    <Select.HiddenSelect />
+                    <Select.Control>
+                        <Select.Trigger>
+                            <Select.ValueText maxW={"130px"} color={"fg.muted"} placeholder="Kérjük, válasszon egy samplet" />
+                        </Select.Trigger>
+                        <Select.IndicatorGroup>
+                            <Select.Indicator />
+                        </Select.IndicatorGroup>
+                    </Select.Control>
+                    <Portal>
+                        <Select.Positioner w={"fit"}>
+                            <Select.Content w={"fit"}>
+                                {tags.map((tag) => (
+                                    <Select.Item item={tag} key={tag}>
+                                        <Stack gap="0">
+                                            <Select.ItemText>{tag}</Select.ItemText>
+                                            <Span color="fg.muted" textStyle="xs">
+                                                description
+                                            </Span>
+                                        </Stack>
+                                        <Select.ItemIndicator />
+                                    </Select.Item>
+                                ))}
+                            </Select.Content>
+                        </Select.Positioner>
+                    </Portal>
+                </Select.Root>
+                <Button size={"sm"} variant={"surface"} colorPalette={"teal"} onClick={() => {
+                    console.log(selectedSample);
+                }}>
+                    Alkalmaz
+                </Button>
+            </Box>
+            <Separator my={2} />
+            {
+                /*
+                 * CAPTION VÁLASZTÓ
+                 */
+            }
             <Box display="flex" flexDirection="row" flex="1" gap="2">
-                <ScrollArea.Root width="100%" size="xs" scrollbar="hidden">
+                <ScrollArea.Root width="100%" size="xs" scrollbar="hidden" alignItems={"center"}>
                     <ScrollArea.Viewport
                         css={{
                             "--scroll-shadow-size": "3rem",
@@ -219,31 +281,32 @@ export default function CustomTagEditor() {
                     </Flex>
                 )}
             </Box>
-                <Box
-                    flex="1"
-                    minH="120px"
-                    maxH="400px"
-                    width="100%"
-                    minW="100%"
-                    maxW="100%"
-                    borderColor="teal"
-                    borderWidth={1}
-                    ref={editorRef}
-                    focusRing="none"
-                    contentEditable
-                    suppressContentEditableWarning
-                    p="3"
-                    borderRadius="lg"
-                    overflowY="auto"
-                    onInput={changeTextTag}
-                    css={{
-                        boxSizing: 'border-box',
-                        '&:focus': {
-                            borderColor: 'teal.6',
-                            boxShadow: '0 0 0 2px rgba(45, 212, 191, 0.2)',
-                        },
-                    }}
-                />
-            </Box>
+            <Text fontSize={"sm"} color={"fg.muted"}>Caption szöveg:</Text>
+            <Box
+                flex="1"
+                minH="120px"
+                maxH="400px"
+                width="100%"
+                minW="100%"
+                maxW="100%"
+                borderColor="teal"
+                borderWidth={1}
+                ref={editorRef}
+                focusRing="none"
+                contentEditable
+                suppressContentEditableWarning
+                p="3"
+                borderRadius="lg"
+                overflowY="auto"
+                onInput={changeTextTag}
+                css={{
+                    boxSizing: 'border-box',
+                    '&:focus': {
+                        borderColor: 'teal.6',
+                        boxShadow: '0 0 0 2px rgba(45, 212, 191, 0.2)',
+                    },
+                }}
+            />
+        </Box>
     )
 }
