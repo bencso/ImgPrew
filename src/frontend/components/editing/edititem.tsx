@@ -90,7 +90,7 @@ const Item = ({ items }: { items: EditItemProp }) => {
                         case InputTypes.select:
                             return (
                                 <Box key={index} display={"flex"} flexDirection={"column"}>
-                                    <Text marginBottom={4}>{item.name}</Text>
+                                    {item.name.length > 0 && <Text marginBottom={4}>{item.name}</Text>}
                                     <Select.Root multiple collection={collection} size="sm" >
                                         <Select.HiddenSelect />
                                         <Select.Control>
@@ -119,14 +119,14 @@ const Item = ({ items }: { items: EditItemProp }) => {
                         case InputTypes.customElement:
                             return (
                                 <Box key={index} display={"flex"} flexDirection={"column"}>
-                                    <Text marginBottom={4}>{item.name}</Text>
+                                     {item.name.length > 0 && <Text marginBottom={4}>{item.name}</Text>}
                                     {React.isValidElement(item.options) && <Fragment>{item.options}</Fragment>}
                                 </Box>
                             )
                         default:
                             return (
                                 <Field.Root key={index}>
-                                    <Field.Label>{item.name}</Field.Label>
+                                    {item.name.length > 0 &&  <Field.Label>{item.name}</Field.Label>}
                                     <Input onChange={(event) => handleChange(item.name, event.target.value)} type={item.inputType} placeholder="40px" />
                                 </Field.Root>
                             )

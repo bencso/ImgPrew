@@ -58,6 +58,7 @@ export default function CaptionBlock() {
         if (!selection?.rangeCount) return;
 
         const range = selection?.getRangeAt(0);
+        editorRef.current?.focus();
         if (!editorRef.current?.contains(range?.startContainer)) return;
 
         const span = document.createElement("span");
@@ -106,6 +107,7 @@ export default function CaptionBlock() {
         if (!selection?.rangeCount) return;
 
         const range = selection?.getRangeAt(0);
+        editorRef.current?.focus();
         if (!editorRef.current?.contains(range?.startContainer)) return;
 
         if (range) {
@@ -196,128 +198,132 @@ export default function CaptionBlock() {
                  * SAMPLE VÁLASZTÓ
                  */
             }
-            <Text fontSize={"sm"} color={"fg.muted"}>Előre létrehozott caption-ök:</Text>
-            <Box display="flex" flexDirection="row" gap={4}>
-                <Select.Root
-                    variant={"subtle"}
-                    collection={collection}
-                    size="sm"
-                    scrollbar={"hidden"}
-                    onSelect={(e) => {
-                        setSelectedSample(e.value);
-                    }}
-                >
-                    <Select.HiddenSelect />
-                    <Select.Control>
-                        <Select.Trigger>
-                            <Select.ValueText maxW={"130px"} color={"fg.muted"} placeholder="Kérjük, válasszon egy samplet" />
-                        </Select.Trigger>
-                        <Select.IndicatorGroup>
-                            <Select.Indicator />
-                        </Select.IndicatorGroup>
-                    </Select.Control>
-                    <Portal>
-                        <Select.Positioner w={"fit"}>
-                            <Select.Content w={"fit"}>
-                                {
-                                    //TODO: Egy typeot példányosítani neki :)
-                                }
-                                {captionSamples.map((tag: any) => (
-                                    <Select.Item item={tag} key={tag.key}>
-                                        <Stack gap="0">
-                                            <Select.ItemText>{tag.key}</Select.ItemText>
-                                            <Span color="fg.muted" textStyle="xs">
-                                                {tag.item}
-                                            </Span>
-                                        </Stack>
-                                        <Select.ItemIndicator />
-                                    </Select.Item>
-                                ))}
-                            </Select.Content>
-                        </Select.Positioner>
-                    </Portal>
-                </Select.Root>
-                <Button size={"sm"} variant={"surface"} colorPalette={"teal"} onClick={onClickApplyBtn}>
-                    Alkalmaz
-                </Button>
-            </Box>
-            <Separator my={2} />
+            {
+                captionSamples.length > 0 && <><Text fontSize={"sm"} color={"fg.muted"}>Előre létrehozott caption-ök:</Text><Box display="flex" flexDirection="row" gap={4}>
+                    <Select.Root
+                        variant={"subtle"}
+                        collection={collection}
+                        size="sm"
+                        scrollbar={"hidden"}
+                        onSelect={(e) => {
+                            setSelectedSample(e.value);
+                        }}
+                    >
+                        <Select.HiddenSelect />
+                        <Select.Control>
+                            <Select.Trigger>
+                                <Select.ValueText maxW={"130px"} color={"fg.muted"} placeholder="Kérjük, válasszon egy samplet" />
+                            </Select.Trigger>
+                            <Select.IndicatorGroup>
+                                <Select.Indicator />
+                            </Select.IndicatorGroup>
+                        </Select.Control>
+                        <Portal>
+                            <Select.Positioner w={"fit"}>
+                                <Select.Content w={"fit"}>
+                                    {
+                                        //TODO: Egy typeot példányosítani neki :)
+                                    }
+                                    {captionSamples.map((tag: any) => (
+                                        <Select.Item item={tag} key={tag.key}>
+                                            <Stack gap="0">
+                                                <Select.ItemText>{tag.key}</Select.ItemText>
+                                                <Span color="fg.muted" textStyle="xs">
+                                                    {tag.item}
+                                                </Span>
+                                            </Stack>
+                                            <Select.ItemIndicator />
+                                        </Select.Item>
+                                    ))}
+                                </Select.Content>
+                            </Select.Positioner>
+                        </Portal>
+                    </Select.Root>
+                    <Button size={"sm"} variant={"surface"} colorPalette={"teal"} onClick={onClickApplyBtn}>
+                        Alkalmaz
+                    </Button>
+                </Box>
+                    <Separator my={2} />
+                </>
+            }
             {
                 /*
                  * CAPTION VÁLASZTÓ
                  */
             }
-            <Box display="flex" flexDirection="row" flex="1" gap="2">
-                <ScrollArea.Root width="100%" size="xs" scrollbar="hidden" alignItems={"center"}>
-                    <ScrollArea.Viewport
-                        css={{
-                            "--scroll-shadow-size": "3rem",
-                            maskImage: "linear-gradient(to right, #000 85%, transparent)",
-                            "&[data-at-top=false]": {
+            {
+                tags.length > 0 && <Box display="flex" flexDirection="row" flex="1" gap="2">
+                    <ScrollArea.Root width="100%" size="xs" scrollbar="hidden" alignItems={"center"}>
+                        <ScrollArea.Viewport
+                            css={{
+                                "--scroll-shadow-size": "3rem",
                                 maskImage: "linear-gradient(to right, #000 85%, transparent)",
-                            },
-                            "&[data-at-bottom=false]": {
-                                maskImage: "linear-gradient(to right, #000 85%, transparent)",
-                            },
-                            "&[data-at-top=true][data-at-bottom=true]": {
-                                maskImage: "linear-gradient(to right, #000, #000)",
-                            },
-                        }}
-                    >
-                        <ScrollArea.Content>
-                            <Flex gap="1.5" flexWrap="nowrap" align="center" py="1">
-                                {tags.map((tag, index) => (
-                                    <Tag.Root
-                                        key={tag + index}
-                                        onClick={() => insertTag(tag)}
-                                        colorScheme="teal"
-                                        size="lg"
-                                        rounded="full"
-                                        css={{
-                                            scrollSnapAlign: "start",
-                                            flexShrink: 0,
-                                        }}
-                                    >
-                                        <Tag.Label>{tag}</Tag.Label>
-                                    </Tag.Root>
-                                ))}
-                                <Box w="3rem" flexShrink={0} />
-                            </Flex>
-                        </ScrollArea.Content>
-                    </ScrollArea.Viewport>
-                </ScrollArea.Root>
-                {isTableSize && (
-                    <Flex justify="flex-end" mb="1">
-                        <Button
-                            size="sm"
-                            onClick={() => {
-                                saveSelection();
-                                setEmojiOpen(!emojiOpen);
+                                "&[data-at-top=false]": {
+                                    maskImage: "linear-gradient(to right, #000 85%, transparent)",
+                                },
+                                "&[data-at-bottom=false]": {
+                                    maskImage: "linear-gradient(to right, #000 85%, transparent)",
+                                },
+                                "&[data-at-top=true][data-at-bottom=true]": {
+                                    maskImage: "linear-gradient(to right, #000, #000)",
+                                },
                             }}
-                            colorPalette="teal"
-                            variant="ghost"
-                            css={{ flexShrink: 0 }}
                         >
-                            <LuLaugh />
-                        </Button>
-                        <Float placement={"middle-start"} offset={20}>
-                            <EmojiPicker
-                                height={350}
-                                width={320}
-                                defaultSkinTone={SkinTones.LIGHT}
-                                emojiStyle={EmojiStyle.FACEBOOK}
-                                lazyLoadEmojis
-                                searchPlaceHolder="Keresés"
-                                suggestedEmojisMode={SuggestionMode.FREQUENT}
-                                skinTonePickerLocation={SkinTonePickerLocation.PREVIEW}
-                                theme={colorMode === "dark" ? Theme.DARK : Theme.LIGHT}
-                                open={emojiOpen}
-                                onEmojiClick={emojiClick}
-                            />
-                        </Float>
-                    </Flex>
-                )}
-            </Box>
+                            <ScrollArea.Content>
+                                <Flex gap="1.5" flexWrap="nowrap" align="center" py="1">
+                                    {tags.map((tag, index) => (
+                                        <Tag.Root
+                                            key={tag + index}
+                                            onClick={() => insertTag(tag)}
+                                            colorScheme="teal"
+                                            size="lg"
+                                            rounded="full"
+                                            css={{
+                                                scrollSnapAlign: "start",
+                                                flexShrink: 0,
+                                            }}
+                                        >
+                                            <Tag.Label>{tag}</Tag.Label>
+                                        </Tag.Root>
+                                    ))}
+                                    <Box w="3rem" flexShrink={0} />
+                                </Flex>
+                            </ScrollArea.Content>
+                        </ScrollArea.Viewport>
+                    </ScrollArea.Root>
+                    {isTableSize && (
+                        <Flex justify="flex-end" mb="1">
+                            <Button
+                                size="sm"
+                                onClick={() => {
+                                    saveSelection();
+                                    setEmojiOpen(!emojiOpen);
+                                }}
+                                colorPalette="teal"
+                                variant="ghost"
+                                css={{ flexShrink: 0 }}
+                            >
+                                <LuLaugh />
+                            </Button>
+                            <Float placement={"middle-start"} offset={20}>
+                                <EmojiPicker
+                                    height={350}
+                                    width={320}
+                                    defaultSkinTone={SkinTones.LIGHT}
+                                    emojiStyle={EmojiStyle.FACEBOOK}
+                                    lazyLoadEmojis
+                                    searchPlaceHolder="Keresés"
+                                    suggestedEmojisMode={SuggestionMode.FREQUENT}
+                                    skinTonePickerLocation={SkinTonePickerLocation.PREVIEW}
+                                    theme={colorMode === "dark" ? Theme.DARK : Theme.LIGHT}
+                                    open={emojiOpen}
+                                    onEmojiClick={emojiClick}
+                                />
+                            </Float>
+                        </Flex>
+                    )}
+                </Box>
+            }
             <Text fontSize={"sm"} color={"fg.muted"}>Caption szöveg:</Text>
             <Box
                 flex="1"
