@@ -152,6 +152,36 @@ export default function CaptionBlock() {
         }
     }
 
+    function onClickApplyBtn() {
+        if (editorRef.current) {
+            editorRef.current.textContent = "";
+            const regexMatchTexts = selectedSample?.match(tagRegex)?.map((element) => element.replace("[", "").replace("]", ""));
+
+            selectedSample?.split(tagRegex).filter(Boolean).map((text) => {
+                if (text && regexMatchTexts?.some((element) => element.toString() === text)) {
+                    insertTag(text);
+                } else {
+                    const nextNode = document.createTextNode(text);
+                    const selection = window.getSelection();
+                    if (!selection?.rangeCount) return;
+
+                    const range = selection?.getRangeAt(0);
+                    editorRef.current?.focus();
+                    if (!editorRef.current?.contains(range?.startContainer)) return;
+                    if (range) {
+                        range.deleteContents();
+                        range.insertNode(nextNode)
+                        range.setStartAfter(nextNode);
+                        range.collapse(true);
+                        selection?.removeAllRanges();
+                        selection?.addRange(range);
+                        editorRef.current?.focus();
+                    }
+                }
+            })
+        }
+    }
+
     const collection = createListCollection({
         items: captionSamples ?? [],
         itemToValue: (item: any) => item.item,
@@ -207,15 +237,7 @@ export default function CaptionBlock() {
                         </Select.Positioner>
                     </Portal>
                 </Select.Root>
-                <Button size={"sm"} variant={"surface"} colorPalette={"teal"} onClick={() => {
-                    if (editorRef.current) {
-                        {
-                            // TODO: ITT EZ NEM LESZ JÓ, SZÓVAL NEM ÁTIRNI KELL HANEM UGY KELL MAJD MEGCSINÁLNI HOGY
-                            //  VÉGIG TERÁLUNK A SAMPLEN és egyesével betesszük mintha irnánk akár vagy egy külön functiont kell ráirni majd :)
-                        }
-                        editorRef.current.innerText = selectedSample || "";
-                    }
-                }}>
+                <Button size={"sm"} variant={"surface"} colorPalette={"teal"} onClick={onClickApplyBtn}>
                     Alkalmaz
                 </Button>
             </Box>
