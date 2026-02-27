@@ -47,6 +47,14 @@ async def ws_check(websocket: WebSocket):
                     sender.message = wsmess.message
                     sender.data = wsmess.data if wsmess.data else "Ismeretlen hiba"
                     await websocket.send_text(sender.send())
+                if wsmess.message == "newSession":
+                    sender.message = "successNewSession"
+                    sender.data = None
+                    if len(imgs) > 0:
+                        imgs.clear()
+                        if slices is not None:
+                            slices = None 
+                    await websocket.send_text(sender.send())
                 if wsmess.message == "initImage":
                     try:
                         print(wsmess.data)
