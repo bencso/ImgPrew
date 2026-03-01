@@ -1,8 +1,10 @@
 import { EditItemProp, InputTypes } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useWebsocket } from "@/providers/websocketprovider";
-import { Box, createListCollection, Field, Input, Popover, Portal, Select, Stack, Text, useBreakpointValue } from "@chakra-ui/react";
+import { Box, Button, createListCollection, Field, Grid, GridItem, HStack, Input, Popover, Portal, RadioCard, Select, Stack, Text, useBreakpointValue } from "@chakra-ui/react";
 import React, { Fragment, useState } from "react";
+import ImageIcon from "../icons/imageIcon";
+import { useSessionStore } from "@/stores/sessionData";
 
 const activeStyle =
 {
@@ -12,6 +14,7 @@ const activeStyle =
     "& svg": { color: "teal.fg" },
 }
 
+//#region SIDEBAR ITEM
 export const EditItem = ({ items }: { items: EditItemProp }) => {
     const isMd = useBreakpointValue(
         { base: false, sm: false, md: false, lg: true, xl: true },
@@ -70,12 +73,16 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
     )
 }
 
+
+//#region SIDEBAR ITEM Optionjei
 const Item = ({ items }: { items: EditItemProp }) => {
+    //#region contextek, és egyéb függőségek
     const { editFunction, selectedImg } = useWorkSession();
     const { ws } = useWebsocket();
     const handleChange = (name: string, value: any) => {
         editFunction(ws, selectedImg, items.function, name, value)
     }
+    //#endregion
 
 
     return (
@@ -85,8 +92,9 @@ const Item = ({ items }: { items: EditItemProp }) => {
                     const collection = createListCollection({
                         items: ((item.options instanceof Array) && item.options) ? item.options : []
                     });
-
+                    //#region INPUT kezelés, és eldöntés (switch case)
                     switch (item.inputType) {
+                        //#region select type
                         case InputTypes.select:
                             return (
                                 <Box key={index} display={"flex"} flexDirection={"column"}>
@@ -116,17 +124,49 @@ const Item = ({ items }: { items: EditItemProp }) => {
                                     </Select.Root>
                                 </Box>
                             )
+                        //#region customElement type
                         case InputTypes.customElement:
                             return (
                                 <Box key={index} display={"flex"} flexDirection={"column"}>
-                                     {item.name.length > 0 && <Text marginBottom={4}>{item.name}</Text>}
+                                    {item.name.length > 0 && <Text marginBottom={4}>{item.name}</Text>}
                                     {React.isValidElement(item.options) && <Fragment>{item.options}</Fragment>}
                                 </Box>
                             )
+                        //#region radio type
+                        case "radio":
+                            return (
+                                <Box key={index} display={"flex"} flexDirection={"column"}>
+
+                                    <RadioCard.Root
+                                        orientation="vertical"
+                                        align="center"
+                                        maxW="400px"
+                                        defaultValue="paypal"
+                                    >
+                                        <RadioCard.Label>
+                                            {item.name.length > 0 && item.name}
+                                        </RadioCard.Label>
+                                        <HStack w={"full"} flexWrap={"wrap"}>
+                                            {(item.options && item.options instanceof Array) && item.options.map((option, index) => {
+                                                return (
+                                                    <RadioCard.Item key={index} value={option} onChange={item.onChange || undefined} colorPalette={"teal"}>
+                                                        <RadioCard.ItemHiddenInput />
+                                                        <RadioCard.ItemControl>
+                                                            <ImageIcon icon={option} />
+                                                            <RadioCard.ItemText fontSize={"sm"} color={"fg.muted"}> {option}</RadioCard.ItemText>
+                                                        </RadioCard.ItemControl>
+                                                    </RadioCard.Item>
+                                                )
+                                            })}
+                                        </HStack>
+                                    </RadioCard.Root>
+                                </Box>
+                            )
+                        //#region egyéb / minden nem egyedi type
                         default:
                             return (
                                 <Field.Root key={index}>
-                                    {item.name.length > 0 &&  <Field.Label>{item.name}</Field.Label>}
+                                    {item.name.length > 0 && <Field.Label>{item.name}</Field.Label>}
                                     <Input onChange={(event) => handleChange(item.name, event.target.value)} type={item.inputType} placeholder="40px" />
                                 </Field.Root>
                             )

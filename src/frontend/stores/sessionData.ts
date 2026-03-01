@@ -4,8 +4,8 @@ import { immer } from "zustand/middleware/immer";
 
 export const useSessionStore = create<SessionStore>()(
     immer((set, get) => ({
+        //#region ADATOK
         sessionData: [],
-        caption: "",
         setSessionData: (data) => set({ sessionData: data }),
         addImage: () => {
             set((state) => {
@@ -14,7 +14,8 @@ export const useSessionStore = create<SessionStore>()(
                 state.sessionData.push({ id: nextId });
             });
         },
-        // ----- EXIF ADATOK -----
+        //#endregion
+        //#region ----- EXIF ADATOK -----
         setExifDataForImage: (id: number, exif: string[]) => {
             set((state) => {
                 const image = state.sessionData.find(image => image.id === id);
@@ -27,13 +28,13 @@ export const useSessionStore = create<SessionStore>()(
             const image = get().sessionData.find(image => image.id === id);
             return image?.exifDatas || [];
         },
-        // ----- EXIF ADATOK -----
-        // ----- CAPTION SAMPLES ADATOK -----
-        setCaptionSamplesForImage: (id: number, exif: string[]) => {
+        //#endregion ----- EXIF ADATOK -----
+        //#region ----- CAPTION SAMPLES ADATOK -----
+        setCaptionSamplesForImage: (id: number, captionSamples: string[]) => {
             set((state) => {
                 const image = state.sessionData.find(image => image.id === id);
                 if (image) {
-                    image.captionSamples = exif;
+                    image.captionSamples = captionSamples;
                 }
             })
         },
@@ -41,6 +42,20 @@ export const useSessionStore = create<SessionStore>()(
             const image = get().sessionData.find(image => image.id === id);
             return image?.captionSamples || [];
         },
-        // ----- CAPTION SAMPLES ADATOK -----
+        //#endregion ----- CAPTION SAMPLES ADATOK -----
+        //#region ----- EXPORT FILE EXTENSION ADATOK -----
+        setExportFileExtension: (id: number, extension: string) => {
+            set((state) => {
+                const image = state.sessionData.find(image => image.id === id);
+                if (image) {
+                    image.exportFileExtension = extension;
+                }
+            })
+        },
+        getExportFileExtension: (id: number) => {
+            const image = get().sessionData.find(image => image.id === id);
+            return image?.exportFileExtension || "";
+        },
+        //#endregion ----- EXPORT FILE EXTENSION ADATOK -----
     }))
 );

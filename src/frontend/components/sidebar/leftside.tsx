@@ -27,6 +27,7 @@ export const LeftSide = ({ isDesktop }: { isDesktop: ReactNode }) => {
     const [mounted, setMounted] = useState(false);
     useEffect(() => setMounted(true));
 
+    //#region Linkek
     const links: Link[] = [
         {
             name: "Főoldal",
@@ -39,6 +40,7 @@ export const LeftSide = ({ isDesktop }: { isDesktop: ReactNode }) => {
             icon: <LuGalleryThumbnails size={22} />
         }
     ]
+    //#endregion
 
     return (
         <Flex
@@ -49,6 +51,9 @@ export const LeftSide = ({ isDesktop }: { isDesktop: ReactNode }) => {
             h={"full"}
             gap={4}
         >
+            {
+                //#region Profilmenü
+            }
             <Box>
                 <ProfileMenu>
                     <Flex
@@ -75,7 +80,10 @@ export const LeftSide = ({ isDesktop }: { isDesktop: ReactNode }) => {
                     </Flex>
                 </ProfileMenu>
 
-                {/*#region LINKS*/}
+                {
+                    //#endregion
+                    //#region LINKEK implementálása
+                }
                 {
                     isDesktop &&
                     links.map((link, index) => {
@@ -108,7 +116,9 @@ export const LeftSide = ({ isDesktop }: { isDesktop: ReactNode }) => {
                         </Link>
                     })
                 }
-                {/*#endregion LINKS*/}
+                {
+                    //#endregion
+                }
             </Box>
             <Flex
                 p="4"

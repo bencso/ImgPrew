@@ -25,10 +25,13 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         if (mounted.current) return;
         mounted.current = true;
-
+        
+        //#region WebSocket kapcsolat megkezdése
         const socket = new WebSocket("ws://localhost:8000/ws/");
         wsRef.current = socket;
+        //#endregion
 
+        //#region EventListenerek
         socket.addEventListener("open", () => {
             sendMessage({ message: 'connect' });
         });
@@ -40,6 +43,7 @@ export function WebsocketProvider({ children }: { children: React.ReactNode }) {
         socket.addEventListener("close", () => {
             wsRef.current?.send(JSON.stringify({ message: 'close' }));
         });
+        //#endregion
 
     }, [])
 

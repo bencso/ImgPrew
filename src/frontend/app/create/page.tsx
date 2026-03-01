@@ -11,19 +11,23 @@ import { handleMessage } from "@/websocket/handlers/handleMessage";
 import { Box, Button, Grid, GridItem, Stack, useBreakpointValue } from "@chakra-ui/react";
 import { Image } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
-import { LuCaptions, LuDownload, LuImageDown, LuPlus } from "react-icons/lu";
+import { LuCaptions, LuImageDown, LuPlus } from "react-icons/lu";
 
 export default function Page() {
+    //#region contextek
     const { step, imgs, setStep, setImgs, setSelectedImg, selectedImg, addFunction } = useWorkSession();
     const [selectedImage, setSelectedImage] = useState<string>();
     const [editItems, setEditItems] = useState<EditItemProp[]>([]);
     const { ws, sendMessage } = useWebsocket();
-    const { sessionData, setExifDataForImage, setCaptionSamplesForImage, addImage } = useSessionStore();
+    const { sessionData, setExifDataForImage, setCaptionSamplesForImage, addImage, setExportFileExtension, getExportFileExtension } = useSessionStore();
+    //#endregion
 
+    //#region breakPoint beállíátoks (isMd)
     const isMd = useBreakpointValue(
         { base: false, sm: false, md: false, lg: true, xl: true },
         { ssr: false, fallback: "md" }
     );
+    //#endregion
 
     useMemo(() => {
         editItems.map((item) => {
@@ -33,6 +37,7 @@ export default function Page() {
         });
     }, []);
 
+    //#region sidebar funkciók
     useMemo(() => {
         setEditItems(
             [
@@ -47,26 +52,37 @@ export default function Page() {
                         },
                     ],
                 },
-                  {
+                {
                     function: "export",
                     icon: <LuImageDown />,
                     inputs: [
                         {
                             name: "Fájlkiterjesztés",
-                            inputType: "customElement",
-                            options: <div>ASD</div>,
+                            inputType: "radio",
+                            onChange: (e: any) => {
+                                setExportFileExtension(selectedImg, e.currentTarget.textContent);
+                            },
+                            options: [
+                                "avif",
+                                "jpg",
+                                "jpeg",
+                                "png",
+                                "tiff",
+                                "webp",
+                            ],
                         },
                     ],
                 },
             ].filter(Boolean) as EditItemProp[]
         );
     }, [sessionData, selectedImg]);
+    //#endregion
 
     useMemo(() => {
         setSelectedImage(imgs[selectedImg]);
     }, [selectedImg, imgs]);
 
-
+    //#region WebSocket kezelés
     useEffect(() => {
         const wscurr = ws.current;
         if (!wscurr) return;
@@ -81,13 +97,19 @@ export default function Page() {
             wscurr.removeEventListener("message", messageHandler);
         };
     }, [ws]);
+    //#endregion
 
     return (
         <Box h={"full"} w={"full"} minH={isMd ? "100vh" : "full"} >
+            {
+                //#region Image feltöltés
+            }
             {step === 0 && (
                 <ImageDropZone ws={ws} sendMessage={sendMessage} />
             )}
-
+            {
+                //#region Második lépés (kép manipulálás)
+            }
             {step === 1 && (
                 <Stack
                     maxW={"full"}
@@ -176,6 +198,9 @@ export default function Page() {
                                 </Grid>
                             )}
                         </GridItem>
+                        {
+                            //#region Sidebar
+                        }
                         <GridItem minH={isMd ? "100vh" : "full"} h={"full"} borderStart={"2px solid"} borderColor={"bg.muted"} display={"flex"} flexDirection={isMd ? "column" : "row"}>
                             {
                                 editItems.map((item, index) => {

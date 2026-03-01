@@ -1,18 +1,23 @@
-import React, { Dispatch, HTMLInputTypeAttribute, ReactNode, RefObject, SetStateAction } from "react";
+import { Dispatch, HTMLInputTypeAttribute, ReactNode, RefObject, SetStateAction } from "react";
 
+//#region InputTypes
 export enum InputTypes {
     select = "select",
     customElement = "customElement"
 }
+//#endregion
 
+//#region CustomImage
 export interface CustomImage {
     id: number;
     exifDatas?: string[];
     captionSamples?: string[];
     caption?: string;
+    exportFileExtension?: string;
 }
+//#endregion
 
-
+//#region SessionStore
 export interface SessionStore {
     sessionData: CustomImage[];
     addImage: () => void;
@@ -21,19 +26,28 @@ export interface SessionStore {
     setExifDataForImage: (id: number, exif: string[]) => CustomImage | undefined;
     getCaptionSamples: (id: number) => string[];
     setCaptionSamplesForImage: (id: number, captionSamples: string[]) => CustomImage | undefined;
+    getExportFileExtension: (id: number) => string;
+    setExportFileExtension: (id: number, extension: string) => CustomImage | undefined;
 }
+//#endregion
 
+
+//#region FunctionsInputs
 export interface FunctionsInputs {
     name: string;
     input: InputTypes | HTMLInputTypeAttribute;
     value: any;
 }
+//#endregion
 
+//#region FunctionItem
 export interface FunctionItem {
     name: string;
     inputs: FunctionsInputs[];
 }
+//#endregion
 
+//#region FunctionsState
 export interface FunctionsState {
     functions: FunctionItem[];
     addFunction: (name: string, inputs: FunctionProp[]) => void;
@@ -45,8 +59,9 @@ export interface FunctionsState {
         value: any
     ) => void;
 }
+//#endregion
 
-
+//#region WorkSessionContextProps
 export interface WorkSessionContextProps {
     step: number;
     setStep: Dispatch<SetStateAction<number>>;
@@ -66,20 +81,28 @@ export interface WorkSessionContextProps {
         value: any
     ) => void;
 }
+//#endregion
 
+//#region FunctionProp
 export interface FunctionProp {
     name: string;
     inputType: InputTypes | HTMLInputTypeAttribute;
     options?: any[] | HTMLElement | ReactNode | null;
+    onChange?: void | null;
 }
+//#endregion
 
+//#region EditItemProp
 export interface EditItemProp {
     function: string;
     icon?: ReactNode;
     inputs?: FunctionProp[];
 }
+//#endregion
 
+//#region WorkSessionProviderProps
 export interface WorkSessionProviderProps {
     children: ReactNode;
 }
+//#endregion
 

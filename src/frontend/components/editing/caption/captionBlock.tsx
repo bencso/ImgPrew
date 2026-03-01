@@ -10,26 +10,35 @@ import { useColorMode } from "@/components/ui/color-mode";
 import dynamic from "next/dynamic";
 
 export default function CaptionBlock() {
+    //#region refek és egéb useState állapotok
     const editorRef = useRef<HTMLTextAreaElement>(null);
     const [selectedSample, setSelectedSample] = useState<string | null>(null);
-
     const [emojiOpen, setEmojiOpen] = useState<boolean>(false);
-    const { getSelectedImageExif, sessionData, getCaptionSamples } = useSessionStore();
-    const { selectedImg } = useWorkSession();
-    const { colorMode } = useColorMode();
-
-    const [captionSamples, setCaptionSamples] = useState<string[]>([]);
-    const [tags, setTags] = useState<string[]>([]);
-    const tagRegex = /\[([^\]]+)\]/g;
-    const [savedSelection, setSavedSelection] = useState<Range | null>(null);
 
     const isTableSize = useBreakpointValue(
         { base: false, sm: false, md: false, lg: false, xl: true },
         { ssr: false, fallback: "md" }
     );
+    //#endregion
 
+    //#region contextek
+    const { getSelectedImageExif, sessionData, getCaptionSamples } = useSessionStore();
+    const { selectedImg } = useWorkSession();
+    const { colorMode } = useColorMode();
+    //#endregion
+
+    //#region caption useStatek
+    const [captionSamples, setCaptionSamples] = useState<string[]>([]);
+    const [tags, setTags] = useState<string[]>([]);
+    const [savedSelection, setSavedSelection] = useState<Range | null>(null);
+    //#endregion
+
+    //#region EmojiPicker import és tagRegex
+    const tagRegex = /\[([^\]]+)\]/g;
     const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false });
+    //#endregion
 
+    //#region Kijelölés megtartása
     function saveSelection() {
         const selection = window.getSelection();
         if (selection && selection.rangeCount > 0) {
@@ -37,6 +46,7 @@ export default function CaptionBlock() {
         }
     }
 
+    //#region Megtartott kijelölés újridézése
     function restoreSelection() {
         const selection = window.getSelection();
         if (savedSelection && selection) {
@@ -49,10 +59,10 @@ export default function CaptionBlock() {
         const exifs = getSelectedImageExif(selectedImg);
         const samples = getCaptionSamples(selectedImg);
         exifs && setTags(exifs);
-        console.log(samples);
         samples && setCaptionSamples(samples);
     }, [sessionData, selectedImg]);
 
+    //#region CreateTag
     function createTag(tag: string) {
         const selection = window.getSelection();
         if (!selection?.rangeCount) return;
@@ -97,6 +107,7 @@ export default function CaptionBlock() {
         }
     }
 
+    //#region Emoji beillesztés
     function emojiClick(emojiObject: EmojiClickData) {
         restoreSelection();
         const emoji = emojiObject.emoji;
@@ -122,12 +133,14 @@ export default function CaptionBlock() {
         }
     }
 
+    //#region Tag beillesztés
     function insertTag(text: string) {
         if (tags.includes(text)) {
             createTag(text);
         }
     }
 
+    //#region Regexes tag keresés
     function changeTextTag() {
         var cleanedText;
         const selection = window.getSelection();
@@ -154,6 +167,7 @@ export default function CaptionBlock() {
         }
     }
 
+    //#region Sample alkalmazása
     function onClickApplyBtn() {
         if (editorRef.current) {
             editorRef.current.textContent = "";
@@ -194,9 +208,7 @@ export default function CaptionBlock() {
     return (
         <Box display="flex" flexDirection={isTableSize ? "column" : "column"} w={"full"} h="full" gap="2">
             {
-                /*
-                 * SAMPLE VÁLASZTÓ
-                 */
+                //#region SAMPLE VÁLASZTÓ
             }
             {
                 captionSamples.length > 0 && <><Text fontSize={"sm"} color={"fg.muted"}>Előre létrehozott caption-ök:</Text><Box display="flex" flexDirection="row" gap={4}>
@@ -247,9 +259,8 @@ export default function CaptionBlock() {
                 </>
             }
             {
-                /*
-                 * CAPTION VÁLASZTÓ
-                 */
+                //#endregion
+                //#region CAPTION VÁLASZTÓ
             }
             {
                 tags.length > 0 && <Box display="flex" flexDirection="row" flex="1" gap="2">
@@ -350,6 +361,9 @@ export default function CaptionBlock() {
                     },
                 }}
             />
+            {
+                //#endregion
+            }
         </Box>
     )
 }
