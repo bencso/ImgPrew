@@ -11,14 +11,14 @@ import { handleMessage } from "@/websocket/handlers/handleMessage";
 import { Box, Button, Grid, GridItem, Stack, useBreakpointValue } from "@chakra-ui/react";
 import { Image } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
-import { LuCaptions, LuClapperboard, LuPlus, LuRemoveFormatting, LuTags } from "react-icons/lu";
+import { LuCaptions, LuDownload, LuImageDown, LuPlus } from "react-icons/lu";
 
 export default function Page() {
     const { step, imgs, setStep, setImgs, setSelectedImg, selectedImg, addFunction } = useWorkSession();
     const [selectedImage, setSelectedImage] = useState<string>();
     const [editItems, setEditItems] = useState<EditItemProp[]>([]);
     const { ws, sendMessage } = useWebsocket();
-    const { sessionData, setExifDataForImage,setCaptionSamplesForImage, addImage } = useSessionStore();
+    const { sessionData, setExifDataForImage, setCaptionSamplesForImage, addImage } = useSessionStore();
 
     const isMd = useBreakpointValue(
         { base: false, sm: false, md: false, lg: true, xl: true },
@@ -44,6 +44,17 @@ export default function Page() {
                             name: "",
                             inputType: "customElement",
                             options: <CaptionBlock />,
+                        },
+                    ],
+                },
+                  {
+                    function: "export",
+                    icon: <LuImageDown />,
+                    inputs: [
+                        {
+                            name: "Fájlkiterjesztés",
+                            inputType: "customElement",
+                            options: <div>ASD</div>,
                         },
                     ],
                 },
@@ -106,16 +117,16 @@ export default function Page() {
                             justifyContent={"center"}
                             mx={"auto"}
                             maxW="4xl" >
-                                <Button variant={"subtle"} colorPalette={"teal"} onClick={()=>{
-                                    sendMessage({message: "newSession"});
-                                    setImgs([]);
-                                    setSelectedImage(undefined);
-                                    setSelectedImg(0);
-                                    setStep(0);
-                                }}>
-                        <LuPlus/>
-                        Újrakezdés
-                    </Button>
+                            <Button variant={"subtle"} colorPalette={"teal"} onClick={() => {
+                                sendMessage({ message: "newSession" });
+                                setImgs([]);
+                                setSelectedImage(undefined);
+                                setSelectedImg(0);
+                                setStep(0);
+                            }}>
+                                <LuPlus />
+                                Újrakezdés
+                            </Button>
                             {selectedImage && (
                                 <Box alignSelf="center">
                                     <Image
