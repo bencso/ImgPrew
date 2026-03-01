@@ -78,7 +78,7 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
 const Item = ({ items }: { items: EditItemProp }) => {
     //#region contextek, és egyéb függőségek
     const { editFunction, selectedImg } = useWorkSession();
-    const { ws } = useWebsocket();
+    const { ws, sendMessage } = useWebsocket();
     const handleChange = (name: string, value: any) => {
         editFunction(ws, selectedImg, items.function, name, value)
     }
@@ -132,16 +132,27 @@ const Item = ({ items }: { items: EditItemProp }) => {
                                     {React.isValidElement(item.options) && <Fragment>{item.options}</Fragment>}
                                 </Box>
                             )
+                        //#region elküldés
+                        case "submit":
+                            return (
+                                <Button onClick={item.onChange ? item.onChange : (e) => {
+                                    sendMessage({
+                                        message: item.name
+                                    })
+                                }}>
+                                    {item.name}
+                                </Button>
+                            )
                         //#region radio type
                         case "radio":
                             return (
                                 <Box key={index} display={"flex"} flexDirection={"column"}>
-
                                     <RadioCard.Root
                                         orientation="vertical"
                                         align="center"
                                         maxW="400px"
-                                        defaultValue="paypal"
+                                        defaultValue={item.defaultValue ? item.defaultValue : item.options instanceof Array && item.options[0]}
+                                        variant={"subtle"}
                                     >
                                         <RadioCard.Label>
                                             {item.name.length > 0 && item.name}

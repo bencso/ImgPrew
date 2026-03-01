@@ -57,7 +57,6 @@ async def ws_check(websocket: WebSocket):
                     await websocket.send_text(sender.send())
                 if wsmess.message == "initImage":
                     try:
-                        print(wsmess.data)
                         img_index = int(wsmess.data)
                         img = imgs[img_index]
                         img = img.get_img()
@@ -74,6 +73,14 @@ async def ws_check(websocket: WebSocket):
                         print("Hiba a kép megnyitásakor:", e)
                 if wsmess.message == "fileUpload":
                     slices = wsmess.data["slices"]
+                if wsmess.message == "export":
+                    print(wsmess.data)
+                    print(wsmess.message)
+                    sender.message = "exportSuccess"
+                    sender.data = json.dumps(
+                            {}
+                        )
+                    await websocket.send_text(sender.send())
                 if wsmess.message == "close":
                     break
     except WebSocketDisconnect:

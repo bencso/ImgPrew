@@ -26,8 +26,11 @@ export interface SessionStore {
     setExifDataForImage: (id: number, exif: string[]) => CustomImage | undefined;
     getCaptionSamples: (id: number) => string[];
     setCaptionSamplesForImage: (id: number, captionSamples: string[]) => CustomImage | undefined;
+    getCaptionForImage: (id: number) => string;
+    setCaptionForImage: (id: number, caption: string) => CustomImage | undefined;
     getExportFileExtension: (id: number) => string;
     setExportFileExtension: (id: number, extension: string) => CustomImage | undefined;
+    exportAllDataForImage: (id: number) => void;
 }
 //#endregion
 
@@ -89,6 +92,7 @@ export interface FunctionProp {
     inputType: InputTypes | HTMLInputTypeAttribute;
     options?: any[] | HTMLElement | ReactNode | null;
     onChange?: void | null;
+    defaultValue?: string | null;
 }
 //#endregion
 

@@ -3,7 +3,7 @@
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { Box, Button, createListCollection, Flex, Float, Portal, ScrollArea, Select, Separator, Span, Stack, Tag, Text, useBreakpointValue } from "@chakra-ui/react";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { EmojiClickData, EmojiStyle, SkinTonePickerLocation, SkinTones, SuggestionMode, Theme } from 'emoji-picker-react';
 import { LuLaugh } from "react-icons/lu";
 import { useColorMode } from "@/components/ui/color-mode";
@@ -22,7 +22,7 @@ export default function CaptionBlock() {
     //#endregion
 
     //#region contextek
-    const { getSelectedImageExif, sessionData, getCaptionSamples } = useSessionStore();
+    const { getSelectedImageExif, sessionData, getCaptionSamples, setCaptionForImage } = useSessionStore();
     const { selectedImg } = useWorkSession();
     const { colorMode } = useColorMode();
     //#endregion
@@ -135,14 +135,14 @@ export default function CaptionBlock() {
 
     //#region Tag beillesztés
     function insertTag(text: string) {
-        if (tags.includes(text)) {
+        if (tags.includes(text.replace("[","").replace("]",""))) {
             createTag(text);
         }
     }
 
     //#region Regexes tag keresés
     function changeTextTag() {
-        var cleanedText;
+        var cleanedText, text;
         const selection = window.getSelection();
         if (!selection?.rangeCount) return;
 
@@ -152,6 +152,7 @@ export default function CaptionBlock() {
         const matches = inputText?.match(tagRegex);
         if (matches && inputText) {
             matches.map((match) => {
+                text = match;
                 cleanedText = match.replaceAll("[", "").replaceAll("]", "").trim();
                 if (tags.includes(cleanedText)) {
                     const start = inputText.indexOf(match);
@@ -160,11 +161,11 @@ export default function CaptionBlock() {
                     matchRange.setStart(cursorText, start);
                     matchRange.setEnd(cursorText, end);
                     matchRange.deleteContents();
-
-                    createTag(match);
+                    createTag(text);
                 }
             })
         }
+        setCaptionForImage(selectedImg, (editorRef.current?.textContent || ""));
     }
 
     //#region Sample alkalmazása
@@ -175,7 +176,7 @@ export default function CaptionBlock() {
 
             selectedSample?.split(tagRegex).filter(Boolean).map((text) => {
                 if (text && regexMatchTexts?.some((element) => element.toString() === text)) {
-                    insertTag(text);
+                    insertTag("["+text+"]");
                 } else {
                     const nextNode = document.createTextNode(text);
                     const selection = window.getSelection();
@@ -196,7 +197,9 @@ export default function CaptionBlock() {
                 }
             })
         }
+        setCaptionForImage(selectedImg, (editorRef.current?.textContent || ""));
     }
+
 
     const collection = createListCollection({
         items: captionSamples ?? [],

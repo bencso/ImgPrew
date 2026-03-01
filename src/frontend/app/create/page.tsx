@@ -19,7 +19,7 @@ export default function Page() {
     const [selectedImage, setSelectedImage] = useState<string>();
     const [editItems, setEditItems] = useState<EditItemProp[]>([]);
     const { ws, sendMessage } = useWebsocket();
-    const { sessionData, setExifDataForImage, setCaptionSamplesForImage, addImage, setExportFileExtension, getExportFileExtension } = useSessionStore();
+    const { sessionData, setExifDataForImage, setCaptionSamplesForImage, addImage, setExportFileExtension, exportAllDataForImage } = useSessionStore();
     //#endregion
 
     //#region breakPoint beállíátoks (isMd)
@@ -60,16 +60,27 @@ export default function Page() {
                             name: "Fájlkiterjesztés",
                             inputType: "radio",
                             onChange: (e: any) => {
-                                setExportFileExtension(selectedImg, e.currentTarget.textContent);
+                                setExportFileExtension(selectedImg, e.currentTarget.textContent.trim());
                             },
                             options: [
-                                "avif",
                                 "jpg",
                                 "jpeg",
                                 "png",
-                                "tiff",
                                 "webp",
+                                "avif",
+                                "tiff",
                             ],
+                        },
+                        {
+                            name: "exportImage",
+                            inputType: "submit",
+                            onChange: () => {
+                                const data = exportAllDataForImage(selectedImg);
+                                sendMessage({
+                                    message: "export",
+                                    data: JSON.stringify(data)
+                                })
+                            },
                         },
                     ],
                 },
@@ -77,6 +88,7 @@ export default function Page() {
         );
     }, [sessionData, selectedImg]);
     //#endregion
+
 
     useMemo(() => {
         setSelectedImage(imgs[selectedImg]);

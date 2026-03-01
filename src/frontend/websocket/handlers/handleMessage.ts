@@ -35,7 +35,6 @@ export const handleMessage = (
         case "initSuccess":
             const { exifDatas, id, caption_samples } = JSON.parse(data);
             if (setExifDataForImage) setExifDataForImage(id, exifDatas);
-            console.log(caption_samples);
             if (setCaptionSamplesForImage) setCaptionSamplesForImage(id, caption_samples);
             break;
         case "functionSuccess":

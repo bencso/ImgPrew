@@ -11,7 +11,7 @@ export const useSessionStore = create<SessionStore>()(
             set((state) => {
                 let nextId = 0;
                 nextId = state.sessionData.length;
-                state.sessionData.push({ id: nextId });
+                state.sessionData.push({ id: nextId, exportFileExtension: "jpg" });
             });
         },
         //#endregion
@@ -43,6 +43,20 @@ export const useSessionStore = create<SessionStore>()(
             return image?.captionSamples || [];
         },
         //#endregion ----- CAPTION SAMPLES ADATOK -----
+        //#region ----- CAPTION ADATOK -----
+        setCaptionForImage: (id: number, caption: string) => {
+            set((state) => {
+                const image = state.sessionData.find(image => image.id === id);
+                if (image) {
+                    image.caption = caption;
+                }
+            })
+        },
+        getCaptionForImage: (id: number) => {
+            const image = get().sessionData.find(image => image.id === id);
+            return image?.caption ||"";
+        },
+        //#endregion ----- CAPTION ADATOK -----
         //#region ----- EXPORT FILE EXTENSION ADATOK -----
         setExportFileExtension: (id: number, extension: string) => {
             set((state) => {
@@ -57,5 +71,15 @@ export const useSessionStore = create<SessionStore>()(
             return image?.exportFileExtension || "";
         },
         //#endregion ----- EXPORT FILE EXTENSION ADATOK -----
+        //#region ----- EXPORT -----
+        exportAllDataForImage(id: number) {
+            const image = get().sessionData.find(image => image.id === id);
+            if (image) {
+                return {
+                    caption: image.caption,
+                    fileExtension: image.exportFileExtension
+                };
+            }
+        }
     }))
 );
