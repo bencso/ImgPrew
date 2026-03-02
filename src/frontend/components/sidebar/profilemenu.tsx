@@ -4,7 +4,9 @@ import {
     Dialog,
     Menu,
     Portal,
-    Stack, HStack, Text, Kbd
+    Stack, HStack, Text, Kbd,
+    Grid,
+    GridItem
 } from "@chakra-ui/react"
 import { ReactNode, useState } from "react"
 import {
@@ -12,6 +14,31 @@ import {
     LuMessageCircleQuestion,
     LuSettings,
 } from "react-icons/lu"
+
+
+const shortCuts = [{
+    name: "Általános",
+    items: [
+        {
+            name: "Előző kép",
+            keyboardShortcut: "◀︎",
+        },
+          {
+            name: "Következő kép",
+            keyboardShortcut: "◀",
+        }
+    ]
+},
+{
+    name: "Képszerkesztő",
+    items: [
+        {
+            name: "Mentés",
+            keyboardShortcut: "Ctrl + S",
+        }
+    ]
+},
+]
 
 export const ProfileMenu = ({ children }: { children: ReactNode }) => {
     const [isHelpOpen, setIsHelpOpen] = useState(false)
@@ -76,41 +103,34 @@ export const ProfileMenu = ({ children }: { children: ReactNode }) => {
                                 </Dialog.CloseTrigger>
                             </Dialog.Header>
                             <Dialog.Body>
-                                <Stack gap={4}>
+                                <Grid gap={12} templateColumns="repeat(2, 1fr)">
+                                    {
+                                        shortCuts.map((group) => {
+                                            return (
+                                                <GridItem gap={6} display={"flex"} flexDirection={"column"}>
+                                                    <Text fontSize={"xl"} mb={6} fontWeight={"bold"}>{group.name}</Text>
+                                                  
+                                                        
+                                                            {group.items.map((shortcut) => {
+                                                                return   <HStack justify="space-between">
+                                                                    <Text>{shortcut.name}</Text>
+                                                                    <HStack>
+                                                                        {
+                                                                        shortcut.keyboardShortcut.split(" ").map((item) => {
+                                                                            return (
+                                                                                <Kbd>{item}</Kbd>
+                                                                            )
+                                                                        })
+                                                                    }
+                                                                    </HStack>
+                                                                </HStack>
+                                                            })}
 
-                                    <HStack justify="space-between">
-                                        <Text>Keresés megnyitása</Text>
-                                        <HStack>
-                                            <Kbd>Ctrl</Kbd>
-                                            <Text>+</Text>
-                                            <Kbd>K</Kbd>
-                                        </HStack>
-                                    </HStack>
-
-                                    <HStack justify="space-between">
-                                        <Text>Mentés</Text>
-                                        <HStack>
-                                            <Kbd>Ctrl</Kbd>
-                                            <Text>+</Text>
-                                            <Kbd>S</Kbd>
-                                        </HStack>
-                                    </HStack>
-
-                                    <HStack justify="space-between">
-                                        <Text>Új üzenet</Text>
-                                        <HStack>
-                                            <Kbd>Ctrl</Kbd>
-                                            <Text>+</Text>
-                                            <Kbd>N</Kbd>
-                                        </HStack>
-                                    </HStack>
-
-                                    <HStack justify="space-between">
-                                        <Text>Bezárás</Text>
-                                        <Kbd>Esc</Kbd>
-                                    </HStack>
-
-                                </Stack>
+                                                </GridItem>
+                                            )
+                                        })
+                                    }
+                                </Grid>
                             </Dialog.Body>
                         </Dialog.Content>
                     </Dialog.Positioner>
