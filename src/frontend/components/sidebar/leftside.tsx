@@ -13,6 +13,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import LanguageSwitcher from "@/components/sidebar/languageswitch";
 import { ProfileMenu } from "@/components/sidebar/profilemenu";
+import InfoPopover from "./infopopover";
 
 interface Link {
     name?: string;
@@ -131,6 +132,7 @@ export const LeftSide = ({ isDesktop }: { isDesktop: ReactNode }) => {
                 flexDirection={collapsed ? "column" : "row"}
                 gap={4}
             >
+                <InfoPopover/>
                 <ColormodeSwitcher />
                 <LanguageSwitcher />
             </Flex>

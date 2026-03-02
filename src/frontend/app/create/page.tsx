@@ -8,7 +8,7 @@ import { useWorkSession } from "@/providers/sessionprovider";
 import { useWebsocket } from "@/providers/websocketprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { handleMessage } from "@/websocket/handlers/handleMessage";
-import { Box, Button, Grid, GridItem, Stack, useBreakpointValue } from "@chakra-ui/react";
+import { Box, Button, Grid, GridItem, Kbd, Stack, useBreakpointValue } from "@chakra-ui/react";
 import { Image } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import { LuCaptions, LuImageDown, LuPlus } from "react-icons/lu";
@@ -172,7 +172,9 @@ export default function Page() {
                                     />
                                 </Box>
                             )}
-
+                            {
+                                //todo: ezt a részt átalakítani ugy hogy egy fix alsó részben legyenek ezek a képek, border-topos barban
+                            }
                             {imgs.length > 1 && (
                                 <Grid
                                     templateColumns={`repeat(${imgs.length}, minmax(60px, 1fr))`}
@@ -209,6 +211,33 @@ export default function Page() {
                                     })}
                                 </Grid>
                             )}
+                            {
+                                //#region billentyűzet kbd nyilak
+                            }
+                            {
+                                imgs.length > 1 && (
+                                    <Box
+                                        display="flex"
+                                        alignItems="center"
+                                        gap={6}
+                                        fontSize="sm"
+                                        color="fg.muted"
+                                    >
+                                        <Box display="flex" alignItems="center" gap={2}>
+                                            <Kbd>←</Kbd>
+                                            <Box>Előző</Box>
+                                        </Box>
+
+                                        <Box display="flex" alignItems="center" gap={2}>
+                                            <Kbd>→</Kbd>
+                                            <Box>Következő</Box>
+                                        </Box>
+                                    </Box>
+                                )
+                            }
+                            {
+                                //#endregion
+                            }
                         </GridItem>
                         {
                             //#region Sidebar
