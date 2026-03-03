@@ -22,7 +22,7 @@ export default function CaptionBlock() {
     //#endregion
 
     //#region contextek
-    const { getSelectedImageExif, sessionData, getCaptionSamples, setCaptionForImage } = useSessionStore();
+    const { getSelectedImageExif, sessionData, getCaptionSamples, setCaptionForImage, getCaptionForImage } = useSessionStore();
     const { selectedImg } = useWorkSession();
     const { colorMode } = useColorMode();
     //#endregion
@@ -58,17 +58,47 @@ export default function CaptionBlock() {
     useMemo(() => {
         const exifs = getSelectedImageExif(selectedImg);
         const samples = getCaptionSamples(selectedImg);
+        const caption = getCaptionForImage(selectedImg);
         exifs && setTags(exifs);
-        samples && setCaptionSamples(samples);
+        samples && setCaptionSamples(samples); 
+            if (caption && editorRef.current) {
+                const editor = editorRef.current;
+                editor.textContent = "";
+                const regexMatchTexts = caption?.match(tagRegex)?.map((element) =>
+                    element.replace("[", "").replace("]", "")
+                );
+                caption?.split(tagRegex).filter(Boolean).forEach((text) => {
+                    if (text && regexMatchTexts?.includes(text)) insertTag("[" + text + "]");
+                    else {
+                        const textNode = document.createTextNode(text);
+
+                        const range = document.createRange();
+                        range.selectNodeContents(editor);
+                        range.collapse(false);
+
+                        range.insertNode(textNode);
+
+                        range.setStartAfter(textNode);
+                        range.collapse(true);
+
+                        const selection = window.getSelection();
+                        selection?.removeAllRanges();
+                        selection?.addRange(range);
+                    }
+                });
+        }
+        else
+            if (editorRef && editorRef.current)
+                editorRef.current.textContent = "";
     }, [sessionData, selectedImg]);
 
     //#region CreateTag
     function createTag(tag: string) {
         const selection = window.getSelection();
+        editorRef.current?.focus();
         if (!selection?.rangeCount) return;
 
         const range = selection?.getRangeAt(0);
-        editorRef.current?.focus();
         if (!editorRef.current?.contains(range?.startContainer)) return;
 
         const span = document.createElement("span");
@@ -90,8 +120,10 @@ export default function CaptionBlock() {
             cursor: "default",
             margin: "0 0.25rem 0.25rem 0"
         });
-        onclick = () => {
+
+        span.onclick = () => {
             range.deleteContents();
+            span.remove();
         }
 
         if (range) {
@@ -135,7 +167,7 @@ export default function CaptionBlock() {
 
     //#region Tag beillesztés
     function insertTag(text: string) {
-        if (tags.includes(text.replace("[","").replace("]",""))) {
+        if (tags.includes(text.replace("[", "").replace("]", ""))) {
             createTag(text);
         }
     }
@@ -165,6 +197,7 @@ export default function CaptionBlock() {
                 }
             })
         }
+
         setCaptionForImage(selectedImg, (editorRef.current?.textContent || ""));
     }
 
@@ -173,17 +206,16 @@ export default function CaptionBlock() {
         if (editorRef.current) {
             editorRef.current.textContent = "";
             const regexMatchTexts = selectedSample?.match(tagRegex)?.map((element) => element.replace("[", "").replace("]", ""));
-
             selectedSample?.split(tagRegex).filter(Boolean).map((text) => {
+                editorRef.current?.focus();
                 if (text && regexMatchTexts?.some((element) => element.toString() === text)) {
-                    insertTag("["+text+"]");
+                    insertTag("[" + text + "]");
                 } else {
                     const nextNode = document.createTextNode(text);
                     const selection = window.getSelection();
                     if (!selection?.rangeCount) return;
 
                     const range = selection?.getRangeAt(0);
-                    editorRef.current?.focus();
                     if (!editorRef.current?.contains(range?.startContainer)) return;
                     if (range) {
                         range.deleteContents();
@@ -195,8 +227,9 @@ export default function CaptionBlock() {
                         editorRef.current?.focus();
                     }
                 }
-            })
+            });
         }
+
         setCaptionForImage(selectedImg, (editorRef.current?.textContent || ""));
     }
 
@@ -254,7 +287,9 @@ export default function CaptionBlock() {
                             </Select.Positioner>
                         </Portal>
                     </Select.Root>
-                    <Button size={"sm"} variant={"surface"} colorPalette={"teal"} onClick={onClickApplyBtn}>
+                    <Button size={"sm"} variant={"surface"} colorPalette={"teal"} onClick={() => {
+                        onClickApplyBtn();
+                    }}>
                         Alkalmaz
                     </Button>
                 </Box>
