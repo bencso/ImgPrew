@@ -4,7 +4,9 @@ import {
     Dialog,
     Menu,
     Portal,
-    Stack, HStack, Text, Kbd,
+    HStack, 
+    Text, 
+    Kbd,
     Grid,
     GridItem
 } from "@chakra-ui/react"
@@ -23,7 +25,7 @@ const shortCuts = [{
             name: "Előző kép",
             keyboardShortcut: "◀︎",
         },
-          {
+        {
             name: "Következő kép",
             keyboardShortcut: "◀",
         }
@@ -109,22 +111,22 @@ export const ProfileMenu = ({ children }: { children: ReactNode }) => {
                                             return (
                                                 <GridItem gap={6} display={"flex"} flexDirection={"column"}>
                                                     <Text fontSize={"xl"} mb={6} fontWeight={"bold"}>{group.name}</Text>
-                                                  
-                                                        
-                                                            {group.items.map((shortcut) => {
-                                                                return   <HStack justify="space-between">
-                                                                    <Text>{shortcut.name}</Text>
-                                                                    <HStack>
-                                                                        {
-                                                                        shortcut.keyboardShortcut.split(" ").map((item) => {
-                                                                            return (
-                                                                                <Kbd>{item}</Kbd>
-                                                                            )
-                                                                        })
-                                                                    }
-                                                                    </HStack>
-                                                                </HStack>
-                                                            })}
+
+
+                                                    {group.items.map((shortcut) => {
+                                                        return <HStack justify="space-between">
+                                                            <Text>{shortcut.name}</Text>
+                                                            <HStack>
+                                                                {
+                                                                    shortcut.keyboardShortcut.split(" ").map((item) => {
+                                                                        return (
+                                                                            <Kbd>{item}</Kbd>
+                                                                        )
+                                                                    })
+                                                                }
+                                                            </HStack>
+                                                        </HStack>
+                                                    })}
 
                                                 </GridItem>
                                             )

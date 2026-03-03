@@ -135,7 +135,7 @@ const Item = ({ items }: { items: EditItemProp }) => {
                         //#region elküldés
                         case "submit":
                             return (
-                                <Button onClick={item.onChange ? item.onChange : (e) => {
+                                <Button key={index} onClick={item.onChange ? item.onChange : (e) => {
                                     sendMessage({
                                         message: item.name
                                     })

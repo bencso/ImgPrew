@@ -4,11 +4,12 @@ import CaptionBlock from "@/components/editing/caption/captionBlock";
 import { EditItem } from "@/components/editing/edititem";
 import { ImageDropZone } from "@/components/upload/dropzone";
 import { EditItemProp } from "@/interfaces/interface";
+import { useKeyboardShortcut } from "@/providers/keyboardShortcut";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useWebsocket } from "@/providers/websocketprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { handleMessage } from "@/websocket/handlers/handleMessage";
-import { Box, Button, Grid, GridItem, Kbd, Stack, useBreakpointValue } from "@chakra-ui/react";
+import { Box, Button, Flex, Grid, GridItem, Kbd, Separator, Stack, useBreakpointValue } from "@chakra-ui/react";
 import { Image } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import { LuCaptions, LuImageDown, LuPlus } from "react-icons/lu";
@@ -94,6 +95,28 @@ export default function Page() {
         setSelectedImage(imgs[selectedImg]);
     }, [selectedImg, imgs]);
 
+    useKeyboardShortcut({
+        key: "ArrowLeft",
+        onKeyPressed: () => {
+              if(step===1){
+                if(selectedImg-1 >= 0){
+                    setSelectedImg(selectedImg-1);
+                }
+            }
+        },
+    });
+
+    useKeyboardShortcut({
+        key: "ArrowRight",
+        onKeyPressed: () => {
+            if(step===1){
+                if(selectedImg+1 < imgs.length){
+                    setSelectedImg(selectedImg+1);
+                }
+            }
+        },
+    });
+
     //#region WebSocket kezelés
     useEffect(() => {
         const wscurr = ws.current;
@@ -135,109 +158,120 @@ export default function Page() {
                     <Grid
                         w="full"
                         h={"full"}
-
                         templateColumns={isMd ? "1fr 60px" : "1fr"}
                         templateRows={isMd ? "1fr" : "1fr 60px"}
-                        gap={4}
                     >
                         <GridItem
                             h={"full"}
-                            p={12}
                             display="flex"
                             flexDirection="column"
                             gap={8}
                             w="full"
-                            alignItems={"center"}
-                            justifyContent={"center"}
-                            mx={"auto"}
-                            maxW="4xl" >
-                            <Button variant={"subtle"} colorPalette={"teal"} onClick={() => {
-                                sendMessage({ message: "newSession" });
-                                setImgs([]);
-                                setSelectedImage(undefined);
-                                setSelectedImg(0);
-                                setStep(0);
-                            }}>
-                                <LuPlus />
-                                Újrakezdés
-                            </Button>
-                            {selectedImage && (
-                                <Box alignSelf="center">
-                                    <Image
-                                        src={selectedImage}
-                                        alt={`selected-${selectedImg}`}
-                                        rounded="md"
-                                        maxH="600px"
-                                        objectFit="contain"
-                                    />
-                                </Box>
-                            )}
-                            {
-                                //todo: ezt a részt átalakítani ugy hogy egy fix alsó részben legyenek ezek a képek, border-topos barban
-                            }
-                            {imgs.length > 1 && (
-                                <Grid
-                                    templateColumns={`repeat(${imgs.length}, minmax(60px, 1fr))`}
-                                    gap={4}
-                                >
-                                    {imgs.map((img, index) => {
-                                        const isActive = selectedImg === index;
-
-                                        return (
-                                            <GridItem
-                                                key={img}
-                                                cursor="pointer"
-                                                maxH={"200px"}
-                                                onClick={() => setSelectedImg(index)}
+                        >
+                            <Grid h={"full"} w={"full"}>
+                                <GridItem p={12} gap={12} display="flex"
+                                    flexDirection="column" justifyContent={"center"} alignItems={"center"}>
+                                    <Button w={"fit"} variant={"subtle"} colorPalette={"teal"} onClick={() => {
+                                        sendMessage({ message: "newSession" });
+                                        setImgs([]);
+                                        setSelectedImage(undefined);
+                                        setSelectedImg(0);
+                                        setStep(0);
+                                    }}>
+                                        <LuPlus />
+                                        Újrakezdés
+                                    </Button>
+                                    {selectedImage && (
+                                        <Box alignSelf="center" minH={"400px"} maxH="600px">
+                                            <Image
+                                                src={selectedImage}
+                                                alt={`selected-${selectedImg}`}
+                                                rounded="md"
+                                                h={"full"}
+                                                objectFit="contain"
+                                            />
+                                        </Box>
+                                    )}
+                                </GridItem>
+                                {imgs.length > 1 && <GridItem borderTop={"1px solid"} bg={"bg.subtle"} borderColor={"bg.muted"} w={"full"} h={"full"} alignItems={"center"} gap={4} display={"flex"} flexDir={"column"}>
+                                    {
+                                        //#region billentyűzet kbd nyilak
+                                    }
+                                    {
+                                        isMd && imgs.length > 1 && (
+                                            <Box
+                                                display="flex"
+                                                alignItems="center"
+                                                gap={6}
+                                                fontSize="sm"
+                                                color="fg.muted"
+                                                bg={"bg"}
+                                                p={2}
+                                                px={6}
+                                                borderBottomEndRadius={"lg"}
+                                                borderBottomStartRadius={"lg"}
                                             >
-                                                <Box
-                                                    borderRadius="md"
-                                                    overflow="hidden"
-                                                    h={"full"}
-                                                    opacity={isActive ? 1 : 0.4}
-                                                    transition="opacity 0.2s ease"
-                                                    _hover={{ opacity: 0.8 }}
-                                                >
-                                                    <Image
-                                                        src={img}
-                                                        alt={`thumbnail-${index}`}
-                                                        w="full"
-                                                        h="full"
-                                                        objectFit="cover"
-                                                    />
+                                                <Box display="flex" justifyContent={"center"} alignItems="center" gap={4}>
+                                                    <Kbd>←</Kbd>
+                                                    <Box>Előző</Box>
                                                 </Box>
-                                            </GridItem>
-                                        );
-                                    })}
-                                </Grid>
-                            )}
-                            {
-                                //#region billentyűzet kbd nyilak
-                            }
-                            {
-                                imgs.length > 1 && (
-                                    <Box
-                                        display="flex"
-                                        alignItems="center"
-                                        gap={6}
-                                        fontSize="sm"
-                                        color="fg.muted"
-                                    >
-                                        <Box display="flex" alignItems="center" gap={2}>
-                                            <Kbd>←</Kbd>
-                                            <Box>Előző</Box>
-                                        </Box>
+                                                <Separator orientation={"vertical"} w={1} h={"full"} />
+                                                <Box display="flex" justifyContent={"center"} alignItems="center" gap={4}>
+                                                    <Box>Következő</Box>
+                                                    <Kbd>→</Kbd>
+                                                </Box>
+                                            </Box>
+                                        )
+                                    }
+                                    {
+                                        //#endregion
+                                    }
+                                    {imgs.length > 1 && (
+                                        <Flex
+                                            gap={4}
+                                            justifyContent={"center"}
+                                        >
+                                            {imgs.map((img, index) => {
+                                                const isActive = selectedImg === index;
 
-                                        <Box display="flex" alignItems="center" gap={2}>
-                                            <Kbd>→</Kbd>
-                                            <Box>Következő</Box>
-                                        </Box>
-                                    </Box>
-                                )
-                            }
-                            {
-                                //#endregion
-                            }
+                                                return (
+                                                    <Box
+                                                        key={img}
+                                                        cursor="pointer"
+                                                        minH={"100px"}
+                                                        minW={"100px"}
+                                                        maxH={"100px"}
+                                                        maxW={"100px"}
+                                                        w={"full"}
+                                                        h={"full"}
+                                                        onClick={() => setSelectedImg(index)}
+                                                    >
+                                                        <Box
+                                                            borderRadius="md"
+                                                            overflow="hidden"
+                                                            h={"full"}
+                                                            w={"full"}
+                                                            opacity={isActive ? 1 : 0.4}
+                                                            transition="opacity 0.2s ease"
+                                                            _hover={{ opacity: 0.8 }}
+                                                        >
+                                                            <Image
+                                                                src={img}
+                                                                alt={`thumbnail-${index}`}
+                                                                w="full"
+                                                                h="full"
+                                                                bg={"bg.muted"}
+                                                                objectFit="cover"
+                                                            />
+                                                        </Box>
+                                                    </Box>
+                                                );
+                                            })}
+                                        </Flex>
+                                    )}
+                                </GridItem>
+                                }
+                            </Grid>
                         </GridItem>
                         {
                             //#region Sidebar
