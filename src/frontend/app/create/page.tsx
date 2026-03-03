@@ -20,7 +20,7 @@ export default function Page() {
     const [selectedImage, setSelectedImage] = useState<string>();
     const [editItems, setEditItems] = useState<EditItemProp[]>([]);
     const { ws, sendMessage } = useWebsocket();
-    const { sessionData, setExifDataForImage, setCaptionSamplesForImage, addImage, setExportFileExtension, exportAllDataForImage } = useSessionStore();
+    const { sessionData, setExifDataForImage, setCaptionSamplesForImage, addImage, setExportFileExtension, exportAllDataForImage, getExportFileExtension } = useSessionStore();
     //#endregion
 
     //#region breakPoint beállíátoks (isMd)
@@ -40,6 +40,7 @@ export default function Page() {
 
     //#region sidebar funkciók
     useMemo(() => {
+        const selectedExtension = getExportFileExtension(selectedImg);
         setEditItems(
             [
                 {
@@ -63,6 +64,7 @@ export default function Page() {
                             onChange: (e: any) => {
                                 setExportFileExtension(selectedImg, e.currentTarget.textContent.trim());
                             },
+                            defaultValue: selectedExtension,
                             options: [
                                 "jpg",
                                 "jpeg",
@@ -89,7 +91,6 @@ export default function Page() {
         );
     }, [sessionData, selectedImg]);
     //#endregion
-
 
     useMemo(() => {
         setSelectedImage(imgs[selectedImg]);

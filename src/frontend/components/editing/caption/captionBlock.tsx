@@ -56,41 +56,52 @@ export default function CaptionBlock() {
     }
 
     useMemo(() => {
+        setSelectedSample(null);
+
         const exifs = getSelectedImageExif(selectedImg);
         const samples = getCaptionSamples(selectedImg);
-        const caption = getCaptionForImage(selectedImg);
+
         exifs && setTags(exifs);
-        samples && setCaptionSamples(samples); 
-            if (caption && editorRef.current) {
-                const editor = editorRef.current;
-                editor.textContent = "";
-                const regexMatchTexts = caption?.match(tagRegex)?.map((element) =>
-                    element.replace("[", "").replace("]", "")
-                );
-                caption?.split(tagRegex).filter(Boolean).forEach((text) => {
-                    if (text && regexMatchTexts?.includes(text)) insertTag("[" + text + "]");
-                    else {
-                        const textNode = document.createTextNode(text);
+        samples && setCaptionSamples(samples);
+        loadCaptionTextForImage()
+    }, [sessionData, selectedImg]);
 
-                        const range = document.createRange();
-                        range.selectNodeContents(editor);
-                        range.collapse(false);
 
-                        range.insertNode(textNode);
+    //#region Captionök betöltése a képnek megfelelően
+    function loadCaptionTextForImage() {
+        const caption = getCaptionForImage(selectedImg);
 
-                        range.setStartAfter(textNode);
-                        range.collapse(true);
+        if (caption && editorRef.current) {
+            const editor = editorRef.current;
+            editor.textContent = "";
+            const regexMatchTexts = caption?.match(tagRegex)?.map((element) =>
+                element.replace("[", "").replace("]", "")
+            );
+            caption?.split(tagRegex).filter(Boolean).forEach((text) => {
+                if (text && regexMatchTexts?.includes(text)) insertTag("[" + text + "]");
+                else {
+                    const textNode = document.createTextNode(text);
 
-                        const selection = window.getSelection();
-                        selection?.removeAllRanges();
-                        selection?.addRange(range);
-                    }
-                });
+                    const range = document.createRange();
+                    range.selectNodeContents(editor);
+                    range.collapse(false);
+
+                    range.insertNode(textNode);
+
+                    range.setStartAfter(textNode);
+                    range.collapse(true);
+
+                    const selection = window.getSelection();
+                    selection?.removeAllRanges();
+                    selection?.addRange(range);
+                }
+            });
         }
         else
             if (editorRef && editorRef.current)
                 editorRef.current.textContent = "";
-    }, [sessionData, selectedImg]);
+    }
+    //#endregion
 
     //#region CreateTag
     function createTag(tag: string) {
@@ -138,6 +149,7 @@ export default function CaptionBlock() {
             editorRef.current?.focus();
         }
     }
+    //#endregion
 
     //#region Emoji beillesztés
     function emojiClick(emojiObject: EmojiClickData) {
@@ -164,6 +176,7 @@ export default function CaptionBlock() {
             setEmojiOpen(false);
         }
     }
+    //#endregion
 
     //#region Tag beillesztés
     function insertTag(text: string) {
@@ -171,6 +184,7 @@ export default function CaptionBlock() {
             createTag(text);
         }
     }
+    //#endregion
 
     //#region Regexes tag keresés
     function changeTextTag() {
@@ -200,6 +214,7 @@ export default function CaptionBlock() {
 
         setCaptionForImage(selectedImg, (editorRef.current?.textContent || ""));
     }
+    //#endregion
 
     //#region Sample alkalmazása
     function onClickApplyBtn() {
@@ -232,14 +247,13 @@ export default function CaptionBlock() {
 
         setCaptionForImage(selectedImg, (editorRef.current?.textContent || ""));
     }
-
+    //#endregion
 
     const collection = createListCollection({
         items: captionSamples ?? [],
         itemToValue: (item: any) => item.item,
         itemToString: (item: any) => item.key
     });
-
 
     return (
         <Box display="flex" flexDirection={isTableSize ? "column" : "column"} w={"full"} h="full" gap="2">

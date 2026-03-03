@@ -145,14 +145,17 @@ const Item = ({ items }: { items: EditItemProp }) => {
                             )
                         //#region radio type
                         case "radio":
+                            console.log(item.defaultValue);
                             return (
                                 <Box key={index} display={"flex"} flexDirection={"column"}>
                                     <RadioCard.Root
                                         orientation="vertical"
                                         align="center"
                                         maxW="400px"
+                                        value={item.defaultValue ?? item.defaultValue}
                                         defaultValue={item.defaultValue ? item.defaultValue : item.options instanceof Array && item.options[0]}
                                         variant={"subtle"}
+                                        colorPalette={"teal"}
                                     >
                                         <RadioCard.Label>
                                             {item.name.length > 0 && item.name}
@@ -160,7 +163,7 @@ const Item = ({ items }: { items: EditItemProp }) => {
                                         <HStack w={"full"} flexWrap={"wrap"}>
                                             {(item.options && item.options instanceof Array) && item.options.map((option, index) => {
                                                 return (
-                                                    <RadioCard.Item key={index} value={option} onChange={item.onChange || undefined} colorPalette={"teal"}>
+                                                    <RadioCard.Item bg={"bg.panel"} border={"1px solid"} borderColor={"bg.emphasized"} key={index} value={option} onChange={item.onChange || undefined}>
                                                         <RadioCard.ItemHiddenInput />
                                                         <RadioCard.ItemControl>
                                                             <ImageIcon icon={option} />
