@@ -95,12 +95,13 @@ export default function Page() {
         setSelectedImage(imgs[selectedImg]);
     }, [selectedImg, imgs]);
 
+    //#region SHORTCUTS
     useKeyboardShortcut({
         key: "ArrowLeft",
         onKeyPressed: () => {
-              if(step===1){
-                if(selectedImg-1 >= 0){
-                    setSelectedImg(selectedImg-1);
+            if (step === 1) {
+                if (selectedImg - 1 >= 0) {
+                    setSelectedImg(selectedImg - 1);
                 }
             }
         },
@@ -109,13 +110,14 @@ export default function Page() {
     useKeyboardShortcut({
         key: "ArrowRight",
         onKeyPressed: () => {
-            if(step===1){
-                if(selectedImg+1 < imgs.length){
-                    setSelectedImg(selectedImg+1);
+            if (step === 1) {
+                if (selectedImg + 1 < imgs.length) {
+                    setSelectedImg(selectedImg + 1);
                 }
             }
         },
     });
+    //#endregion
 
     //#region WebSocket kezelés
     useEffect(() => {
