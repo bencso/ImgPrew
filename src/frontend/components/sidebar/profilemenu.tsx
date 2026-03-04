@@ -4,8 +4,8 @@ import {
     Dialog,
     Menu,
     Portal,
-    HStack, 
-    Text, 
+    HStack,
+    Text,
     Kbd,
     Grid,
     GridItem
@@ -23,11 +23,11 @@ const shortCuts = [{
     items: [
         {
             name: "Előző kép",
-            keyboardShortcut: "◀︎",
+            keyboardShortcut: "←",
         },
         {
             name: "Következő kép",
-            keyboardShortcut: "◀",
+            keyboardShortcut: "→",
         }
     ]
 },
@@ -35,8 +35,8 @@ const shortCuts = [{
     name: "Képszerkesztő",
     items: [
         {
-            name: "Mentés",
-            keyboardShortcut: "Ctrl + S",
+            name: "Újrakezdés",
+            keyboardShortcut: "R",
         }
     ]
 },
@@ -107,11 +107,10 @@ export const ProfileMenu = ({ children }: { children: ReactNode }) => {
                             <Dialog.Body>
                                 <Grid gap={12} templateColumns="repeat(2, 1fr)">
                                     {
-                                        shortCuts.map((group) => {
+                                        shortCuts.map((group, index) => {
                                             return (
-                                                <GridItem gap={6} display={"flex"} flexDirection={"column"}>
+                                                <GridItem key={index} gap={6} display={"flex"} flexDirection={"column"}>
                                                     <Text fontSize={"xl"} mb={6} fontWeight={"bold"}>{group.name}</Text>
-
 
                                                     {group.items.map((shortcut) => {
                                                         return <HStack justify="space-between">

@@ -100,7 +100,7 @@ export interface FunctionProp {
 export interface EditItemProp {
     function: string;
     icon?: ReactNode;
-    inputs?: FunctionProp[];
+    inputs: FunctionProp[];
 }
 //#endregion
 

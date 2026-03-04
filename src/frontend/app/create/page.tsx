@@ -2,6 +2,7 @@
 
 import CaptionBlock from "@/components/editing/caption/captionBlock";
 import { EditItem } from "@/components/editing/edititem";
+import LUTFileBlock from "@/components/editing/lut/lutfileBlock";
 import { ImageDropZone } from "@/components/upload/dropzone";
 import { EditItemProp } from "@/interfaces/interface";
 import { useKeyboardShortcut } from "@/providers/keyboardShortcut";
@@ -12,7 +13,7 @@ import { handleMessage } from "@/websocket/handlers/handleMessage";
 import { Box, Button, Flex, Grid, GridItem, Kbd, Separator, Stack, useBreakpointValue } from "@chakra-ui/react";
 import { Image } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
-import { LuCaptions, LuImageDown, LuPlus } from "react-icons/lu";
+import { LuCaptions, LuFileImage, LuImageDown, LuPlus } from "react-icons/lu";
 
 export default function Page() {
     //#region contextek
@@ -55,6 +56,24 @@ export default function Page() {
                     ],
                 },
                 {
+                    function: "lut_apply",
+                    icon: <LuFileImage />,
+                    inputs: [
+                        {
+                            name: "LUT fájl feltöltés",
+                            inputType: "file",
+                            onChange: (e: any) => {
+                                console.log(e);
+                            },
+                            options: [".cube"]
+                        },
+                        {
+                            name: "LUT mentés",
+                            inputType: "submit",
+                        },
+                    ],
+                },
+                {
                     function: "export",
                     icon: <LuImageDown />,
                     inputs: [
@@ -75,7 +94,7 @@ export default function Page() {
                             ],
                         },
                         {
-                            name: "exportImage",
+                            name: "Kép exportálása",
                             inputType: "submit",
                             onChange: () => {
                                 const data = exportAllDataForImage(selectedImg);
@@ -115,6 +134,20 @@ export default function Page() {
                 if (selectedImg + 1 < imgs.length) {
                     setSelectedImg(selectedImg + 1);
                 }
+            }
+        },
+    });
+
+
+    useKeyboardShortcut({
+        key: "R",
+        onKeyPressed: () => {
+            if (step === 1) {
+                sendMessage({ message: "newSession" });
+                setImgs([]);
+                setSelectedImage(undefined);
+                setSelectedImg(0);
+                setStep(0);
             }
         },
     });

@@ -1,10 +1,11 @@
 import { EditItemProp, InputTypes } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useWebsocket } from "@/providers/websocketprovider";
-import { Box, Button, createListCollection, Field, Grid, GridItem, HStack, Input, Popover, Portal, RadioCard, Select, Stack, Text, useBreakpointValue } from "@chakra-ui/react";
+import { Box, Button, CloseButton, createListCollection, Field, FileUpload, Grid, GridItem, HStack, Input, InputGroup, Popover, Portal, RadioCard, Select, Span, Stack, Text, useBreakpointValue } from "@chakra-ui/react";
 import React, { Fragment, useState } from "react";
 import ImageIcon from "../icons/imageIcon";
 import { useSessionStore } from "@/stores/sessionData";
+import { LuFileUp } from "react-icons/lu";
 
 const activeStyle =
 {
@@ -176,6 +177,37 @@ const Item = ({ items }: { items: EditItemProp }) => {
                                     </RadioCard.Root>
                                 </Box>
                             )
+                        //#region Fájl
+                        case "file":
+                            return <FileUpload.Root onChange={item.onChange ? item.onChange : undefined} gap="1" maxWidth="100%">
+                                <FileUpload.HiddenInput />
+                                <FileUpload.Label>{item.name}</FileUpload.Label>
+                                <InputGroup
+                                    startElement={<LuFileUp />}
+                                    endElement={
+                                        <FileUpload.ClearTrigger asChild>
+                                            <CloseButton
+                                                me="-1"
+                                                size="xs"
+                                                variant="plain"
+                                                focusVisibleRing="inside"
+                                                focusRingWidth="2px"
+                                                pointerEvents="auto"
+                                            />
+                                        </FileUpload.ClearTrigger>
+                                    }
+                                >
+                                    <Input asChild>
+                                        <FileUpload.Trigger>
+                                            <Text color={"fg.muted"} lineClamp={1}>Elfogadott típusok:
+                                                <Span fontSize={"xs"} key={index}> {item.options && item.options instanceof Array && item.options.join(",")}</Span>
+                                                {!item.options && <Span>{item.name}</Span>}
+                                            </Text>
+                                        </FileUpload.Trigger>
+                                    </Input>
+                                </InputGroup>
+                            </FileUpload.Root>
+                        //#endregion
                         //#region egyéb / minden nem egyedi type
                         default:
                             return (
