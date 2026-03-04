@@ -34,16 +34,17 @@ export default function SiteSplitter({ children }: { children: ReactNode }) {
       onResizeEnd={(e) => setSizes(e.size)}
       borderWidth="1px"
       overflow={"hidden"}
-      minH={"100svh"}
+      maxH={"100dvh"}
+      minH={"100dvh"}
       h={"full"}
       defaultSize={sizes}
       orientation={orientation}
     >
-      <Splitter.Panel id="a">
+      <Splitter.Panel id="a" minH={isDesktop ? "100vh" : "full"}>
         <LeftSide isDesktop={isDesktop} />
       </Splitter.Panel>
 
-      {isDesktop && <Splitter.ResizeTrigger id="a:b">
+      {isDesktop && <Splitter.ResizeTrigger id="a:b" minH={isDesktop ? "100vh" : "full"}>
         <Splitter.ResizeTriggerSeparator />
         <Splitter.ResizeTriggerIndicator hidden />
       </Splitter.ResizeTrigger>}

@@ -36,9 +36,10 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
                     borderColor="border.disabled"
                     textDecoration={"none"}
                     alignItems={"center"}
+                    flexDirection={"column"}
                     justifyContent={"center"}
                     h={"full"}
-                    gap={4}
+                    gap={8}
                     w={"full"}
                     borderRightWidth="2px"
                     borderLeftColor={"border.disabled"}
@@ -57,6 +58,7 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
                     {
                         !items.icon && items.function.substring(0, 3)
                     }
+                    <Text rotate={"90"} fontSize={"xx-small"} w="fit" textWrap={"wrap"} color={"fg.muted"}>{items.function}</Text>
                 </Box>
             </Popover.Trigger>
             <Portal>
@@ -179,7 +181,7 @@ const Item = ({ items }: { items: EditItemProp }) => {
                             )
                         //#region Fájl
                         case "file":
-                            return <FileUpload.Root onChange={item.onChange ? item.onChange : undefined} gap="1" maxWidth="100%">
+                            return <FileUpload.Root key={index} onChange={item.onChange ? item.onChange : undefined} gap="1" maxWidth="100%">
                                 <FileUpload.HiddenInput />
                                 <FileUpload.Label>{item.name}</FileUpload.Label>
                                 <InputGroup

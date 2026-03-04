@@ -10,7 +10,7 @@ import { useWorkSession } from "@/providers/sessionprovider";
 import { useWebsocket } from "@/providers/websocketprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { handleMessage } from "@/websocket/handlers/handleMessage";
-import { Box, Button, Flex, Grid, GridItem, Kbd, Separator, Stack, useBreakpointValue } from "@chakra-ui/react";
+import { Box, Button, Field, Flex, Grid, GridItem, Group, Input, InputGroup, Kbd, Separator, Stack, useBreakpointValue } from "@chakra-ui/react";
 import { Image } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import { LuCaptions, LuFileImage, LuImageDown, LuPlus } from "react-icons/lu";
@@ -20,6 +20,9 @@ export default function Page() {
     const { step, imgs, setStep, setImgs, setSelectedImg, selectedImg, addFunction } = useWorkSession();
     const [selectedImage, setSelectedImage] = useState<string>();
     const [editItems, setEditItems] = useState<EditItemProp[]>([]);
+
+    const [presetId, setPresetId] = useState<string>();
+
     const { ws, sendMessage } = useWebsocket();
     const { sessionData, setExifDataForImage, setCaptionSamplesForImage, addImage, setExportFileExtension, exportAllDataForImage, getExportFileExtension } = useSessionStore();
     //#endregion
@@ -207,18 +210,38 @@ export default function Page() {
                             <Grid h={"full"} w={"full"}>
                                 <GridItem p={12} gap={12} display="flex"
                                     flexDirection="column" justifyContent={"center"} alignItems={"center"}>
-                                    <Button w={"fit"} variant={"subtle"} colorPalette={"teal"} onClick={() => {
-                                        sendMessage({ message: "newSession" });
-                                        setImgs([]);
-                                        setSelectedImage(undefined);
-                                        setSelectedImg(0);
-                                        setStep(0);
-                                    }}>
-                                        <LuPlus />
-                                        Újrakezdés
-                                    </Button>
+                                    <Box display={"flex"} flexDir={"row"} gap={4}>
+                                        <Button w={"fit"} variant={"subtle"} colorPalette={"teal"} onClick={() => {
+                                            sendMessage({ message: "newSession" });
+                                            setImgs([]);
+                                            setSelectedImage(undefined);
+                                            setSelectedImg(0);
+                                            setStep(0);
+                                        }}>
+                                            <LuPlus />
+                                            Újrakezdés
+                                        </Button>
+                                        {
+                                            //TODO: Szétszedés késöbb
+                                        }
+                                        <Box display={"flex"} flexDir={"row"} gap={4}>
+                                            <Group attached w="full" maxW="sm">
+                                                <InputGroup startElement="PID"
+                                                    startElementProps={{ color: "fg.muted" }}
+                                                >
+                                                    <Input borderEndRadius={0} flex="1" gap={2} value={presetId} onChange={(e) => setPresetId(e.target.value)} placeholder="" focusRing={"none"} focusVisibleRing={"none"} />
+                                                </InputGroup>
+                                                <Button disabled={!presetId} bg="bg.subtle" variant="outline" onClick={() => {
+                                                    console.log("PRESET ALKALMAZÁSA: " + presetId);
+                                                }}>
+                                                    Preset alkalmazás
+                                                </Button>
+
+                                            </Group>
+                                        </Box>
+                                    </Box>
                                     {selectedImage && (
-                                        <Box alignSelf="center" minH={"400px"} maxH="600px">
+                                        <Box alignSelf="center" minH={"600px"} maxH="600px">
                                             <Image
                                                 src={selectedImage}
                                                 alt={`selected-${selectedImg}`}
@@ -247,12 +270,24 @@ export default function Page() {
                                                 borderBottomEndRadius={"lg"}
                                                 borderBottomStartRadius={"lg"}
                                             >
-                                                <Box display="flex" justifyContent={"center"} alignItems="center" gap={4}>
+                                                <Box userSelect={"none"} cursor={!(selectedImg - 1 >= 0) ? "disabled" : "pointer"} onClick={() => {
+                                                    if (step === 1) {
+                                                        if (selectedImg - 1 >= 0) {
+                                                            setSelectedImg(selectedImg - 1);
+                                                        }
+                                                    }
+                                                }} display="flex" justifyContent={"center"} alignItems="center" gap={4}>
                                                     <Kbd>←</Kbd>
                                                     <Box>Előző</Box>
                                                 </Box>
                                                 <Separator orientation={"vertical"} w={1} h={"full"} />
-                                                <Box display="flex" justifyContent={"center"} alignItems="center" gap={4}>
+                                                <Box cursor={!(selectedImg + 1 < imgs.length) ? "disabled" : "pointer"}  userSelect={"none"} onClick={() => {
+                                                    if (step === 1) {
+                                                        if (selectedImg + 1 < imgs.length) {
+                                                            setSelectedImg(selectedImg + 1);
+                                                        }
+                                                    }
+                                                }} display="flex" justifyContent={"center"} alignItems="center" gap={4}>
                                                     <Box>Következő</Box>
                                                     <Kbd>→</Kbd>
                                                 </Box>
