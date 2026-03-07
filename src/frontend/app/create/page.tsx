@@ -2,7 +2,6 @@
 
 import CaptionBlock from "@/components/editing/caption/captionBlock";
 import { EditItem } from "@/components/editing/edititem";
-import LUTFileBlock from "@/components/editing/lut/lutfileBlock";
 import { ImageDropZone } from "@/components/upload/dropzone";
 import { EditItemProp } from "@/interfaces/interface";
 import { useKeyboardShortcut } from "@/providers/keyboardShortcut";
@@ -10,9 +9,8 @@ import { useWorkSession } from "@/providers/sessionprovider";
 import { useWebsocket } from "@/providers/websocketprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { handleMessage } from "@/websocket/handlers/handleMessage";
-import { Box, Button, Field, Flex, Grid, GridItem, Group, Input, InputGroup, Kbd, Separator, Stack, useBreakpointValue } from "@chakra-ui/react";
-import { Image } from "@chakra-ui/react";
-import { useEffect, useMemo, useState } from "react";
+import { Box, Button, Flex, Grid, GridItem, Group, Input, InputGroup, Kbd, Separator, Stack, useBreakpointValue, Image } from "@chakra-ui/react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { LuCaptions, LuFileImage, LuImageDown, LuPlus } from "react-icons/lu";
 
 export default function Page() {
@@ -26,6 +24,9 @@ export default function Page() {
     const { ws, sendMessage } = useWebsocket();
     const { sessionData, setExifDataForImage, setCaptionSamplesForImage, addImage, setExportFileExtension, exportAllDataForImage, getExportFileExtension } = useSessionStore();
     //#endregion
+
+
+    const myCanvas = useRef<HTMLCanvasElement>(null);
 
     //#region breakPoint beállíátoks (isMd)
     const isMd = useBreakpointValue(
@@ -113,10 +114,31 @@ export default function Page() {
         );
     }, [sessionData, selectedImg]);
     //#endregion
-
-    useMemo(() => {
+    useEffect(() => {
         setSelectedImage(imgs[selectedImg]);
     }, [selectedImg, imgs]);
+
+useEffect(() => {
+    if (!selectedImage || !myCanvas?.current) return;
+
+    const canvas = myCanvas.current;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const image = new window.Image();
+    image.crossOrigin = "anonymous";
+    image.src = imgs[selectedImg];
+
+    image.onload = () => {
+        canvas.width = image.width;
+        canvas.height = image.height;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        ctx.drawImage(image, 0, 0);
+    };
+
+}, [selectedImage, selectedImg, imgs]);
 
     //#region SHORTCUTS
     useKeyboardShortcut({
@@ -197,6 +219,7 @@ export default function Page() {
                     <Grid
                         w="full"
                         h={"full"}
+                        maxW={"full"}
                         templateColumns={isMd ? "1fr 60px" : "1fr"}
                         templateRows={isMd ? "1fr" : "1fr 60px"}
                     >
@@ -207,11 +230,11 @@ export default function Page() {
                             gap={8}
                             w="full"
                         >
-                            <Grid h={"full"} w={"full"}>
+                            <Grid h={"full"} w={"full"} maxW={"full"}>
                                 <GridItem p={12} gap={12} display="flex"
                                     flexDirection="column" justifyContent={"center"} alignItems={"center"}>
                                     <Box display={"flex"} flexDir={"row"} gap={4}>
-                                        <Button w={"fit"} variant={"subtle"} colorPalette={"teal"} onClick={() => {
+                                        <Button w={"fit"}  variant={"subtle"} colorPalette={"teal"} onClick={() => {
                                             sendMessage({ message: "newSession" });
                                             setImgs([]);
                                             setSelectedImage(undefined);
@@ -241,13 +264,14 @@ export default function Page() {
                                         </Box>
                                     </Box>
                                     {selectedImage && (
-                                        <Box alignSelf="center" minH={"600px"} maxH="600px">
-                                            <Image
-                                                src={selectedImage}
-                                                alt={`selected-${selectedImg}`}
-                                                rounded="md"
-                                                h={"full"}
-                                                objectFit="contain"
+                                        <Box alignSelf="center" w={"full"} maxW={"full"} minH={"600px"} maxH="600px">
+                                            <canvas
+                                                ref={myCanvas}
+                                                style={{
+                                                    width: "100%",
+                                                    height: "100%",
+                                                    objectFit: "contain"
+                                                }}
                                             />
                                         </Box>
                                     )}
@@ -281,7 +305,7 @@ export default function Page() {
                                                     <Box>Előző</Box>
                                                 </Box>
                                                 <Separator orientation={"vertical"} w={1} h={"full"} />
-                                                <Box cursor={!(selectedImg + 1 < imgs.length) ? "disabled" : "pointer"}  userSelect={"none"} onClick={() => {
+                                                <Box cursor={!(selectedImg + 1 < imgs.length) ? "disabled" : "pointer"} userSelect={"none"} onClick={() => {
                                                     if (step === 1) {
                                                         if (selectedImg + 1 < imgs.length) {
                                                             setSelectedImg(selectedImg + 1);
