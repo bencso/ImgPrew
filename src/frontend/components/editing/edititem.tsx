@@ -1,10 +1,9 @@
 import { EditItemProp, InputTypes } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useWebsocket } from "@/providers/websocketprovider";
-import { Box, Button, CloseButton, createListCollection, Field, FileUpload, Grid, GridItem, HStack, Input, InputGroup, Popover, Portal, RadioCard, Select, Span, Stack, Text, useBreakpointValue } from "@chakra-ui/react";
+import { Box, Button, CloseButton, createListCollection, Field, FileUpload, HStack, Input, InputGroup, Popover, Portal, RadioCard, Select, Span, Stack, Text, useBreakpointValue } from "@chakra-ui/react";
 import React, { Fragment, useState } from "react";
 import ImageIcon from "../icons/imageIcon";
-import { useSessionStore } from "@/stores/sessionData";
 import { LuFileUp } from "react-icons/lu";
 
 const activeStyle =

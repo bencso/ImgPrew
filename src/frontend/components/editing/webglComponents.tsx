@@ -3,29 +3,60 @@ import { shaderMaterial, OrbitControls } from "@react-three/drei";
 import { Canvas, extend, useLoader } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
+import { LUTCubeLoader } from 'three/addons/loaders/LUTCubeLoader.js';
 
 export default function WebGL() {
     const { imgs, selectedImg } = useWorkSession();
-    //#region shader material definiálás
+    const [lut, setLut] = useState<any>(null);
+
+    // LUT TESZTER:
+    const loader = new LUTCubeLoader();
+    loader.loadAsync("", (result) => {
+        console.log(result);
+    });
+
+    // varying -> egy átmenő változó => változó
+    // uniform -> változó ami állandó marad mindig
+    // uv -> textura koordináták
+
+    //TODO: Belenézni mélyebben a webgl shader müködésébe, ChatGPT-vel akár
     const ImageMaterial = shaderMaterial(
-        { uTexture: null },
+        {
+            uTexture: null,
+        },
+
+        // Vertex shader - pontokkal dolgozik -> lefut minden csúcspontra
+        // "hol legyen az objektum"
         `
-          varying vec2 vUv;
-          void main() {
+        varying vec2 vUv;
+
+        void main() {
             vUv = uv;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
-          }
+            /* 
+            * gl_Position -> vertex shader kimenet -> megmondja, hol legyen a vertex a képernyőn
+            * position -> az objektum csúcspontja a modell koordinátarendszerben
+            * vec4(position, 1.0) -> 4D vektorra alakítás, 4x4-es mátrixhoz
+            * modelViewMatrix ->  a modellt a világ koordinátából a kamera koordinátába konvertálja
+            * projectionMatrix -> vetíti a perspektivikus / ortografikus kamera koordinátákat ("Matrix projektor")
+            */
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); 
+        }
         `,
+        // Fragment shader - pixelekkel dolgozik -> left minden pixelnél
+        // "milyen színű legyen" - ezt kell mindig manipulálni majd igazából képszerkesztéshez
         `
-          precision highp float;
-          uniform sampler2D uTexture;
-          varying vec2 vUv;
-          void main() {
-            gl_FragColor = texture2D(uTexture, vUv);
-          }
+        uniform sampler2D uTexture;
+
+        varying vec2 vUv;
+
+        void main() {
+            vec4 color = texture2D(uTexture, vUv);
+            gl_FragColor = color;
+        }
         `
     );
 
+    //! Osztályt örökítjük a parent osztály 
     extend({ ImageMaterial });
 
     function ImagePlane({ src }: { src: string }) {
@@ -56,7 +87,7 @@ export default function WebGL() {
     //#endregion
 
     return (
-        <Canvas orthographic camera={{ zoom: 150, position: [0, 0, 5] }}>
+        <Canvas orthographic camera={{ zoom: 150, position: [0, 0, 5] }} gl={{ antialias: true }}>
             <ambientLight />
             <ImagePlane src={imgs[selectedImg]} />
             <OrbitControls enableZoom={false} enablePan={false} enableDamping={false} enableRotate={false} />
