@@ -5,7 +5,7 @@ import { useSessionStore } from "@/stores/sessionData";
 import { GridItem, useBreakpointValue } from "@chakra-ui/react"
 import { useMemo, useState } from "react";
 import { EditItem } from "./edititem";
-import { LuCaptions, LuFileImage, LuImageDown } from "react-icons/lu";
+import { LuCaptions, LuFileImage, LuFilter, LuImageDown, LuSun } from "react-icons/lu";
 import CaptionBlock from "./caption/captionBlock";
 
 const sidebarElements = (exportAllDataForImage: any, setExportFileExtension: any, sendMessage: any, selectedImg: any, selectedExtension: any) => {
@@ -21,23 +21,39 @@ const sidebarElements = (exportAllDataForImage: any, setExportFileExtension: any
                 },
             ],
         },
+        // {
+        //     function: "lut_apply",
+        //     icon: <LuFileImage />,
+        //     inputs: [
+        //         {
+        //             name: "LUT fájl feltöltés",
+        //             inputType: "file",
+        //             onChange: (e: any) => {
+        //                 console.log(e);
+        //             },
+        //             options: [".cube"]
+        //         },
+        //         {
+        //             name: "LUT mentés",
+        //             inputType: "submit",
+        //         },
+        //     ],
+        // },
         {
-            function: "lut_apply",
-            icon: <LuFileImage />,
+            function: "filters",
+            icon: <LuFilter />,
             inputs: [
                 {
-                    name: "LUT fájl feltöltés",
-                    inputType: "file",
+                    name: "Fényerő",
+                    icon: <LuSun/>,
+                    min: -50,
+                    max: 50,
+                    inputType: "slider",
                     onChange: (e: any) => {
-                        console.log(e);
+                        console.log(e.value[0]);
                     },
-                    options: [".cube"]
                 },
-                {
-                    name: "LUT mentés",
-                    inputType: "submit",
-                },
-            ],
+            ]
         },
         {
             function: "export",

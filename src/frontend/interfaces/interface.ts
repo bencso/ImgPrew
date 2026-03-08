@@ -93,6 +93,9 @@ export interface FunctionProp {
     options?: any[] | HTMLElement | ReactNode | null;
     onChange?: void | null;
     defaultValue?: string | null;
+    min?: number | null;
+    max?: number | null;
+    icon?: ReactNode | null;
 }
 //#endregion
 

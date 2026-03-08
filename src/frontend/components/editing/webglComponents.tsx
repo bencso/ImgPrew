@@ -32,6 +32,7 @@ export default function WebGL() {
 
         void main() {
             vUv = uv;
+            
             /* 
             * gl_Position -> vertex shader kimenet -> megmondja, hol legyen a vertex a képernyőn
             * position -> az objektum csúcspontja a modell koordinátarendszerben
@@ -39,6 +40,7 @@ export default function WebGL() {
             * modelViewMatrix ->  a modellt a világ koordinátából a kamera koordinátába konvertálja
             * projectionMatrix -> vetíti a perspektivikus / ortografikus kamera koordinátákat ("Matrix projektor")
             */
+
             gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); 
         }
         `,
