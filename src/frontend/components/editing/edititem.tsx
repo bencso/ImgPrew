@@ -210,7 +210,6 @@ const Item = ({ items }: { items: EditItemProp }) => {
                             </FileUpload.Root>
                         //#endregion
                         //#region slider
-                        //TODO: Min, maximum érték, icon, név beállítható legyen és controlled legyen a slider 
                         case "slider":
                             return (
                                 <Slider.Root onValueChange={item.onChange ? item.onChange : undefined} defaultValue={[0]} step={1} key={index} thumbAlignment="center" min={item.min ? item.min : -100} max={item.max ? item.max : 100}>
