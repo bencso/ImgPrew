@@ -1,7 +1,8 @@
 import { useWorkSession } from "@/providers/sessionprovider";
+import { useSessionStore } from "@/stores/sessionData";
 import { shaderMaterial, OrbitControls } from "@react-three/drei";
 import { Canvas, extend, useLoader } from "@react-three/fiber";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { LUTCubeLoader } from 'three/addons/loaders/LUTCubeLoader.js';
 
@@ -61,6 +62,7 @@ export default function WebGL() {
     //! Osztályt örökítjük a parent osztály 
     extend({ ImageMaterial });
 
+
     function ImagePlane({ src }: { src: string }) {
         const materialRef = useRef<any>(null);
         const texture = useLoader(THREE.TextureLoader, src);
@@ -68,7 +70,7 @@ export default function WebGL() {
         const [planeSize, setPlaneSize] = useState<[number, number]>([1, 1]);
 
         useEffect(() => {
-            if (!texture.image) return;
+            if (!texture?.image?.width) return;
 
             const width = texture.image.width;
             const height = texture.image.height;
@@ -77,7 +79,9 @@ export default function WebGL() {
             const scale = 4 / maxDimension;
 
             setPlaneSize([width * scale, height * scale]);
-        }, [texture]);
+
+        }, [texture.image]);
+
 
         return (
             <mesh>

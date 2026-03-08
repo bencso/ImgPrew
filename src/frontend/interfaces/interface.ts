@@ -31,6 +31,7 @@ export interface SessionStore {
     getExportFileExtension: (id: number) => string;
     setExportFileExtension: (id: number, extension: string) => CustomImage | undefined;
     exportAllDataForImage: (id: number) => void;
+    convertHistogram(canvasRef: any, img: any): any[] | undefined;
 }
 //#endregion
 

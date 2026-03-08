@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { SessionStore } from "@/interfaces/interface";
 import { immer } from "zustand/middleware/immer";
+import { RefObject } from "react";
 
 export const useSessionStore = create<SessionStore>()(
     immer((set, get) => ({
@@ -54,7 +55,7 @@ export const useSessionStore = create<SessionStore>()(
         },
         getCaptionForImage: (id: number) => {
             const image = get().sessionData.find(image => image.id === id);
-            return image?.caption ||"";
+            return image?.caption || "";
         },
         //#endregion ----- CAPTION ADATOK -----
         //#region ----- EXPORT FILE EXTENSION ADATOK -----
@@ -80,6 +81,48 @@ export const useSessionStore = create<SessionStore>()(
                     fileExtension: image.exportFileExtension
                 };
             }
+        },
+        //#region ----- HISTOGRAM ADATOK -----
+        convertHistogram(canvasRef: RefObject<HTMLCanvasElement | null>, img: any) {
+            if (!canvasRef.current) {
+                canvasRef.current = document.createElement("canvas");
+            }
+
+            const canvas = canvasRef.current;
+            const ctx = canvas.getContext("2d");
+
+            if (!ctx) return;
+
+            const size = 256;
+            canvas.width = size;
+            canvas.height = size;
+
+            ctx.imageSmoothingEnabled = false;
+            const image = new Image();
+            image.src = img;
+            ctx.drawImage(image, 0, 0, size, size);
+
+            const imageData = ctx.getImageData(0, 0, size, size).data;
+
+            const histogram = new Array(256).fill(0);
+
+            for (let i = 0; i < imageData.length; i += 4) {
+
+                const r = imageData[i];
+                const g = imageData[i + 1];
+                const b = imageData[i + 2];
+
+                const lum = Math.round(
+                    0.2126 * r +
+                    0.7152 * g +
+                    0.0722 * b
+                );
+
+                histogram[lum]++;
+            }
+
+            return histogram;
         }
+        //#endregion
     }))
 );

@@ -5,8 +5,9 @@ import { useSessionStore } from "@/stores/sessionData";
 import { GridItem, useBreakpointValue } from "@chakra-ui/react"
 import { useMemo, useState } from "react";
 import { EditItem } from "./edititem";
-import { LuCaptions, LuFileImage, LuFilter, LuImageDown, LuSun } from "react-icons/lu";
+import { LuCaptions, LuFilter, LuImageDown, LuSun } from "react-icons/lu";
 import CaptionBlock from "./caption/captionBlock";
+import Histogram from "./histogram";
 
 const sidebarElements = (exportAllDataForImage: any, setExportFileExtension: any, sendMessage: any, selectedImg: any, selectedExtension: any) => {
     return ([
@@ -43,9 +44,14 @@ const sidebarElements = (exportAllDataForImage: any, setExportFileExtension: any
             function: "filters",
             icon: <LuFilter />,
             inputs: [
+                 {
+                    name: "Histogram",
+                    inputType: "customElement",
+                    options: <Histogram/>
+                },
                 {
                     name: "Fényerő",
-                    icon: <LuSun/>,
+                    icon: <LuSun />,
                     min: -50,
                     max: 50,
                     inputType: "slider",
