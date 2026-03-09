@@ -3,6 +3,7 @@ import { useSessionStore } from "@/stores/sessionData";
 import { Box } from "@chakra-ui/react";
 import { shaderMaterial } from "@react-three/drei";
 import { Canvas, extend, useLoader, useThree } from "@react-three/fiber";
+import { useState } from "react";
 import * as THREE from "three";
 
 const ImageMaterial = shaderMaterial(
@@ -40,7 +41,7 @@ const ImageMaterial = shaderMaterial(
 
 extend({ ImageMaterial });
 
-function ImagePlane({ src, brightness }: { src: string; brightness: number }) {
+function ImagePlane({ src, brightness, setImgSizeH }: { src: string; brightness: number, setImgSizeH: any }) {
     const texture = useLoader(THREE.TextureLoader, src);
     const { viewport } = useThree();
 
@@ -61,6 +62,8 @@ function ImagePlane({ src, brightness }: { src: string; brightness: number }) {
         width = height * imgAspect;
     }
 
+    setImgSizeH(height);
+
     return (
         <mesh scale={[width, height, 1]}>
             <planeGeometry args={[1, 1]} />
@@ -72,8 +75,7 @@ function ImagePlane({ src, brightness }: { src: string; brightness: number }) {
 export default function WebGL() {
     const { imgs, selectedImg } = useWorkSession();
     const texture = useLoader(THREE.TextureLoader, imgs[selectedImg]);
-
-    const imgH = texture.image?.height ?? 1;
+    const [imgSizeH, setImgSizeH] = useState<number>(1);
 
     const brightness =
         useSessionStore(s =>
@@ -85,10 +87,9 @@ export default function WebGL() {
 
     return (
         <Box
-            w="full"
-            h={imgH}
+            w="100%"
+            h={imgSizeH}
             maxH={"full"}
-            minH={"0"}
         >
             <Canvas
                 orthographic
@@ -100,6 +101,7 @@ export default function WebGL() {
                 <ImagePlane
                     src={imgs[selectedImg]}
                     brightness={brightness}
+                    setImgSizeH={setImgSizeH}
                 />
             </Canvas>
         </Box>
