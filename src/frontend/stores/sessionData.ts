@@ -13,6 +13,7 @@ export const useSessionStore = create<SessionStore>()(
                 let nextId = 0;
                 nextId = state.sessionData.length;
                 state.sessionData.push({ id: nextId, exportFileExtension: "jpg" });
+                return state;
             });
         },
         //#endregion
@@ -87,7 +88,7 @@ export const useSessionStore = create<SessionStore>()(
             if (!canvasRef.current) {
                 canvasRef.current = document.createElement("canvas");
             }
-
+            
             const canvas = canvasRef.current;
             const ctx = canvas.getContext("2d");
 
@@ -100,7 +101,10 @@ export const useSessionStore = create<SessionStore>()(
             ctx.imageSmoothingEnabled = false;
             const image = new Image();
             image.src = img;
-            ctx.drawImage(image, 0, 0, size, size);
+
+            image.onload = () => {
+                ctx.drawImage(image, 0, 0, size, size);
+            };
 
             const imageData = ctx.getImageData(0, 0, size, size).data;
 
@@ -122,6 +126,37 @@ export const useSessionStore = create<SessionStore>()(
             }
 
             return histogram;
+        },
+        //#endregion
+        //#region ----- FILTERS -----
+        editFilters(id: number, filterName: string, value: string | number) {
+            set((state) => {
+                const image = state.sessionData.find(image => image.id === id);
+
+                if (!image) return;
+
+                if (!image.filters) {
+                    image.filters = [];
+                }
+
+                const filter = image.filters.find(f => f.name === filterName);
+
+                if (filter) {
+                    filter.value = Number(value);
+                } else {
+                    image.filters.push({
+                        name: filterName,
+                        value: Number(value)
+                    });
+                }
+            });
+        },
+        getFilterValue(id: number, filterName: string) {
+            return get()
+                .sessionData
+                .find(image => image.id === id)
+                ?.filters?.find(f => f.name === filterName)
+                ?.value ?? null;
         }
         //#endregion
     }))

@@ -4,7 +4,7 @@ import { useWebsocket } from "@/providers/websocketprovider";
 import { Box, Button, Slider, CloseButton, createListCollection, Field, FileUpload, HStack, Input, InputGroup, Popover, Portal, RadioCard, Select, Span, Stack, Text, useBreakpointValue } from "@chakra-ui/react";
 import React, { Fragment, useState } from "react";
 import ImageIcon from "../icons/imageIcon";
-import { LuAArrowDown, LuFileUp, LuSun } from "react-icons/lu";
+import { LuFileUp } from "react-icons/lu";
 
 const activeStyle =
 {
@@ -35,7 +35,7 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
                     borderColor="border.disabled"
                     textDecoration={"none"}
                     alignItems={"center"}
-                    flexDirection={"column"}
+                    flexDirection={isMd ? "column" : "row"}
                     justifyContent={"center"}
                     h={"full"}
                     gap={8}
@@ -57,7 +57,7 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
                     {
                         !items.icon && items.function.substring(0, 3)
                     }
-                    <Text rotate={"90"} fontSize={"xx-small"} w="fit" textWrap={"wrap"} color={"fg.muted"}>{items.function}</Text>
+                    {isMd && <Text rotate={isMd ? "90" : "0"} fontSize={"xx-small"} w="fit" textWrap={"wrap"} color={"fg.muted"}>{items.function}</Text>}
                 </Box>
             </Popover.Trigger>
             <Portal>

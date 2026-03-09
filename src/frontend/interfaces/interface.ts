@@ -7,6 +7,13 @@ export enum InputTypes {
 }
 //#endregion
 
+//#region FiltersImage
+export interface ImageFilters {
+    name: string;
+    value: string | number;
+}
+//#endregion
+
 //#region CustomImage
 export interface CustomImage {
     id: number;
@@ -14,6 +21,7 @@ export interface CustomImage {
     captionSamples?: string[];
     caption?: string;
     exportFileExtension?: string;
+    filters?: ImageFilters[];
 }
 //#endregion
 
@@ -32,6 +40,8 @@ export interface SessionStore {
     setExportFileExtension: (id: number, extension: string) => CustomImage | undefined;
     exportAllDataForImage: (id: number) => void;
     convertHistogram(canvasRef: any, img: any): any[] | undefined;
+    editFilters(id: number, filterName: string, value: string | number): null | undefined;
+    getFilterValue(id: number, filterName: string): string | number | null;
 }
 //#endregion
 
@@ -96,7 +106,7 @@ export interface FunctionProp {
     defaultValue?: string | null;
     min?: number | null;
     max?: number | null;
-    icon?: ReactNode | null;
+    icon?: ReactNode | null;
 }
 //#endregion
 

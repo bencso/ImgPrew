@@ -2,14 +2,14 @@ import { EditItemProp } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useWebsocket } from "@/providers/websocketprovider";
 import { useSessionStore } from "@/stores/sessionData";
-import { GridItem, useBreakpointValue } from "@chakra-ui/react"
+import { GridItem, SliderValueChangeDetails, useBreakpointValue } from "@chakra-ui/react"
 import { useMemo, useState } from "react";
 import { EditItem } from "./edititem";
 import { LuCaptions, LuFilter, LuImageDown, LuSun } from "react-icons/lu";
 import CaptionBlock from "./caption/captionBlock";
 import Histogram from "./histogram";
 
-const sidebarElements = (exportAllDataForImage: any, setExportFileExtension: any, sendMessage: any, selectedImg: any, selectedExtension: any) => {
+const sidebarElements = (exportAllDataForImage: any, setExportFileExtension: any, sendMessage: any, selectedImg: any, selectedExtension: any,editFilters:any) => {
     return ([
         {
             function: "create_caption",
@@ -44,10 +44,10 @@ const sidebarElements = (exportAllDataForImage: any, setExportFileExtension: any
             function: "filters",
             icon: <LuFilter />,
             inputs: [
-                 {
+                {
                     name: "Histogram",
                     inputType: "customElement",
-                    options: <Histogram/>
+                    options: <Histogram />
                 },
                 {
                     name: "Fényerő",
@@ -55,8 +55,8 @@ const sidebarElements = (exportAllDataForImage: any, setExportFileExtension: any
                     min: -50,
                     max: 50,
                     inputType: "slider",
-                    onChange: (e: any) => {
-                        console.log(e.value[0]);
+                    onChange: (e: SliderValueChangeDetails) => {
+                        editFilters(selectedImg, "brightness", e.value[0]);
                     },
                 },
             ]
@@ -102,6 +102,7 @@ export default function SideBar() {
     //#region contextek
     const { selectedImg, addFunction } = useWorkSession();
     const [editItems, setEditItems] = useState<EditItemProp[]>([]);
+        const { editFilters } = useSessionStore();
 
     const { sendMessage } = useWebsocket();
     const { sessionData, setExportFileExtension, exportAllDataForImage, getExportFileExtension } = useSessionStore();
@@ -125,12 +126,12 @@ export default function SideBar() {
     useMemo(() => {
         const selectedExtension = getExportFileExtension(selectedImg);
         setEditItems(
-            sidebarElements(exportAllDataForImage, setExportFileExtension, sendMessage, selectedImg, selectedExtension)
+            sidebarElements(exportAllDataForImage, setExportFileExtension, sendMessage, selectedImg, selectedExtension,editFilters)
         );
     }, [sessionData, selectedImg]);
     //#endregion
     return (
-        < GridItem minH={isMd ? "100vh" : "full"} h={"full"} borderStart={"2px solid"} borderColor={"bg.muted"} display={"flex"} flexDirection={isMd ? "column" : "row"} >
+        <GridItem minH={isMd ? "100vh" : "full"} h={"full"}  w={"full"} maxW={"full"} borderStart={"2px solid"} borderColor={"bg.muted"} display={"flex"} flexDirection={isMd ? "column" : "row"} >
             {
                 editItems.map((item, index) => {
                     return (

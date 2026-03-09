@@ -12,7 +12,7 @@ export default function BottomBar() {
     //#endregion
 
     return (
-        imgs.length > 1 && <GridItem borderTop={"1px solid"} bg={"bg.subtle"} borderColor={"bg.muted"} w={"full"} h={"full"} alignItems={"center"} gap={4} display={"flex"} flexDir={"column"}>
+        imgs.length > 1 && <GridItem borderTop={"1px solid"} bg={"bg.subtle"} borderColor={"bg.muted"} w={"full"} maxW={"full"} h={"full"} alignItems={"center"} gap={4} display={"flex"} flexDir={"column"}>
             {
                 //#region billentyűzet kbd nyilak
             }

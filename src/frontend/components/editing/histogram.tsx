@@ -1,13 +1,18 @@
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 
 export default function Histogram() {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const { selectedImg, imgs } = useWorkSession();
-    const { convertHistogram } = useSessionStore();
+    const { convertHistogram , sessionData} = useSessionStore();
 
-    const histogramData = convertHistogram(canvasRef, imgs[selectedImg]);
+    let histogramData = convertHistogram(canvasRef, imgs[selectedImg]);
+    
+    useEffect(()=>{
+        histogramData = convertHistogram(canvasRef, imgs[selectedImg]);
+    }, [sessionData]);
+
 
     if (!(histogramData instanceof Array)) return;
 
