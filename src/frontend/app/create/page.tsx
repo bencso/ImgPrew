@@ -7,7 +7,7 @@ import { useWebsocket } from "@/providers/websocketprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { handleMessage } from "@/websocket/handlers/handleMessage";
 import { Box, Grid, GridItem, Stack, useBreakpointValue } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import WebGL from "@/components/editing/webglComponents";
 import SideBar from "@/components/editing/sidebar";
 import BottomBar from "@/components/editing/moreImagesBottomBar";
@@ -111,27 +111,15 @@ export default function Page() {
                                     alignItems="center"
                                     boxSizing="border-box"
                                     w="full"
-                                    minH="0"
+                                    minW="0"
+                                    minH={"0"}
                                 >
                                     <TopBar setSelectedImage={setSelectedImage} />
 
                                     {selectedImage && (
-                                        <Box
-                                            alignSelf="center"
-                                            w="full"
-                                            flex="1"
-                                            minH="0"
-                                        >
-                                            <Box
-                                                w="full"
-                                                h="full"
-                                                minH="0"
-                                                position="relative"
-                                                minW="0"
-                                            >
-                                                <WebGL />
-                                            </Box>
-                                        </Box>
+
+                                        <WebGL />
+
                                     )}
                                 </GridItem>
 
