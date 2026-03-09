@@ -11,7 +11,7 @@ export default function TopBar({ setSelectedImage }: { setSelectedImage: any }) 
     const { sendMessage } = useWebsocket();
 
     return (
-        <Box display={"flex"} flexDir={"row"} gap={4}>
+        <Box display={"flex"} flexDir={"row"} gap={4} flexWrap={"wrap"} w={"full"}>
             <Button w={"fit"} variant={"subtle"} colorPalette={"teal"} onClick={() => {
                 sendMessage({ message: "newSession" });
                 setImgs([]);
@@ -23,8 +23,8 @@ export default function TopBar({ setSelectedImage }: { setSelectedImage: any }) 
                 Újrakezdés
             </Button>
 
-            <Box display={"flex"} flexDir={"row"} gap={4}>
-                <Group attached w="full" maxW="sm">
+            <Box display={"flex"} flexDir={"row"} gap={4} w={"full"}>
+                <Group attached w="full" maxW="full">
                     <InputGroup startElement="PID"
                         startElementProps={{ color: "fg.muted" }}
                     >

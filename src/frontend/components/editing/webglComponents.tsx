@@ -4,7 +4,26 @@ import { Box } from "@chakra-ui/react";
 import { shaderMaterial, OrbitControls } from "@react-three/drei";
 import { Canvas, extend, useLoader } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
+import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
+
+//TODO: AZ EGÉSZ ÁTDOLGOZÁSA, EGÉSZ LAYOUT MEG MINDEN
+function ResponsiveCamera() {
+    const { camera, size } = useThree()
+
+    useEffect(() => {
+        const cam = camera as THREE.OrthographicCamera
+
+        cam.left = -size.width / 2
+        cam.right = size.width / 2
+        cam.top = size.height / 2
+        cam.bottom = -size.height / 2
+
+        cam.updateProjectionMatrix()
+    }, [size, camera])
+
+    return null
+}
 
 const ImageMaterial = shaderMaterial(
     {
@@ -22,7 +41,7 @@ const ImageMaterial = shaderMaterial(
             
             /* 
             * gl_Position -> vertex shader kimenet -> megmondja, hol legyen a vertex a képernyőn
-            * position -> az objektum csúcspontja a modell koordinátarendszerben
+            * position -> az objektum csúcspontja a modell koordinátaszerben
             * vec4(position, 1.0) -> 4D vektorra alakítás, 4x4-es mátrixhoz
             * modelViewMatrix ->  a modellt a világ koordinátából a kamera koordinátába konvertálja
             * projectionMatrix -> vetíti a perspektivikus / ortografikus kamera koordinátákat ("Matrix projektor")
@@ -54,33 +73,41 @@ const ImageMaterial = shaderMaterial(
 //! Osztályt örökítjük a parent osztály 
 extend({ ImageMaterial });
 
-function ImagePlane({ src, brightness }: { src: string, brightness: string }) {
-    const materialRef = useRef<THREE.ShaderMaterial>(null);
+function ImagePlane({ src, brightness }: { src: string; brightness: number }) {
     const texture = useLoader(THREE.TextureLoader, src);
+    const { size, camera } = useThree();
 
     const [planeSize, setPlaneSize] = useState<[number, number]>([1, 1]);
 
     useEffect(() => {
         if (!texture?.image?.width) return;
 
-        const width = texture.image.width;
-        const height = texture.image.height;
+        const imgW = texture.image.width;
+        const imgH = texture.image.height;
+        const aspect = imgW / imgH;
 
-        const maxDimension = Math.max(width, height);
-        const scale = 4 / maxDimension;
+        const worldWidth = size.width;
+        const worldHeight = size.height;
 
-        setPlaneSize([width * scale, height * scale]);
+        let width = worldWidth;
+        let height = width / aspect;
 
-    }, [texture]);
+        if (height > worldHeight) {
+            height = worldHeight;
+            width = height * aspect;
+        }
 
+        setPlaneSize([width, height]);
+    }, [texture, size]);
 
     return (
         <mesh>
             <planeGeometry args={planeSize} />
-            <imageMaterial ref={materialRef} uTexture={texture} uBrightness={brightness} />
+            <imageMaterial uTexture={texture} uBrightness={brightness} />
         </mesh>
     );
 }
+
 
 export default function WebGL() {
     const { imgs, selectedImg } = useWorkSession();
@@ -109,16 +136,30 @@ export default function WebGL() {
     //#endregion
 
     return (
-
+        <Box w="100%" h="100%">
             <Canvas
-              style={{ width: "100%", height: "100%"}}
                 orthographic
-                camera={{ zoom: 150, position: [0, 0, 5] }}
-                gl={{ antialias: true }}
+                camera={{ position: [0, 0, 5], zoom: 1 }}
+                style={{
+                    width: "100%",
+                    height: "100%"
+                }}
             >
+                <ResponsiveCamera />
+
                 <ambientLight />
-                <ImagePlane src={imgs[selectedImg]} brightness={brightness} />
-                <OrbitControls enableZoom={false} enablePan={false} enableDamping={false} enableRotate={false} />
+
+                <ImagePlane
+                    src={imgs[selectedImg]}
+                    brightness={brightness}
+                />
+
+                <OrbitControls
+                    enableZoom={false}
+                    enablePan={false}
+                    enableRotate={false}
+                />
             </Canvas>
+        </Box>
     )
 }

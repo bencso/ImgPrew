@@ -84,6 +84,7 @@ export default function Page() {
                     display={"flex"}
                     flexDirection={"column"}
                     mx={"auto"}
+                    boxSizing={"content-box"}
                 >
                     <Grid
                         w="full"
@@ -94,21 +95,46 @@ export default function Page() {
                     >
                         <GridItem
                             h={"full"}
+                            maxW={"full"}
                             display="flex"
                             flexDirection="column"
                             gap={8}
                             w="full"
                         >
-                            <Grid h={"full"} w={"full"} maxW={"full"}>
-                                <GridItem p={12} gap={12} display="flex"
-                                    flexDirection="column" justifyContent={"center"} alignItems={"center"}>
+                            <Grid h="full" w="full">
+                                <GridItem
+                                    p={4}
+                                    gap={12}
+                                    display="flex"
+                                    flexDirection="column"
+                                    justifyContent="center"
+                                    alignItems="center"
+                                    boxSizing="border-box"
+                                    w="full"
+                                    minH="0"
+                                >
                                     <TopBar setSelectedImage={setSelectedImage} />
+
                                     {selectedImage && (
-                                        <Box alignSelf="center" w="full" maxW="full" h={"full"} minH="600px" maxH="600px">
-                                            <WebGL />
+                                        <Box
+                                            alignSelf="center"
+                                            w="full"
+                                            flex="1"
+                                            minH="0"
+                                        >
+                                            <Box
+                                                w="full"
+                                                h="full"
+                                                minH="0"
+                                                position="relative"
+                                                minW="0"
+                                            >
+                                                <WebGL />
+                                            </Box>
                                         </Box>
                                     )}
                                 </GridItem>
+
                                 <BottomBar />
                             </Grid>
                         </GridItem>
