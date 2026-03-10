@@ -26,10 +26,10 @@ export default function SiteSplitter({ children }: { children: ReactNode }) {
           id: "a",
           collapsible: isDesktop,
           collapsedSize: 5,
-          minSize: 10,
+          minSize: 15,
           maxSize: 20,
         },
-        { id: "b", minSize: isDesktop ? 80 : 90 },
+        { id: "b", minSize: isDesktop ? 85 : 90 },
       ]}
       onResizeEnd={(e) => setSizes(e.size)}
       borderWidth="1px"
@@ -39,10 +39,11 @@ export default function SiteSplitter({ children }: { children: ReactNode }) {
       maxW={"100vw"}
       w={"full"}
       h={"full"}
+       minW={0}
       defaultSize={sizes}
       orientation={orientation}
     >
-      <Splitter.Panel id="a" minH={isDesktop ? "100vh" : "full"}>
+      <Splitter.Panel id="a" minW={0} minH={isDesktop ? "100vh" : "full"}>
         <LeftSide isDesktop={isDesktop} />
       </Splitter.Panel>
 

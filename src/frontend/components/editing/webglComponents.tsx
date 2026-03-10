@@ -3,13 +3,14 @@ import { useSessionStore } from "@/stores/sessionData";
 import { Box, Flex } from "@chakra-ui/react";
 import { shaderMaterial } from "@react-three/drei";
 import { Canvas, extend, useLoader, useThree } from "@react-three/fiber";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
 const ImageMaterial = shaderMaterial(
     {
         uTexture: null,
-        uBrightness: 0
+        uBrightness: 0,
+        uContrast: 0
     },
 
     `
@@ -24,16 +25,24 @@ const ImageMaterial = shaderMaterial(
     `
   uniform sampler2D uTexture;
   uniform float uBrightness;
+  uniform float uContrast;
 
   varying vec2 vUv;
 
-  vec3 adjustBrightness(vec3 color, float value) {
-    return color + value / 255.0;
-  }
+vec3 adjustBrightness(vec3 color, float value) {
+    return clamp(color + value / 255.0, 0.0, 1.0);
+}
+
+vec3 adjustContrast(vec3 color, float value) {
+
+    return clamp(0.5 + (1.0 + value) * (color - 0.5), 0.0, 1.0);
+
+}
 
   void main() {
     vec4 color = texture2D(uTexture, vUv);
     color.rgb = adjustBrightness(color.rgb, uBrightness);
+    color.rgb = adjustContrast(color.rgb, uContrast);
     gl_FragColor = color;
   }
   `
@@ -44,9 +53,11 @@ extend({ ImageMaterial });
 function ImagePlane({
     src,
     brightness,
+    contrast
 }: {
     src: string;
     brightness: number;
+    contrast: number;
 }) {
     const texture = useLoader(THREE.TextureLoader, src);
     const { viewport } = useThree();
@@ -66,7 +77,7 @@ function ImagePlane({
     return (
         <mesh scale={[width, height, 1]}>
             <planeGeometry args={[1, 1]} />
-            <imageMaterial uTexture={texture} uBrightness={brightness} />
+            <imageMaterial uTexture={texture} uBrightness={brightness} uContrast={contrast} />
         </mesh>
     )
 }
@@ -74,13 +85,22 @@ function ImagePlane({
 export default function WebGL() {
     const { imgs, selectedImg } = useWorkSession();
 
-    const brightness =
-        useSessionStore(s =>
-            s.sessionData
+    const brightness = useSessionStore(s => {
+        return Number(s.sessionData
+            .find(img => img.id === selectedImg)
+            ?.filters?.find(f => f.name === "brightness")
+            ?.value) || 0;
+    })
+
+    const contrast =
+        useSessionStore(s => {
+            return Number(s.sessionData
                 .find(img => img.id === selectedImg)
-                ?.filters?.find(f => f.name === "brightness")
-                ?.value
-        ) ?? 0;
+                ?.filters?.find(f => f.name === "contrast")
+                ?.value) / 100 || 0
+        }
+        );
+
 
     return (
         <Flex
@@ -100,6 +120,7 @@ export default function WebGL() {
                 <ImagePlane
                     src={imgs[selectedImg]}
                     brightness={brightness}
+                    contrast={contrast}
                 />
             </Canvas>
         </Flex>

@@ -1,10 +1,10 @@
 import { EditItemProp, InputTypes } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useWebsocket } from "@/providers/websocketprovider";
-import { Box, Button, Slider, CloseButton, createListCollection, Field, FileUpload, HStack, Input, InputGroup, Popover, Portal, RadioCard, Select, Span, Stack, Text, useBreakpointValue } from "@chakra-ui/react";
+import { Box, Button, Slider, CloseButton, createListCollection, Field, FileUpload, HStack, Input, InputGroup, Popover, Portal, RadioCard, Select, Span, Stack, Text, useBreakpointValue, IconButton, Flex } from "@chakra-ui/react";
 import React, { Fragment, useState } from "react";
 import ImageIcon from "../icons/imageIcon";
-import { LuFileUp } from "react-icons/lu";
+import { LuEraser, LuFileUp, LuRotateCcw } from "react-icons/lu";
 
 const activeStyle =
 {
@@ -40,7 +40,7 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
                     h={"full"}
                     gap={8}
                     w={"full"}
-                    
+
                     minH={0}
                     px={0}
                     borderRightWidth="2px"
@@ -216,9 +216,14 @@ const Item = ({ items }: { items: EditItemProp }) => {
                         case "slider":
                             return (
                                 <Slider.Root value={[item.defaultValue ? Number(item.defaultValue) : 0]} onValueChange={item.onChange ? item.onChange : undefined} defaultValue={[0]} step={1} key={index} thumbAlignment="center" min={item.min ? item.min : -100} max={item.max ? item.max : 100}>
-                                    <Box justifyContent={"space-between"} display={"flex"} flexDirection={"row"}>
+                                    <Box alignItems={"center"} justifyContent={"space-between"} display={"flex"} flexDirection={"row"}>
                                         <Slider.Label>{item.name}</Slider.Label>
-                                        <Slider.ValueText color={"fg.muted"} />
+                                        <Flex gap={2} alignItems={"center"}>
+                                            {
+                                                (item.clearFunc !== undefined && Number(item.defaultValue) !== 0) && <IconButton size={"sm"} variant={"ghost"} colorScheme={"teal"} onClick={item.clearFunc ? item.clearFunc : undefined}><LuRotateCcw /></IconButton>
+                                            }
+                                            <Slider.ValueText color={"fg.muted"} />
+                                        </Flex>
                                     </Box>
                                     <Slider.Control mt={2}>
                                         <Slider.Track bg="teal.900">

@@ -107,6 +107,7 @@ export interface FunctionProp {
     min?: number | null;
     max?: number | null;
     icon?: ReactNode | null;
+    clearFunc?: void; 
 }
 //#endregion
 

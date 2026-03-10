@@ -6,8 +6,8 @@ import { useWorkSession } from "@/providers/sessionprovider";
 import { useWebsocket } from "@/providers/websocketprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { handleMessage } from "@/websocket/handlers/handleMessage";
-import { Box, Flex, Grid, GridItem, Stack, useBreakpointValue } from "@chakra-ui/react";
-import { useEffect, useRef, useState } from "react";
+import { Box, Flex, useBreakpointValue } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 import WebGL from "@/components/editing/webglComponents";
 import SideBar from "@/components/editing/sidebar";
 import BottomBar from "@/components/editing/moreImagesBottomBar";
@@ -101,7 +101,6 @@ export default function Page() {
                 flexShrink={0}
                 direction={isMd ? "column" : "row"}
                 borderLeftWidth={isMd ?  "1px"  : 0}
-                borderTopWidth={!isMd ?  "1px" : "0" }
                 borderColor="border.disabled"
             >
                 <SideBar />

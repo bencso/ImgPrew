@@ -2,12 +2,17 @@ import { EditItemProp } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useWebsocket } from "@/providers/websocketprovider";
 import { useSessionStore } from "@/stores/sessionData";
-import { Flex, Grid, GridItem, SliderValueChangeDetails, useBreakpointValue } from "@chakra-ui/react"
+import { SliderValueChangeDetails } from "@chakra-ui/react"
 import { useMemo, useState } from "react";
 import { EditItem } from "./edititem";
-import { LuCaptions, LuFilter, LuImageDown, LuSun } from "react-icons/lu";
+import { LuCaptions, LuContrast, LuFilter, LuImageDown, LuSun } from "react-icons/lu";
 import CaptionBlock from "./caption/captionBlock";
 import Histogram from "./histogram";
+
+
+function isSliderValueChangeDetails(e: any): e is SliderValueChangeDetails {
+    return e && typeof e.value === "number";
+}
 
 const sidebarElements = (exportAllDataForImage: any, setExportFileExtension: any, sendMessage: any, selectedImg: any, selectedExtension: any, editFilters: any, getFilterValue: any) => {
     return ([
@@ -59,6 +64,23 @@ const sidebarElements = (exportAllDataForImage: any, setExportFileExtension: any
                     onChange: (e: SliderValueChangeDetails) => {
                         editFilters(selectedImg, "brightness", e.value[0]);
                     },
+                    clearFunc: ()=>{
+                        editFilters(selectedImg, "brightness", 0)
+                    }
+                },
+                {
+                    name: "Kontraszt",
+                    icon: <LuContrast />,
+                    min: -50,
+                    max: 50,
+                    inputType: "slider",
+                    defaultValue: getFilterValue(selectedImg, "contrast") || 0,
+                    onChange: (e: SliderValueChangeDetails) => {
+                        editFilters(selectedImg, "contrast", e.value[0]);
+                    },
+                    clearFunc: ()=>{
+                        editFilters(selectedImg, "contrast", 0)
+                    }
                 },
             ]
         },

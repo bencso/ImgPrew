@@ -10,8 +10,9 @@ export default function Histogram() {
     let histogramData = convertHistogram(canvasRef, imgs[selectedImg]);
     
     useEffect(()=>{
-        console.log("változááás");
         histogramData = convertHistogram(canvasRef, imgs[selectedImg]);
+        console.log(histogramData);
+        console.log(sessionData);
     }, [sessionData]);
 
 
