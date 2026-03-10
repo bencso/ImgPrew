@@ -40,6 +40,8 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
                     h={"full"}
                     gap={8}
                     w={"full"}
+                    
+                    minH={0}
                     px={0}
                     borderRightWidth="2px"
                     borderLeftColor={"border.disabled"}

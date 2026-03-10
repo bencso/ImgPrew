@@ -63,41 +63,52 @@ export default function Page() {
         imgs
     });
 
-    //TODO: Layout átdolgozása
 
-    return (
-        <Box h={"full"} w={"full"} maxH={isMd ? "100vh" : "full"} >
-            {
-                //#region Image feltöltés
-            }
-            {step === 0 && (
-                <ImageDropZone ws={ws} sendMessage={sendMessage} />
-            )}
-            {
-                //#region Második lépés (kép manipulálás)
-            }
-            {step === 1 && (
-                <Flex
-                    w={"full"}
-                    h={"full"}
-                    display={"flex"}
-                >
-                    <Flex h={isMd ? "100vh" : "full"} w={"full"} flexDir={isMd ? "row" : "columnm"}>
-                        <Flex flexDir={"column"} h={"full"} w={"full"}>
-                            <TopBar setSelectedImage={setSelectedImage} />
-                            {selectedImage && (
-                                <WebGL />
-                            )}
-                            <BottomBar />
-                        </Flex>
-                        <Flex h={"full"}>
-                        <SideBar />
-                        </Flex>
-                    </Flex>
-                </Flex>
-
-            )}
-        </Box>
+    if (step === 0) return (
+        <ImageDropZone ws={ws} sendMessage={sendMessage} />
     )
+    if (step === 1) return (
+        <Flex
+            direction={!isMd ? "column" : "row"}
+            h="full"
+            w="full"
+            minW="0"
+            minH={"0"}
+            flex="1"
+        >
+            <Flex
+                h="full"
+                w="full"
+                minW="0"
+                minH={"0"}
+                flex="1"
+                direction="column"
+            >
+                <TopBar setSelectedImage={setSelectedImage} />
+
+                <Box flex="1" minH="0" p={4}>
+                    {selectedImage && <WebGL />}
+                </Box>
+
+                <BottomBar />
+            </Flex>
+
+            <Flex
+                w={isMd? "fit": "full"}
+                h={!isMd? "fit": "full"}
+                minH="0"
+                minW="0"
+                flexShrink={0}
+                direction={isMd ? "column" : "row"}
+                borderLeftWidth={isMd ?  "1px"  : 0}
+                borderTopWidth={!isMd ?  "1px" : "0" }
+                borderColor="border.disabled"
+            >
+                <SideBar />
+            </Flex>
+        </Flex>
+    )
+
+
 
 }

@@ -1,6 +1,6 @@
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useWebsocket } from "@/providers/websocketprovider";
-import { Box, Button, Group, Input, InputGroup } from "@chakra-ui/react";
+import { Box, Button, Flex, Group, Input, InputGroup } from "@chakra-ui/react";
 import { useState } from "react";
 import { LuPlus } from "react-icons/lu";
 
@@ -10,7 +10,7 @@ export default function TopBar({ setSelectedImage }: { setSelectedImage: any }) 
     const { sendMessage } = useWebsocket();
 
     return (
-        <Box display={"flex"} flexDir={"row"} gap={4} p={4} h={"fit"} flexWrap={"wrap"} mx={"auto"}>
+        <Flex flexDir={"row"} gap={4} p={4} w={"full"} h={"fit"} flexWrap={"wrap"} mx={"auto"}>
             <Button w={"fit"} variant={"subtle"} colorPalette={"teal"} onClick={() => {
                 sendMessage({ message: "newSession" });
                 setImgs([]);
@@ -35,6 +35,6 @@ export default function TopBar({ setSelectedImage }: { setSelectedImage: any }) 
                     </Button>
                 </Group>
             </Box>
-        </Box>
+        </Flex>
     )
 }

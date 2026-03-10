@@ -86,8 +86,7 @@ export default function WebGL() {
         <Flex
             w="full"
             h="full"
-            maxH="full"
-            maxW="full"
+            boxSizing={"border-box"}
             overflow="hidden"
             p={4}
         >

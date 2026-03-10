@@ -2,7 +2,7 @@ import { EditItemProp } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useWebsocket } from "@/providers/websocketprovider";
 import { useSessionStore } from "@/stores/sessionData";
-import { Grid, GridItem, SliderValueChangeDetails, useBreakpointValue } from "@chakra-ui/react"
+import { Flex, Grid, GridItem, SliderValueChangeDetails, useBreakpointValue } from "@chakra-ui/react"
 import { useMemo, useState } from "react";
 import { EditItem } from "./edititem";
 import { LuCaptions, LuFilter, LuImageDown, LuSun } from "react-icons/lu";
@@ -108,12 +108,6 @@ export default function SideBar() {
     const { sendMessage } = useWebsocket();
     const { sessionData, setExportFileExtension, exportAllDataForImage, getExportFileExtension } = useSessionStore();
     //#endregion
-    //#region breakPoint beállíátoks (isMd)
-    const isMd = useBreakpointValue(
-        { base: false, sm: false, md: false, lg: true, xl: true },
-        { ssr: false, fallback: "md" }
-    );
-    //#endregion
 
     useMemo(() => {
         editItems.map((item) => {
@@ -132,16 +126,11 @@ export default function SideBar() {
     }, [sessionData, selectedImg]);
     //#endregion
     return (
-        <Grid h={"full"}>
-            <GridItem borderStart={"2px solid"} borderColor={"bg.muted"} display={"flex"} h={"full"} flexDirection={isMd ? "column" : "row"} >
-                {
-                    editItems.map((item, index) => {
-                        return (
-                            <EditItem key={index} items={item} />
-                        )
-                    })
-                }
-            </GridItem >
-        </Grid>
+        editItems.map((item, index) => {
+            return (
+                <EditItem key={index} items={item} />
+            )
+        })
+
     )
 }
