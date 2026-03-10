@@ -12,7 +12,7 @@ export default function BottomBar() {
     //#endregion
 
     return (
-        imgs.length > 1 && <GridItem borderTop={"1px solid"} bg={"bg.subtle"} borderColor={"bg.muted"} w={"full"} maxW={"full"} h={"full"} alignItems={"center"} gap={4} display={"flex"} flexDir={"column"}>
+        imgs.length > 1 && <Flex borderTop={"1px solid"} bg={"bg.subtle"} borderColor={"bg.muted"} w={"full"} h={"fit"} justifyContent="center" alignItems={"center"} gap={4} display={"flex"} flexDir={"column"}>
             {
                 //#region billentyűzet kbd nyilak
             }
@@ -40,7 +40,7 @@ export default function BottomBar() {
                             <Kbd>←</Kbd>
                             <Box>Előző</Box>
                         </Box>
-                        <Separator orientation={"vertical"} w={1} h={"full"} />
+                        <Separator orientation="vertical" />
                         <Box cursor={!(selectedImg + 1 < imgs.length) ? "disabled" : "pointer"} userSelect={"none"} onClick={() => {
                             if (step === 1) {
                                 if (selectedImg + 1 < imgs.length) {
@@ -60,46 +60,39 @@ export default function BottomBar() {
             {imgs.length > 1 && (
                 <Flex
                     gap={4}
-                    justifyContent={"center"}
+                    px={4}
+                    pb={4}
+                    overflowX="auto"
+                    overflowY="hidden"
                 >
                     {imgs.map((img, index) => {
                         const isActive = selectedImg === index;
-
                         return (
                             <Box
-                                key={img}
+                                key={index}
+                                flex="0 0 100px"
+                                aspectRatio={1}
+                                borderRadius="md"
+                                overflow="hidden"
                                 cursor="pointer"
-                                minH={"100px"}
-                                minW={"100px"}
-                                maxH={"100px"}
-                                maxW={"100px"}
-                                w={"full"}
-                                h={"full"}
+                                opacity={isActive ? 1 : 0.4}
+                                transition="opacity 0.2s"
+                                _hover={{ opacity: 0.8 }}
                                 onClick={() => setSelectedImg(index)}
                             >
-                                <Box
-                                    borderRadius="md"
-                                    overflow="hidden"
-                                    h={"full"}
-                                    w={"full"}
-                                    opacity={isActive ? 1 : 0.4}
-                                    transition="opacity 0.2s ease"
-                                    _hover={{ opacity: 0.8 }}
-                                >
-                                    <Image
-                                        src={img}
-                                        alt={`thumbnail-${index}`}
-                                        w="full"
-                                        h="full"
-                                        bg={"bg.muted"}
-                                        objectFit="cover"
-                                    />
-                                </Box>
+                                <Image
+                                    src={img}
+                                    alt={`thumbnail-${index}`}
+                                    w="full"
+                                    h="full"
+                                    objectFit="cover"
+                                    bg="bg.muted"
+                                />
                             </Box>
                         );
                     })}
                 </Flex>
             )}
-        </GridItem>
+        </Flex>
     )
 }

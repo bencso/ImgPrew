@@ -2,14 +2,14 @@ import { EditItemProp } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useWebsocket } from "@/providers/websocketprovider";
 import { useSessionStore } from "@/stores/sessionData";
-import { GridItem, SliderValueChangeDetails, useBreakpointValue } from "@chakra-ui/react"
+import { Grid, GridItem, SliderValueChangeDetails, useBreakpointValue } from "@chakra-ui/react"
 import { useMemo, useState } from "react";
 import { EditItem } from "./edititem";
 import { LuCaptions, LuFilter, LuImageDown, LuSun } from "react-icons/lu";
 import CaptionBlock from "./caption/captionBlock";
 import Histogram from "./histogram";
 
-const sidebarElements = (exportAllDataForImage: any, setExportFileExtension: any, sendMessage: any, selectedImg: any, selectedExtension: any,editFilters:any) => {
+const sidebarElements = (exportAllDataForImage: any, setExportFileExtension: any, sendMessage: any, selectedImg: any, selectedExtension: any, editFilters: any) => {
     return ([
         {
             function: "create_caption",
@@ -102,7 +102,7 @@ export default function SideBar() {
     //#region contextek
     const { selectedImg, addFunction } = useWorkSession();
     const [editItems, setEditItems] = useState<EditItemProp[]>([]);
-        const { editFilters } = useSessionStore();
+    const { editFilters } = useSessionStore();
 
     const { sendMessage } = useWebsocket();
     const { sessionData, setExportFileExtension, exportAllDataForImage, getExportFileExtension } = useSessionStore();
@@ -126,19 +126,21 @@ export default function SideBar() {
     useMemo(() => {
         const selectedExtension = getExportFileExtension(selectedImg);
         setEditItems(
-            sidebarElements(exportAllDataForImage, setExportFileExtension, sendMessage, selectedImg, selectedExtension,editFilters)
+            sidebarElements(exportAllDataForImage, setExportFileExtension, sendMessage, selectedImg, selectedExtension, editFilters)
         );
     }, [sessionData, selectedImg]);
     //#endregion
     return (
-        <GridItem minH={isMd ? "100vh" : "full"} h={"full"}  w={"full"} maxW={"full"} borderStart={"2px solid"} borderColor={"bg.muted"} display={"flex"} flexDirection={isMd ? "column" : "row"} >
-            {
-                editItems.map((item, index) => {
-                    return (
-                        <EditItem key={index} items={item} />
-                    )
-                })
-            }
-        </GridItem >
+        <Grid h={isMd ? "full" : "fit"}  w={isMd ? "fit" : "full"}>
+            <GridItem borderStart={"2px solid"} borderColor={"bg.muted"} display={"flex"} flexDirection={isMd ? "column" : "row"} >
+                {
+                    editItems.map((item, index) => {
+                        return (
+                            <EditItem key={index} items={item} />
+                        )
+                    })
+                }
+            </GridItem >
+        </Grid>
     )
 }

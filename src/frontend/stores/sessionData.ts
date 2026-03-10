@@ -88,7 +88,7 @@ export const useSessionStore = create<SessionStore>()(
             if (!canvasRef.current) {
                 canvasRef.current = document.createElement("canvas");
             }
-            
+
             const canvas = canvasRef.current;
             const ctx = canvas.getContext("2d");
 

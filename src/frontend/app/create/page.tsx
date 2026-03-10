@@ -6,7 +6,7 @@ import { useWorkSession } from "@/providers/sessionprovider";
 import { useWebsocket } from "@/providers/websocketprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { handleMessage } from "@/websocket/handlers/handleMessage";
-import { Box, Grid, GridItem, Stack, useBreakpointValue } from "@chakra-ui/react";
+import { Box, Flex, Grid, GridItem, Stack, useBreakpointValue } from "@chakra-ui/react";
 import { useEffect, useRef, useState } from "react";
 import WebGL from "@/components/editing/webglComponents";
 import SideBar from "@/components/editing/sidebar";
@@ -63,6 +63,7 @@ export default function Page() {
         imgs
     });
 
+    //TODO: Layout átdolgozása
 
     return (
         <Box h={"full"} w={"full"} minH={isMd ? "100vh" : "full"} >
@@ -76,62 +77,26 @@ export default function Page() {
                 //#region Második lépés (kép manipulálás)
             }
             {step === 1 && (
-                <Stack
+                <Flex
                     maxW={"full"}
                     w={"full"}
-                    minH={isMd ? "100vh" : "full"}
-                    h="full"
+                    h={isMd ? "100vh" : "full"}
                     display={"flex"}
                     flexDirection={"column"}
                     mx={"auto"}
-                    boxSizing={"content-box"}
                 >
-                    <Grid
-                        w="full"
-                        h={"full"}
-                        maxW={"full"}
-                        templateColumns={isMd ? "1fr 60px" : "1fr"}
-                        templateRows={isMd ? "1fr" : "1fr 60px"}
-                    >
-                        <GridItem
-                            h={"full"}
-                            maxW={"full"}
-                            display="flex"
-                            flexDirection="column"
-                            gap={8}
-                            w="full"
-                        >
-                            <Grid h="full" w="full">
-                                <GridItem
-                                    p={4}
-                                    gap={12}
-                                    display="flex"
-                                    flexDirection="column"
-                                    justifyContent="center"
-                                    alignItems="center"
-                                    boxSizing="border-box"
-                                    w="full"
-                                    minW="0"
-                                    minH={"0"}
-                                >
-                                    <TopBar setSelectedImage={setSelectedImage} />
-
-                                    {selectedImage && (
-
-                                        <WebGL />
-
-                                    )}
-                                </GridItem>
-
-                                <BottomBar />
-                            </Grid>
-                        </GridItem>
-                        {
-                            //#region Sidebar
-                        }
+                    <Flex h={"full"} flexDir={isMd ? "row" : "column"}>
+                        <Flex flexDir={"column"} gap={12} w={"full"} h={"full"}>
+                            <TopBar setSelectedImage={setSelectedImage} />
+                            {selectedImage && (
+                                <WebGL />
+                            )}
+                            <BottomBar />
+                        </Flex>
                         <SideBar />
-                    </Grid>
-                </Stack>
+                    </Flex>
+                </Flex>
+
             )}
         </Box>
     )
