@@ -213,7 +213,7 @@ const Item = ({ items }: { items: EditItemProp }) => {
                         //#region slider
                         case "slider":
                             return (
-                                <Slider.Root onValueChange={item.onChange ? item.onChange : undefined} defaultValue={[0]} step={1} key={index} thumbAlignment="center" min={item.min ? item.min : -100} max={item.max ? item.max : 100}>
+                                <Slider.Root value={[item.defaultValue ? Number(item.defaultValue) : 0]} onValueChange={item.onChange ? item.onChange : undefined} defaultValue={[0]} step={1} key={index} thumbAlignment="center" min={item.min ? item.min : -100} max={item.max ? item.max : 100}>
                                     <Box justifyContent={"space-between"} display={"flex"} flexDirection={"row"}>
                                         <Slider.Label>{item.name}</Slider.Label>
                                         <Slider.ValueText color={"fg.muted"} />

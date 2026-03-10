@@ -9,7 +9,7 @@ import { LuCaptions, LuFilter, LuImageDown, LuSun } from "react-icons/lu";
 import CaptionBlock from "./caption/captionBlock";
 import Histogram from "./histogram";
 
-const sidebarElements = (exportAllDataForImage: any, setExportFileExtension: any, sendMessage: any, selectedImg: any, selectedExtension: any, editFilters: any) => {
+const sidebarElements = (exportAllDataForImage: any, setExportFileExtension: any, sendMessage: any, selectedImg: any, selectedExtension: any, editFilters: any, getFilterValue: any) => {
     return ([
         {
             function: "create_caption",
@@ -55,6 +55,7 @@ const sidebarElements = (exportAllDataForImage: any, setExportFileExtension: any
                     min: -50,
                     max: 50,
                     inputType: "slider",
+                    defaultValue: getFilterValue(selectedImg, "brightness") || 0,
                     onChange: (e: SliderValueChangeDetails) => {
                         editFilters(selectedImg, "brightness", e.value[0]);
                     },
@@ -102,7 +103,7 @@ export default function SideBar() {
     //#region contextek
     const { selectedImg, addFunction } = useWorkSession();
     const [editItems, setEditItems] = useState<EditItemProp[]>([]);
-    const { editFilters } = useSessionStore();
+    const { editFilters, getFilterValue } = useSessionStore();
 
     const { sendMessage } = useWebsocket();
     const { sessionData, setExportFileExtension, exportAllDataForImage, getExportFileExtension } = useSessionStore();
@@ -126,13 +127,13 @@ export default function SideBar() {
     useMemo(() => {
         const selectedExtension = getExportFileExtension(selectedImg);
         setEditItems(
-            sidebarElements(exportAllDataForImage, setExportFileExtension, sendMessage, selectedImg, selectedExtension, editFilters)
+            sidebarElements(exportAllDataForImage, setExportFileExtension, sendMessage, selectedImg, selectedExtension, editFilters, getFilterValue)
         );
     }, [sessionData, selectedImg]);
     //#endregion
     return (
-        <Grid h={isMd ? "full" : "fit"}  w={isMd ? "fit" : "full"}>
-            <GridItem borderStart={"2px solid"} borderColor={"bg.muted"} display={"flex"} flexDirection={isMd ? "column" : "row"} >
+        <Grid h={"full"}>
+            <GridItem borderStart={"2px solid"} borderColor={"bg.muted"} display={"flex"} h={"full"} flexDirection={isMd ? "column" : "row"} >
                 {
                     editItems.map((item, index) => {
                         return (

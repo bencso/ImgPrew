@@ -66,7 +66,7 @@ export default function Page() {
     //TODO: Layout átdolgozása
 
     return (
-        <Box h={"full"} w={"full"} minH={isMd ? "100vh" : "full"} >
+        <Box h={"full"} w={"full"} maxH={isMd ? "100vh" : "full"} >
             {
                 //#region Image feltöltés
             }
@@ -78,22 +78,21 @@ export default function Page() {
             }
             {step === 1 && (
                 <Flex
-                    maxW={"full"}
                     w={"full"}
-                    h={isMd ? "100vh" : "full"}
+                    h={"full"}
                     display={"flex"}
-                    flexDirection={"column"}
-                    mx={"auto"}
                 >
-                    <Flex h={"full"} flexDir={isMd ? "row" : "column"}>
-                        <Flex flexDir={"column"} gap={12} w={"full"} h={"full"}>
+                    <Flex h={isMd ? "100vh" : "full"} w={"full"} flexDir={isMd ? "row" : "columnm"}>
+                        <Flex flexDir={"column"} h={"full"} w={"full"}>
                             <TopBar setSelectedImage={setSelectedImage} />
                             {selectedImage && (
                                 <WebGL />
                             )}
                             <BottomBar />
                         </Flex>
+                        <Flex h={"full"}>
                         <SideBar />
+                        </Flex>
                     </Flex>
                 </Flex>
 
