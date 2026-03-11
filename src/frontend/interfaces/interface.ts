@@ -106,6 +106,7 @@ export interface FunctionProp {
     defaultValue?: string | null;
     min?: number | null;
     max?: number | null;
+    step?: number;
     icon?: ReactNode | null;
     clearFunc?: void; 
 }

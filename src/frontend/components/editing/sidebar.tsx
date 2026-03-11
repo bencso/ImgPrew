@@ -5,7 +5,7 @@ import { useSessionStore } from "@/stores/sessionData";
 import { SliderValueChangeDetails } from "@chakra-ui/react"
 import { useMemo, useState } from "react";
 import { EditItem } from "./edititem";
-import { LuCaptions, LuContrast, LuFilter, LuImageDown, LuSun } from "react-icons/lu";
+import { LuAperture, LuBlend, LuCaptions, LuContrast, LuFilter, LuImageDown, LuMoon, LuSun } from "react-icons/lu";
 import CaptionBlock from "./caption/captionBlock";
 import Histogram from "./histogram";
 
@@ -57,29 +57,61 @@ const sidebarElements = (exportAllDataForImage: any, setExportFileExtension: any
                 {
                     name: "Fényerő",
                     icon: <LuSun />,
-                    min: -50,
-                    max: 50,
+                    min: -10,
+                    max: 10,
+                    step: 0.1,
                     inputType: "slider",
                     defaultValue: getFilterValue(selectedImg, "brightness") || 0,
                     onChange: (e: SliderValueChangeDetails) => {
                         editFilters(selectedImg, "brightness", e.value[0]);
                     },
-                    clearFunc: ()=>{
+                    clearFunc: () => {
                         editFilters(selectedImg, "brightness", 0)
                     }
                 },
                 {
                     name: "Kontraszt",
                     icon: <LuContrast />,
-                    min: -50,
-                    max: 50,
+                    min: -1,
+                    max: 1,
+                    step: 0.01,
                     inputType: "slider",
                     defaultValue: getFilterValue(selectedImg, "contrast") || 0,
                     onChange: (e: SliderValueChangeDetails) => {
                         editFilters(selectedImg, "contrast", e.value[0]);
                     },
-                    clearFunc: ()=>{
+                    clearFunc: () => {
                         editFilters(selectedImg, "contrast", 0)
+                    }
+                },
+                {
+                    name: "Saturation",
+                    icon: <LuBlend />,
+                    min: -1,
+                    max: 1,
+                    step: 0.01,
+                    inputType: "slider",
+                    defaultValue: getFilterValue(selectedImg, "saturation") || 0,
+                    onChange: (e: SliderValueChangeDetails) => {
+                        editFilters(selectedImg, "saturation", e.value[0]);
+                    },
+                    clearFunc: () => {
+                        editFilters(selectedImg, "saturation", 0)
+                    }
+                },
+                {
+                    name: "Exposure",
+                    icon: <LuAperture />,
+                    min: -1,
+                    max: 1,
+                    step: 0.01,
+                    inputType: "slider",
+                    defaultValue: getFilterValue(selectedImg, "exposure") || 0,
+                    onChange: (e: SliderValueChangeDetails) => {
+                        editFilters(selectedImg, "exposure", e.value[0]);
+                    },
+                    clearFunc: () => {
+                        editFilters(selectedImg, "exposure", 0)
                     }
                 },
             ]

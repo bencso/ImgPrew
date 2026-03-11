@@ -215,14 +215,16 @@ const Item = ({ items }: { items: EditItemProp }) => {
                         //#region slider
                         case "slider":
                             return (
-                                <Slider.Root value={[item.defaultValue ? Number(item.defaultValue) : 0]} onValueChange={item.onChange ? item.onChange : undefined} defaultValue={[0]} step={1} key={index} thumbAlignment="center" min={item.min ? item.min : -100} max={item.max ? item.max : 100}>
+                                <Slider.Root value={[item.defaultValue ? Number(item.defaultValue) : 0]} onValueChange={item.onChange ? item.onChange : undefined} defaultValue={[0]} step={item.step ? item.step : 1} key={index} thumbAlignment="center" min={item.min ? item.min : -100} max={item.max ? item.max : 100}>
                                     <Box alignItems={"center"} justifyContent={"space-between"} display={"flex"} flexDirection={"row"}>
                                         <Slider.Label>{item.name}</Slider.Label>
                                         <Flex gap={2} alignItems={"center"}>
                                             {
                                                 (item.clearFunc !== undefined && Number(item.defaultValue) !== 0) && <IconButton size={"sm"} variant={"ghost"} colorScheme={"teal"} onClick={item.clearFunc ? item.clearFunc : undefined}><LuRotateCcw /></IconButton>
                                             }
-                                            <Slider.ValueText color={"fg.muted"} />
+                                            <Slider.ValueText color={"fg.muted"}>
+                                                {Math.floor(Number(item.defaultValue) * 100)}
+                                                </Slider.ValueText>
                                         </Flex>
                                     </Box>
                                     <Slider.Control mt={2}>
