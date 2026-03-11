@@ -1,5 +1,6 @@
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useWebsocket } from "@/providers/websocketprovider";
+import { useSessionStore } from "@/stores/sessionData";
 import { Box, Button, Flex, Group, Input, InputGroup } from "@chakra-ui/react";
 import { useState } from "react";
 import { LuPlus } from "react-icons/lu";
@@ -7,6 +8,7 @@ import { LuPlus } from "react-icons/lu";
 export default function TopBar({ setSelectedImage }: { setSelectedImage: any }) {
     const { setStep, setImgs, setSelectedImg } = useWorkSession();
     const [presetId, setPresetId] = useState<string>();
+    const {clearSessionData} = useSessionStore();
     const { sendMessage } = useWebsocket();
 
     return (
@@ -17,6 +19,7 @@ export default function TopBar({ setSelectedImage }: { setSelectedImage: any }) 
                 setSelectedImage(undefined);
                 setSelectedImg(0);
                 setStep(0);
+                clearSessionData();
             }}>
                 <LuPlus />
                 Újrakezdés

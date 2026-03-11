@@ -69,7 +69,10 @@ class GetExifData:
                             self.image_infos[i] = f"ISO {int(value)}"
                         case _:
                             if isinstance(value, bytes):
-                                self.image_infos[i] = f"{value.decode('utf-8')}"
+                                try:
+                                    self.image_infos[i] = f"{value.decode('utf-8')}"
+                                except:
+                                    self.image_infos[i] = f"{value}"
                             else:
                                 self.image_infos[i] = f"{value}"
             if "GPS".lower() in image_list:

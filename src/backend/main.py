@@ -53,20 +53,27 @@ async def ws_check(websocket: WebSocket):
                     if len(imgs) > 0:
                         imgs.clear()
                         if slices is not None:
-                            slices = None 
+                            slices = None
                     await websocket.send_text(sender.send())
                 if wsmess.message == "initImage":
                     try:
                         img_index = int(wsmess.data)
                         img = imgs[img_index]
                         img = img.get_img()
-                        test = GetExifData(img, ["FNumber"])
+                        
                         sender.message = "initSuccess"
-                        exif_datas = test.get_exif_datas()
-                        exif_keys = list(exif_datas.keys()) if isinstance(exif_datas, dict) else list(exif_datas or [])
-                        caption_sample = CaptionGenerator(exif_info=exif_keys).getSampleForPhoto() or []
+                        caption_helper = CaptionGenerator(img=img)
+                        caption_sample = (
+                            caption_helper.getSampleForPhoto()
+                            or []
+                        )
+                        print(caption_helper.getExifInfos())
                         sender.data = json.dumps(
-                            {"exifDatas": exif_keys, "id": img_index, "caption_samples": caption_sample}
+                            {
+                                "exifDatas": caption_helper.getExifInfos(),
+                                "id": img_index,
+                                "caption_samples": caption_sample,
+                            }
                         )
                         await websocket.send_text(sender.send())
                     except (IndexError, KeyError, ValueError) as e:
@@ -74,12 +81,8 @@ async def ws_check(websocket: WebSocket):
                 if wsmess.message == "fileUpload":
                     slices = wsmess.data["slices"]
                 if wsmess.message == "export":
-                    print(wsmess.data)
-                    print(wsmess.message)
                     sender.message = "exportSuccess"
-                    sender.data = json.dumps(
-                            {}
-                        )
+                    sender.data = json.dumps({})
                     await websocket.send_text(sender.send())
                 if wsmess.message == "close":
                     break

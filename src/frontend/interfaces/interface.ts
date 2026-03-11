@@ -42,6 +42,7 @@ export interface SessionStore {
     convertHistogram(canvasRef: any, img: any): any[] | undefined;
     editFilters(id: number, filterName: string, value: string | number): null | undefined;
     getFilterValue(id: number, filterName: string): string | number | null;
+     clearSessionData: () => void;
 }
 //#endregion
 

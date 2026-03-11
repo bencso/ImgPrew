@@ -8,6 +8,7 @@ export const useSessionStore = create<SessionStore>()(
         //#region ADATOK
         sessionData: [],
         setSessionData: (data) => set({ sessionData: data }),
+        clearSessionData: () => set({ sessionData: []}),
         addImage: () => {
             set((state) => {
                 let nextId = 0;
