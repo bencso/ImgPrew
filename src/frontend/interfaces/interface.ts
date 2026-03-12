@@ -42,7 +42,7 @@ export interface SessionStore {
     convertHistogram(canvasRef: any, img: any): any[] | undefined;
     editFilters(id: number, filterName: string, value: string | number): null | undefined;
     getFilterValue(id: number, filterName: string): string | number | null;
-     clearSessionData: () => void;
+    clearSessionData: () => void;
 }
 //#endregion
 
@@ -109,7 +109,7 @@ export interface FunctionProp {
     max?: number | null;
     step?: number;
     icon?: ReactNode | null;
-    clearFunc?: void; 
+    clearFunc?: void;
 }
 //#endregion
 

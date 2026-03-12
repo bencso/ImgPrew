@@ -70,15 +70,22 @@ export default function CaptionBlock() {
     //#region Captionök betöltése a képnek megfelelően
     function loadCaptionTextForImage() {
         const caption = getCaptionForImage(selectedImg);
-
         if (caption && editorRef.current) {
             const editor = editorRef.current;
             editor.textContent = "";
-            const regexMatchTexts = caption?.match(tagRegex)?.map((element) =>
+
+            //! A tagekből csinálunk egy regex sorozatot ahol az összes taget megnézzük (or-ral)
+            const escapedTags = [...tags].sort((a, b) => b.localeCompare(a)).map(tag => tag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+            const testRegex = new RegExp(`(${escapedTags.join("|")})`, "g");
+
+            const regexMatchTexts = caption?.match(testRegex)?.map((element) =>
                 element.replace("[", "").replace("]", "")
             );
-            caption?.split(tagRegex).filter(Boolean).forEach((text) => {
-                if (text && regexMatchTexts?.includes(text)) insertTag("[" + text + "]");
+
+            caption?.split(testRegex).filter(Boolean).forEach((text) => {
+                if (text && regexMatchTexts?.includes(text)) {
+                    insertTag(text);
+                }
                 else {
                     const textNode = document.createTextNode(text);
 
@@ -180,39 +187,9 @@ export default function CaptionBlock() {
 
     //#region Tag beillesztés
     function insertTag(text: string) {
-        if (tags.includes(text.replace("[", "").replace("]", ""))) {
+        if (tags.indexOf(text) > 0) {
             createTag(text);
         }
-    }
-    //#endregion
-
-    //#region Regexes tag keresés
-    function changeTextTag() {
-        var cleanedText, text;
-        const selection = window.getSelection();
-        if (!selection?.rangeCount) return;
-
-        const range = selection?.getRangeAt(0);
-        const cursorText = range.startContainer;
-        const inputText = cursorText.textContent;
-        const matches = inputText?.match(tagRegex);
-        if (matches && inputText) {
-            matches.map((match) => {
-                text = match;
-                cleanedText = match.replaceAll("[", "").replaceAll("]", "").trim();
-                if (tags.includes(cleanedText)) {
-                    const start = inputText.indexOf(match);
-                    const end = start + match.length;
-                    const matchRange = document.createRange();
-                    matchRange.setStart(cursorText, start);
-                    matchRange.setEnd(cursorText, end);
-                    matchRange.deleteContents();
-                    createTag(text);
-                }
-            })
-        }
-
-        setCaptionForImage(selectedImg, (editorRef.current?.textContent || ""));
     }
     //#endregion
 
@@ -224,8 +201,7 @@ export default function CaptionBlock() {
             selectedSample?.split(tagRegex).filter(Boolean).map((text) => {
                 editorRef.current?.focus();
                 if (text && regexMatchTexts?.some((element) => element.toString() === text)) {
-                    console.log(text);
-                    insertTag("[" + text + "]");
+                    insertTag(text);
                 } else {
                     const nextNode = document.createTextNode(text);
                     const selection = window.getSelection();
@@ -405,7 +381,6 @@ export default function CaptionBlock() {
                 p="3"
                 borderRadius="lg"
                 overflowY="auto"
-                onInput={changeTextTag}
                 css={{
                     boxSizing: 'border-box',
                     '&:focus': {

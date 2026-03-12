@@ -111,14 +111,14 @@ CAPTIONS_SAMPLES = {
     "insta": "📸 [Model] | [FNumber] | ⏱ [ExposureTime]s | 📍 [GPS]",
     "basic": "Shot on [Model] 📸",
     "detailed": "📷 [Make] [Model]\n🔍 [LensModel]\n[FNumber]",
-    "exposure": "⏱ [ExposureTime]s | ISO [ISOSpeedRatings]",
-    "full": "📷 [Make] [Model]\n🔍 [LensModel]\n[FNumber] | ⏱ [ExposureTime] | ISO [ISOSpeedRatings]",
+    "exposure": "⏱ [ExposureTime]s | [ISOSpeedRatings]",
+    "full": "📷 [Make] [Model]\n🔍 [LensModel]\n[FNumber] | ⏱ [ExposureTime] | [ISOSpeedRatings]",
     "date": "📅 [DateTimeOriginal]",
     "location": "📍 [GPS]",
     "fb": "📅 [DateTimeOriginal] | [Model]",
-    "twitter": "🐦 [Model] | ISO [ISOSpeedRatings]",
+    "twitter": "🐦 [Model] | [ISOSpeedRatings]",
     "lens": "🔍 [LensMake] [LensModel]",
-    "all": "📷 [Make] [Model]\n🔍 [LensModel]\n[FNumber] | ⏱ [ExposureTime] | ISO [ISOSpeedRatings]\n📅 [DateTimeOriginal]\n📍 [GPS]",
+    "all": "📷 [Make] [Model]\n🔍 [LensModel]\n[FNumber] | ⏱ [ExposureTime] | [ISOSpeedRatings]\n📅 [DateTimeOriginal]\n📍 [GPS]",
 }
 
 REPLACEMENTS = {
