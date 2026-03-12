@@ -224,6 +224,7 @@ export default function CaptionBlock() {
             selectedSample?.split(tagRegex).filter(Boolean).map((text) => {
                 editorRef.current?.focus();
                 if (text && regexMatchTexts?.some((element) => element.toString() === text)) {
+                    console.log(text);
                     insertTag("[" + text + "]");
                 } else {
                     const nextNode = document.createTextNode(text);

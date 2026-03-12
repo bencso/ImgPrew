@@ -38,6 +38,7 @@ class CaptionGenerator:
 
     def getSampleForPhoto(self):
         samples = []
+        exif_data = self.getExifInfos()
         exif_infos = self.exif_info
         keys_check_pattern = re.compile(CAPTION_REGEX, re.IGNORECASE)
         for keys in CAPTIONS_SAMPLES.keys():
@@ -45,10 +46,12 @@ class CaptionGenerator:
             exif_keys = keys_check_pattern.findall(sample)
             exif_keys = list(map(lambda x: x[1:][:-1], exif_keys))
             if all(x in exif_infos for x in exif_keys):
+                for x in exif_keys:
+                    sample = sample.replace("[" + x + "]", "[" + exif_data[x] + "]")
                 samples.append({"key": keys, "item": sample})
         return samples
 
     # Igazándiból már meg is van, csak a feldolgozáson kell dolgozni, fe oldalon is, de.. (mert itt a keys -> values :) -> bár erre majd még szüréseket csinálunk)
     # TODO: Megcsinálni, hogy ne az exif adat kulcsaival dolgozzunk hanem már rögtön az értékekkel
     def getExifInfos(self):
-        return [x for x in self.exif_helper.get_info().keys()]
+        return {key: item for key, item in self.exif_helper.get_info().items()}

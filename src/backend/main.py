@@ -67,10 +67,9 @@ async def ws_check(websocket: WebSocket):
                             caption_helper.getSampleForPhoto()
                             or []
                         )
-                        print(caption_helper.getExifInfos())
                         sender.data = json.dumps(
                             {
-                                "exifDatas": caption_helper.getExifInfos(),
+                                "exifDatas": [item for _, item in caption_helper.getExifInfos().items()],
                                 "id": img_index,
                                 "caption_samples": caption_sample,
                             }

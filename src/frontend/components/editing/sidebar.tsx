@@ -9,11 +9,6 @@ import { LuAperture, LuBlend, LuCaptions, LuContrast, LuFilter, LuImageDown, LuM
 import CaptionBlock from "./caption/captionBlock";
 import Histogram from "./histogram";
 
-
-function isSliderValueChangeDetails(e: any): e is SliderValueChangeDetails {
-    return e && typeof e.value === "number";
-}
-
 const sidebarElements = (exportAllDataForImage: any, setExportFileExtension: any, sendMessage: any, selectedImg: any, selectedExtension: any, editFilters: any, getFilterValue: any) => {
     return ([
         {
