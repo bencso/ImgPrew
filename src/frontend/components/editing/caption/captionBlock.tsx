@@ -120,7 +120,7 @@ export default function CaptionBlock() {
         if (!editorRef.current?.contains(range?.startContainer)) return;
 
         const span = document.createElement("span");
-        const nextNode = document.createTextNode("");
+        const nextNode = document.createTextNode(" ");
         span.className = "customTag";
         span.style.userSelect = "all";
         span.contentEditable = "false";
@@ -130,13 +130,14 @@ export default function CaptionBlock() {
             alignItems: "center",
             padding: "0.2rem 0.5rem",
             borderRadius: "0.375rem",
-            backgroundColor: "#b2f5ea",
-            color: "#234e52",
+            backgroundColor: "#234E52",
+            color: "#E6FFFA",
             fontSize: "0.875rem",
             fontWeight: "500",
             userSelect: "all",
-            cursor: "default",
-            margin: "0 0.25rem 0.25rem 0"
+            cursor: "not-allowed",
+            margin: "0 0.25rem 0.25rem 0",
+            appearance: "none"
         });
 
         span.onclick = () => {

@@ -1,9 +1,11 @@
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
-import { Box, Flex } from "@chakra-ui/react";
+import { Box, Flex, Text } from "@chakra-ui/react";
 import { shaderMaterial } from "@react-three/drei";
 import { Canvas, extend, useLoader, useThree } from "@react-three/fiber";
+import { Dispatch, SetStateAction, useRef, useState } from "react";
 import * as THREE from "three";
+import Draggable, { DraggableCore } from 'react-draggable';
 
 const ImageMaterial = shaderMaterial(
     {
@@ -70,13 +72,18 @@ function ImagePlane({
     brightness,
     contrast,
     saturation,
-    exposure
+    exposure,
+    setSize
 }: {
     src: string;
     brightness: number;
     contrast: number;
     saturation: number;
     exposure: number;
+    setSize: Dispatch<SetStateAction<{
+        width: number;
+        height: number;
+    } | null>>
 }) {
     const texture = useLoader(THREE.TextureLoader, src);
     const { viewport } = useThree();
@@ -93,6 +100,8 @@ function ImagePlane({
     const width = imgW * scale;
     const height = imgH * scale;
 
+    if (width && height) setSize({ height: height, width: width });
+
     return (
         <mesh scale={[width, height, 1]}>
             <planeGeometry args={[1, 1]} />
@@ -101,8 +110,10 @@ function ImagePlane({
     )
 }
 
-export default function WebGL() {
+export default function ImageWorkPlace() {
     const { imgs, selectedImg } = useWorkSession();
+    const nodeRef = useRef(null);
+    const [size, setSize] = useState<{ width: number, height: number } | null>(null)
 
     const brightness = useSessionStore(s => {
         return Number(s.sessionData
@@ -139,6 +150,11 @@ export default function WebGL() {
         );
 
 
+    function handleDrag(e, ui) {
+        console.log(e);
+        console.log(ui);
+    };
+
     return (
         <Flex
             w="full"
@@ -146,7 +162,21 @@ export default function WebGL() {
             boxSizing={"border-box"}
             overflow="hidden"
             p={4}
+            justifyContent={"center"}
+            alignItems={"center"}
         >
+            <Box zIndex={100} h={size?.height || 0} w={size?.width || 0} position={"absolute"}>
+                {
+                    //TODO: Ezt a componentst kell majd ugy hasnzálni hogy ujrahasználható legyen, minden szüvegnél ezt fogjuk használni, ugy lesz megoldva az egész terv szerint
+                    // hogy a jobb oldali sávba egymás alatt a rendelkező összes szöveg, ezeket (másolni, törölni, és módosítani lehet) -> clickes dropwdownos megoldás
+                    // mikor rányomunk lenyíilik tudjuk módosítani a szöveg, ezen felül fontSize, fontFamily, és fontStílust lehet állítani majd
+                }
+                <Draggable bounds="parent" nodeRef={nodeRef} onDrag={handleDrag} defaultPosition={{x: 0, y: 0}} defaultClassNameDragging="dragging">
+                    <Box ref={nodeRef} h={"fit"} w={"fit"}>
+                        <Text>TESZT HÚZZAD</Text>
+                    </Box>
+                </Draggable>
+            </Box>
             <Canvas
                 orthographic
                 style={{
@@ -160,8 +190,10 @@ export default function WebGL() {
                     contrast={contrast}
                     exposure={exposure}
                     saturation={saturation}
+                    setSize={setSize}
                 />
             </Canvas>
+
         </Flex>
     );
 }

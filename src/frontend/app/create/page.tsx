@@ -8,10 +8,10 @@ import { useSessionStore } from "@/stores/sessionData";
 import { handleMessage } from "@/websocket/handlers/handleMessage";
 import { Box, Flex, useBreakpointValue } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import WebGL from "@/components/editing/webglComponents";
 import SideBar from "@/components/editing/sidebar";
 import BottomBar from "@/components/editing/moreImagesBottomBar";
 import TopBar from "@/components/editing/topBar";
+import ImageWorkPlace from "@/components/editing/webglComponents";
 
 
 export default function Page() {
@@ -87,7 +87,7 @@ export default function Page() {
                 <TopBar setSelectedImage={setSelectedImage} />
 
                 <Box flex="1" minH="0" p={4}>
-                    {selectedImage && <WebGL />}
+                    {selectedImage && <ImageWorkPlace />}
                 </Box>
 
                 <BottomBar />
