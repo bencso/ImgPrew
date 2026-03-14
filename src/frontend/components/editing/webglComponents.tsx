@@ -3,20 +3,22 @@ import { useSessionStore } from "@/stores/sessionData";
 import { Box, Flex, Text } from "@chakra-ui/react";
 import { shaderMaterial } from "@react-three/drei";
 import { Canvas, extend, useLoader, useThree } from "@react-three/fiber";
-import { Dispatch, SetStateAction, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
-import Draggable, { DraggableCore } from 'react-draggable';
+import Draggable from "react-draggable";
+import { DraggableImageEvent } from "@/interfaces/draggableElement";
+import { element } from "three/src/nodes/tsl/TSLCore.js";
 
 const ImageMaterial = shaderMaterial(
-    {
-        uTexture: null,
-        uBrightness: 0,
-        uContrast: 0,
-        uSaturation: 0,
-        uExposure: 0
-    },
+  {
+    uTexture: null,
+    uBrightness: 0,
+    uContrast: 0,
+    uSaturation: 0,
+    uExposure: 0,
+  },
 
-    `
+  `
   varying vec2 vUv;
 
   void main() {
@@ -25,7 +27,7 @@ const ImageMaterial = shaderMaterial(
   }
   `,
 
-    `
+  `
   uniform sampler2D uTexture;
   uniform float uBrightness;
   uniform float uContrast;
@@ -62,138 +64,185 @@ void main() {
     color.rgb = adjustExposure(color.rgb, uExposure);
     gl_FragColor = color;
 }
-`
+`,
 );
 
 extend({ ImageMaterial });
 
 function ImagePlane({
-    src,
-    brightness,
-    contrast,
-    saturation,
-    exposure,
-    setSize
+  src,
+  brightness,
+  contrast,
+  saturation,
+  exposure,
+  setSize,
 }: {
-    src: string;
-    brightness: number;
-    contrast: number;
-    saturation: number;
-    exposure: number;
-    setSize: Dispatch<SetStateAction<{
-        width: number;
-        height: number;
-    } | null>>
+  src: string;
+  brightness: number;
+  contrast: number;
+  saturation: number;
+  exposure: number;
+  setSize: Dispatch<
+    SetStateAction<{
+      width: number;
+      height: number;
+    } | null>
+  >;
 }) {
-    const texture = useLoader(THREE.TextureLoader, src);
-    const { viewport } = useThree();
+  const texture = useLoader(THREE.TextureLoader, src);
+  const { viewport } = useThree();
 
-    const imgW = texture.image?.width ?? 1;
-    const imgH = texture.image?.height ?? 1;
+  const imgW = texture.image?.width ?? 1;
+  const imgH = texture.image?.height ?? 1;
 
-    // Kiszámoljuk a képnél hogy melyik az ami belefér, majd kiválasszuk belőle a legkissebbet
-    const scale = Math.min(
-        viewport.width / imgW,
-        viewport.height / imgH
-    );
+  // Kiszámoljuk a képnél hogy melyik az ami belefér, majd kiválasszuk belőle a legkissebbet
+  const scale = Math.min(viewport.width / imgW, viewport.height / imgH);
 
-    const width = imgW * scale;
-    const height = imgH * scale;
+  const width = imgW * scale;
+  const height = imgH * scale;
 
-    if (width && height) setSize({ height: height, width: width });
+  if (width && height) setSize({ height: height, width: width });
 
-    return (
-        <mesh scale={[width, height, 1]}>
-            <planeGeometry args={[1, 1]} />
-            <imageMaterial uTexture={texture} uBrightness={brightness} uContrast={contrast} uSaturation={saturation} uExposure={exposure} />
-        </mesh>
-    )
+  return (
+    <mesh scale={[width, height, 1]}>
+      <planeGeometry args={[1, 1]} />
+      <imageMaterial
+        uTexture={texture}
+        uBrightness={brightness}
+        uContrast={contrast}
+        uSaturation={saturation}
+        uExposure={exposure}
+      />
+    </mesh>
+  );
 }
 
 export default function ImageWorkPlace() {
-    const { imgs, selectedImg } = useWorkSession();
-    const nodeRef = useRef(null);
-    const [size, setSize] = useState<{ width: number, height: number } | null>(null)
+  const { imgs, selectedImg } = useWorkSession();
+  const [size, setSize] = useState<{ width: number; height: number } | null>(
+    null,
+  );
 
-    const brightness = useSessionStore(s => {
-        return Number(s.sessionData
-            .find(img => img.id === selectedImg)
-            ?.filters?.find(f => f.name === "brightness")
-            ?.value) || 0;
-    })
-
-    const contrast =
-        useSessionStore(s => {
-            return Number(s.sessionData
-                .find(img => img.id === selectedImg)
-                ?.filters?.find(f => f.name === "contrast")
-                ?.value) || 0
-        }
-        );
-
-    const saturation =
-        useSessionStore(s => {
-            return Number(s.sessionData
-                .find(img => img.id === selectedImg)
-                ?.filters?.find(f => f.name === "saturation")
-                ?.value) || 0
-        }
-        );
-
-    const exposure =
-        useSessionStore(s => {
-            return Number(s.sessionData
-                .find(img => img.id === selectedImg)
-                ?.filters?.find(f => f.name === "exposure")
-                ?.value) || 0
-        }
-        );
-
-
-    function handleDrag(e, ui) {
-        console.log(e);
-        console.log(ui);
-    };
-
+  const brightness = useSessionStore((s) => {
     return (
-        <Flex
-            w="full"
-            h="full"
-            boxSizing={"border-box"}
-            overflow="hidden"
-            p={4}
-            justifyContent={"center"}
-            alignItems={"center"}
-        >
-            <Box zIndex={100} h={size?.height || 0} w={size?.width || 0} position={"absolute"}>
-                {
-                    //TODO: Ezt a componentst kell majd ugy hasnzálni hogy ujrahasználható legyen, minden szüvegnél ezt fogjuk használni, ugy lesz megoldva az egész terv szerint
-                    // hogy a jobb oldali sávba egymás alatt a rendelkező összes szöveg, ezeket (másolni, törölni, és módosítani lehet) -> clickes dropwdownos megoldás
-                    // mikor rányomunk lenyíilik tudjuk módosítani a szöveg, ezen felül fontSize, fontFamily, és fontStílust lehet állítani majd
-                }
-                <Draggable bounds="parent" nodeRef={nodeRef} onDrag={handleDrag} defaultPosition={{x: 0, y: 0}} defaultClassNameDragging="dragging">
-                    <Box ref={nodeRef} h={"fit"} w={"fit"}>
-                        <Text>TESZT HÚZZAD</Text>
-                    </Box>
-                </Draggable>
-            </Box>
-            <Canvas
-                orthographic
-                style={{
-                    width: "100%",
-                    height: "100%"
-                }}
-            >
-                <ImagePlane
-                    src={imgs[selectedImg]}
-                    brightness={brightness}
-                    contrast={contrast}
-                    exposure={exposure}
-                    saturation={saturation}
-                    setSize={setSize}
-                />
-            </Canvas>
-
-        </Flex>
+      Number(
+        s.sessionData
+          .find((img) => img.id === selectedImg)
+          ?.filters?.find((f) => f.name === "brightness")?.value,
+      ) || 0
     );
+  });
+
+  const contrast = useSessionStore((s) => {
+    return (
+      Number(
+        s.sessionData
+          .find((img) => img.id === selectedImg)
+          ?.filters?.find((f) => f.name === "contrast")?.value,
+      ) || 0
+    );
+  });
+
+  const saturation = useSessionStore((s) => {
+    return (
+      Number(
+        s.sessionData
+          .find((img) => img.id === selectedImg)
+          ?.filters?.find((f) => f.name === "saturation")?.value,
+      ) || 0
+    );
+  });
+
+  const exposure = useSessionStore((s) => {
+    return (
+      Number(
+        s.sessionData
+          .find((img) => img.id === selectedImg)
+          ?.filters?.find((f) => f.name === "exposure")?.value,
+      ) || 0
+    );
+  });
+
+  const [elements, setElements] = useState<DraggableImageEvent[]>([]);
+  const parentRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    setElements([
+      new DraggableImageEvent("teszt", { x: 50, y: 50 }, parentRef),
+    ]);
+  }, []);
+
+  return (
+    <Flex
+      w="full"
+      h="full"
+      boxSizing={"border-box"}
+      overflow="hidden"
+      p={4}
+      justifyContent={"center"}
+      alignItems={"center"}
+    >
+      {
+        //TODO: külön elszaparálni majd késöbbre
+      }
+      <Box
+        zIndex={100}
+        h={size?.height || 0}
+        w={size?.width || 0}
+        position={"absolute"}
+        ref={parentRef}
+      >
+        {elements.map((element, index) => {
+          return (
+            <Draggable
+              key={index}
+              disabled={!element.enabled}
+              bounds="parent"
+              position={{
+                x: element.position.x,
+                y: element.position.y,
+              }}
+              nodeRef={element.nodeRef}
+              onDrag={element.handleDrag}
+              defaultClassNameDragging="draggable_element_drag"
+              defaultClassName="draggable_element"
+            >
+              <Box
+                ref={element.nodeRef}
+                position={"relative"}
+                h={"fit"}
+                w={"fit"}
+              >
+                <Text
+                  style={{
+                    fontSize: element.textParam.fontSize || 12,
+                    fontFamily: element.textParam.fontFamily || "Inter",
+                    fontWeight: element.textParam.fontWeight || 500,
+                  }}
+                >
+                  {element.textParam.text}
+                </Text>
+              </Box>
+            </Draggable>
+          );
+        })}
+      </Box>
+      <Canvas
+        orthographic
+        style={{
+          width: "100%",
+          height: "100%",
+        }}
+      >
+        <ImagePlane
+          src={imgs[selectedImg]}
+          brightness={brightness}
+          contrast={contrast}
+          exposure={exposure}
+          saturation={saturation}
+          setSize={setSize}
+        />
+      </Canvas>
+    </Flex>
+  );
 }

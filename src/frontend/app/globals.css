@@ -27,3 +27,11 @@ body {
   overflow-y: hidden;
   box-sizing: border-box;
 }
+
+.draggable_element {
+  cursor: grab !important;
+}
+
+.draggable_element_drag {
+  cursor: grabbing !important;
+}
