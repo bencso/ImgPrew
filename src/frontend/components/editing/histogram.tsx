@@ -3,38 +3,35 @@ import { useSessionStore } from "@/stores/sessionData";
 import { useEffect, useRef } from "react";
 
 export default function Histogram() {
-    const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const { selectedImg, imgs } = useWorkSession();
-    const { convertHistogram , sessionData} = useSessionStore();
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const { selectedImg, imgs } = useWorkSession();
+  const { convertHistogram, sessionData } = useSessionStore();
 
-    let histogramData = convertHistogram(canvasRef, imgs[selectedImg]);
-    
-    useEffect(()=>{
-        histogramData = convertHistogram(canvasRef, imgs[selectedImg]);
-        console.log(histogramData);
-        console.log(sessionData);
-    }, [sessionData]);
+  let histogramData = convertHistogram(canvasRef, imgs[selectedImg]);
 
+  useEffect(() => {
+    histogramData = convertHistogram(canvasRef, imgs[selectedImg]);
+  }, [sessionData]);
 
-    if (!(histogramData instanceof Array)) return;
+  if (!(histogramData instanceof Array)) return;
 
-    const width = 256;
-    const height = 100;
+  const width = 256;
+  const height = 100;
 
-    const max = Math.max(...histogramData) || 1;
+  const max = Math.max(...histogramData) || 1;
 
-    let path = `M 0 ${height}`;
+  let path = `M 0 ${height}`;
 
-    histogramData.forEach((v, i) => {
-        const y = height - (v / max) * height;
-        path += ` L ${i} ${y}`;
-    })
+  histogramData.forEach((v, i) => {
+    const y = height - (v / max) * height;
+    path += ` L ${i} ${y}`;
+  });
 
-    path += ` L ${width} ${height} Z`;
+  path += ` L ${width} ${height} Z`;
 
-    return (
-        <svg width={width} height={height}>
-            <path d={path} fill="white" opacity={0.8} />
-        </svg>
-    )
+  return (
+    <svg width={width} height={height}>
+      <path d={path} fill="white" opacity={0.8} />
+    </svg>
+  );
 }

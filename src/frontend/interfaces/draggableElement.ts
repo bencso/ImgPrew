@@ -19,13 +19,8 @@ export class DraggableImageEvent {
   position: DraggableImageEventPosition;
   enabled: boolean = false;
   nodeRef: React.RefObject<HTMLDivElement | null>;
-  parentRef: React.RefObject<HTMLDivElement | null>;
 
-  constructor(
-    text: string,
-    position: DraggableImageEventPosition,
-    parentRef: React.RefObject<HTMLDivElement | null>,
-  ) {
+  constructor(text: string, position: DraggableImageEventPosition) {
     this.text = text;
     this.position = position;
     this.enabled = true;
@@ -35,7 +30,6 @@ export class DraggableImageEvent {
       fontFamily: "Inter",
       fontWeight: 500,
     };
-    this.parentRef = parentRef;
   }
 
   get textParam() {

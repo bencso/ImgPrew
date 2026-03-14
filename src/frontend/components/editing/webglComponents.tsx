@@ -119,6 +119,7 @@ function ImagePlane({
 
 export default function ImageWorkPlace() {
   const { imgs, selectedImg } = useWorkSession();
+  const { getTexts, sessionData } = useSessionStore();
   const [size, setSize] = useState<{ width: number; height: number } | null>(
     null,
   );
@@ -164,13 +165,11 @@ export default function ImageWorkPlace() {
   });
 
   const [elements, setElements] = useState<DraggableImageEvent[]>([]);
-  const parentRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    setElements([
-      new DraggableImageEvent("teszt", { x: 50, y: 50 }, parentRef),
-    ]);
-  }, []);
+    const texts = getTexts(selectedImg);
+    setElements(texts);
+  }, [sessionData, selectedImg]);
 
   return (
     <Flex
@@ -190,7 +189,6 @@ export default function ImageWorkPlace() {
         h={size?.height || 0}
         w={size?.width || 0}
         position={"absolute"}
-        ref={parentRef}
       >
         {elements.map((element, index) => {
           return (
