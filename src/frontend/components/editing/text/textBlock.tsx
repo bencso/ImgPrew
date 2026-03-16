@@ -1,4 +1,3 @@
-import { DraggableImageEvent } from "@/interfaces/draggableElement";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import {
@@ -17,6 +16,9 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { createListCollection } from "@chakra-ui/react";
+import { DraggableImageEvent } from "@/interfaces/draggableElement";
+
+const EMPTY: any[] = [];
 
 const fontWeightCollection = createListCollection({
   items: [
@@ -34,14 +36,24 @@ const fontWeightCollection = createListCollection({
 
 export default function TextBlock() {
   const { selectedImg } = useWorkSession();
-  const { addTexts, getTexts, sessionData, setTextFontSize } =
-    useSessionStore();
-  const [text, setText] = useState<string>("");
+  const {
+    sessionData,
+    getTexts,
+    addTexts,
+    setTextFontSize,
+    setTextFontWeight,
+  } = useSessionStore();
+
   const [texts, setTexts] = useState<DraggableImageEvent[]>([]);
 
   useEffect(() => {
-    setTexts(getTexts(selectedImg));
+    const text = getTexts(selectedImg);
+    setTexts(text);
+
+    console.log(texts);
   }, [sessionData, selectedImg]);
+
+  const [text, setText] = useState("");
 
   return (
     <Box>
@@ -56,36 +68,37 @@ export default function TextBlock() {
           variant="outline"
           colorPalette="teal"
           onClick={() => {
-            if (text) addTexts(selectedImg, text);
+            if (!text) return;
+            addTexts(selectedImg, text);
             setText("");
           }}
         >
-          Hozzááadás
+          Hozzáadás
         </Button>
       </Flex>
 
       <Stack gap="2" mt={4}>
-        <Accordion.Root variant={"enclosed"} collapsible>
-          {texts.map((text, index) => (
-            <Accordion.Item key={index} value={text.text}>
+        <Accordion.Root variant="enclosed" collapsible>
+          {texts.map((text) => (
+            <Accordion.Item key={text.id} value={text.id.toString()}>
               <Accordion.ItemTrigger>
                 <Span flex="1">{text.text}</Span>
                 <Accordion.ItemIndicator />
               </Accordion.ItemTrigger>
+
               <Accordion.ItemContent>
-                <Accordion.ItemBody gap={4} display={"flex"} flexDir={"column"}>
-                  {
-                    // #region Szöveg méret
-                  }
-                  <Flex gap={4} width={"full"} alignItems={"center"}>
-                    <Text w={"fit"}>Méret</Text>
+                <Accordion.ItemBody gap={4} display="flex" flexDir="column">
+                  {/* Szöveg méret */}
+                  <Flex gap={4} width="full" alignItems="center">
+                    <Text w="fit">Méret</Text>
+
                     <HStack flex="1">
                       <NumberInput.Root
-                        onValueChange={(e) => {
-                          setTextFontSize(text.id, e.valueAsNumber);
-                        }}
                         value={(text.textStyles.fontSize ?? 0).toString()}
                         min={0}
+                        onValueChange={(e) =>
+                          setTextFontSize(selectedImg, text.id, e.valueAsNumber)
+                        }
                       >
                         <NumberInput.Control />
                         <NumberInput.Input />
@@ -96,29 +109,40 @@ export default function TextBlock() {
                       </Text>
                     </HStack>
                   </Flex>
-                  {
-                    // #endregion
-                  }
-                  {
-                    // #region Szöveg vastagság
-                  }
+
+                  {/* Szöveg vastagság */}
                   <Flex gap={4} width="full" alignItems="center">
-                    <Text w="fit">Vastagság</Text>
-                    <Select.Root flex={"1"} collection={fontWeightCollection}>
+                    <Text w="fit">Vastagság {text.textStyles.fontWeight}</Text>
+
+                    <Select.Root
+                      flex="1"
+                      collection={fontWeightCollection}
+                      value={[text.textStyles.fontWeight?.toString() ?? "500"]}
+                      onValueChange={(e) =>
+                        setTextFontWeight(
+                          selectedImg,
+                          text.id,
+                          Number(e.value[0]),
+                        )
+                      }
+                    >
                       <Select.HiddenSelect />
+
                       <Select.Control>
                         <Select.Trigger>
                           <Select.ValueText placeholder="Válasszon" />
                         </Select.Trigger>
+
                         <Select.IndicatorGroup>
                           <Select.Indicator />
                         </Select.IndicatorGroup>
                       </Select.Control>
+
                       <Portal>
                         <Select.Positioner>
                           <Select.Content>
-                            {fontWeightCollection.items.map((item, index) => (
-                              <Select.Item item={item.value} key={index}>
+                            {fontWeightCollection.items.map((item) => (
+                              <Select.Item key={item.value} item={item}>
                                 {item.label} ({item.value})
                                 <Select.ItemIndicator />
                               </Select.Item>
@@ -128,12 +152,6 @@ export default function TextBlock() {
                       </Portal>
                     </Select.Root>
                   </Flex>
-                  {
-                    // #endregion
-                  }
-                  {
-                    // TODO: Mikor lesznek telepített fontfamily-k backenden akkor, ide jöhet a font family választó
-                  }
                 </Accordion.ItemBody>
               </Accordion.ItemContent>
             </Accordion.Item>

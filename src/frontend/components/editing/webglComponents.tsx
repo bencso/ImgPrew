@@ -1,13 +1,12 @@
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
-import { Box, Flex, Text } from "@chakra-ui/react";
+import { Box, Flex, Span, Text } from "@chakra-ui/react";
 import { shaderMaterial } from "@react-three/drei";
 import { Canvas, extend, useLoader, useThree } from "@react-three/fiber";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import Draggable from "react-draggable";
 import { DraggableImageEvent } from "@/interfaces/draggableElement";
-import { element } from "three/src/nodes/tsl/TSLCore.js";
 
 const ImageMaterial = shaderMaterial(
   {
@@ -165,6 +164,7 @@ export default function ImageWorkPlace() {
   });
 
   const [elements, setElements] = useState<DraggableImageEvent[]>([]);
+  const nodeRef = useRef(null);
 
   useEffect(() => {
     const texts = getTexts(selectedImg);
@@ -189,6 +189,7 @@ export default function ImageWorkPlace() {
         h={size?.height || 0}
         w={size?.width || 0}
         position={"absolute"}
+        overflow={"hidden"}
       >
         {elements.map((element, index) => {
           return (
@@ -200,18 +201,13 @@ export default function ImageWorkPlace() {
                 x: element.position.x,
                 y: element.position.y,
               }}
-              nodeRef={element.nodeRef}
+              nodeRef={nodeRef}
               onDrag={element.handleDrag}
               defaultClassNameDragging="draggable_element_drag"
               defaultClassName="draggable_element"
             >
-              <Box
-                ref={element.nodeRef}
-                position={"relative"}
-                h={"fit"}
-                w={"fit"}
-              >
-                <Text
+              <Box ref={nodeRef} position={"relative"} h="fit" w={"fit"}>
+                <Span
                   style={{
                     fontSize: element.textParam.fontSize || 12,
                     fontFamily: element.textParam.fontFamily || "Inter",
@@ -219,7 +215,7 @@ export default function ImageWorkPlace() {
                   }}
                 >
                   {element.textParam.text}
-                </Text>
+                </Span>
               </Box>
             </Draggable>
           );

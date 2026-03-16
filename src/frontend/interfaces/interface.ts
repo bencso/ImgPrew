@@ -24,46 +24,70 @@ export interface ImageFilters {
 //#region CustomImage
 export interface CustomImage {
   id: number;
+  exportFileExtension: string;
+  caption?: string;
   exifDatas?: string[];
   captionSamples?: string[];
-  caption?: string;
-  exportFileExtension?: string;
-  filters?: ImageFilters[];
   texts?: DraggableImageEvent[];
+  filters?: { name: string; value: number }[];
 }
-//#endregion
 
-//#region SessionStore
 export interface SessionStore {
+  //#region ADATOK
   sessionData: CustomImage[];
-  addImage: () => void;
-  setSessionData: (data: CustomImage[]) => void;
+  setSessionData: (data: CustomImage[]) => any;
+  clearSessionData: () => any;
+  addImage: () => any;
+  //#endregion
+
+  //#region EXIF
   getSelectedImageExif: (id: number) => string[];
-  setExifDataForImage: (id: number, exif: string[]) => CustomImage | undefined;
+  setExifDataForImage: (id: number, exif: string[]) => any;
+  //#endregion
+
+  //#region CAPTION SAMPLES
   getCaptionSamples: (id: number) => string[];
-  setCaptionSamplesForImage: (
-    id: number,
-    captionSamples: string[],
-  ) => CustomImage | undefined;
+  setCaptionSamplesForImage: (id: number, captionSamples: string[]) => any;
+  //#endregion
+
+  //#region CAPTION
   getCaptionForImage: (id: number) => string;
-  setCaptionForImage: (id: number, caption: string) => CustomImage | undefined;
+  setCaptionForImage: (id: number, caption: string) => any;
+  //#endregion
+
+  //#region EXPORT FILE EXTENSION
   getExportFileExtension: (id: number) => string;
-  setExportFileExtension: (
+  setExportFileExtension: (id: number, extension: string) => any;
+  //#endregion
+
+  //#region TEXT
+  addTexts: (imageId: number, text: string) => any;
+  getTexts: (imageId: number) => DraggableImageEvent[];
+  setTextFontSize: (imageId: number, textId: number, fontSize: number) => any;
+  setTextFontWeight: (
+    imageId: number,
+    textId: number,
+    fontWeight: number,
+  ) => any;
+  //#endregion
+
+  //#region EXPORT
+  exportAllDataForImage: (
     id: number,
-    extension: string,
-  ) => CustomImage | undefined;
-  addTexts: (id: number, text: string) => void;
-  getTexts: (id: number) => DraggableImageEvent[];
-  setTextFontSize: (id: number, fontSize: number) => void;
-  exportAllDataForImage: (id: number) => void;
-  convertHistogram(canvasRef: any, img: any): any[] | undefined;
-  editFilters(
-    id: number,
-    filterName: string,
-    value: string | number,
-  ): null | undefined;
-  getFilterValue(id: number, filterName: string): string | number | null;
-  clearSessionData: () => void;
+  ) => { caption?: string; fileExtension: string } | null;
+  //#endregion
+
+  //#region HISTOGRAM
+  convertHistogram: (
+    canvasRef: React.RefObject<HTMLCanvasElement | null>,
+    imgSrc: string,
+  ) => any;
+  //#endregion
+
+  //#region FILTERS
+  editFilters: (id: number, filterName: string, value: string | number) => any;
+  getFilterValue: (id: number, filterName: string) => number | null;
+  //#endregion
 }
 //#endregion
 

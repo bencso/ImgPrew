@@ -19,14 +19,12 @@ export class DraggableImageEvent {
   textStyles: TextStyles;
   position: DraggableImageEventPosition;
   enabled: boolean = false;
-  nodeRef: React.RefObject<HTMLDivElement | null>;
 
   constructor(id: number, text: string, position: DraggableImageEventPosition) {
     this.id = id;
     this.text = text;
     this.position = position;
     this.enabled = true;
-    this.nodeRef = createRef<HTMLDivElement>();
     this.textStyles = {
       fontSize: 20,
       fontFamily: "Inter",
