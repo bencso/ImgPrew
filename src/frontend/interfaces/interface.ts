@@ -54,6 +54,7 @@ export interface SessionStore {
   ) => CustomImage | undefined;
   addTexts: (id: number, text: string) => void;
   getTexts: (id: number) => DraggableImageEvent[];
+  setTextFontSize: (id: number, fontSize: number) => void;
   exportAllDataForImage: (id: number) => void;
   convertHistogram(canvasRef: any, img: any): any[] | undefined;
   editFilters(

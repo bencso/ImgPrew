@@ -14,13 +14,15 @@ interface TextStyles {
 }
 
 export class DraggableImageEvent {
+  id: number;
   text: string;
   textStyles: TextStyles;
   position: DraggableImageEventPosition;
   enabled: boolean = false;
   nodeRef: React.RefObject<HTMLDivElement | null>;
 
-  constructor(text: string, position: DraggableImageEventPosition) {
+  constructor(id: number, text: string, position: DraggableImageEventPosition) {
+    this.id = id;
     this.text = text;
     this.position = position;
     this.enabled = true;

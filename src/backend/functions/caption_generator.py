@@ -54,8 +54,11 @@ class CaptionGenerator:
     # Igazándiból már meg is van, csak a feldolgozáson kell dolgozni, fe oldalon is, de.. (mert itt a keys -> values :) -> bár erre majd még szüréseket csinálunk)
     # TODO: Megcsinálni, hogy ne az exif adat kulcsaival dolgozzunk hanem már rögtön az értékekkel
     def getExifInfos(self):
-        return {
-            key: item
-            for key, item in self.exif_helper.get_info().items()
-            if len(item) > 1
-        }
+        if self.exif_helper.get_info():
+            return {
+                key: item
+                for key, item in self.exif_helper.get_info().items()
+                if len(item) > 1
+            }
+        else:
+            return {}

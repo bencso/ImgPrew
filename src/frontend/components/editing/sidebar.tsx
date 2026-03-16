@@ -17,6 +17,7 @@ import {
 } from "react-icons/lu";
 import CaptionBlock from "./caption/captionBlock";
 import Histogram from "./histogram";
+import TextBlock from "./text/textBlock";
 
 const sidebarElements = (
   exportAllDataForImage: any,
@@ -26,7 +27,6 @@ const sidebarElements = (
   selectedExtension: any,
   editFilters: any,
   getFilterValue: any,
-  addTexts: any,
 ) => {
   return [
     {
@@ -47,13 +47,7 @@ const sidebarElements = (
         {
           name: "",
           inputType: "customElement",
-          options: (
-            <Button
-              onClick={() => {
-                addTexts(selectedImg, "Tesztelek");
-              }}
-            />
-          ),
+          options: <TextBlock />,
         },
       ],
     },
@@ -191,7 +185,6 @@ export default function SideBar() {
     getExportFileExtension,
     editFilters,
     getFilterValue,
-    addTexts,
   } = useSessionStore();
   //#endregion
 
@@ -215,7 +208,6 @@ export default function SideBar() {
         selectedExtension,
         editFilters,
         getFilterValue,
-        addTexts,
       ),
     );
   }, [sessionData, selectedImg]);

@@ -79,7 +79,8 @@ export const useSessionStore = create<SessionStore>()(
       set((state) => {
         const image = state.sessionData.find((image) => image.id === id);
         if (image) {
-          const element = new DraggableImageEvent(text, { x: 0, y: 0 });
+          const textId = image.texts?.length + 1 || 0;
+          const element = new DraggableImageEvent(textId, text, { x: 0, y: 0 });
           if (!image.texts) image.texts = [];
           image.texts?.push(element);
         }
@@ -88,6 +89,12 @@ export const useSessionStore = create<SessionStore>()(
     getTexts: (id: number) => {
       const image = get().sessionData.find((image) => image.id === id);
       return image?.texts || [];
+    },
+    setTextFontSize: (id: number, fontSize: number) => {
+      set((state) => {
+        const image = state.sessionData.find((image) => image.id === id);
+        image.texts.find((item) => item.id === id).fontSize = fontSize;
+      });
     },
     //#endregion ----- TEXT  ADATOK -----
     //#region ----- EXPORT -----
