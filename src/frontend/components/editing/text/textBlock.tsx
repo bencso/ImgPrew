@@ -14,11 +14,8 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createListCollection } from "@chakra-ui/react";
-import { DraggableImageEvent } from "@/interfaces/draggableElement";
-
-const EMPTY: any[] = [];
 
 const fontWeightCollection = createListCollection({
   items: [
@@ -36,22 +33,8 @@ const fontWeightCollection = createListCollection({
 
 export default function TextBlock() {
   const { selectedImg } = useWorkSession();
-  const {
-    sessionData,
-    getTexts,
-    addTexts,
-    setTextFontSize,
-    setTextFontWeight,
-  } = useSessionStore();
-
-  const [texts, setTexts] = useState<DraggableImageEvent[]>([]);
-
-  useEffect(() => {
-    const text = getTexts(selectedImg);
-    setTexts(text);
-
-    console.log(texts);
-  }, [sessionData, selectedImg]);
+  const { addTexts, setTextFontSize, setTextFontWeight } = useSessionStore();
+  const texts = useSessionStore((s) => s.getTexts(selectedImg));
 
   const [text, setText] = useState("");
 
@@ -80,7 +63,7 @@ export default function TextBlock() {
       <Stack gap="2" mt={4}>
         <Accordion.Root variant="enclosed" collapsible>
           {texts.map((text) => (
-            <Accordion.Item key={text.id} value={text.id.toString()}>
+            <Accordion.Item key={text.id} value={text.id.toString() || ""}>
               <Accordion.ItemTrigger>
                 <Span flex="1">{text.text}</Span>
                 <Accordion.ItemIndicator />
@@ -94,7 +77,7 @@ export default function TextBlock() {
 
                     <HStack flex="1">
                       <NumberInput.Root
-                        value={(text.textStyles.fontSize ?? 0).toString()}
+                        value={(text.fontSize || 20).toString()}
                         min={0}
                         onValueChange={(e) =>
                           setTextFontSize(selectedImg, text.id, e.valueAsNumber)
@@ -112,12 +95,12 @@ export default function TextBlock() {
 
                   {/* Szöveg vastagság */}
                   <Flex gap={4} width="full" alignItems="center">
-                    <Text w="fit">Vastagság {text.textStyles.fontWeight}</Text>
+                    <Text w="fit">Vastagság</Text>
 
                     <Select.Root
                       flex="1"
                       collection={fontWeightCollection}
-                      value={[text.textStyles.fontWeight?.toString() ?? "500"]}
+                      value={[text.fontWeight?.toString() ?? "500"]}
                       onValueChange={(e) =>
                         setTextFontWeight(
                           selectedImg,

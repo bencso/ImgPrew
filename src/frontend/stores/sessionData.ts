@@ -1,10 +1,10 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { RefObject } from "react";
-import { SessionStore } from "@/interfaces/interface";
-import { DraggableImageEvent } from "@/interfaces/draggableElement";
+import { DraggableImageEvent, SessionStore } from "@/interfaces/interface";
+import { createWithEqualityFn } from "zustand/traditional";
 
-export const useSessionStore = create<SessionStore>()(
+export const useSessionStore = createWithEqualityFn<SessionStore>()(
   immer((set, get) => ({
     //#region ADATOK
     sessionData: [],
@@ -78,8 +78,19 @@ export const useSessionStore = create<SessionStore>()(
         const image = state.sessionData.find((img) => img.id === imageId);
         if (image) {
           if (!image.texts) image.texts = [];
+
           const textId = image.texts.length;
-          const element = new DraggableImageEvent(textId, text, { x: 0, y: 0 });
+
+          const element: DraggableImageEvent = {
+            id: textId,
+            text,
+            position: { x: 0, y: 0 },
+            enabled: true,
+            fontSize: 20,
+            fontFamily: "Inter",
+            fontWeight: 500,
+          };
+
           image.texts.push(element);
         }
       }),
@@ -89,22 +100,33 @@ export const useSessionStore = create<SessionStore>()(
     setTextFontSize: (imageId: number, textId: number, fontSize: number) =>
       set((state) => {
         const image = state.sessionData.find((img) => img.id === imageId);
-        if (image?.texts) {
-          const text = image.texts.find((t) => t.id === textId);
-          if (text) {
-            text.textStyles.fontSize = fontSize;
-          }
-        }
+        if (!image?.texts) return;
+
+        image.texts = image.texts.map((t) =>
+          t.id === textId ? { ...t, fontSize } : t,
+        );
       }),
     setTextFontWeight: (imageId: number, textId: number, fontWeight: number) =>
       set((state) => {
         const image = state.sessionData.find((img) => img.id === imageId);
-        if (image?.texts) {
-          const text = image.texts.find((t) => t.id === textId);
-          if (text) {
-            text.textStyles.fontWeight = fontWeight;
-          }
-        }
+        if (!image?.texts) return;
+
+        image.texts = image.texts.map((t) =>
+          t.id === textId ? { ...t, fontWeight } : t,
+        );
+      }),
+    setTextPosition: (
+      imageId: number,
+      textId: number,
+      position: { x: number; y: number },
+    ) =>
+      set((state) => {
+        const image = state.sessionData.find((img) => img.id === imageId);
+        if (!image?.texts) return;
+
+        image.texts = image.texts.map((t) =>
+          t.id === textId ? { ...t, position } : t,
+        );
       }),
     //#endregion
 
@@ -173,6 +195,22 @@ export const useSessionStore = create<SessionStore>()(
           .sessionData.find((img) => img.id === id)
           ?.filters?.find((f) => f.name === filterName)?.value ?? null
       );
+    },
+    getFilters: (id: number) => {
+      const img = get().sessionData.find((img) => img.id === id);
+
+      return {
+        brightness:
+          Number(img?.filters?.find((f) => f.name === "brightness")?.value) ||
+          0,
+        contrast:
+          Number(img?.filters?.find((f) => f.name === "contrast")?.value) || 0,
+        saturation:
+          Number(img?.filters?.find((f) => f.name === "saturation")?.value) ||
+          0,
+        exposure:
+          Number(img?.filters?.find((f) => f.name === "exposure")?.value) || 0,
+      };
     },
     //#endregion
   })),

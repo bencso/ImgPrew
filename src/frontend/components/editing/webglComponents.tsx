@@ -1,12 +1,13 @@
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
-import { Box, Flex, Span, Text } from "@chakra-ui/react";
+import { Box, Flex, Span } from "@chakra-ui/react";
 import { shaderMaterial } from "@react-three/drei";
 import { Canvas, extend, useLoader, useThree } from "@react-three/fiber";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import Draggable from "react-draggable";
-import { DraggableImageEvent } from "@/interfaces/draggableElement";
+import { shallow } from "zustand/shallow";
+import { DraggableImageEvent } from "@/interfaces/interface";
 
 const ImageMaterial = shaderMaterial(
   {
@@ -70,17 +71,16 @@ extend({ ImageMaterial });
 
 function ImagePlane({
   src,
-  brightness,
-  contrast,
-  saturation,
-  exposure,
+  filters,
   setSize,
 }: {
   src: string;
-  brightness: number;
-  contrast: number;
-  saturation: number;
-  exposure: number;
+  filters: {
+    brightness: number;
+    contrast: number;
+    saturation: number;
+    exposure: number;
+  };
   setSize: Dispatch<
     SetStateAction<{
       width: number;
@@ -96,21 +96,24 @@ function ImagePlane({
 
   // Kiszámoljuk a képnél hogy melyik az ami belefér, majd kiválasszuk belőle a legkissebbet
   const scale = Math.min(viewport.width / imgW, viewport.height / imgH);
-
   const width = imgW * scale;
   const height = imgH * scale;
 
-  if (width && height) setSize({ height: height, width: width });
+  useEffect(() => {
+    if (width && height) {
+      setSize({ width, height });
+    }
+  }, [width, height]);
 
   return (
     <mesh scale={[width, height, 1]}>
       <planeGeometry args={[1, 1]} />
       <imageMaterial
         uTexture={texture}
-        uBrightness={brightness}
-        uContrast={contrast}
-        uSaturation={saturation}
-        uExposure={exposure}
+        uBrightness={filters.brightness}
+        uContrast={filters.contrast}
+        uSaturation={filters.saturation}
+        uExposure={filters.exposure}
       />
     </mesh>
   );
@@ -118,58 +121,15 @@ function ImagePlane({
 
 export default function ImageWorkPlace() {
   const { imgs, selectedImg } = useWorkSession();
-  const { getTexts, sessionData } = useSessionStore();
+  const { setTextPosition } = useSessionStore();
   const [size, setSize] = useState<{ width: number; height: number } | null>(
     null,
   );
 
-  const brightness = useSessionStore((s) => {
-    return (
-      Number(
-        s.sessionData
-          .find((img) => img.id === selectedImg)
-          ?.filters?.find((f) => f.name === "brightness")?.value,
-      ) || 0
-    );
-  });
-
-  const contrast = useSessionStore((s) => {
-    return (
-      Number(
-        s.sessionData
-          .find((img) => img.id === selectedImg)
-          ?.filters?.find((f) => f.name === "contrast")?.value,
-      ) || 0
-    );
-  });
-
-  const saturation = useSessionStore((s) => {
-    return (
-      Number(
-        s.sessionData
-          .find((img) => img.id === selectedImg)
-          ?.filters?.find((f) => f.name === "saturation")?.value,
-      ) || 0
-    );
-  });
-
-  const exposure = useSessionStore((s) => {
-    return (
-      Number(
-        s.sessionData
-          .find((img) => img.id === selectedImg)
-          ?.filters?.find((f) => f.name === "exposure")?.value,
-      ) || 0
-    );
-  });
-
-  const [elements, setElements] = useState<DraggableImageEvent[]>([]);
-  const nodeRef = useRef(null);
-
-  useEffect(() => {
-    const texts = getTexts(selectedImg);
-    setElements(texts);
-  }, [sessionData, selectedImg]);
+  //? shallow: nem generál le újra az objektumot hanem mintha cachelte volna mindig az adott objektumot irja felül / ÖSSZEHASONLÍT
+  const filters = useSessionStore((s) => s.getFilters(selectedImg), shallow);
+  const nodeRef = useRef<HTMLDivElement>(null);
+  const texts = useSessionStore((s) => s.getTexts(selectedImg), shallow);
 
   return (
     <Flex
@@ -191,30 +151,35 @@ export default function ImageWorkPlace() {
         position={"absolute"}
         overflow={"hidden"}
       >
-        {elements.map((element, index) => {
+        {texts.map((element: DraggableImageEvent, index) => {
+          console.log(element);
           return (
             <Draggable
-              key={index}
+              key={element.id + "-" + index}
               disabled={!element.enabled}
               bounds="parent"
-              position={{
-                x: element.position.x,
-                y: element.position.y,
-              }}
+              position={element.position}
               nodeRef={nodeRef}
-              onDrag={element.handleDrag}
+              onDrag={(_, d) => {
+                const textId = element.id;
+                const position = {
+                  x: d.x,
+                  y: d.y,
+                };
+                setTextPosition(selectedImg, textId, position);
+              }}
               defaultClassNameDragging="draggable_element_drag"
               defaultClassName="draggable_element"
             >
               <Box ref={nodeRef} position={"relative"} h="fit" w={"fit"}>
                 <Span
                   style={{
-                    fontSize: element.textParam.fontSize || 12,
-                    fontFamily: element.textParam.fontFamily || "Inter",
-                    fontWeight: element.textParam.fontWeight || 500,
+                    fontSize: element.fontSize || 20,
+                    fontFamily: element.fontFamily || "Inter",
+                    fontWeight: element.fontWeight || 500,
                   }}
                 >
-                  {element.textParam.text}
+                  {element.text}
                 </Span>
               </Box>
             </Draggable>
@@ -227,13 +192,11 @@ export default function ImageWorkPlace() {
           width: "100%",
           height: "100%",
         }}
+        frameloop="demand"
       >
         <ImagePlane
           src={imgs[selectedImg]}
-          brightness={brightness}
-          contrast={contrast}
-          exposure={exposure}
-          saturation={saturation}
+          filters={filters}
           setSize={setSize}
         />
       </Canvas>

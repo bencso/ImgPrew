@@ -5,7 +5,6 @@ import {
   RefObject,
   SetStateAction,
 } from "react";
-import { DraggableImageEvent } from "./draggableElement";
 
 //#region InputTypes
 export enum InputTypes {
@@ -22,6 +21,21 @@ export interface ImageFilters {
 //#endregion
 
 //#region CustomImage
+interface DraggableImageEventPosition {
+  x: number;
+  y: number;
+}
+
+export interface DraggableImageEvent {
+  id: number;
+  text: string;
+  position: DraggableImageEventPosition;
+  enabled: boolean;
+  fontSize: number;
+  fontFamily: string;
+  fontWeight: number;
+}
+
 export interface CustomImage {
   id: number;
   exportFileExtension: string;
@@ -69,6 +83,14 @@ export interface SessionStore {
     textId: number,
     fontWeight: number,
   ) => any;
+  setTextPosition: (
+    imageId: number,
+    textId: number,
+    position: {
+      x: number;
+      y: number;
+    },
+  ) => void;
   //#endregion
 
   //#region EXPORT
@@ -87,6 +109,12 @@ export interface SessionStore {
   //#region FILTERS
   editFilters: (id: number, filterName: string, value: string | number) => any;
   getFilterValue: (id: number, filterName: string) => number | null;
+  getFilters: (id: number) => {
+    brightness: number;
+    contrast: number;
+    saturation: number;
+    exposure: number;
+  };
   //#endregion
 }
 //#endregion
