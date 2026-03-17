@@ -11,7 +11,7 @@ import { DraggableImageEvent } from "@/interfaces/interface";
 
 const ImageMaterial = shaderMaterial(
   {
-    uTexture: null,
+    uTexture: null as THREE.Texture | null,
     uBrightness: 0,
     uContrast: 0,
     uSaturation: 0,
@@ -88,8 +88,9 @@ function ImagePlane({
     } | null>
   >;
 }) {
-  const texture = useLoader(THREE.TextureLoader, src);
   const { viewport } = useThree();
+  const texture = useLoader(THREE.TextureLoader, src);
+  if (!texture.image) return null;
 
   const imgW = texture.image?.width ?? 1;
   const imgH = texture.image?.height ?? 1;
@@ -105,16 +106,21 @@ function ImagePlane({
     }
   }, [width, height]);
 
+  //! Felszabadítjuk a régi texture-t -> GPU memóriából felszabítunk ha unmountolódik
+  useEffect(() => {
+    return () => texture.dispose();
+  }, [texture]);
+
+  const mat = new ImageMaterial();
+  mat.uTexture = texture;
+  mat.uBrightness = filters.brightness;
+  mat.uContrast = filters.contrast;
+  mat.uSaturation = filters.saturation;
+  mat.uExposure = filters.exposure;
+
   return (
-    <mesh scale={[width, height, 1]}>
+    <mesh scale={[width, height, 1]} material={mat}>
       <planeGeometry args={[1, 1]} />
-      <imageMaterial
-        uTexture={texture}
-        uBrightness={filters.brightness}
-        uContrast={filters.contrast}
-        uSaturation={filters.saturation}
-        uExposure={filters.exposure}
-      />
     </mesh>
   );
 }
@@ -177,6 +183,7 @@ export default function ImageWorkPlace() {
                     fontSize: element.fontSize || 20,
                     fontFamily: element.fontFamily || "Inter",
                     fontWeight: element.fontWeight || 500,
+                    color: element.color || "#ffff",
                   }}
                 >
                   {element.text}

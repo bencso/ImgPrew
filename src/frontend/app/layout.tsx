@@ -8,9 +8,13 @@ import { LangugeProvider } from "@/providers/languageprovider";
 import { WorkSessionProvider } from "@/providers/sessionprovider";
 import { WebsocketProvider } from "@/providers/websocketprovider";
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="hu" suppressHydrationWarning>
+    <html lang="hu">
       <body>
         <Provider>
           <ColorModeProvider>

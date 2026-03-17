@@ -34,6 +34,7 @@ export interface DraggableImageEvent {
   fontSize: number;
   fontFamily: string;
   fontWeight: number;
+  color: string;
 }
 
 export interface CustomImage {
@@ -77,6 +78,7 @@ export interface SessionStore {
   //#region TEXT
   addTexts: (imageId: number, text: string) => any;
   getTexts: (imageId: number) => DraggableImageEvent[];
+  deleteText: (imageId: number, textId: number) => void;
   setTextFontSize: (imageId: number, textId: number, fontSize: number) => any;
   setTextFontWeight: (
     imageId: number,
@@ -91,6 +93,7 @@ export interface SessionStore {
       y: number;
     },
   ) => void;
+  setTextColor: (imageId: number, textId: number, color: string) => void;
   //#endregion
 
   //#region EXPORT

@@ -89,11 +89,23 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
             fontSize: 20,
             fontFamily: "Inter",
             fontWeight: 500,
+            color: "#ffff",
           };
 
           image.texts.push(element);
         }
       }),
+    deleteText: (imageId: number, textId: number) => {
+      set((state) => {
+        const image = state.sessionData.find((img) => img.id === imageId);
+        if (!image?.texts || !image.texts[textId]) return;
+
+        if (textId !== -1) {
+          const removedText = image.texts.filter((text) => text.id != textId);
+          image.texts = removedText.length > 0 ? [...removedText] : [];
+        }
+      });
+    },
     getTexts: (imageId: number) => {
       return get().sessionData.find((img) => img.id === imageId)?.texts || [];
     },
@@ -116,6 +128,17 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           image.texts = [
             ...image.texts.slice(0, textId),
             { ...image.texts[textId], fontWeight },
+            ...image.texts.slice(textId + 1),
+          ];
+      }),
+    setTextColor: (imageId: number, textId: number, color: string) =>
+      set((state) => {
+        const image = state.sessionData.find((img) => img.id === imageId);
+        if (!image?.texts || !image.texts[textId]) return;
+        if (textId !== -1)
+          image.texts = [
+            ...image.texts.slice(0, textId),
+            { ...image.texts[textId], color },
             ...image.texts.slice(textId + 1),
           ];
       }),

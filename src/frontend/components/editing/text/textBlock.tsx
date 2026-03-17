@@ -4,10 +4,13 @@ import {
   Accordion,
   Box,
   Button,
+  ColorPicker,
   Flex,
   HStack,
   Input,
+  InputGroup,
   NumberInput,
+  parseColor,
   Portal,
   Select,
   Span,
@@ -16,6 +19,7 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { createListCollection } from "@chakra-ui/react";
+import { LuTrash } from "react-icons/lu";
 
 const fontWeightCollection = createListCollection({
   items: [
@@ -33,7 +37,13 @@ const fontWeightCollection = createListCollection({
 
 export default function TextBlock() {
   const { selectedImg } = useWorkSession();
-  const { addTexts, setTextFontSize, setTextFontWeight } = useSessionStore();
+  const {
+    addTexts,
+    setTextFontSize,
+    setTextFontWeight,
+    deleteText,
+    setTextColor,
+  } = useSessionStore();
   const texts = useSessionStore((s) => s.getTexts(selectedImg));
 
   const [text, setText] = useState("");
@@ -66,6 +76,22 @@ export default function TextBlock() {
             <Accordion.Item key={text.id} value={text.id.toString() || ""}>
               <Accordion.ItemTrigger>
                 <Span flex="1">{text.text}</Span>
+                <Box
+                  p={1}
+                  borderRadius={"md"}
+                  color={"red.400"}
+                  border={"1px solid"}
+                  borderColor={"red.700/50"}
+                  _hover={{
+                    bgColor: "red.700/50",
+                  }}
+                  key={text.id}
+                  onClick={() => {
+                    deleteText(selectedImg, text.id);
+                  }}
+                >
+                  <LuTrash />
+                </Box>
                 <Accordion.ItemIndicator />
               </Accordion.ItemTrigger>
 
@@ -134,6 +160,42 @@ export default function TextBlock() {
                         </Select.Positioner>
                       </Portal>
                     </Select.Root>
+                  </Flex>
+
+                  {/* Szöveg színe */}
+                  <Flex gap={4} width="full" alignItems="center">
+                    <Text w="fit">Szín</Text>
+                    <ColorPicker.Root
+                      onValueChange={(details) => {
+                        setTextColor(
+                          selectedImg,
+                          text.id,
+                          details.value.toString("hex"),
+                        );
+                      }}
+                      w={"full"}
+                      value={parseColor(text.color)}
+                    >
+                      <ColorPicker.HiddenInput />
+                      <ColorPicker.Control>
+                        <ColorPicker.Input />
+                        <ColorPicker.Trigger />
+                      </ColorPicker.Control>
+                      <Portal>
+                        <ColorPicker.Positioner>
+                          <ColorPicker.Content>
+                            <ColorPicker.Area />
+                            <HStack>
+                              <ColorPicker.EyeDropper
+                                size="xs"
+                                variant="outline"
+                              />
+                              <ColorPicker.Sliders />
+                            </HStack>
+                          </ColorPicker.Content>
+                        </ColorPicker.Positioner>
+                      </Portal>
+                    </ColorPicker.Root>
                   </Flex>
                 </Accordion.ItemBody>
               </Accordion.ItemContent>
