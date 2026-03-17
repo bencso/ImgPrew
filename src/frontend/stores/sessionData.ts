@@ -100,20 +100,24 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     setTextFontSize: (imageId: number, textId: number, fontSize: number) =>
       set((state) => {
         const image = state.sessionData.find((img) => img.id === imageId);
-        if (!image?.texts) return;
-
-        image.texts = image.texts.map((t) =>
-          t.id === textId ? { ...t, fontSize } : t,
-        );
+        if (!image?.texts || !image.texts[textId]) return;
+        if (textId !== -1)
+          image.texts = [
+            ...image.texts.slice(0, textId),
+            { ...image.texts[textId], fontSize },
+            ...image.texts.slice(textId + 1),
+          ];
       }),
     setTextFontWeight: (imageId: number, textId: number, fontWeight: number) =>
       set((state) => {
         const image = state.sessionData.find((img) => img.id === imageId);
-        if (!image?.texts) return;
-
-        image.texts = image.texts.map((t) =>
-          t.id === textId ? { ...t, fontWeight } : t,
-        );
+        if (!image?.texts || !image.texts[textId]) return;
+        if (textId !== -1)
+          image.texts = [
+            ...image.texts.slice(0, textId),
+            { ...image.texts[textId], fontWeight },
+            ...image.texts.slice(textId + 1),
+          ];
       }),
     setTextPosition: (
       imageId: number,
