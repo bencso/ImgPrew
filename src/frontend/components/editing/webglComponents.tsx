@@ -8,6 +8,7 @@ import * as THREE from "three";
 import Draggable from "react-draggable";
 import { shallow } from "zustand/shallow";
 import { DraggableImageEvent } from "@/interfaces/interface";
+import { UUID } from "crypto";
 
 const ImageMaterial = shaderMaterial(
   {
@@ -124,7 +125,7 @@ function ImagePlane({
 }
 
 export default function ImageWorkPlace() {
-  const { imgs, selectedImg, textRefs } = useWorkSession();
+  const { imgs, selectedImg, textElements, setTextElements } = useWorkSession();
   const { setTextPosition, setImageSize } = useSessionStore();
   const [size, setSize] = useState<{ width: number; height: number } | null>(
     null,
@@ -139,8 +140,13 @@ export default function ImageWorkPlace() {
   const nodeRef = useRef<HTMLDivElement>(null);
   const texts = useSessionStore((s) => s.getTexts(selectedImg), shallow);
 
-  const setTextRef = (textId: number) => (el: any) => {
-    if (el && textRefs) textRefs.current[textId] = el;
+  const setTextRef = (textId: string) => (el: any) => {
+    if (el && textElements[textId] !== el) {
+      setTextElements((prev) => ({
+        ...prev,
+        [textId]: el,
+      }));
+    }
   };
 
   return (
@@ -182,14 +188,7 @@ export default function ImageWorkPlace() {
               defaultClassNameDragging="draggable_element_drag"
               defaultClassName="draggable_element"
             >
-              <Box
-                ref={nodeRef}
-                position={"relative"}
-                h="fit"
-                w={"fit"}
-                maxW={"full"}
-                maxH={"full"}
-              >
+              <Box ref={nodeRef} position={"absolute"} h="fit" w={"fit"}>
                 <Span
                   ref={setTextRef(element.id)}
                   w={"fit"}

@@ -1,3 +1,4 @@
+import { UUID } from "crypto";
 import {
   Dispatch,
   HTMLInputTypeAttribute,
@@ -27,7 +28,7 @@ interface DraggableImageEventPosition {
 }
 
 export interface DraggableImageEvent {
-  id: number;
+  id: string;
   text: string;
   position: DraggableImageEventPosition;
   enabled: boolean;
@@ -89,22 +90,22 @@ export interface SessionStore {
   //#region TEXT
   addTexts: (imageId: number, text: string) => any;
   getTexts: (imageId: number) => DraggableImageEvent[];
-  deleteText: (imageId: number, textId: number) => void;
-  setTextFontSize: (imageId: number, textId: number, fontSize: number) => any;
+  deleteText: (imageId: number, textId: string) => void;
+  setTextFontSize: (imageId: number, textId: string, fontSize: number) => any;
   setTextFontWeight: (
     imageId: number,
-    textId: number,
+    textId: string,
     fontWeight: number,
   ) => any;
   setTextPosition: (
     imageId: number,
-    textId: number,
+    textId: string,
     position: {
       x: number;
       y: number;
     },
   ) => void;
-  setTextColor: (imageId: number, textId: number, color: string) => void;
+  setTextColor: (imageId: number, textId: string, color: string) => void;
   //#endregion
 
   //#region EXPORT
@@ -181,7 +182,8 @@ export interface WorkSessionContextProps {
     inputName: string,
     value: any,
   ) => void;
-  textRefs: RefObject<Record<string, HTMLSpanElement | null>>;
+  textElements: Record<string, HTMLElement>;
+  setTextElements: Dispatch<SetStateAction<Record<UUID, HTMLElement>>>;
 }
 //#endregion
 

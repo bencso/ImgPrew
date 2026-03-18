@@ -19,7 +19,7 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createListCollection } from "@chakra-ui/react";
 import {
   LuAlignCenter,
@@ -35,6 +35,7 @@ import {
   LuDot,
   LuTrash,
 } from "react-icons/lu";
+import { shallow } from "zustand/shallow";
 
 const fontWeightCollection = createListCollection({
   items: [
@@ -51,7 +52,7 @@ const fontWeightCollection = createListCollection({
 });
 
 export default function TextBlock() {
-  const { selectedImg, textRefs } = useWorkSession();
+  const { selectedImg, textElements } = useWorkSession();
   const {
     addTexts,
     setTextFontSize,
@@ -60,8 +61,11 @@ export default function TextBlock() {
     setTextColor,
     setTextPosition,
   } = useSessionStore();
-  const texts = useSessionStore((s) => s.getTexts(selectedImg));
-  const imageSize = useSessionStore((s) => s.getImageSize(selectedImg));
+  const texts = useSessionStore((s) => s.getTexts(selectedImg), shallow);
+  const imageSize = useSessionStore(
+    (s) => s.getImageSize(selectedImg),
+    shallow,
+  );
 
   const [text, setText] = useState("");
 
@@ -90,16 +94,16 @@ export default function TextBlock() {
       <Stack gap="2" mt={4}>
         <Accordion.Root variant="enclosed" collapsible>
           {texts.map((text) => {
-            const element = textRefs?.current?.[text.id];
-
+            const element = textElements[text.id];
             if (!element) return;
+            console.log(imageSize ? imageSize : null);
 
             const imagHeigtWithText = imageSize
-              ? imageSize.height - (element.offsetHeight + 20)
+              ? imageSize.height - element.offsetHeight - 20
               : null;
 
             const imagWidthWithText = imageSize
-              ? imageSize.width - (element.offsetWidth + 10)
+              ? imageSize.width - element.offsetWidth - 20
               : null;
 
             const imageHalfWithText = imageSize
@@ -107,7 +111,7 @@ export default function TextBlock() {
               : null;
 
             return (
-              <Accordion.Item key={text.id} value={text.id.toString() || ""}>
+              <Accordion.Item key={text.id} value={text.id}>
                 <Accordion.ItemTrigger>
                   <Span
                     overflow={"hidden"}
@@ -227,11 +231,7 @@ export default function TextBlock() {
                       <GridItem display={"flex"} gap={2}>
                         <IconButton
                           onClick={() => {
-                            if (
-                              element &&
-                              imageSize &&
-                              imagHeigtWithText
-                            )
+                            if (element && imageSize && imagHeigtWithText)
                               setTextPosition(selectedImg, text.id, {
                                 y: imagHeigtWithText,
                                 x: 20,

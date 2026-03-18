@@ -1,8 +1,9 @@
-import { create } from "zustand";
+import { v4 as uuidv4 } from "uuid";
 import { immer } from "zustand/middleware/immer";
 import { RefObject } from "react";
 import { DraggableImageEvent, SessionStore } from "@/interfaces/interface";
 import { createWithEqualityFn } from "zustand/traditional";
+import { randomUUID, UUID } from "crypto";
 
 export const useSessionStore = createWithEqualityFn<SessionStore>()(
   immer((set, get) => ({
@@ -92,7 +93,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         if (image) {
           if (!image.texts) image.texts = [];
 
-          const textId = image.texts.length;
+          const textId = uuidv4();
 
           const element: DraggableImageEvent = {
             id: textId,
@@ -108,67 +109,77 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           image.texts.push(element);
         }
       }),
-    deleteText: (imageId: number, textId: number) => {
+    deleteText: (imageId: number, textId: string) => {
       set((state) => {
         const image = state.sessionData.find((img) => img.id === imageId);
-        if (!image?.texts || !image.texts[textId]) return;
+        if (!image?.texts) return;
 
-        if (textId !== -1) {
-          const removedText = image.texts.filter((text) => text.id != textId);
-          image.texts = removedText.length > 0 ? [...removedText] : [];
-        }
+        const removedText = image.texts.filter((text) => text.id != textId);
+        image.texts = removedText.length > 0 ? [...removedText] : [];
       });
     },
     getTexts: (imageId: number) => {
       return get().sessionData.find((img) => img.id === imageId)?.texts || [];
     },
-    setTextFontSize: (imageId: number, textId: number, fontSize: number) =>
+    setTextFontSize: (imageId: number, textId: string, fontSize: number) =>
       set((state) => {
         const image = state.sessionData.find((img) => img.id === imageId);
-        if (!image?.texts || !image.texts[textId]) return;
-        if (textId !== -1)
-          image.texts = [
-            ...image.texts.slice(0, textId),
-            { ...image.texts[textId], fontSize },
-            ...image.texts.slice(textId + 1),
-          ];
+        if (!image || !image.texts) return;
+
+        const textIndex = image.texts.findIndex((text) => text.id === textId);
+        if (textIndex === -1) return;
+
+        image.texts = [
+          ...image.texts.slice(0, textIndex),
+          { ...image.texts[textIndex], fontSize },
+          ...image.texts.slice(textIndex + 1),
+        ];
       }),
-    setTextFontWeight: (imageId: number, textId: number, fontWeight: number) =>
+    setTextFontWeight: (imageId: number, textId: string, fontWeight: number) =>
       set((state) => {
         const image = state.sessionData.find((img) => img.id === imageId);
-        if (!image?.texts || !image.texts[textId]) return;
-        if (textId !== -1)
-          image.texts = [
-            ...image.texts.slice(0, textId),
-            { ...image.texts[textId], fontWeight },
-            ...image.texts.slice(textId + 1),
-          ];
+        if (!image || !image.texts) return;
+
+        const textIndex = image.texts.findIndex((text) => text.id === textId);
+        if (textIndex === -1) return;
+
+        image.texts = [
+          ...image.texts.slice(0, textIndex),
+          { ...image.texts[textIndex], fontWeight },
+          ...image.texts.slice(textIndex + 1),
+        ];
       }),
-    setTextColor: (imageId: number, textId: number, color: string) =>
+    setTextColor: (imageId: number, textId: string, color: string) =>
       set((state) => {
         const image = state.sessionData.find((img) => img.id === imageId);
-        if (!image?.texts || !image.texts[textId]) return;
-        if (textId !== -1)
-          image.texts = [
-            ...image.texts.slice(0, textId),
-            { ...image.texts[textId], color },
-            ...image.texts.slice(textId + 1),
-          ];
+        if (!image || !image.texts) return;
+
+        const textIndex = image.texts.findIndex((text) => text.id === textId);
+        if (textIndex === -1) return;
+
+        image.texts = [
+          ...image.texts.slice(0, textIndex),
+          { ...image.texts[textIndex], color },
+          ...image.texts.slice(textIndex + 1),
+        ];
       }),
     setTextPosition: (
       imageId: number,
-      textId: number,
+      textId: string,
       position: { x: number; y: number },
     ) =>
       set((state) => {
         const image = state.sessionData.find((img) => img.id === imageId);
-        if (!image?.texts || !image.texts[textId]) return;
-        if (textId !== -1)
-          image.texts = [
-            ...image.texts.slice(0, textId),
-            { ...image.texts[textId], position },
-            ...image.texts.slice(textId + 1),
-          ];
+        if (!image || !image.texts) return;
+
+        const textIndex = image.texts.findIndex((text) => text.id === textId);
+        if (textIndex === -1) return;
+
+        image.texts = [
+          ...image.texts.slice(0, textIndex),
+          { ...image.texts[textIndex], position },
+          ...image.texts.slice(textIndex + 1),
+        ];
       }),
     //#endregion
 
