@@ -181,6 +181,7 @@ export interface WorkSessionContextProps {
     inputName: string,
     value: any,
   ) => void;
+  textRefs: RefObject<Record<string, HTMLSpanElement | null>>;
 }
 //#endregion
 

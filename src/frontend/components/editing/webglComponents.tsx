@@ -124,7 +124,7 @@ function ImagePlane({
 }
 
 export default function ImageWorkPlace() {
-  const { imgs, selectedImg } = useWorkSession();
+  const { imgs, selectedImg, textRefs } = useWorkSession();
   const { setTextPosition, setImageSize } = useSessionStore();
   const [size, setSize] = useState<{ width: number; height: number } | null>(
     null,
@@ -138,6 +138,10 @@ export default function ImageWorkPlace() {
   const filters = useSessionStore((s) => s.getFilters(selectedImg), shallow);
   const nodeRef = useRef<HTMLDivElement>(null);
   const texts = useSessionStore((s) => s.getTexts(selectedImg), shallow);
+
+  const setTextRef = (textId: number) => (el: any) => {
+    if (el && textRefs) textRefs.current[textId] = el;
+  };
 
   return (
     <Flex
@@ -185,9 +189,9 @@ export default function ImageWorkPlace() {
                 w={"fit"}
                 maxW={"full"}
                 maxH={"full"}
-                id={"customTextContent-" + element.id}
               >
                 <Span
+                  ref={setTextRef(element.id)}
                   w={"fit"}
                   h={"fit"}
                   textWrap={"balance"}
