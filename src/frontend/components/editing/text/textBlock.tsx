@@ -90,6 +90,22 @@ export default function TextBlock() {
       <Stack gap="2" mt={4}>
         <Accordion.Root variant="enclosed" collapsible>
           {texts.map((text) => {
+            const element = textRefs?.current?.[text.id];
+
+            if (!element) return;
+
+            const imagHeigtWithText = imageSize
+              ? imageSize.height - (element.offsetHeight + 20)
+              : null;
+
+            const imagWidthWithText = imageSize
+              ? imageSize.width - (element.offsetWidth + 10)
+              : null;
+
+            const imageHalfWithText = imageSize
+              ? imageSize.width / 2 - element.offsetWidth / 2
+              : null;
+
             return (
               <Accordion.Item key={text.id} value={text.id.toString() || ""}>
                 <Accordion.ItemTrigger>
@@ -133,8 +149,8 @@ export default function TextBlock() {
                         <IconButton
                           onClick={() => {
                             setTextPosition(selectedImg, text.id, {
-                              y: 5,
-                              x: 10,
+                              y: 10,
+                              x: 20,
                             });
                           }}
                         >
@@ -142,37 +158,22 @@ export default function TextBlock() {
                         </IconButton>
                         <IconButton
                           onClick={() => {
-                            const element = textRefs?.current?.[text.id];
-
-                            if (element && imageSize) {
-                              const imageHalfWithText = imageSize
-                                ? imageSize.width / 2 - element.offsetWidth / 2
-                                : null;
-
-                              if (imageHalfWithText)
-                                setTextPosition(selectedImg, text.id, {
-                                  y: 5,
-                                  x: imageHalfWithText,
-                                });
-                            }
+                            if (element && imageSize && imageHalfWithText)
+                              setTextPosition(selectedImg, text.id, {
+                                y: 10,
+                                x: imageHalfWithText,
+                              });
                           }}
                         >
                           <LuArrowUp />
                         </IconButton>
                         <IconButton
                           onClick={() => {
-                            const element = textRefs?.current?.[text.id];
-                            if (element && imageSize) {
-                              const imageWidthWithText = imageSize
-                                ? imageSize.width - (element.offsetWidth + 10)
-                                : null;
-
-                              if (imageWidthWithText)
-                                setTextPosition(selectedImg, text.id, {
-                                  y: 5,
-                                  x: imageWidthWithText,
-                                });
-                            }
+                            if (element && imageSize && imagWidthWithText)
+                              setTextPosition(selectedImg, text.id, {
+                                y: 10,
+                                x: imagWidthWithText,
+                              });
                           }}
                         >
                           <LuArrowUpRight />
@@ -181,79 +182,94 @@ export default function TextBlock() {
                       <GridItem display={"flex"} gap={2}>
                         <IconButton
                           onClick={() => {
-                            const element = textRefs?.current?.[text.id];
-                            if (element && imageSize) {
-                              const imagHeigtWithText = imageSize
-                                ? imageSize.height / 2 -
-                                  (element.offsetHeight + 10)
-                                : null;
-
-                              if (imagHeigtWithText)
-                                setTextPosition(selectedImg, text.id, {
-                                  y: imagHeigtWithText,
-                                  x: 10,
-                                });
-                            }
+                            if (element && imageSize && imagHeigtWithText)
+                              setTextPosition(selectedImg, text.id, {
+                                y: imagHeigtWithText / 2,
+                                x: 10,
+                              });
                           }}
                         >
                           <LuArrowLeft />
                         </IconButton>
                         <IconButton
                           onClick={() => {
-                            const element = textRefs?.current?.[text.id];
-                            if (element && imageSize) {
-                              const imagHeigtWithText = imageSize
-                                ? imageSize.height / 2 -
-                                  (element.offsetHeight / 2 - 10)
-                                : null;
-
-                              const imagWidthWithText = imageSize
-                                ? imageSize.width / 2 -
-                                  (element.offsetWidth / 2 - 10)
-                                : null;
-
-                              if (imagHeigtWithText && imagWidthWithText)
-                                setTextPosition(selectedImg, text.id, {
-                                  y: imagHeigtWithText,
-                                  x: imagWidthWithText,
-                                });
-                            }
+                            if (
+                              element &&
+                              imageSize &&
+                              imagHeigtWithText &&
+                              imageHalfWithText
+                            )
+                              setTextPosition(selectedImg, text.id, {
+                                y: imagHeigtWithText / 2,
+                                x: imageHalfWithText,
+                              });
                           }}
                         >
                           <LuDot />
                         </IconButton>
                         <IconButton
                           onClick={() => {
-                            const element = textRefs?.current?.[text.id];
-                            if (element && imageSize) {
-                              const imagHeigtWithText = imageSize
-                                ? imageSize.height / 2 -
-                                  (element.offsetHeight / 2 - 10)
-                                : null;
-
-                              const imagWidthWithText = imageSize
-                                ? imageSize.width - (element.offsetWidth + 10)
-                                : null;
-
-                              if (imagHeigtWithText && imagWidthWithText)
-                                setTextPosition(selectedImg, text.id, {
-                                  y: imagHeigtWithText,
-                                  x: imagWidthWithText,
-                                });
-                            }
+                            if (
+                              element &&
+                              imageSize &&
+                              imagHeigtWithText &&
+                              imagWidthWithText
+                            )
+                              setTextPosition(selectedImg, text.id, {
+                                y: imagHeigtWithText / 2,
+                                x: imagWidthWithText,
+                              });
                           }}
                         >
                           <LuArrowRight />
                         </IconButton>
                       </GridItem>
                       <GridItem display={"flex"} gap={2}>
-                        <IconButton>
+                        <IconButton
+                          onClick={() => {
+                            if (
+                              element &&
+                              imageSize &&
+                              imagHeigtWithText
+                            )
+                              setTextPosition(selectedImg, text.id, {
+                                y: imagHeigtWithText,
+                                x: 20,
+                              });
+                          }}
+                        >
                           <LuArrowDownLeft />
                         </IconButton>
-                        <IconButton>
+                        <IconButton
+                          onClick={() => {
+                            if (
+                              element &&
+                              imageSize &&
+                              imagHeigtWithText &&
+                              imageHalfWithText
+                            )
+                              setTextPosition(selectedImg, text.id, {
+                                y: imagHeigtWithText,
+                                x: imageHalfWithText,
+                              });
+                          }}
+                        >
                           <LuArrowDown />
                         </IconButton>
-                        <IconButton>
+                        <IconButton
+                          onClick={() => {
+                            if (
+                              element &&
+                              imageSize &&
+                              imagHeigtWithText &&
+                              imagWidthWithText
+                            )
+                              setTextPosition(selectedImg, text.id, {
+                                y: imagHeigtWithText,
+                                x: imagWidthWithText,
+                              });
+                          }}
+                        >
                           <LuArrowDownRight />
                         </IconButton>
                       </GridItem>
