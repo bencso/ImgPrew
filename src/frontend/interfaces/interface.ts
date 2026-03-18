@@ -45,6 +45,7 @@ export interface CustomImage {
   captionSamples?: string[];
   texts?: DraggableImageEvent[];
   filters?: { name: string; value: number }[];
+  dimesions?: { width: number; height: number };
 }
 
 export interface SessionStore {
@@ -53,6 +54,16 @@ export interface SessionStore {
   setSessionData: (data: CustomImage[]) => any;
   clearSessionData: () => any;
   addImage: () => any;
+  //#endregion
+
+  //#region MÉRETEK
+  setImageSize: (id: number, width: number, height: number) => void;
+  getImageSize: (id: number) =>
+    | {
+        width: number;
+        height: number;
+      }
+    | undefined;
   //#endregion
 
   //#region EXIF

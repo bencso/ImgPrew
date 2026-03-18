@@ -6,9 +6,11 @@ import {
   Button,
   ColorPicker,
   Flex,
+  Grid,
+  GridItem,
   HStack,
+  IconButton,
   Input,
-  InputGroup,
   NumberInput,
   parseColor,
   Portal,
@@ -19,7 +21,20 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { createListCollection } from "@chakra-ui/react";
-import { LuTrash } from "react-icons/lu";
+import {
+  LuAlignCenter,
+  LuArrowDown,
+  LuArrowDownLeft,
+  LuArrowDownRight,
+  LuArrowLeft,
+  LuArrowRight,
+  LuArrowUp,
+  LuArrowUpLeft,
+  LuArrowUpRight,
+  LuCornerUpLeft,
+  LuDot,
+  LuTrash,
+} from "react-icons/lu";
 
 const fontWeightCollection = createListCollection({
   items: [
@@ -43,8 +58,10 @@ export default function TextBlock() {
     setTextFontWeight,
     deleteText,
     setTextColor,
+    setTextPosition,
   } = useSessionStore();
   const texts = useSessionStore((s) => s.getTexts(selectedImg));
+  const imageSize = useSessionStore((s) => s.getImageSize(selectedImg));
 
   const [text, setText] = useState("");
 
@@ -72,135 +89,230 @@ export default function TextBlock() {
 
       <Stack gap="2" mt={4}>
         <Accordion.Root variant="enclosed" collapsible>
-          {texts.map((text) => (
-            <Accordion.Item key={text.id} value={text.id.toString() || ""}>
-              <Accordion.ItemTrigger>
-                <Span flex="1">{text.text}</Span>
-                <Box
-                  p={1}
-                  borderRadius={"md"}
-                  color={"red.400"}
-                  border={"1px solid"}
-                  borderColor={"red.700/50"}
-                  _hover={{
-                    bgColor: "red.700/50",
-                  }}
-                  key={text.id}
-                  onClick={() => {
-                    deleteText(selectedImg, text.id);
-                  }}
-                >
-                  <LuTrash />
-                </Box>
-                <Accordion.ItemIndicator />
-              </Accordion.ItemTrigger>
+          {texts.map((text) => {
+            //TODO: Felváltani REF-re
+            var textDOM = document.getElementById(
+              text.id + "-" + text.text.replaceAll(" ", "_") + "-content",
+            );
+            var textDOMWidth = 0;
+            if (textDOM) {
+              textDOM.style.fontSize = text.fontSize.toFixed();
+              textDOMWidth = textDOM.clientWidth + 1;
+            }
+            return (
+              <Accordion.Item key={text.id} value={text.id.toString() || ""}>
+                <Accordion.ItemTrigger>
+                  <Span
+                    overflow={"hidden"}
+                    maxW={"full"}
+                    textWrap={"nowrap"}
+                    flex="1"
+                  >
+                    {text.text}
+                  </Span>
+                  <Box
+                    p={1}
+                    borderRadius={"md"}
+                    color={"red.400"}
+                    border={"1px solid"}
+                    borderColor={"red.700/50"}
+                    _hover={{
+                      bgColor: "red.700/50",
+                    }}
+                    key={text.id}
+                    onClick={() => {
+                      deleteText(selectedImg, text.id);
+                    }}
+                  >
+                    <LuTrash />
+                  </Box>
+                  <Accordion.ItemIndicator />
+                </Accordion.ItemTrigger>
 
-              <Accordion.ItemContent>
-                <Accordion.ItemBody gap={4} display="flex" flexDir="column">
-                  {/* Szöveg méret */}
-                  <Flex gap={4} width="full" alignItems="center">
-                    <Text w="fit">Méret</Text>
+                <Accordion.ItemContent>
+                  <Accordion.ItemBody gap={4} display="flex" flexDir="column">
+                    {/* Szöveg elhelyezése */}
+                    <Grid
+                      templateRows={"repeat(3, 1fr)"}
+                      gap={2}
+                      alignItems={"center"}
+                      justifyContent={"center"}
+                    >
+                      <GridItem display={"flex"} gap={2}>
+                        <IconButton
+                          onClick={() => {
+                            setTextPosition(selectedImg, text.id, {
+                              y: 10,
+                              x: 10,
+                            });
+                          }}
+                        >
+                          <LuArrowUpLeft />
+                        </IconButton>
+                        <IconButton
+                          onClick={() => {
+                            const imageHalfWithText = imageSize
+                              ? imageSize.width / 2 - textDOMWidth
+                              : null;
 
-                    <HStack flex="1">
-                      <NumberInput.Root
-                        value={(text.fontSize || 20).toString()}
-                        min={0}
+                            if (imageHalfWithText)
+                              setTextPosition(selectedImg, text.id, {
+                                y: 10,
+                                x: imageHalfWithText,
+                              });
+                          }}
+                        >
+                          <LuArrowUp />
+                        </IconButton>
+                        <IconButton
+                          onClick={() => {
+                            const imageWidthWithText = imageSize
+                              ? imageSize.width - textDOMWidth
+                              : null;
+
+                            if (imageWidthWithText)
+                              setTextPosition(selectedImg, text.id, {
+                                y: 10,
+                                x: imageWidthWithText,
+                              });
+                          }}
+                        >
+                          <LuArrowUpRight />
+                        </IconButton>
+                      </GridItem>
+                      <GridItem display={"flex"} gap={2}>
+                        <IconButton>
+                          <LuArrowLeft />
+                        </IconButton>
+                        <IconButton>
+                          <LuDot />
+                        </IconButton>
+                        <IconButton>
+                          <LuArrowRight />
+                        </IconButton>
+                      </GridItem>
+                      <GridItem display={"flex"} gap={2}>
+                        <IconButton>
+                          <LuArrowDownLeft />
+                        </IconButton>
+                        <IconButton>
+                          <LuArrowDown />
+                        </IconButton>
+                        <IconButton>
+                          <LuArrowDownRight />
+                        </IconButton>
+                      </GridItem>
+                    </Grid>
+
+                    {/* Szöveg méret */}
+                    <Flex gap={4} width="full" alignItems="center">
+                      <Text w="fit">Méret</Text>
+
+                      <HStack flex="1">
+                        <NumberInput.Root
+                          value={(text.fontSize || 20).toString()}
+                          min={0}
+                          onValueChange={(e) =>
+                            setTextFontSize(
+                              selectedImg,
+                              text.id,
+                              e.valueAsNumber,
+                            )
+                          }
+                        >
+                          <NumberInput.Control />
+                          <NumberInput.Input />
+                        </NumberInput.Root>
+
+                        <Text fontSize="sm" color="gray.500">
+                          px
+                        </Text>
+                      </HStack>
+                    </Flex>
+
+                    {/* Szöveg vastagság */}
+                    <Flex gap={4} width="full" alignItems="center">
+                      <Text w="fit">Vastagság</Text>
+
+                      <Select.Root
+                        flex="1"
+                        collection={fontWeightCollection}
+                        value={[text.fontWeight?.toString() ?? "500"]}
                         onValueChange={(e) =>
-                          setTextFontSize(selectedImg, text.id, e.valueAsNumber)
+                          setTextFontWeight(
+                            selectedImg,
+                            text.id,
+                            Number(e.value[0]),
+                          )
                         }
                       >
-                        <NumberInput.Control />
-                        <NumberInput.Input />
-                      </NumberInput.Root>
+                        <Select.HiddenSelect />
 
-                      <Text fontSize="sm" color="gray.500">
-                        px
-                      </Text>
-                    </HStack>
-                  </Flex>
+                        <Select.Control>
+                          <Select.Trigger>
+                            <Select.ValueText placeholder="Válasszon" />
+                          </Select.Trigger>
 
-                  {/* Szöveg vastagság */}
-                  <Flex gap={4} width="full" alignItems="center">
-                    <Text w="fit">Vastagság</Text>
+                          <Select.IndicatorGroup>
+                            <Select.Indicator />
+                          </Select.IndicatorGroup>
+                        </Select.Control>
 
-                    <Select.Root
-                      flex="1"
-                      collection={fontWeightCollection}
-                      value={[text.fontWeight?.toString() ?? "500"]}
-                      onValueChange={(e) =>
-                        setTextFontWeight(
-                          selectedImg,
-                          text.id,
-                          Number(e.value[0]),
-                        )
-                      }
-                    >
-                      <Select.HiddenSelect />
+                        <Portal>
+                          <Select.Positioner>
+                            <Select.Content>
+                              {fontWeightCollection.items.map((item) => (
+                                <Select.Item key={item.value} item={item}>
+                                  {item.label} ({item.value})
+                                  <Select.ItemIndicator />
+                                </Select.Item>
+                              ))}
+                            </Select.Content>
+                          </Select.Positioner>
+                        </Portal>
+                      </Select.Root>
+                    </Flex>
 
-                      <Select.Control>
-                        <Select.Trigger>
-                          <Select.ValueText placeholder="Válasszon" />
-                        </Select.Trigger>
-
-                        <Select.IndicatorGroup>
-                          <Select.Indicator />
-                        </Select.IndicatorGroup>
-                      </Select.Control>
-
-                      <Portal>
-                        <Select.Positioner>
-                          <Select.Content>
-                            {fontWeightCollection.items.map((item) => (
-                              <Select.Item key={item.value} item={item}>
-                                {item.label} ({item.value})
-                                <Select.ItemIndicator />
-                              </Select.Item>
-                            ))}
-                          </Select.Content>
-                        </Select.Positioner>
-                      </Portal>
-                    </Select.Root>
-                  </Flex>
-
-                  {/* Szöveg színe */}
-                  <Flex gap={4} width="full" alignItems="center">
-                    <Text w="fit">Szín</Text>
-                    <ColorPicker.Root
-                      onValueChange={(details) => {
-                        setTextColor(
-                          selectedImg,
-                          text.id,
-                          details.value.toString("hex"),
-                        );
-                      }}
-                      w={"full"}
-                      value={parseColor(text.color)}
-                    >
-                      <ColorPicker.HiddenInput />
-                      <ColorPicker.Control>
-                        <ColorPicker.Input />
-                        <ColorPicker.Trigger />
-                      </ColorPicker.Control>
-                      <Portal>
-                        <ColorPicker.Positioner>
-                          <ColorPicker.Content>
-                            <ColorPicker.Area />
-                            <HStack>
-                              <ColorPicker.EyeDropper
-                                size="xs"
-                                variant="outline"
-                              />
-                              <ColorPicker.Sliders />
-                            </HStack>
-                          </ColorPicker.Content>
-                        </ColorPicker.Positioner>
-                      </Portal>
-                    </ColorPicker.Root>
-                  </Flex>
-                </Accordion.ItemBody>
-              </Accordion.ItemContent>
-            </Accordion.Item>
-          ))}
+                    {/* Szöveg színe */}
+                    <Flex gap={4} width="full" alignItems="center">
+                      <Text w="fit">Szín</Text>
+                      <ColorPicker.Root
+                        onValueChange={(details) => {
+                          setTextColor(
+                            selectedImg,
+                            text.id,
+                            details.value.toString("hex"),
+                          );
+                        }}
+                        w={"full"}
+                        value={parseColor(text.color)}
+                      >
+                        <ColorPicker.HiddenInput />
+                        <ColorPicker.Control>
+                          <ColorPicker.Input />
+                          <ColorPicker.Trigger />
+                        </ColorPicker.Control>
+                        <Portal>
+                          <ColorPicker.Positioner>
+                            <ColorPicker.Content>
+                              <ColorPicker.Area />
+                              <HStack>
+                                <ColorPicker.EyeDropper
+                                  size="xs"
+                                  variant="outline"
+                                />
+                                <ColorPicker.Sliders />
+                              </HStack>
+                            </ColorPicker.Content>
+                          </ColorPicker.Positioner>
+                        </Portal>
+                      </ColorPicker.Root>
+                    </Flex>
+                  </Accordion.ItemBody>
+                </Accordion.ItemContent>
+              </Accordion.Item>
+            );
+          })}
         </Accordion.Root>
       </Stack>
     </Box>

@@ -23,6 +23,19 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       }),
     //#endregion
 
+    //#region KÉP MÉRETEK
+    setImageSize: (id: number, width: number, height: number) =>
+      set((state) => {
+        const image = state.sessionData.find((img) => img.id === id);
+        if (image) {
+          image.dimesions = { width, height };
+        }
+      }),
+    getImageSize: (id: number) => {
+      return get().sessionData.find((img) => img.id === id)?.dimesions;
+    },
+    //#endregion
+
     //#region EXIF ADATOK
     setExifDataForImage: (id: number, exif: string[]) =>
       set((state) => {

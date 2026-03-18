@@ -73,6 +73,7 @@ function ImagePlane({
   src,
   filters,
   setSize,
+  setImageSize,
 }: {
   src: string;
   filters: {
@@ -87,6 +88,7 @@ function ImagePlane({
       height: number;
     } | null>
   >;
+  setImageSize: (width: number, height: number) => void;
 }) {
   const { viewport } = useThree();
   const texture = useLoader(THREE.TextureLoader, src);
@@ -103,13 +105,9 @@ function ImagePlane({
   useEffect(() => {
     if (width && height) {
       setSize({ width, height });
+      setImageSize(width, height);
     }
   }, [width, height]);
-
-  //! Felszabadítjuk a régi texture-t -> GPU memóriából felszabítunk ha unmountolódik
-  useEffect(() => {
-    return () => texture.dispose();
-  }, [texture]);
 
   const mat = new ImageMaterial();
   mat.uTexture = texture;
@@ -127,10 +125,14 @@ function ImagePlane({
 
 export default function ImageWorkPlace() {
   const { imgs, selectedImg } = useWorkSession();
-  const { setTextPosition } = useSessionStore();
+  const { setTextPosition, setImageSize } = useSessionStore();
   const [size, setSize] = useState<{ width: number; height: number } | null>(
     null,
   );
+
+  function setImageDimension(width: number, height: number) {
+    setImageSize(selectedImg, width, height);
+  }
 
   //? shallow: nem generál le újra az objektumot hanem mintha cachelte volna mindig az adott objektumot irja felül / ÖSSZEHASONLÍT
   const filters = useSessionStore((s) => s.getFilters(selectedImg), shallow);
@@ -158,7 +160,6 @@ export default function ImageWorkPlace() {
         overflow={"hidden"}
       >
         {texts.map((element: DraggableImageEvent, index) => {
-          console.log(element);
           return (
             <Draggable
               key={element.id + "-" + index}
@@ -177,13 +178,25 @@ export default function ImageWorkPlace() {
               defaultClassNameDragging="draggable_element_drag"
               defaultClassName="draggable_element"
             >
-              <Box ref={nodeRef} position={"relative"} h="fit" w={"fit"}>
+              <Box
+                ref={nodeRef}
+                position={"relative"}
+                h="fit"
+                w={"fit"}
+                maxW={"full"}
+                maxH={"full"}
+                id={"customTextContent-" + element.id}
+              >
                 <Span
+                  w={"fit"}
+                  h={"fit"}
+                  textWrap={"balance"}
                   style={{
                     fontSize: element.fontSize || 20,
                     fontFamily: element.fontFamily || "Inter",
                     fontWeight: element.fontWeight || 500,
                     color: element.color || "#ffff",
+                    lineHeight: 1,
                   }}
                 >
                   {element.text}
@@ -205,6 +218,7 @@ export default function ImageWorkPlace() {
           src={imgs[selectedImg]}
           filters={filters}
           setSize={setSize}
+          setImageSize={setImageDimension}
         />
       </Canvas>
     </Flex>
