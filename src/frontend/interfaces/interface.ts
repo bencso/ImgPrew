@@ -47,6 +47,13 @@ export interface CustomImage {
   texts?: DraggableImageEvent[];
   filters?: { name: string; value: number }[];
   dimesions?: { width: number; height: number };
+  copyrightImage?: {
+    blob?: ArrayBuffer;
+    position?: {
+      x: number;
+      y: number;
+    };
+  };
 }
 
 export interface SessionStore {
@@ -65,6 +72,18 @@ export interface SessionStore {
         height: number;
       }
     | undefined;
+  //#endregion
+
+  //#region Copyright kép
+  uploadCopyrightImage: (id: number, blob: ArrayBuffer) => void;
+  clearCopyrightImage: (id: number) => void;
+  setCopyrightImagePosition: (
+    id: number,
+    position: {
+      x: number;
+      y: number;
+    },
+  ) => void;
   //#endregion
 
   //#region EXIF

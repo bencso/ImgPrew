@@ -14,10 +14,13 @@ import {
   LuImageDown,
   LuText,
   LuSun,
+  LuImage,
+  LuCopyright,
 } from "react-icons/lu";
 import CaptionBlock from "./caption/captionBlock";
 import Histogram from "./histogram";
 import TextBlock from "./text/textBlock";
+import CopyrightBlock from "./copyright/copyrightBlock";
 
 const sidebarElements = (
   exportAllDataForImage: any,
@@ -48,6 +51,17 @@ const sidebarElements = (
           name: "",
           inputType: "customElement",
           options: <TextBlock />,
+        },
+      ],
+    },
+    {
+      function: "Védjegy",
+      icon: <LuCopyright />,
+      inputs: [
+        {
+          name: "",
+          inputType: "customElement",
+          options: <CopyrightBlock />,
         },
       ],
     },

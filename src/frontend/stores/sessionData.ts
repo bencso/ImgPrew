@@ -5,6 +5,7 @@ import { DraggableImageEvent, SessionStore } from "@/interfaces/interface";
 import { createWithEqualityFn } from "zustand/traditional";
 import { randomUUID, UUID } from "crypto";
 
+//TODO: Get-es függvények kicserélése: useSessionStore((state)=> ....)-re sokkal és akkor akár shallow-wal
 export const useSessionStore = createWithEqualityFn<SessionStore>()(
   immer((set, get) => ({
     //#region ADATOK
@@ -24,13 +25,37 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       }),
     //#endregion
 
+    //#region "Copyright" kép
+    uploadCopyrightImage: (id: number, blob: ArrayBuffer) =>
+      set((state) => {
+        const image = state.sessionData.find((img) => img.id === id);
+
+        if (image) image.copyrightImage = { blob };
+      }),
+    clearCopyrightImage: (id: number) =>
+      set((state) => {
+        const image = state.sessionData.find((img) => img.id === id);
+
+        if (image) image.copyrightImage = {};
+      }),
+    setCopyrightImagePosition: (
+      id: number,
+      position: { x: number; y: number },
+    ) =>
+      set((state) => {
+        const image = state.sessionData.find((img) => img.id === id);
+
+        if (image)
+          image.copyrightImage = {
+            ...image.copyrightImage,
+            position: position,
+          };
+      }),
     //#region KÉP MÉRETEK
     setImageSize: (id: number, width: number, height: number) =>
       set((state) => {
         const image = state.sessionData.find((img) => img.id === id);
-        if (image) {
-          image.dimesions = { width, height };
-        }
+        if (image) image.dimesions = { width, height };
       }),
     getImageSize: (id: number) => {
       return get().sessionData.find((img) => img.id === id)?.dimesions;

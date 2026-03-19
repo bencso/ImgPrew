@@ -4,11 +4,15 @@ import {
   Accordion,
   Box,
   Button,
+  Code,
   ColorPicker,
+  FileUpload,
+  FileUploadList,
   Flex,
   Grid,
   GridItem,
   HStack,
+  Icon,
   IconButton,
   Input,
   NumberInput,
@@ -18,6 +22,7 @@ import {
   Span,
   Stack,
   Text,
+  useFileUpload,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { createListCollection } from "@chakra-ui/react";
@@ -31,11 +36,15 @@ import {
   LuArrowUp,
   LuArrowUpLeft,
   LuArrowUpRight,
+  LuCopyright,
   LuCornerUpLeft,
   LuDot,
   LuTrash,
+  LuUpload,
 } from "react-icons/lu";
 import { shallow } from "zustand/shallow";
+import { ACCEPTED_FILES } from "@/components/upload/dropzone";
+import { toaster } from "@/components/ui/toaster";
 
 const fontWeightCollection = createListCollection({
   items: [
@@ -51,10 +60,12 @@ const fontWeightCollection = createListCollection({
   ],
 });
 
-export default function TextBlock() {
+export default function CopyrightBlock() {
   const { selectedImg, textElements } = useWorkSession();
   const {
-    addTexts,
+    uploadCopyrightImage,
+    clearCopyrightImage,
+    setCopyrightImagePosition,
     setTextFontSize,
     setTextFontWeight,
     deleteText,
@@ -67,28 +78,71 @@ export default function TextBlock() {
     shallow,
   );
 
-  const [text, setText] = useState("");
+  const fileUpload = useFileUpload({
+    maxFiles: 1,
+    accept: ACCEPTED_FILES.join(","),
+    onFileReject(details) {
+      if (details.files.length > 0) {
+        toaster.create({
+          title: "Hiba történt feltöltés közben!",
+          description: `Maximum 1 fájlt tölthetsz fel.`,
+          type: "error",
+        });
+      }
+      return (details.files = []);
+    },
+  });
+
+  const accepted = fileUpload.acceptedFiles;
+
+  if (accepted.length > 0)
+    accepted[0].arrayBuffer().then((buffer) => {
+      uploadCopyrightImage(selectedImg, buffer);
+    });
 
   return (
     <Box>
       <Flex gap={2}>
-        <Input
-          placeholder="Szöveg"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          variant="outline"
-        />
-        <Button
-          variant="outline"
-          colorPalette="teal"
-          onClick={() => {
-            if (!text) return;
-            addTexts(selectedImg, text);
-            setText("");
-          }}
-        >
-          Hozzáadás
-        </Button>
+        <FileUpload.RootProvider value={fileUpload} w="full">
+          <FileUpload.HiddenInput />
+          {accepted.length <= 0 ? (
+            <FileUpload.Dropzone
+              w={"full"}
+              backgroundColor={"teal.subtle/30"}
+              transition={"all 0.2s ease-in-out"}
+              cursor={"pointer"}
+              _hover={{ backgroundColor: "teal.subtle/40" }}
+            >
+              <Icon size="2xl" color="teal.fg">
+                <LuCopyright />
+              </Icon>
+              <FileUpload.DropzoneContent>
+                <Box>Húzza be a feltölteni kívánt fájlokat</Box>
+                <Box color="fg.muted">
+                  {ACCEPTED_FILES.map((file) => {
+                    return file.replaceAll("image/", "");
+                  }).join(", ")}
+                </Box>
+              </FileUpload.DropzoneContent>
+            </FileUpload.Dropzone>
+          ) : (
+            <Box
+              overflowY={"scroll"}
+              scrollbar={"hidden"}
+              maxH={200}
+              w={"full"}
+            >
+              <FileUpload.ItemGroup>
+                {accepted.map((file) => (
+                  <FileUpload.Item key={file.name} file={file}>
+                    <FileUpload.ItemPreview />
+                    <FileUpload.ItemDeleteTrigger />
+                  </FileUpload.Item>
+                ))}
+              </FileUpload.ItemGroup>
+            </Box>
+          )}
+        </FileUpload.RootProvider>
       </Flex>
 
       <Stack gap="2" mt={4}>
