@@ -53,6 +53,7 @@ export interface CustomImage {
       x: number;
       y: number;
     };
+    size?: number;
   };
 }
 
@@ -84,6 +85,7 @@ export interface SessionStore {
       y: number;
     },
   ) => void;
+  setCopyrightImageSize: (id: number, size: number) => void;
   //#endregion
 
   //#region EXIF

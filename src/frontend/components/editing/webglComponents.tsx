@@ -226,6 +226,7 @@ export default function ImageWorkPlace() {
             }}
             src={copyrightImage.blob}
             alt="copyright"
+            height={copyrightImage.size + "px"}
           />
         )}
       </Box>

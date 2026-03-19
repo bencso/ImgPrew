@@ -3,7 +3,7 @@ import { immer } from "zustand/middleware/immer";
 import { RefObject } from "react";
 import { DraggableImageEvent, SessionStore } from "@/interfaces/interface";
 import { createWithEqualityFn } from "zustand/traditional";
-import { randomUUID, UUID } from "crypto";
+import { toaster } from "@/components/ui/toaster";
 
 //TODO: Get-es függvények kicserélése: useSessionStore((state)=> ....)-re sokkal és akkor akár shallow-wal
 export const useSessionStore = createWithEqualityFn<SessionStore>()(
@@ -36,6 +36,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           image.copyrightImage = {
             ...image.copyrightImage,
             blob: url,
+            size: 150,
           };
       }),
     clearCopyrightImage: (id: number) =>
@@ -49,6 +50,14 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       position: { x: number; y: number },
     ) =>
       set((state) => {
+        if (position.x < 0 && position.y < 0) {
+          toaster.create({
+            type: "error",
+            title: "Hibás érték",
+            description: "A pozíció nem lehet kisebb vagy egyenlő, mint 0",
+          });
+          return;
+        }
         const image = state.sessionData.find((img) => img.id === id);
 
         if (image)
@@ -57,9 +66,35 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
             position: position,
           };
       }),
+    setCopyrightImageSize: (id: number, size: number) =>
+      set((state) => {
+        if (size <= 0) {
+          toaster.create({
+            type: "error",
+            title: "Hibás érték",
+            description: "A méret nem lehet kisebb vagy egyenlő, mint 0",
+          });
+          return;
+        }
+        const image = state.sessionData.find((img) => img.id === id);
+
+        if (image)
+          image.copyrightImage = {
+            ...image.copyrightImage,
+            size: size,
+          };
+      }),
     //#region KÉP MÉRETEK
     setImageSize: (id: number, width: number, height: number) =>
       set((state) => {
+        if (height <= 0 || width <= 0) {
+          toaster.create({
+            type: "error",
+            title: "Hibás érték",
+            description: "A méret nem lehet kisebb vagy egyenlő, mint 0",
+          });
+          return;
+        }
         const image = state.sessionData.find((img) => img.id === id);
         if (image) image.dimesions = { width, height };
       }),
@@ -154,6 +189,15 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     },
     setTextFontSize: (imageId: number, textId: string, fontSize: number) =>
       set((state) => {
+        if (fontSize <= 0) {
+          toaster.create({
+            type: "error",
+            title: "Hibás érték",
+            description: "A betűméret nem lehet kisebb vagy egyenlő, mint 0",
+          });
+          return;
+        }
+
         const image = state.sessionData.find((img) => img.id === imageId);
         if (!image || !image.texts) return;
 
@@ -200,6 +244,14 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       position: { x: number; y: number },
     ) =>
       set((state) => {
+        if (position.x < 0 && position.y < 0) {
+          toaster.create({
+            type: "error",
+            title: "Hibás érték",
+            description: "A pozíció nem lehet kisebb vagy egyenlő, mint 0",
+          });
+          return;
+        }
         const image = state.sessionData.find((img) => img.id === imageId);
         if (!image || !image.texts) return;
 

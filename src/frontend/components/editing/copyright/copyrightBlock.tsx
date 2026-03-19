@@ -116,9 +116,15 @@ export default function CopyrightBlock() {
 
 const ImageManipulationBlock = () => {
   const { selectedImg, copyrightImageRef } = useWorkSession();
+  const { setCopyrightImageSize } = useSessionStore();
+
   const imageSize = useSessionStore(
     (s) => s.getImageSize(selectedImg),
     shallow,
+  );
+
+  const copyrightImageSize = useSessionStore((s) =>
+    s.sessionData.filter((sD) => sD.id === selectedImg),
   );
 
   if (copyrightImageRef) {
@@ -139,7 +145,19 @@ const ImageManipulationBlock = () => {
       <Stack gap={5}>
         <Field.Root>
           <Field.Label>Méret</Field.Label>
-          <Input placeholder="20" type="number" />
+          <Input
+            placeholder="Méret"
+            value={
+              copyrightImageSize
+                ? copyrightImageSize[0].copyrightImage?.size
+                : 20
+            }
+            onChange={(e) => {
+              setCopyrightImageSize(selectedImg, Number(e.target.value));
+            }}
+            min={10}
+            type="number"
+          />
         </Field.Root>
         <Grid
           templateRows={"repeat(3, 1fr)"}
