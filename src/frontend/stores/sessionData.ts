@@ -59,7 +59,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           return;
         }
         const image = state.sessionData.find((img) => img.id === id);
-
+        console.log(position);
         if (image)
           image.copyrightImage = {
             ...image.copyrightImage,

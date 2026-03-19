@@ -116,7 +116,8 @@ export default function CopyrightBlock() {
 
 const ImageManipulationBlock = () => {
   const { selectedImg, copyrightImageRef } = useWorkSession();
-  const { setCopyrightImageSize } = useSessionStore();
+  const { setCopyrightImageSize, setCopyrightImagePosition } =
+    useSessionStore();
 
   const imageSize = useSessionStore(
     (s) => s.getImageSize(selectedImg),
@@ -129,11 +130,11 @@ const ImageManipulationBlock = () => {
 
   if (copyrightImageRef) {
     const imagHeigtWithText = imageSize
-      ? imageSize.height - copyrightImageRef.offsetHeight - 20
+      ? imageSize.height - copyrightImageRef.offsetHeight
       : null;
 
     const imagWidthWithText = imageSize
-      ? imageSize.width - copyrightImageRef.offsetWidth - 20
+      ? imageSize.width - copyrightImageRef.offsetWidth
       : null;
 
     const imageHalfWithText = imageSize
@@ -164,37 +165,127 @@ const ImageManipulationBlock = () => {
           gap={2}
           alignItems={"center"}
           justifyContent={"center"}
+          w={"full"}
         >
           <GridItem display={"flex"} gap={2}>
-            <IconButton colorPalette={"teal"} variant={"subtle"}>
+            <IconButton
+              colorPalette={"teal"}
+              variant={"subtle"}
+              onClick={() => {
+                setCopyrightImagePosition(selectedImg, {
+                  y: 5,
+                  x: 5,
+                });
+              }}
+            >
               <LuArrowUpLeft />
             </IconButton>
-            <IconButton colorPalette={"teal"} variant={"subtle"}>
+            <IconButton
+              colorPalette={"teal"}
+              variant={"subtle"}
+              onClick={() => {
+                if (imageSize && imageHalfWithText)
+                  setCopyrightImagePosition(selectedImg, {
+                    y: 5,
+                    x: imageHalfWithText,
+                  });
+              }}
+            >
               <LuArrowUp />
             </IconButton>
-            <IconButton colorPalette={"teal"} variant={"subtle"}>
+            <IconButton
+              colorPalette={"teal"}
+              variant={"subtle"}
+              onClick={() => {
+                if (imageSize && imagWidthWithText)
+                  setCopyrightImagePosition(selectedImg, {
+                    y: 5,
+                    x: imagWidthWithText,
+                  });
+              }}
+            >
               <LuArrowUpRight />
             </IconButton>
           </GridItem>
           <GridItem display={"flex"} gap={2}>
-            <IconButton colorPalette={"teal"} variant={"subtle"}>
+            <IconButton
+              colorPalette={"teal"}
+              variant={"subtle"}
+              onClick={() => {
+                if (imageSize && imagHeigtWithText)
+                  setCopyrightImagePosition(selectedImg, {
+                    y: imagHeigtWithText / 2,
+                    x: 5,
+                  });
+              }}
+            >
               <LuArrowLeft />
             </IconButton>
-            <IconButton colorPalette={"teal"} variant={"subtle"}>
+            <IconButton
+              colorPalette={"teal"}
+              variant={"subtle"}
+              onClick={() => {
+                if (imageSize && imagHeigtWithText && imageHalfWithText)
+                  setCopyrightImagePosition(selectedImg, {
+                    y: imagHeigtWithText / 2,
+                    x: imageHalfWithText,
+                  });
+              }}
+            >
               <LuDot />
             </IconButton>
-            <IconButton colorPalette={"teal"} variant={"subtle"}>
+            <IconButton
+              colorPalette={"teal"}
+              variant={"subtle"}
+              onClick={() => {
+                if (imageSize && imagHeigtWithText && imagWidthWithText)
+                  setCopyrightImagePosition(selectedImg, {
+                    y: imagHeigtWithText / 2,
+                    x: imagWidthWithText,
+                  });
+              }}
+            >
               <LuArrowRight />
             </IconButton>
           </GridItem>
           <GridItem display={"flex"} gap={2}>
-            <IconButton colorPalette={"teal"} variant={"subtle"}>
+            <IconButton
+              colorPalette={"teal"}
+              variant={"subtle"}
+              onClick={() => {
+                if (imageSize && imagHeigtWithText)
+                  setCopyrightImagePosition(selectedImg, {
+                    y: imagHeigtWithText,
+                    x: 5,
+                  });
+              }}
+            >
               <LuArrowDownLeft />
             </IconButton>
-            <IconButton colorPalette={"teal"} variant={"subtle"}>
+            <IconButton
+              colorPalette={"teal"}
+              variant={"subtle"}
+              onClick={() => {
+                if (imageSize && imagHeigtWithText && imageHalfWithText)
+                  setCopyrightImagePosition(selectedImg, {
+                    y: imagHeigtWithText,
+                    x: imageHalfWithText,
+                  });
+              }}
+            >
               <LuArrowDown />
             </IconButton>
-            <IconButton colorPalette={"teal"} variant={"subtle"}>
+            <IconButton
+              colorPalette={"teal"}
+              variant={"subtle"}
+              onClick={() => {
+                if (imageSize && imagHeigtWithText && imagWidthWithText)
+                  setCopyrightImagePosition(selectedImg, {
+                    y: imagHeigtWithText,
+                    x: imagWidthWithText,
+                  });
+              }}
+            >
               <LuArrowDownRight />
             </IconButton>
           </GridItem>
