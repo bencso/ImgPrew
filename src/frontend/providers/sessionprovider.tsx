@@ -31,6 +31,36 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
   const [copyrightImageRef, setCopyrightImageRef] =
     useState<HTMLImageElement | null>(null);
 
+  const calcImageHeightWithElement = (
+    imageSize: {
+      width: number;
+      height: number;
+    },
+    elementRef: HTMLElement,
+  ) => {
+    return imageSize ? imageSize.height - elementRef.offsetHeight : null;
+  };
+
+  const calcImageWidthWithElement = (
+    imageSize: {
+      width: number;
+      height: number;
+    },
+    elementRef: HTMLElement,
+  ) => {
+    return imageSize ? imageSize.width - elementRef.offsetWidth : null;
+  };
+
+  const calcImageHalfWithText = (
+    imageSize: {
+      width: number;
+      height: number;
+    },
+    elementRef: HTMLElement,
+  ) => {
+    return imageSize ? imageSize.width / 2 - elementRef.offsetWidth / 2 : null;
+  };
+
   const { sendMessage } = useWebsocket();
 
   const { functions, addFunction, editFunction } = useFunctionsStore();
@@ -61,6 +91,9 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       setTextElements,
       copyrightImageRef,
       setCopyrightImageRef,
+      calcImageHeightWithElement,
+      calcImageWidthWithElement,
+      calcImageHalfWithText,
     }),
     [
       imgs,
@@ -70,6 +103,9 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       sessionData,
       textElements,
       copyrightImageRef,
+      calcImageHeightWithElement,
+      calcImageWidthWithElement,
+      calcImageHalfWithText,
     ],
   );
 

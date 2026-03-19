@@ -38,7 +38,7 @@ export default function Page() {
   //#region WebSocket kezelés
   useEffect(() => {
     const wscurr = ws.current;
-    if (!wscurr) return;  
+    if (!wscurr) return;
 
     const messageHandler = (event: MessageEvent) => {
       handleMessage(

@@ -207,6 +207,27 @@ export interface WorkSessionContextProps {
   setTextElements: Dispatch<SetStateAction<Record<UUID, HTMLElement>>>;
   copyrightImageRef: HTMLImageElement | null;
   setCopyrightImageRef: Dispatch<SetStateAction<HTMLImageElement | null>>;
+  calcImageHalfWithText: (
+    imageSize: {
+      width: number;
+      height: number;
+    },
+    elementRef: HTMLElement,
+  ) => number | null;
+  calcImageWidthWithElement: (
+    imageSize: {
+      width: number;
+      height: number;
+    },
+    elementRef: HTMLElement,
+  ) => number | null;
+  calcImageHeightWithElement: (
+    imageSize: {
+      width: number;
+      height: number;
+    },
+    elementRef: HTMLElement,
+  ) => number | null;
 }
 //#endregion
 

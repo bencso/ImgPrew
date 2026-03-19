@@ -29,6 +29,7 @@ import {
 import { shallow } from "zustand/shallow";
 import { ACCEPTED_FILES } from "@/components/upload/dropzone";
 import { toaster } from "@/components/ui/toaster";
+import { useEffect, useState } from "react";
 
 export default function CopyrightBlock() {
   const { selectedImg, setCopyrightImageRef } = useWorkSession();
@@ -115,9 +116,18 @@ export default function CopyrightBlock() {
 }
 
 const ImageManipulationBlock = () => {
-  const { selectedImg, copyrightImageRef } = useWorkSession();
+  const {
+    selectedImg,
+    copyrightImageRef,
+    calcImageHeightWithElement,
+    calcImageWidthWithElement,
+    calcImageHalfWithText,
+  } = useWorkSession();
   const { setCopyrightImageSize, setCopyrightImagePosition } =
     useSessionStore();
+  const [imageHeightWithCP, setImageHeightWithCP] = useState<number>(0);
+  const [imageWidthWithCP, setImageWidthWithCP] = useState<number>(0);
+  const [imageHalfWithCP, setImageHalfWithCP] = useState<number>(0);
 
   const imageSize = useSessionStore(
     (s) => s.getImageSize(selectedImg),
@@ -128,20 +138,22 @@ const ImageManipulationBlock = () => {
     s.sessionData.filter((sD) => sD.id === selectedImg),
   );
 
+  //TODO: Azt kell csinálni hogy a gombokkal x/y: "LEFT|CENTER|RIGHT"-ot állítunk és mindig triggereljük majd az ujraszámolásra,
+  // és elvileg akkor mindig tartja magát ha még window resizeolodik
+  useEffect(() => {
+    if (imageSize && copyrightImageRef) {
+      const imageHalf = calcImageHalfWithText(imageSize, copyrightImageRef);
+      if (imageHalf) setImageHalfWithCP(imageHalf);
+
+      const imageWCP = calcImageWidthWithElement(imageSize, copyrightImageRef);
+      if (imageWCP) setImageWidthWithCP(imageWCP);
+
+      const imageHCP = calcImageHeightWithElement(imageSize, copyrightImageRef);
+      if (imageHCP) setImageHeightWithCP(imageHCP);
+    }
+  }, [imageSize, copyrightImageRef]);
+
   if (copyrightImageRef) {
-    const imagHeigtWithText = imageSize
-      ? imageSize.height - copyrightImageRef.offsetHeight
-      : null;
-
-    const imagWidthWithText = imageSize
-      ? imageSize.width - copyrightImageRef.offsetWidth
-      : null;
-
-    const imageHalfWithText = imageSize
-      ? imageSize.width / 2 - copyrightImageRef.offsetWidth / 2
-      : null;
-
-    console.log(imageHalfWithText);
     return (
       <Stack gap={5}>
         <Field.Root>
@@ -184,10 +196,10 @@ const ImageManipulationBlock = () => {
               colorPalette={"teal"}
               variant={"subtle"}
               onClick={() => {
-                if (imageSize && imageHalfWithText)
+                if (imageSize && imageHalfWithCP)
                   setCopyrightImagePosition(selectedImg, {
                     y: 5,
-                    x: imageHalfWithText,
+                    x: imageHalfWithCP,
                   });
               }}
             >
@@ -197,10 +209,10 @@ const ImageManipulationBlock = () => {
               colorPalette={"teal"}
               variant={"subtle"}
               onClick={() => {
-                if (imageSize && imagWidthWithText)
+                if (imageSize && imageWidthWithCP)
                   setCopyrightImagePosition(selectedImg, {
                     y: 5,
-                    x: imagWidthWithText,
+                    x: imageWidthWithCP,
                   });
               }}
             >
@@ -212,9 +224,9 @@ const ImageManipulationBlock = () => {
               colorPalette={"teal"}
               variant={"subtle"}
               onClick={() => {
-                if (imageSize && imagHeigtWithText)
+                if (imageSize && imageHeightWithCP)
                   setCopyrightImagePosition(selectedImg, {
-                    y: imagHeigtWithText / 2,
+                    y: imageHeightWithCP / 2,
                     x: 5,
                   });
               }}
@@ -225,10 +237,10 @@ const ImageManipulationBlock = () => {
               colorPalette={"teal"}
               variant={"subtle"}
               onClick={() => {
-                if (imageSize && imagHeigtWithText && imageHalfWithText)
+                if (imageSize && imageHeightWithCP && imageHalfWithCP)
                   setCopyrightImagePosition(selectedImg, {
-                    y: imagHeigtWithText / 2,
-                    x: imageHalfWithText,
+                    y: imageHeightWithCP / 2,
+                    x: imageHalfWithCP,
                   });
               }}
             >
@@ -238,10 +250,10 @@ const ImageManipulationBlock = () => {
               colorPalette={"teal"}
               variant={"subtle"}
               onClick={() => {
-                if (imageSize && imagHeigtWithText && imagWidthWithText)
+                if (imageSize && imageHeightWithCP && imageWidthWithCP)
                   setCopyrightImagePosition(selectedImg, {
-                    y: imagHeigtWithText / 2,
-                    x: imagWidthWithText,
+                    y: imageHeightWithCP / 2,
+                    x: imageWidthWithCP,
                   });
               }}
             >
@@ -253,9 +265,9 @@ const ImageManipulationBlock = () => {
               colorPalette={"teal"}
               variant={"subtle"}
               onClick={() => {
-                if (imageSize && imagHeigtWithText)
+                if (imageSize && imageHeightWithCP)
                   setCopyrightImagePosition(selectedImg, {
-                    y: imagHeigtWithText,
+                    y: imageHeightWithCP,
                     x: 5,
                   });
               }}
@@ -266,10 +278,10 @@ const ImageManipulationBlock = () => {
               colorPalette={"teal"}
               variant={"subtle"}
               onClick={() => {
-                if (imageSize && imagHeigtWithText && imageHalfWithText)
+                if (imageSize && imageHeightWithCP && imageHalfWithCP)
                   setCopyrightImagePosition(selectedImg, {
-                    y: imagHeigtWithText,
-                    x: imageHalfWithText,
+                    y: imageHeightWithCP,
+                    x: imageHalfWithCP,
                   });
               }}
             >
@@ -279,10 +291,10 @@ const ImageManipulationBlock = () => {
               colorPalette={"teal"}
               variant={"subtle"}
               onClick={() => {
-                if (imageSize && imagHeigtWithText && imagWidthWithText)
+                if (imageSize && imageHeightWithCP && imageWidthWithCP)
                   setCopyrightImagePosition(selectedImg, {
-                    y: imagHeigtWithText,
-                    x: imagWidthWithText,
+                    y: imageHeightWithCP,
+                    x: imageWidthWithCP,
                   });
               }}
             >

@@ -8,7 +8,6 @@ import * as THREE from "three";
 import Draggable from "react-draggable";
 import { shallow } from "zustand/shallow";
 import { DraggableImageEvent } from "@/interfaces/interface";
-import { UUID } from "crypto";
 
 const ImageMaterial = shaderMaterial(
   {
@@ -227,7 +226,7 @@ export default function ImageWorkPlace() {
             src={copyrightImage.blob}
             alt="copyright"
             height={copyrightImage.size + "px"}
-            position={"absolute"}
+            position={"relative"}
             left={copyrightImage.position ? copyrightImage.position?.x : 0}
             top={copyrightImage.position ? copyrightImage.position?.y : 0}
           />
