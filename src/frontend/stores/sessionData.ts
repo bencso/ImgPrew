@@ -29,8 +29,14 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     uploadCopyrightImage: (id: number, blob: ArrayBuffer) =>
       set((state) => {
         const image = state.sessionData.find((img) => img.id === id);
+        const blobConvert = new Blob([blob], { type: "image/png" });
+        const url = URL.createObjectURL(blobConvert);
 
-        if (image) image.copyrightImage = { blob };
+        if (image && url)
+          image.copyrightImage = {
+            ...image.copyrightImage,
+            blob: url,
+          };
       }),
     clearCopyrightImage: (id: number) =>
       set((state) => {

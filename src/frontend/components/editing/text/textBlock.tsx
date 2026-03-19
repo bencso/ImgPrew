@@ -144,139 +144,6 @@ export default function TextBlock() {
 
                 <Accordion.ItemContent>
                   <Accordion.ItemBody gap={4} display="flex" flexDir="column">
-                    {/* Szöveg elhelyezése */}
-                    <Grid
-                      templateRows={"repeat(3, 1fr)"}
-                      gap={2}
-                      alignItems={"center"}
-                      justifyContent={"center"}
-                    >
-                      <GridItem display={"flex"} gap={2}>
-                        <IconButton
-                          onClick={() => {
-                            setTextPosition(selectedImg, text.id, {
-                              y: 10,
-                              x: 20,
-                            });
-                          }}
-                        >
-                          <LuArrowUpLeft />
-                        </IconButton>
-                        <IconButton
-                          onClick={() => {
-                            if (element && imageSize && imageHalfWithText)
-                              setTextPosition(selectedImg, text.id, {
-                                y: 10,
-                                x: imageHalfWithText,
-                              });
-                          }}
-                        >
-                          <LuArrowUp />
-                        </IconButton>
-                        <IconButton
-                          onClick={() => {
-                            if (element && imageSize && imagWidthWithText)
-                              setTextPosition(selectedImg, text.id, {
-                                y: 10,
-                                x: imagWidthWithText,
-                              });
-                          }}
-                        >
-                          <LuArrowUpRight />
-                        </IconButton>
-                      </GridItem>
-                      <GridItem display={"flex"} gap={2}>
-                        <IconButton
-                          onClick={() => {
-                            if (element && imageSize && imagHeigtWithText)
-                              setTextPosition(selectedImg, text.id, {
-                                y: imagHeigtWithText / 2,
-                                x: 10,
-                              });
-                          }}
-                        >
-                          <LuArrowLeft />
-                        </IconButton>
-                        <IconButton
-                          onClick={() => {
-                            if (
-                              element &&
-                              imageSize &&
-                              imagHeigtWithText &&
-                              imageHalfWithText
-                            )
-                              setTextPosition(selectedImg, text.id, {
-                                y: imagHeigtWithText / 2,
-                                x: imageHalfWithText,
-                              });
-                          }}
-                        >
-                          <LuDot />
-                        </IconButton>
-                        <IconButton
-                          onClick={() => {
-                            if (
-                              element &&
-                              imageSize &&
-                              imagHeigtWithText &&
-                              imagWidthWithText
-                            )
-                              setTextPosition(selectedImg, text.id, {
-                                y: imagHeigtWithText / 2,
-                                x: imagWidthWithText,
-                              });
-                          }}
-                        >
-                          <LuArrowRight />
-                        </IconButton>
-                      </GridItem>
-                      <GridItem display={"flex"} gap={2}>
-                        <IconButton
-                          onClick={() => {
-                            if (element && imageSize && imagHeigtWithText)
-                              setTextPosition(selectedImg, text.id, {
-                                y: imagHeigtWithText,
-                                x: 20,
-                              });
-                          }}
-                        >
-                          <LuArrowDownLeft />
-                        </IconButton>
-                        <IconButton
-                          onClick={() => {
-                            if (
-                              element &&
-                              imageSize &&
-                              imagHeigtWithText &&
-                              imageHalfWithText
-                            )
-                              setTextPosition(selectedImg, text.id, {
-                                y: imagHeigtWithText,
-                                x: imageHalfWithText,
-                              });
-                          }}
-                        >
-                          <LuArrowDown />
-                        </IconButton>
-                        <IconButton
-                          onClick={() => {
-                            if (
-                              element &&
-                              imageSize &&
-                              imagHeigtWithText &&
-                              imagWidthWithText
-                            )
-                              setTextPosition(selectedImg, text.id, {
-                                y: imagHeigtWithText,
-                                x: imagWidthWithText,
-                              });
-                          }}
-                        >
-                          <LuArrowDownRight />
-                        </IconButton>
-                      </GridItem>
-                    </Grid>
-
                     {/* Szöveg méret */}
                     <Flex gap={4} width="full" alignItems="center">
                       <Text w="fit">Méret</Text>
@@ -381,6 +248,157 @@ export default function TextBlock() {
                         </Portal>
                       </ColorPicker.Root>
                     </Flex>
+                    {/* Szöveg elhelyezése */}
+                    <Grid
+                      templateRows={"repeat(3, 1fr)"}
+                      gap={2}
+                      alignItems={"center"}
+                      justifyContent={"center"}
+                      w={"full"}
+                    >
+                      <GridItem display={"flex"} gap={2}>
+                        <IconButton
+                          colorPalette={"teal"}
+                          variant={"subtle"}
+                          onClick={() => {
+                            setTextPosition(selectedImg, text.id, {
+                              y: 10,
+                              x: 20,
+                            });
+                          }}
+                        >
+                          <LuArrowUpLeft />
+                        </IconButton>
+                        <IconButton
+                          colorPalette={"teal"}
+                          variant={"subtle"}
+                          onClick={() => {
+                            if (element && imageSize && imageHalfWithText)
+                              setTextPosition(selectedImg, text.id, {
+                                y: 10,
+                                x: imageHalfWithText,
+                              });
+                          }}
+                        >
+                          <LuArrowUp />
+                        </IconButton>
+                        <IconButton
+                          colorPalette={"teal"}
+                          variant={"subtle"}
+                          onClick={() => {
+                            if (element && imageSize && imagWidthWithText)
+                              setTextPosition(selectedImg, text.id, {
+                                y: 10,
+                                x: imagWidthWithText,
+                              });
+                          }}
+                        >
+                          <LuArrowUpRight />
+                        </IconButton>
+                      </GridItem>
+                      <GridItem display={"flex"} gap={2}>
+                        <IconButton
+                          colorPalette={"teal"}
+                          variant={"subtle"}
+                          onClick={() => {
+                            if (element && imageSize && imagHeigtWithText)
+                              setTextPosition(selectedImg, text.id, {
+                                y: imagHeigtWithText / 2,
+                                x: 10,
+                              });
+                          }}
+                        >
+                          <LuArrowLeft />
+                        </IconButton>
+                        <IconButton
+                          colorPalette={"teal"}
+                          variant={"subtle"}
+                          onClick={() => {
+                            if (
+                              element &&
+                              imageSize &&
+                              imagHeigtWithText &&
+                              imageHalfWithText
+                            )
+                              setTextPosition(selectedImg, text.id, {
+                                y: imagHeigtWithText / 2,
+                                x: imageHalfWithText,
+                              });
+                          }}
+                        >
+                          <LuDot />
+                        </IconButton>
+                        <IconButton
+                          colorPalette={"teal"}
+                          variant={"subtle"}
+                          onClick={() => {
+                            if (
+                              element &&
+                              imageSize &&
+                              imagHeigtWithText &&
+                              imagWidthWithText
+                            )
+                              setTextPosition(selectedImg, text.id, {
+                                y: imagHeigtWithText / 2,
+                                x: imagWidthWithText,
+                              });
+                          }}
+                        >
+                          <LuArrowRight />
+                        </IconButton>
+                      </GridItem>
+                      <GridItem display={"flex"} gap={2}>
+                        <IconButton
+                          colorPalette={"teal"}
+                          variant={"subtle"}
+                          onClick={() => {
+                            if (element && imageSize && imagHeigtWithText)
+                              setTextPosition(selectedImg, text.id, {
+                                y: imagHeigtWithText,
+                                x: 20,
+                              });
+                          }}
+                        >
+                          <LuArrowDownLeft />
+                        </IconButton>
+                        <IconButton
+                          colorPalette={"teal"}
+                          variant={"subtle"}
+                          onClick={() => {
+                            if (
+                              element &&
+                              imageSize &&
+                              imagHeigtWithText &&
+                              imageHalfWithText
+                            )
+                              setTextPosition(selectedImg, text.id, {
+                                y: imagHeigtWithText,
+                                x: imageHalfWithText,
+                              });
+                          }}
+                        >
+                          <LuArrowDown />
+                        </IconButton>
+                        <IconButton
+                          colorPalette={"teal"}
+                          variant={"subtle"}
+                          onClick={() => {
+                            if (
+                              element &&
+                              imageSize &&
+                              imagHeigtWithText &&
+                              imagWidthWithText
+                            )
+                              setTextPosition(selectedImg, text.id, {
+                                y: imagHeigtWithText,
+                                x: imagWidthWithText,
+                              });
+                          }}
+                        >
+                          <LuArrowDownRight />
+                        </IconButton>
+                      </GridItem>
+                    </Grid>
                   </Accordion.ItemBody>
                 </Accordion.ItemContent>
               </Accordion.Item>

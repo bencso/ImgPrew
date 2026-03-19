@@ -28,6 +28,8 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
   const [textElements, setTextElements] = useState<Record<string, HTMLElement>>(
     {},
   );
+  const [copyrightImageRef, setCopyrightImageRef] =
+    useState<HTMLImageElement | null>(null);
 
   const { sendMessage } = useWebsocket();
 
@@ -57,8 +59,18 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       setSessionData,
       textElements,
       setTextElements,
+      copyrightImageRef,
+      setCopyrightImageRef,
     }),
-    [imgs, step, selectedImg, functions, sessionData, textElements],
+    [
+      imgs,
+      step,
+      selectedImg,
+      functions,
+      sessionData,
+      textElements,
+      copyrightImageRef,
+    ],
   );
 
   return (

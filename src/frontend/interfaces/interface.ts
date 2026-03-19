@@ -48,7 +48,7 @@ export interface CustomImage {
   filters?: { name: string; value: number }[];
   dimesions?: { width: number; height: number };
   copyrightImage?: {
-    blob?: ArrayBuffer;
+    blob?: string;
     position?: {
       x: number;
       y: number;
@@ -203,6 +203,8 @@ export interface WorkSessionContextProps {
   ) => void;
   textElements: Record<string, HTMLElement>;
   setTextElements: Dispatch<SetStateAction<Record<UUID, HTMLElement>>>;
+  copyrightImageRef: HTMLImageElement | null;
+  setCopyrightImageRef: Dispatch<SetStateAction<HTMLImageElement | null>>;
 }
 //#endregion
 

@@ -1,6 +1,6 @@
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
-import { Box, Flex, Span } from "@chakra-ui/react";
+import { Box, Flex, Image, Span } from "@chakra-ui/react";
 import { shaderMaterial } from "@react-three/drei";
 import { Canvas, extend, useLoader, useThree } from "@react-three/fiber";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
@@ -125,12 +125,23 @@ function ImagePlane({
 }
 
 export default function ImageWorkPlace() {
-  const { imgs, selectedImg, textElements, setTextElements } = useWorkSession();
+  const {
+    imgs,
+    selectedImg,
+    textElements,
+    setTextElements,
+    setCopyrightImageRef,
+  } = useWorkSession();
   const { setTextPosition, setImageSize } = useSessionStore();
   const [size, setSize] = useState<{ width: number; height: number } | null>(
     null,
   );
 
+  const copyrightImage = useSessionStore(
+    (s) => s.sessionData.find((sD) => sD.id === selectedImg)?.copyrightImage,
+  );
+
+  //
   function setImageDimension(width: number, height: number) {
     setImageSize(selectedImg, width, height);
   }
@@ -208,6 +219,15 @@ export default function ImageWorkPlace() {
             </Draggable>
           );
         })}
+        {copyrightImage && copyrightImage.blob && (
+          <Image
+            ref={(el) => {
+              if (el) setCopyrightImageRef(el);
+            }}
+            src={copyrightImage.blob}
+            alt="copyright"
+          />
+        )}
       </Box>
       <Canvas
         orthographic
