@@ -151,10 +151,13 @@ export default function ImageWorkPlace() {
     setImageSize(selectedImg, width, height);
   }
 
-  //? shallow: nem generál le újra az objektumot hanem mintha cachelte volna mindig az adott objektumot irja felül / ÖSSZEHASONLÍT
+  //! shallow: nem generál le újra az objektumot hanem mintha cachelte volna mindig az adott objektumot irja felül / ÖSSZEHASONLÍT
   const filters = useSessionStore((s) => s.getFilters(selectedImg), shallow);
   const nodeRef = useRef<HTMLDivElement>(null);
-  const texts = useSessionStore((s) => s.getTexts(selectedImg), shallow);
+  const texts = useSessionStore(
+    (s) => s.sessionData.find((si) => si.id === selectedImg)?.texts || [],
+    shallow,
+  );
 
   const setTextRef = (textId: string) => (el: any) => {
     if (el && textElements[textId] !== el) {
@@ -165,6 +168,7 @@ export default function ImageWorkPlace() {
     }
   };
 
+  //#region CP position manipuláció
   const [cpPosition, setCpPosition] = useState<{ x: number; y: number }>({
     x: 5,
     y: 5,
@@ -185,8 +189,8 @@ export default function ImageWorkPlace() {
       x: position.x,
       y: position.y,
     });
-    console.log(cpPosition);
   }, [selectedImg, copyrightImageSize, copyrightImageRef]);
+  //#endregion
 
   return (
     <Flex

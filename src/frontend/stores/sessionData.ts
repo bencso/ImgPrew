@@ -12,7 +12,6 @@ import {
 import { createWithEqualityFn } from "zustand/traditional";
 import { toaster } from "@/components/ui/toaster";
 
-//TODO: Get-es függvények kicserélése: useSessionStore((state)=> ....)-re sokkal és akkor akár shallow-wal
 export const useSessionStore = createWithEqualityFn<SessionStore>()(
   immer((set, get) => ({
     //#region ADATOK
@@ -85,7 +84,6 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
               case YPositions.TOP:
                 return { x: imageHalf, y: 5 };
               case YPositions.CENTER:
-                console.log("CC");
                 return { x: imageHalf, y: imageHCP / 2 };
               case YPositions.BOTTOM:
                 return { x: imageHalf, y: imageHCP };
@@ -133,7 +131,6 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     ) =>
       set((state) => {
         const image = state.sessionData.find((img) => img.id === id);
-        console.log(position);
         if (image)
           image.copyrightImage = {
             ...image.copyrightImage,
@@ -172,9 +169,6 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         const image = state.sessionData.find((img) => img.id === id);
         if (image) image.dimesions = { width, height };
       }),
-    getImageSize: (id: number) => {
-      return get().sessionData.find((img) => img.id === id)?.dimesions;
-    },
     //#endregion
 
     //#region EXIF ADATOK
@@ -183,9 +177,6 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         const image = state.sessionData.find((img) => img.id === id);
         if (image) image.exifDatas = exif;
       }),
-    getSelectedImageExif: (id: number) => {
-      return get().sessionData.find((img) => img.id === id)?.exifDatas || [];
-    },
     //#endregion
 
     //#region CAPTION SAMPLES
@@ -194,22 +185,19 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         const image = state.sessionData.find((img) => img.id === id);
         if (image) image.captionSamples = captionSamples;
       }),
-    getCaptionSamples: (id: number) => {
-      return (
-        get().sessionData.find((img) => img.id === id)?.captionSamples || []
-      );
-    },
     //#endregion
 
     //#region CAPTION
+    getCaptionForImage: (id: number) => {
+      return (
+        get().sessionData.find((img) => img.id === id)?.caption || ""
+      );
+    },
     setCaptionForImage: (id: number, caption: string) =>
       set((state) => {
         const image = state.sessionData.find((img) => img.id === id);
         if (image) image.caption = caption;
       }),
-    getCaptionForImage: (id: number) => {
-      return get().sessionData.find((img) => img.id === id)?.caption || "";
-    },
     //#endregion
 
     //#region EXPORT FILE EXTENSION
@@ -218,12 +206,6 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         const image = state.sessionData.find((img) => img.id === id);
         if (image) image.exportFileExtension = extension;
       }),
-    getExportFileExtension: (id: number) => {
-      return (
-        get().sessionData.find((img) => img.id === id)?.exportFileExtension ||
-        ""
-      );
-    },
     //#endregion
 
     //#region TEXT
@@ -257,9 +239,6 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         const removedText = image.texts.filter((text) => text.id != textId);
         image.texts = removedText.length > 0 ? [...removedText] : [];
       });
-    },
-    getTexts: (imageId: number) => {
-      return get().sessionData.find((img) => img.id === imageId)?.texts || [];
     },
     setTextFontSize: (imageId: number, textId: string, fontSize: number) =>
       set((state) => {

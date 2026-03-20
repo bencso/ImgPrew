@@ -126,7 +126,7 @@ const ImageManipulationBlock = () => {
     useSessionStore();
 
   const imageSize = useSessionStore(
-    (s) => s.getImageSize(selectedImg),
+    (s) => s.sessionData.find((img) => img.id === selectedImg)?.dimesions,
     shallow,
   );
 

@@ -61,9 +61,12 @@ export default function TextBlock() {
     setTextColor,
     setTextPosition,
   } = useSessionStore();
-  const texts = useSessionStore((s) => s.getTexts(selectedImg), shallow);
+  const texts = useSessionStore(
+    (s) => s.sessionData.find((si) => si.id === selectedImg)?.texts || [],
+    shallow,
+  );
   const imageSize = useSessionStore(
-    (s) => s.getImageSize(selectedImg),
+    (s) => s.sessionData.find((img) => img.id === selectedImg)?.dimesions,
     shallow,
   );
 
@@ -98,7 +101,6 @@ export default function TextBlock() {
             // (mert így fogjuk átadni majd a backendnek)
             const element = textElements[text.id];
             if (!element) return;
-            console.log(imageSize ? imageSize : null);
 
             const imagHeigtWithText = imageSize
               ? imageSize.height - element.offsetHeight - 20

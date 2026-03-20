@@ -94,12 +94,6 @@ export interface SessionStore {
 
   //#region MÉRETEK
   setImageSize: (id: number, width: number, height: number) => void;
-  getImageSize: (id: number) =>
-    | {
-        width: number;
-        height: number;
-      }
-    | undefined;
   //#endregion
 
   //#region Copyright kép
@@ -116,12 +110,10 @@ export interface SessionStore {
   //#endregion
 
   //#region EXIF
-  getSelectedImageExif: (id: number) => string[];
   setExifDataForImage: (id: number, exif: string[]) => any;
   //#endregion
 
   //#region CAPTION SAMPLES
-  getCaptionSamples: (id: number) => string[];
   setCaptionSamplesForImage: (id: number, captionSamples: string[]) => any;
   //#endregion
 
@@ -131,13 +123,11 @@ export interface SessionStore {
   //#endregion
 
   //#region EXPORT FILE EXTENSION
-  getExportFileExtension: (id: number) => string;
   setExportFileExtension: (id: number, extension: string) => any;
   //#endregion
 
   //#region TEXT
   addTexts: (imageId: number, text: string) => any;
-  getTexts: (imageId: number) => DraggableImageEvent[];
   deleteText: (imageId: number, textId: string) => void;
   setTextFontSize: (imageId: number, textId: string, fontSize: number) => any;
   setTextFontWeight: (

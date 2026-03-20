@@ -196,7 +196,6 @@ export default function SideBar() {
     sessionData,
     setExportFileExtension,
     exportAllDataForImage,
-    getExportFileExtension,
     editFilters,
     getFilterValue,
   } = useSessionStore();
@@ -211,8 +210,13 @@ export default function SideBar() {
   }, []);
 
   //#region sidebar funkciók
+  const selectedExtension =
+    useSessionStore(
+      (s) =>
+        s.sessionData.find((si) => si.id === selectedImg)?.exportFileExtension,
+    ) || "";
+
   useMemo(() => {
-    const selectedExtension = getExportFileExtension(selectedImg);
     setEditItems(
       sidebarElements(
         exportAllDataForImage,
