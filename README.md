@@ -5,7 +5,6 @@
 ![version](https://img.shields.io/badge/verzió-v0.1-black?style=for-the-badge)
 ![status](https://img.shields.io/badge/státusz-folyamatban-blue?style=for-the-badge)
 ![target](https://img.shields.io/badge/Cél-2026%20Q2-red?style=for-the-badge)
-![license](https://img.shields.io/badge/licensz-MIT-green?style=for-the-badge)
 
 </div>
 
