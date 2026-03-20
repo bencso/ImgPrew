@@ -290,9 +290,6 @@ export default function ImageWorkPlace() {
             hideThrottleDragRotateLine
             edgeDraggable={false}
             origin={false}
-            onDragEnd={() => {
-              setDraggableId(null);
-            }}
             startDragRotate={0}
             throttleDragRotate={0}
             onDrag={(e) => {
