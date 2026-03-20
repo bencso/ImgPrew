@@ -98,6 +98,55 @@ timeline
 
 ---
 
+## Mappa struktúra
+
+```mermaid
+graph TD
+n_2[src/]
+n_3[backend/]
+n_4[classes/]
+n_5[functions/]
+n_6[frontend/]
+n_7[app/]
+n_8[components/]
+n_9[editing/]
+n_10[caption/]
+n_11[copyright/]
+n_12[lut/]
+n_13[text/]
+n_14[icons/]
+n_15[sidebar/]
+n_16[ui/]
+n_17[upload/]
+n_18[interfaces/]
+n_19[providers/]
+n_20[stores/]
+n_21[websocket/]
+n_22[handlers/]
+n_2 --> n_3
+n_3 --> n_4
+n_3 --> n_5
+n_2 --> n_6
+n_6 --> n_7
+n_6 --> n_8
+n_8 --> n_9
+n_9 --> n_10
+n_9 --> n_11
+n_9 --> n_12
+n_9 --> n_13
+n_8 --> n_14
+n_8 --> n_15
+n_8 --> n_16
+n_8 --> n_17
+n_6 --> n_18
+n_6 --> n_19
+n_6 --> n_20
+n_6 --> n_21
+n_21 --> n_22
+```
+
+---
+
 ## Közreműködés
 
 A projekt jelenleg **fejlesztés alatt** áll, ezért külső hozzájárulás még nem elérhető.
