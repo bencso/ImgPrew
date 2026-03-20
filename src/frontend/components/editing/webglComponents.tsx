@@ -5,12 +5,13 @@ import { shaderMaterial } from "@react-three/drei";
 import { Canvas, extend, useLoader, useThree } from "@react-three/fiber";
 import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
-import Draggable from "react-draggable";
+import Moveable from "react-moveable";
 import { shallow } from "zustand/shallow";
 import {
   calculationTypeEnum,
   DraggableImageEvent,
 } from "@/interfaces/interface";
+import { element } from "three/src/nodes/tsl/TSLCore.js";
 
 const ImageMaterial = shaderMaterial(
   {
@@ -152,7 +153,6 @@ export default function ImageWorkPlace() {
 
   //! shallow: nem generál le újra az objektumot hanem mintha cachelte volna mindig az adott objektumot irja felül / ÖSSZEHASONLÍT
   const filters = useSessionStore((s) => s.getFilters(selectedImg), shallow);
-  const nodeRef = useRef<HTMLDivElement>(null);
   const texts = useSessionStore(
     (s) => s.sessionData.find((si) => si.id === selectedImg)?.texts || [],
     shallow,
@@ -193,6 +193,7 @@ export default function ImageWorkPlace() {
     });
   }, [selectedImg, copyrightImageSize, copyrightImageRef]);
 
+  const [draggableId, setDraggableId] = useState<string | null>(null);
   const textPosition = useSessionStore(
     (s) => s.sessionData.find((sD) => sD.id === selectedImg)?.texts,
     shallow,
@@ -201,21 +202,26 @@ export default function ImageWorkPlace() {
     const newPositions: Record<string, { x: number; y: number }> = {};
 
     texts.forEach((element) => {
-      if (!nodeRef.current) return;
+      console.log("2:");
+      console.log(element);
+      if (!textElements[element.id]) return;
 
       const textPosition = calculationReFixPosition(
         selectedImg,
         calculationTypeEnum.TEXT,
-        nodeRef.current,
+        textElements[element.id],
         element.id,
       );
 
       newPositions[element.id] = textPosition;
     });
-
     setTextPositions(newPositions);
   }, [selectedImg, textPosition]);
   //#endregion
+
+  useEffect(() => {
+    console.log(draggableId);
+  }, [draggableId]);
 
   return (
     <Flex
@@ -237,54 +243,71 @@ export default function ImageWorkPlace() {
         position={"absolute"}
         overflow={"hidden"}
       >
-        {texts.map((element: DraggableImageEvent, index) => {
+        {texts.map((element: DraggableImageEvent) => {
           return (
-            <Draggable
-              key={element.id + "-" + index}
-              disabled={!element.enabled}
-              bounds="parent"
-              position={{
-                x:
-                  typeof textPositions[element.id]?.x === "number"
-                    ? textPositions[element.id]!.x
-                    : 5,
-                y:
+            <>
+              <Span
+                ref={setTextRef(element.id)}
+                onMouseEnter={() => {
+                  setDraggableId(element.id);
+                }}
+                id={element.id}
+                w={"fit"}
+                h={"fit"}
+                position={"absolute"}
+                cursor={"pointer"}
+                top={
                   typeof textPositions[element.id]?.y === "number"
                     ? textPositions[element.id]!.y
-                    : 5,
-              }}
-              nodeRef={nodeRef}
-              onDrag={(_, d) => {
-                const textId = element.id;
-                const position = {
-                  x: d.x,
-                  y: d.y,
-                };
-                setTextPosition(selectedImg, textId, position);
-              }}
-              defaultClassNameDragging="draggable_element_drag"
-              defaultClassName="draggable_element"
-            >
-              <Box ref={nodeRef} position={"absolute"} h="fit" w={"fit"}>
-                <Span
-                  ref={setTextRef(element.id)}
-                  w={"fit"}
-                  h={"fit"}
-                  textWrap={"balance"}
-                  style={{
-                    fontSize: element.fontSize || 20,
-                    fontFamily: element.fontFamily || "Inter",
-                    fontWeight: element.fontWeight || 500,
-                    color: element.color || "#ffff",
-                    lineHeight: 1,
-                  }}
-                >
-                  {element.text}
-                </Span>
-              </Box>
-            </Draggable>
+                    : 5
+                }
+                left={
+                  typeof textPositions[element.id]?.x === "number"
+                    ? textPositions[element.id]!.x
+                    : 5
+                }
+                textWrap={"balance"}
+                style={{
+                  fontSize: element.fontSize || 20,
+                  fontFamily: element.fontFamily || "Inter",
+                  fontWeight: element.fontWeight || 500,
+                  color: element.color || "#ffff",
+                  lineHeight: 1,
+                }}
+              >
+                {element.text}
+              </Span>
+            </>
           );
         })}
+        {draggableId && textElements[draggableId] && (
+          <Moveable
+            target={textElements[draggableId]}
+            draggable={true}
+            throttleDrag={0}
+            hideDefaultLines
+            hideChildMoveableDefaultLines
+            hideThrottleDragRotateLine
+            edgeDraggable={false}
+            origin={false}
+            onDragEnd={() => {
+              setDraggableId(null);
+            }}
+            startDragRotate={0}
+            throttleDragRotate={0}
+            onDrag={(e) => {
+              const textId = draggableId;
+              if (!textId) return;
+
+              setDraggableId(textId);
+              const position = {
+                x: e.left,
+                y: e.top,
+              };
+              setTextPosition(selectedImg, textId, position);
+            }}
+          />
+        )}
         {copyrightImage && copyrightImage.blob && (
           <Image
             ref={(el) => {

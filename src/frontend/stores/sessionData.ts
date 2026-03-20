@@ -51,6 +51,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       const imageHalf = imageSize
         ? imageSize.width / 2 - elementRef.offsetWidth / 2
         : 0;
+
       const imageWCP = imageSize ? imageSize.width - elementRef.offsetWidth : 0;
       const imageHCP = imageSize
         ? imageSize.height - elementRef.offsetHeight
@@ -303,11 +304,6 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           (typeof position.x === "number" && position.x < 0) ||
           (typeof position.y === "number" && position.y < 0)
         ) {
-          toaster.create({
-            type: "error",
-            title: "Hibás érték",
-            description: "A pozíció nem lehet kisebb vagy egyenlő, mint 0",
-          });
           return;
         }
         const image = state.sessionData.find((img) => img.id === imageId);
