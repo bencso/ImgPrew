@@ -1,132 +1,166 @@
-# ImgPrew 📸
+<a id="top"></a>
 
-> Fotó workflow eszköz fotósoknak - EXIF adatok kinyerés, vízjel hozzáadás, és képek felkészítése közösségi médiára stílusosan.
+<div align="center">
 
-> [!important]
-> Fontos, ezzel az alkalmazással nem fogsz tudni kiváltani egy PROFI képszerkesztőt (mint például a Lightroom), de fotóidat, vagy szerkesztett képeidet fel tudod készíteni a közösségi médiára való feltöltésre.
+![version](https://img.shields.io/badge/verzió-v0.1-black?style=for-the-badge)
+![status](https://img.shields.io/badge/státusz-folyamatban-blue?style=for-the-badge)
+![target](https://img.shields.io/badge/Cél-2026%20Q2-red?style=for-the-badge)
 
-## 🎯 Projekt célja
+</div>
 
-Egy webalkalmazás, amely segít a fotósoknak egyszerűsíteni a közösségi média munkafolyamatot: automatikusan kinyeri a kamera beállításokat (EXIF adatok), testreszabható vízjeleket ad hozzá, és formázza a képeket közösségi médiára - mindezt egy helyen.
+<div align="center">
+  <h1>ImgPrew</h1>
+  <p><em>Fotós workflow eszköz: EXIF adatok kinyerése és manipulálása, képszerkesztés és közösségi médiára felkészítés egy helyen.</em></p>
+  <p align="center">
+    <a href="#roadmap">Roadmap</a> | 
+    <a href="#technológiák">Technológiák</a> | 
+    <a href="#közreműködés">Közreműködés</a>
+  </p>
+</div>
 
-## ✨ Funkciók
+---
 
-### MVP ✅ **KÉSZ** (Console prototípus működik)
+## Vízió
 
-- ✅ Több fotó feltöltése (`JPG`, `PNG`, `HEIC` támogatás)
-- ✅ Automatikus EXIF adat kinyerés
-  - Kamera típus és gyártó
-  - Objektív információk
-  - ISO, rekesz, záridő
-  - Fókusztávolság
-  - Készítés dátuma
-  - Lokáció
-- ✅ Beállítások formázása Instagram captionhöz
-- ✅ Instagram formátum optimalizálás (1:1, 4:5, 9:16)
-- ✅ Kiválasztható mely EXIF mezők jelenjenek meg
-- ✅ Testreszabható vízjel elhelyezés
-  - ✅ Pozíció (sarkok, középen, egyedi)
-  - ✅ Átlátszóság beállítás
-  - ✅ Méret módosítás
-  - ✅ Saját logó/szöveg feltöltés
-- ✅ LUT kezelések a képekre (`.cube` kiterjesztés)
+> **Cél:** Egyszerűsíteni a fotósok közösségi média munkafolyamatát anélkül, hogy profi képszerkesztő szoftvert kellene használni.
 
-### 🚀 **Következő fázis: Webalkalmazás átépítés**
+Az **ImgPrew** lehetővé teszi, hogy a fotósok gyorsan készítsenek *közösségi médiára felkészített* képeket, mindezt egy könnyen kezelhető webes felületen.
 
-**FastAPI + WebSocket alapú architektúra**
+**Főbb funkciók:**
 
-```
-Console MVP → FastAPI REST API → WebSocket real-time UI
-```
+* Több fájl támogatás: `JPG`, `PNG`, `HEIC`
+* `EXIF` adat kinyerés és caption generálás
+* Testreszabható vízjelek és szöveg elhelyezés
+* Fényerő, Kontraszt, Saturation, Exposure állítás
+* LUT kezelések
+* Kép optimalizálás közösségi médiára
 
-### Tervezett funkciók
+<p align="right"><a href="#top">Vissza a tetejére</a></p>
 
-- Real-time feldolgozási visszajelzések
-- Webes drag&drop fájlfeltöltés
-- Élő előnézetek
-- Egyidejű több kép feldolgozás
-- Vizuális fotógaléria kiválasztással (NextJS)
-- Kötegelt feldolgozás → ZIP letöltés
-- Előtte/Utána előnézet csúszka
-- Export presetek mentése és megosztása
+---
 
-### Jövőbeli ötletek
+## Technológiák
 
-- 📱 Saját Portfolió weboldal létrehozásnak a lehetősége _(Amint elkészült a kép töltheti fel a saját galériájába)_
-- 🗺️ Képek elhelyezése térképen _(hol jártunk, emlékek oldal)_ _(elkezdve, kialakítása folyamatban)_
-  - OpenStreetMap és az EXIF adatok _(ha nincs exif adat, manuálisan megadni a helyszínt)_ segítségével helyezhetjük el a térképre emlékeinket/képeinket
-- 🎨 Egyedi presetek
-- 🖼️ Nagyobb képszerkesztési funkciók bevezetése (Curves, Masking, ...) - amelyeket nagyobb képszerkesztő alkalmazások is tudnak
-- 🔗 Közvetlen Instagram/Közösségi oldal API integráció _(feltöltés)_
-  -> _META API általi korlátozás:_ csak Business Account-os felhasználók tudnak postolást végezni API-n keresztül
-  -> Pinterest (?)
+|     Terület     |                           Technológia                           |                     Miért?                     |
+|:---------------:|:---------------------------------------------------------------:|:---------------------------------------------:|
+| *Frontend*      | ![nextjs](https://www.readmecodegen.com/api/social-icon?name=nextjs&size=40&shape=circle&reverseBackground=true&textAlignment=horizontal&showText=true&textColor=%237e7f7f) | Gyors, reszponzív UI komponensek React alapokon |
+| *UI library*    | ![chakraui](https://www.readmecodegen.com/api/social-icon?name=chakraui&size=40&shape=circle&reverseBackground=true&textAlignment=horizontal&showText=true&textColor=%237e7f7f) |  |
+| *Backend*       | ![fastapi](https://www.readmecodegen.com/api/social-icon?name=fastapi&size=40&shape=circle&reverseBackground=true&textAlignment=horizontal&showText=true&textColor=%237e7f7f) | Modern Python REST API, gyors és skálázható     |
+| *Architektúra*  | ![docker](https://www.readmecodegen.com/api/social-icon?name=docker&size=40&shape=circle&reverseBackground=true&textAlignment=horizontal&showText=true&textColor=%237e7f7f) | Könnyen telepíthető, konténerezett környezet    |
 
-## 🛠️ Technológiák
+<p align="right"><a href="#top">Vissza a tetejére</a></p>
 
-### Backend **(Átépítés alatt)**
+---
 
-```
-FastAPI + WebSocket
-│
-├── PIL/Pillow (EXIF + képfeldolgozás)
-├── OpenCV (vízjelek, LUT-ok)
-├── pillow-heif (HEIC)
-└── PostgreSQL (presetek, felhasználók)
-```
+## Roadmap
 
-### Frontend **(Tervezés alatt)**
+```mermaid
+timeline
+    title Projekt ütemezés
 
-```
-NextJS + App Router
-├── TailwindCSS + shadcn/ui
-└── Framer Motion
+    section MVP (Konzolos prototípus)
+        Több fájl támogatás (JPG, PNG, HEIC) : kész
+        EXIF adat kinyerés és caption generálás : kész
+        Kép méret optimalizálás közösségi médiára : kész
+        Testreszabható vízjel : kész
+        Kép szerkesztési funkciók : kész
+        LUT kezelések : kész
+
+    section Webalkalmazás
+        Drag&drop feltöltés : kész
+        Kép szerkesztési funkciók : kész
+        Vízjel pozíció és méret kezelése : kész
+        Szöveg elhelyezése a képen : folyamatban
+        Kép szerkesztési előnézet : folyamatban
+        FastAPI REST API kialakítása : folyamatban
+
+    section Haladó funkciók
+        Saját galéria létrehozása : tervezett
+        Saját térkép készítése feltöltött képekhez : tervezett
+        Felhasználói authentikáció (OAuth2) : tervezett
 ```
 
-## 🔄 **Jelenlegi állapot**
+**Kiemelet feature táblázat**
 
+| Funkció                                  | Státusz        |
+| ---------------------------------------- | -------------- |
+| EXIF kinyerés                            | ✅ kész         |
+| Caption generálás                        | ✅ kész         |
+| Vízjel pozíció/méret                     | ✅ kész         |
+| Kép szerkesztés (fényerő/kontraszt/stb.) | ✅ kész         |
+| Szöveg elhelyezése a képen               | ⚠️ folyamatban |
+| LUT kezelések                            | ⏳ tervezett    |
+| Saját galéria                            | ⏳ tervezett    |
+| Saját térkép                             | ⏳ tervezett    |
+| Authentikáció (OAuth2)                   | ⏳ tervezett    |
+
+<p align="right"><a href="#top">Vissza a tetejére</a></p>
+
+---
+
+## Mappa struktúra
+
+```mermaid
+graph TD
+n_2[src/]
+n_3[backend/]
+n_4[classes/]
+n_5[functions/]
+n_6[frontend/]
+n_7[app/]
+n_8[components/]
+n_9[editing/]
+n_10[caption/]
+n_11[copyright/]
+n_12[lut/]
+n_13[text/]
+n_14[icons/]
+n_15[sidebar/]
+n_16[ui/]
+n_17[upload/]
+n_18[interfaces/]
+n_19[providers/]
+n_20[stores/]
+n_21[websocket/]
+n_22[handlers/]
+n_2 --> n_3
+n_3 --> n_4
+n_3 --> n_5
+n_2 --> n_6
+n_6 --> n_7
+n_6 --> n_8
+n_8 --> n_9
+n_9 --> n_10
+n_9 --> n_11
+n_9 --> n_12
+n_9 --> n_13
+n_8 --> n_14
+n_8 --> n_15
+n_8 --> n_16
+n_8 --> n_17
+n_6 --> n_18
+n_6 --> n_19
+n_6 --> n_20
+n_6 --> n_21
+n_21 --> n_22
 ```
-✅ MVP core logika
-✅ EXIF parser + vízjel + LUT
-✅ Caption generátor
 
-⏳ FastAPI + WebSocket átépítés
-⏳ NextJS frontend fejlesztés
-```
+<p align="right"><a href="#top">Vissza a tetejére</a></p>
 
-## 💡 Miért ez a projekt?
+---
 
-A fotózás az egyik hobbim, és amikor projekt ötleteken gondolkoztam, rájöttem egy valós problémára: Instagram-on szeretném megosztani a fotóimat, de mindig macerás manuálisan begépelni a kamera beállításokat (ISO, rekesz, záridő) minden egyes képhez.
+## Közreműködés
 
-Első gondolatom a [Flickr](https://www.flickr.com/) volt, ahol automatikusan megjelennek az EXIF adatok, de miért használnék egy kész platformot, amikor magam is megépíthetem? Így született az ImgPrep ötletem - egy eszköz, ami automatizálja ezt a folyamatot, vízjelet tesz a képekre, és optimalizálja őket a közösségi platformokra.
+A projekt jelenleg **fejlesztés alatt** áll, ezért külső hozzájárulás még nem elérhető.
 
-Ez a projekt egyszerre praktikus és remek tanulási lehetőség full-stack fejlesztésben.
+**Későbbiekben**:
 
-## 🤝 Közreműködés
+* PR-ek fogadása
+* Hibajelentés és feature javaslatok
+* `CONTRIBUTING.md` dokumentáció
 
-Ez egy tanulási projekt, amíg nem növi ki magát, de javaslatokat és visszajelzéseket mindig szívesen fogadok! PR-ek, issue-k, ötletek mindig szívesen látottak.
+<p align="center">
+  <img src="https://contrib.rocks/image?repo=bencso/ImgPrew" />
+</p>
 
-## 📄 Licensz
-
-MIT License
-
-***
-
-## 🏁 MVP telepítése
-
-```bash
-git clone [repo]
-cd imgprew
-pip install -r requirements.txt
-python main.py
-```
-
-**Web verzió demó:** Hamarosan
-
-***
-
-**Státusz:** 🚀 **FASTAPI + WS backendre való átépítés folyamatban**  
-**Indulás:** 2026. január  
-
-***
-
-**⭐ Ha tetszik a projekt és az ötlet, örülök egy csillagnak! :D**
+<p align="right"><a href="#top">Vissza a tetejére</a></p>
