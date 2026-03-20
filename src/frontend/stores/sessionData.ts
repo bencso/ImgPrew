@@ -4,7 +4,6 @@ import { RefObject } from "react";
 import {
   calculationTypeEnum,
   DraggableImageEvent,
-  DraggableImageEventPosition,
   SessionStore,
   XPositions,
   YPositions,
@@ -36,7 +35,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     calculationReFixPosition: (
       id: number,
       type: calculationTypeEnum,
-      elementRef: HTMLElement | HTMLImageElement,
+      elementRef: HTMLElement | HTMLImageElement | HTMLDivElement,
       textId?: string,
     ) => {
       const image = get().sessionData.find((s) => s.id === id);
@@ -44,8 +43,8 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
 
       let positions = null;
 
-      if (type === calculationTypeEnum.IMAGE)
-        positions = image?.copyrightImage?.position;
+      if (type === calculationTypeEnum.TEXT)
+        positions = image?.texts?.find((it) => it.id === textId)?.position;
       if (type === calculationTypeEnum.COPYRIGHT)
         positions = image?.copyrightImage?.position;
 
@@ -189,9 +188,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
 
     //#region CAPTION
     getCaptionForImage: (id: number) => {
-      return (
-        get().sessionData.find((img) => img.id === id)?.caption || ""
-      );
+      return get().sessionData.find((img) => img.id === id)?.caption || "";
     },
     setCaptionForImage: (id: number, caption: string) =>
       set((state) => {
@@ -291,6 +288,11 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           ...image.texts.slice(textIndex + 1),
         ];
       }),
+    getTextPosition: (selectedImage: number, textId: string) => {
+      return get()
+        .sessionData.find((si) => si.id === selectedImage)
+        ?.texts?.find((st) => st.id === textId)?.position;
+    },
     setTextPosition: (
       imageId: number,
       textId: string,

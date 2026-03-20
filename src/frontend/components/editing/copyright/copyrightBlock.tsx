@@ -130,6 +130,13 @@ const ImageManipulationBlock = () => {
     shallow,
   );
 
+  const imagePosition = useSessionStore(
+    (s) =>
+      s.sessionData.find((img) => img.id === selectedImg)?.copyrightImage
+        ?.position,
+    shallow,
+  );
+
   const copyrightImageSize = useSessionStore((s) =>
     s.sessionData.find((sD) => sD.id === selectedImg),
   );
@@ -152,134 +159,185 @@ const ImageManipulationBlock = () => {
           />
         </Field.Root>
         <Grid
+          display={"grid"}
           templateRows={"repeat(3, 1fr)"}
+          templateColumns={"repeat(3,1fr)"}
           gap={2}
-          alignItems={"center"}
-          justifyContent={"center"}
           w={"full"}
         >
-          <GridItem display={"flex"} gap={2}>
-            <IconButton
-              colorPalette={"teal"}
-              variant={"subtle"}
-              onClick={() => {
+          <IconButton
+            colorPalette={"teal"}
+            variant={"subtle"}
+            w={"full"}
+            h={"full"}
+            disabled={
+              imagePosition &&
+              imagePosition.x === XPositions.LEFT &&
+              imagePosition.y === YPositions.TOP
+            }
+            onClick={() => {
+              setCopyrightImagePosition(selectedImg, {
+                x: XPositions.LEFT,
+                y: YPositions.TOP,
+              });
+            }}
+          >
+            <LuArrowUpLeft />
+          </IconButton>
+          <IconButton
+            colorPalette={"teal"}
+            w={"full"}
+            variant={"subtle"}
+            disabled={
+              imagePosition &&
+              imagePosition.x === XPositions.CENTER &&
+              imagePosition.y === YPositions.TOP
+            }
+            onClick={() => {
+              if (imageSize)
                 setCopyrightImagePosition(selectedImg, {
-                  x: XPositions.LEFT,
+                  x: XPositions.CENTER,
                   y: YPositions.TOP,
                 });
-              }}
-            >
-              <LuArrowUpLeft />
-            </IconButton>
-            <IconButton
-              colorPalette={"teal"}
-              variant={"subtle"}
-              onClick={() => {
-                if (imageSize)
-                  setCopyrightImagePosition(selectedImg, {
-                    x: XPositions.CENTER,
-                    y: YPositions.TOP,
-                  });
-              }}
-            >
-              <LuArrowUp />
-            </IconButton>
-            <IconButton
-              colorPalette={"teal"}
-              variant={"subtle"}
-              onClick={() => {
-                if (imageSize)
-                  setCopyrightImagePosition(selectedImg, {
-                    x: XPositions.RIGHT,
-                    y: YPositions.TOP,
-                  });
-              }}
-            >
-              <LuArrowUpRight />
-            </IconButton>
-          </GridItem>
-          <GridItem display={"flex"} gap={2}>
-            <IconButton
-              colorPalette={"teal"}
-              variant={"subtle"}
-              onClick={() => {
-                if (imageSize)
-                  setCopyrightImagePosition(selectedImg, {
-                    x: XPositions.LEFT,
-                    y: YPositions.CENTER,
-                  });
-              }}
-            >
-              <LuArrowLeft />
-            </IconButton>
-            <IconButton
-              colorPalette={"teal"}
-              variant={"subtle"}
-              onClick={() => {
-                if (imageSize)
-                  setCopyrightImagePosition(selectedImg, {
-                    x: XPositions.CENTER,
-                    y: YPositions.CENTER,
-                  });
-              }}
-            >
-              <LuDot />
-            </IconButton>
-            <IconButton
-              colorPalette={"teal"}
-              variant={"subtle"}
-              onClick={() => {
-                if (imageSize)
-                  setCopyrightImagePosition(selectedImg, {
-                    x: XPositions.RIGHT,
-                    y: YPositions.CENTER,
-                  });
-              }}
-            >
-              <LuArrowRight />
-            </IconButton>
-          </GridItem>
-          <GridItem display={"flex"} gap={2}>
-            <IconButton
-              colorPalette={"teal"}
-              variant={"subtle"}
-              onClick={() => {
-                if (imageSize)
-                  setCopyrightImagePosition(selectedImg, {
-                    x: XPositions.LEFT,
-                    y: YPositions.BOTTOM,
-                  });
-              }}
-            >
-              <LuArrowDownLeft />
-            </IconButton>
-            <IconButton
-              colorPalette={"teal"}
-              variant={"subtle"}
-              onClick={() => {
-                if (imageSize)
-                  setCopyrightImagePosition(selectedImg, {
-                    x: XPositions.CENTER,
-                    y: YPositions.BOTTOM,
-                  });
-              }}
-            >
-              <LuArrowDown />
-            </IconButton>
-            <IconButton
-              colorPalette={"teal"}
-              variant={"subtle"}
-              onClick={() => {
-                if (imageSize)
-                  setCopyrightImagePosition(selectedImg, {
-                    x: XPositions.RIGHT,
-                    y: YPositions.BOTTOM,
-                  });
-              }}
-            >
-              <LuArrowDownRight />
-            </IconButton>
-          </GridItem>
+            }}
+          >
+            <LuArrowUp />
+          </IconButton>
+          <IconButton
+            colorPalette={"teal"}
+            variant={"subtle"}
+            w={"full"}
+            disabled={
+              imagePosition &&
+              imagePosition.x === XPositions.RIGHT &&
+              imagePosition.y === YPositions.TOP
+            }
+            onClick={() => {
+              if (imageSize)
+                setCopyrightImagePosition(selectedImg, {
+                  x: XPositions.RIGHT,
+                  y: YPositions.TOP,
+                });
+            }}
+          >
+            <LuArrowUpRight />
+          </IconButton>
+
+          <IconButton
+            colorPalette={"teal"}
+            variant={"subtle"}
+            w={"full"}
+            disabled={
+              imagePosition &&
+              imagePosition.x === XPositions.LEFT &&
+              imagePosition.y === YPositions.CENTER
+            }
+            onClick={() => {
+              if (imageSize)
+                setCopyrightImagePosition(selectedImg, {
+                  x: XPositions.LEFT,
+                  y: YPositions.CENTER,
+                });
+            }}
+          >
+            <LuArrowLeft />
+          </IconButton>
+          <IconButton
+            colorPalette={"teal"}
+            variant={"subtle"}
+            w={"full"}
+            disabled={
+              imagePosition &&
+              imagePosition.x === XPositions.CENTER &&
+              imagePosition.y === YPositions.CENTER
+            }
+            onClick={() => {
+              if (imageSize)
+                setCopyrightImagePosition(selectedImg, {
+                  x: XPositions.CENTER,
+                  y: YPositions.CENTER,
+                });
+            }}
+          >
+            <LuDot />
+          </IconButton>
+          <IconButton
+            colorPalette={"teal"}
+            variant={"subtle"}
+            w={"full"}
+            disabled={
+              imagePosition &&
+              imagePosition.x === XPositions.RIGHT &&
+              imagePosition.y === YPositions.CENTER
+            }
+            onClick={() => {
+              if (imageSize)
+                setCopyrightImagePosition(selectedImg, {
+                  x: XPositions.RIGHT,
+                  y: YPositions.CENTER,
+                });
+            }}
+          >
+            <LuArrowRight />
+          </IconButton>
+
+          <IconButton
+            colorPalette={"teal"}
+            variant={"subtle"}
+            w={"full"}
+            disabled={
+              imagePosition &&
+              imagePosition.x === XPositions.LEFT &&
+              imagePosition.y === YPositions.BOTTOM
+            }
+            onClick={() => {
+              if (imageSize)
+                setCopyrightImagePosition(selectedImg, {
+                  x: XPositions.LEFT,
+                  y: YPositions.BOTTOM,
+                });
+            }}
+          >
+            <LuArrowDownLeft />
+          </IconButton>
+          <IconButton
+            colorPalette={"teal"}
+            variant={"subtle"}
+            w={"full"}
+            disabled={
+              imagePosition &&
+              imagePosition.x === XPositions.CENTER &&
+              imagePosition.y === YPositions.BOTTOM
+            }
+            onClick={() => {
+              if (imageSize)
+                setCopyrightImagePosition(selectedImg, {
+                  x: XPositions.CENTER,
+                  y: YPositions.BOTTOM,
+                });
+            }}
+          >
+            <LuArrowDown />
+          </IconButton>
+          <IconButton
+            colorPalette={"teal"}
+            variant={"subtle"}
+            w={"full"}
+            disabled={
+              imagePosition &&
+              imagePosition.x === XPositions.RIGHT &&
+              imagePosition.y === YPositions.BOTTOM
+            }
+            onClick={() => {
+              if (imageSize)
+                setCopyrightImagePosition(selectedImg, {
+                  x: XPositions.RIGHT,
+                  y: YPositions.BOTTOM,
+                });
+            }}
+          >
+            <LuArrowDownRight />
+          </IconButton>
         </Grid>
       </Stack>
     );

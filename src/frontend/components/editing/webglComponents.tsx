@@ -10,7 +10,6 @@ import { shallow } from "zustand/shallow";
 import {
   calculationTypeEnum,
   DraggableImageEvent,
-  DraggableImageEventPosition,
 } from "@/interfaces/interface";
 
 const ImageMaterial = shaderMaterial(
@@ -173,6 +172,9 @@ export default function ImageWorkPlace() {
     x: 5,
     y: 5,
   });
+  const [textPositions, setTextPositions] = useState<
+    Record<string, { x: number; y: number }>
+  >({});
 
   const copyrightImageSize = useSessionStore((s) =>
     s.sessionData.find((sD) => sD.id === selectedImg),
@@ -190,6 +192,29 @@ export default function ImageWorkPlace() {
       y: position.y,
     });
   }, [selectedImg, copyrightImageSize, copyrightImageRef]);
+
+  const textPosition = useSessionStore(
+    (s) => s.sessionData.find((sD) => sD.id === selectedImg)?.texts,
+    shallow,
+  );
+  useEffect(() => {
+    const newPositions: Record<string, { x: number; y: number }> = {};
+
+    texts.forEach((element) => {
+      if (!nodeRef.current) return;
+
+      const textPosition = calculationReFixPosition(
+        selectedImg,
+        calculationTypeEnum.TEXT,
+        nodeRef.current,
+        element.id,
+      );
+
+      newPositions[element.id] = textPosition;
+    });
+
+    setTextPositions(newPositions);
+  }, [selectedImg, textPosition]);
   //#endregion
 
   return (
@@ -220,12 +245,12 @@ export default function ImageWorkPlace() {
               bounds="parent"
               position={{
                 x:
-                  typeof element.position.x === "number"
-                    ? element.position.x
+                  typeof textPositions[element.id]?.x === "number"
+                    ? textPositions[element.id]!.x
                     : 5,
                 y:
-                  typeof element.position.y === "number"
-                    ? element.position.y
+                  typeof textPositions[element.id]?.y === "number"
+                    ? textPositions[element.id]!.y
                     : 5,
               }}
               nodeRef={nodeRef}

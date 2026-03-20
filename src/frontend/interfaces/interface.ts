@@ -23,7 +23,7 @@ export interface ImageFilters {
 
 // ref: sessionData.ts: calculationReFixPosition()
 export enum calculationTypeEnum {
-  IMAGE = "image",
+  TEXT = "text",
   COPYRIGHT = "copyrightImage",
 }
 
@@ -87,7 +87,7 @@ export interface SessionStore {
   calculationReFixPosition: (
     id: number,
     type: calculationTypeEnum,
-    elementRef: HTMLElement | HTMLImageElement,
+    elementRef: HTMLElement | HTMLImageElement | HTMLDivElement,
     textId?: string,
   ) => { x: number; y: number };
   //#endregion
@@ -135,12 +135,16 @@ export interface SessionStore {
     textId: string,
     fontWeight: number,
   ) => any;
+  getTextPosition: (
+    selectedImage: number,
+    textId: string,
+  ) => DraggableImageEventPosition | undefined;
   setTextPosition: (
     imageId: number,
     textId: string,
     position: {
-      x: number;
-      y: number;
+      x: number | XPositions;
+      y: number | YPositions;
     },
   ) => void;
   setTextColor: (imageId: number, textId: string, color: string) => void;
