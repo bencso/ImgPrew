@@ -7,7 +7,11 @@ import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import Draggable from "react-draggable";
 import { shallow } from "zustand/shallow";
-import { DraggableImageEvent } from "@/interfaces/interface";
+import {
+  calculationTypeEnum,
+  DraggableImageEvent,
+  DraggableImageEventPosition,
+} from "@/interfaces/interface";
 
 const ImageMaterial = shaderMaterial(
   {
@@ -130,8 +134,10 @@ export default function ImageWorkPlace() {
     textElements,
     setTextElements,
     setCopyrightImageRef,
+    copyrightImageRef,
   } = useWorkSession();
-  const { setTextPosition, setImageSize } = useSessionStore();
+  const { setTextPosition, setImageSize, calculationReFixPosition } =
+    useSessionStore();
   const [size, setSize] = useState<{ width: number; height: number } | null>(
     null,
   );
@@ -159,6 +165,29 @@ export default function ImageWorkPlace() {
     }
   };
 
+  const [cpPosition, setCpPosition] = useState<{ x: number; y: number }>({
+    x: 5,
+    y: 5,
+  });
+
+  const copyrightImageSize = useSessionStore((s) =>
+    s.sessionData.find((sD) => sD.id === selectedImg),
+  );
+
+  useEffect(() => {
+    if (!copyrightImageRef) return;
+    const position = calculationReFixPosition(
+      selectedImg,
+      calculationTypeEnum.COPYRIGHT,
+      copyrightImageRef,
+    );
+    setCpPosition({
+      x: position.x,
+      y: position.y,
+    });
+    console.log(cpPosition);
+  }, [selectedImg, copyrightImageSize, copyrightImageRef]);
+
   return (
     <Flex
       w="full"
@@ -185,7 +214,16 @@ export default function ImageWorkPlace() {
               key={element.id + "-" + index}
               disabled={!element.enabled}
               bounds="parent"
-              position={element.position}
+              position={{
+                x:
+                  typeof element.position.x === "number"
+                    ? element.position.x
+                    : 5,
+                y:
+                  typeof element.position.y === "number"
+                    ? element.position.y
+                    : 5,
+              }}
               nodeRef={nodeRef}
               onDrag={(_, d) => {
                 const textId = element.id;
@@ -227,8 +265,8 @@ export default function ImageWorkPlace() {
             alt="copyright"
             height={copyrightImage.size + "px"}
             position={"relative"}
-            left={copyrightImage.position ? copyrightImage.position?.x : 0}
-            top={copyrightImage.position ? copyrightImage.position?.y : 0}
+            left={cpPosition.x}
+            top={cpPosition.y}
           />
         )}
       </Box>

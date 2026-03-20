@@ -1,7 +1,14 @@
 import { v4 as uuidv4 } from "uuid";
 import { immer } from "zustand/middleware/immer";
 import { RefObject } from "react";
-import { DraggableImageEvent, SessionStore } from "@/interfaces/interface";
+import {
+  calculationTypeEnum,
+  DraggableImageEvent,
+  DraggableImageEventPosition,
+  SessionStore,
+  XPositions,
+  YPositions,
+} from "@/interfaces/interface";
 import { createWithEqualityFn } from "zustand/traditional";
 import { toaster } from "@/components/ui/toaster";
 
@@ -23,6 +30,81 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         const nextId = state.sessionData.length;
         state.sessionData.push({ id: nextId, exportFileExtension: "jpg" });
       }),
+    //#endregion
+
+    //#region Segédfüggvények
+    //TODO: refaktorálása ennek a résznek
+    calculationReFixPosition: (
+      id: number,
+      type: calculationTypeEnum,
+      elementRef: HTMLElement | HTMLImageElement,
+      textId?: string,
+    ) => {
+      const image = get().sessionData.find((s) => s.id === id);
+      const imageSize = image?.dimesions;
+
+      let positions = null;
+
+      if (type === calculationTypeEnum.IMAGE)
+        positions = image?.copyrightImage?.position;
+      if (type === calculationTypeEnum.COPYRIGHT)
+        positions = image?.copyrightImage?.position;
+
+      const imageHalf = imageSize
+        ? imageSize.width / 2 - elementRef.offsetWidth / 2
+        : 0;
+      const imageWCP = imageSize ? imageSize.width - elementRef.offsetWidth : 0;
+      const imageHCP = imageSize
+        ? imageSize.height - elementRef.offsetHeight
+        : 0;
+
+      const defaultPosition = textId
+        ? (image?.texts?.find((ti) => ti.id === textId)?.position as {
+            x: number;
+            y: number;
+          }) || {
+            x: 5,
+            y: 5,
+          }
+        : { x: 5, y: 5 };
+
+      if (positions && positions.x && positions.y) {
+        switch (positions.x) {
+          case XPositions.LEFT:
+            switch (positions.y) {
+              case YPositions.TOP:
+                return { x: 5, y: 5 };
+              case YPositions.CENTER:
+                return { x: 5, y: imageHCP / 2 };
+              case YPositions.BOTTOM:
+                return { x: 5, y: imageHCP };
+            }
+
+          case XPositions.CENTER:
+            switch (positions.y) {
+              case YPositions.TOP:
+                return { x: imageHalf, y: 5 };
+              case YPositions.CENTER:
+                console.log("CC");
+                return { x: imageHalf, y: imageHCP / 2 };
+              case YPositions.BOTTOM:
+                return { x: imageHalf, y: imageHCP };
+            }
+
+          case XPositions.RIGHT:
+            switch (positions.y) {
+              case YPositions.TOP:
+                return { x: imageWCP, y: 5 };
+              case YPositions.CENTER:
+                return { x: imageWCP, y: imageHCP / 2 };
+              case YPositions.BOTTOM:
+                return { x: imageWCP, y: imageHCP };
+            }
+        }
+      }
+
+      return defaultPosition;
+    },
     //#endregion
 
     //#region "Copyright" kép
@@ -47,17 +129,9 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       }),
     setCopyrightImagePosition: (
       id: number,
-      position: { x: number; y: number },
+      position: { x: XPositions; y: YPositions },
     ) =>
       set((state) => {
-        if (position.x < 0 && position.y < 0) {
-          toaster.create({
-            type: "error",
-            title: "Hibás érték",
-            description: "A pozíció nem lehet kisebb vagy egyenlő, mint 0",
-          });
-          return;
-        }
         const image = state.sessionData.find((img) => img.id === id);
         console.log(position);
         if (image)
@@ -164,7 +238,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           const element: DraggableImageEvent = {
             id: textId,
             text,
-            position: { x: 0, y: 0 },
+            position: { x: XPositions.LEFT, y: YPositions.TOP },
             enabled: true,
             fontSize: 20,
             fontFamily: "Inter",
@@ -241,10 +315,13 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     setTextPosition: (
       imageId: number,
       textId: string,
-      position: { x: number; y: number },
+      position: { x: number | XPositions; y: number | YPositions },
     ) =>
       set((state) => {
-        if (position.x < 0 && position.y < 0) {
+        if (
+          (typeof position.x === "number" && position.x < 0) ||
+          (typeof position.y === "number" && position.y < 0)
+        ) {
           toaster.create({
             type: "error",
             title: "Hibás érték",

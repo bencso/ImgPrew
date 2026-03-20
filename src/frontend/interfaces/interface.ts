@@ -21,10 +21,28 @@ export interface ImageFilters {
 }
 //#endregion
 
+// ref: sessionData.ts: calculationReFixPosition()
+export enum calculationTypeEnum {
+  IMAGE = "image",
+  COPYRIGHT = "copyrightImage",
+}
+
+export enum XPositions {
+  LEFT = "left",
+  RIGHT = "right",
+  CENTER = "center",
+}
+
+export enum YPositions {
+  TOP = "top",
+  BOTTOM = "bottom",
+  CENTER = "center",
+}
+
 //#region CustomImage
-interface DraggableImageEventPosition {
-  x: number;
-  y: number;
+export interface DraggableImageEventPosition {
+  x: number | XPositions;
+  y: number | YPositions;
 }
 
 export interface DraggableImageEvent {
@@ -50,8 +68,8 @@ export interface CustomImage {
   copyrightImage?: {
     blob?: string;
     position?: {
-      x: number;
-      y: number;
+      x: XPositions;
+      y: YPositions;
     };
     size?: number;
   };
@@ -63,6 +81,15 @@ export interface SessionStore {
   setSessionData: (data: CustomImage[]) => any;
   clearSessionData: () => any;
   addImage: () => any;
+  //#endregion
+
+  //#region Segédfüggvények
+  calculationReFixPosition: (
+    id: number,
+    type: calculationTypeEnum,
+    elementRef: HTMLElement | HTMLImageElement,
+    textId?: string,
+  ) => { x: number; y: number };
   //#endregion
 
   //#region MÉRETEK
@@ -81,8 +108,8 @@ export interface SessionStore {
   setCopyrightImagePosition: (
     id: number,
     position: {
-      x: number;
-      y: number;
+      x: XPositions;
+      y: YPositions;
     },
   ) => void;
   setCopyrightImageSize: (id: number, size: number) => void;
@@ -207,27 +234,6 @@ export interface WorkSessionContextProps {
   setTextElements: Dispatch<SetStateAction<Record<UUID, HTMLElement>>>;
   copyrightImageRef: HTMLImageElement | null;
   setCopyrightImageRef: Dispatch<SetStateAction<HTMLImageElement | null>>;
-  calcImageHalfWithText: (
-    imageSize: {
-      width: number;
-      height: number;
-    },
-    elementRef: HTMLElement,
-  ) => number | null;
-  calcImageWidthWithElement: (
-    imageSize: {
-      width: number;
-      height: number;
-    },
-    elementRef: HTMLElement,
-  ) => number | null;
-  calcImageHeightWithElement: (
-    imageSize: {
-      width: number;
-      height: number;
-    },
-    elementRef: HTMLElement,
-  ) => number | null;
 }
 //#endregion
 
