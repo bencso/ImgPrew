@@ -3,20 +3,27 @@
 <div align="center">
 
 ![version](https://img.shields.io/badge/verzió-v0.1-black?style=for-the-badge)
+&nbsp;
 ![status](https://img.shields.io/badge/státusz-folyamatban-blue?style=for-the-badge)
+&nbsp;
 ![target](https://img.shields.io/badge/Cél-2026%20Q2-red?style=for-the-badge)
+&nbsp;
+![last commit](https://img.shields.io/github/last-commit/bencso/ImgPrew?style=for-the-badge)
 
 </div>
 
 <div align="center">
   <h1>ImgPrew</h1>
-  <p><em>Fotós workflow eszköz: EXIF adatok kinyerése és manipulálása, képszerkesztés és közösségi médiára felkészítés egy helyen.</em></p>
-  <p align="center">
-    <a href="#roadmap">Roadmap</a> | 
-    <a href="#technológiák">Technológiák</a> | 
-    <a href="#közreműködés">Közreműködés</a> |
-    <a href="https://github.com/bencso/ImgPrew/tree/develop">Develop branch</a>
-  </p>
+  <p><strong>Gyorsítsd fel a fotós workflow-d!</strong></p>
+  <p><em>EXIF adatok kinyerése és manipulálása, képszerkesztés és közösségi médiára felkészítés egy helyen.</em></p>
+<p align="center">
+  <a href="#technológiák">Technológiák</a> | 
+  <a href="#roadmap">Roadmap</a> | 
+  <a href="#architektúra">Architektúra</a> |
+  <a href="#screenshot">Screenshot</a> |
+  <a href="#közreműködés">Közreműködés</a> |
+  <a href="https://github.com/bencso/ImgPrew/tree/develop">Fejlesztés</a>
+</p>
 </div>
 
 ---
@@ -27,14 +34,20 @@
 
 Az **ImgPrew** lehetővé teszi, hogy a fotósok gyorsan készítsenek *közösségi médiára felkészített* képeket, mindezt egy könnyen kezelhető webes felületen.
 
-**Főbb funkciók:**
+### Főbb funkciók:
 
-* Több fájl támogatás: `JPG`, `PNG`, `HEIC`
-* `EXIF` adat kinyerés és caption generálás
-* Testreszabható vízjelek és szöveg elhelyezés
-* Fényerő, Kontraszt, Saturation, Exposure állítás
-* LUT kezelések
-* Kép optimalizálás közösségi médiára
+#### Feldolgozás
+- JPG, PNG, HEIC támogatás
+- EXIF → caption
+
+#### Szerkesztés
+- Fényerő / kontraszt / stb.
+- LUT
+
+#### Export
+- Vízjel
+- Szöveg
+- Közösségi médiára optimalizálás
 
 <p align="right"><a href="#top">Vissza a tetejére</a></p>
 
@@ -81,7 +94,7 @@ flowchart LR
  subgraph ADV["</br>"]
         a1["Saját galéria"]
         a2["Térkép képekhez"]
-        a3["OAuth2 auth"]
+        a3["OAuth2 autentikáció"]
   end
     Start["Projekt indulás"] --> MVP
     MVP --> WEB
@@ -94,19 +107,15 @@ flowchart LR
     style ADV fill:#FFCDD2
 ```
 
-**Kiemelet feature táblázat**
+**Kiemelt feature táblázat**
 
-| Funkció                                  | Státusz        |
-| ---------------------------------------- | -------------- |
-| EXIF kinyerés                            | ✅ kész         |
-| Caption generálás                        | ✅ kész         |
-| Vízjel pozíció/méret                     | ✅ kész         |
-| Kép szerkesztés (fényerő/kontraszt/stb.) | ✅ kész         |
-| Szöveg elhelyezése a képen               | ⚠️ folyamatban |
-| LUT kezelések                            | ⏳ tervezett    |
-| Saját galéria                            | ⏳ tervezett    |
-| Saját térkép                             | ⏳ tervezett    |
-| Authentikáció (OAuth2)                   | ⏳ tervezett    |
+| Funkció | Státusz |
+|--------|--------|
+| EXIF kinyerés | ✅ Kész |
+| Caption generálás | ✅ Kész |
+| Vízjel | ✅ Kész |
+| Szerkesztés | 🟡 Folyamatban |
+| LUT | ⬜ Tervezett |
 
 <p align="right"><a href="#top">Vissza a tetejére</a></p>
 
@@ -152,6 +161,15 @@ flowchart LR
 
     FájlTárolás@{ shape: db}
 ```
+
+---
+
+## Screenshot
+
+> [!NOTE]
+> A képernyőkép 2026.03.21-én készült. A projekt jelenleg **BÉTA** állapotban van, így előfordulhatnak hibák, és a felület még fejlesztés alatt áll.
+
+<img width="1566" height="990" max-width="100%" alt="Képernyőfotó 2026-03-21 - 7 58 08" src="https://github.com/user-attachments/assets/1644ff23-6e30-4ac8-ab52-2614138f68b7" />
 
 ---
 
