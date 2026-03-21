@@ -112,9 +112,6 @@ flowchart LR
 
 ## Architektúra 
 
-> [!NOTE]
-> Ez a felépítés még tervezés alatt van, ez csak egy gondolati ábra, így lehet nem a legjobb megoldás....
-
 ```mermaid
 ---
 config:
