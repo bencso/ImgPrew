@@ -20,6 +20,13 @@
 
 ## Első indítás - Dev setup
 
+### 0. GitHub Repository leklónozása
+
+```bash
+git clone https://github.com/bencso/WizPX.git
+cd WizPX
+```
+
 ### 1. `.env` fájlok létrehozása
 
 ```bash
