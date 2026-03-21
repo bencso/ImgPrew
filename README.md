@@ -3,19 +3,27 @@
 <div align="center">
 
 ![version](https://img.shields.io/badge/verzió-v0.1-black?style=for-the-badge)
+&nbsp;
 ![status](https://img.shields.io/badge/státusz-folyamatban-blue?style=for-the-badge)
+&nbsp;
 ![target](https://img.shields.io/badge/Cél-2026%20Q2-red?style=for-the-badge)
+&nbsp;
+![last commit](https://img.shields.io/github/last-commit/bencso/ImgPrew?style=for-the-badge)
 
 </div>
 
 <div align="center">
   <h1>ImgPrew</h1>
-  <p><em>Fotós workflow eszköz: EXIF adatok kinyerése és manipulálása, képszerkesztés és közösségi médiára felkészítés egy helyen.</em></p>
-  <p align="center">
-    <a href="#roadmap">Roadmap</a> | 
-    <a href="#technológiák">Technológiák</a> | 
-    <a href="#közreműködés">Közreműködés</a>
-  </p>
+  <p><strong>Gyorsítsd fel a fotós workflow-d!</strong></p>
+  <p><em>EXIF adatok kinyerése és manipulálása, képszerkesztés és közösségi médiára felkészítés egy helyen.</em></p>
+<p align="center">
+  <a href="#technológiák">Technológiák</a> | 
+  <a href="#roadmap">Roadmap</a> | 
+  <a href="#architektúra">Architektúra</a> |
+  <a href="#screenshot">Screenshot</a> |
+  <a href="#közreműködés">Közreműködés</a> |
+  <a href="https://github.com/bencso/ImgPrew/tree/main">MVP</a>
+</p>
 </div>
 
 ---
@@ -26,14 +34,20 @@
 
 Az **ImgPrew** lehetővé teszi, hogy a fotósok gyorsan készítsenek *közösségi médiára felkészített* képeket, mindezt egy könnyen kezelhető webes felületen.
 
-**Főbb funkciók:**
+### Főbb funkciók:
 
-* Több fájl támogatás: `JPG`, `PNG`, `HEIC`
-* `EXIF` adat kinyerés és caption generálás
-* Testreszabható vízjelek és szöveg elhelyezés
-* Fényerő, Kontraszt, Saturation, Exposure állítás
-* LUT kezelések
-* Kép optimalizálás közösségi médiára
+#### Feldolgozás
+- JPG, PNG, HEIC támogatás
+- EXIF → caption
+
+#### Szerkesztés
+- Fényerő / kontraszt / stb.
+- LUT
+
+#### Export
+- Vízjel
+- Szöveg
+- Közösségi médiára optimalizálás
 
 <p align="right"><a href="#top">Vissza a tetejére</a></p>
 
@@ -55,97 +69,107 @@ Az **ImgPrew** lehetővé teszi, hogy a fotósok gyorsan készítsenek *közöss
 ## Roadmap
 
 ```mermaid
-timeline
-    title Projekt ütemezés
+---
+config:
+  look: handDrawn
+  layout: elk
+---
+flowchart LR
+ subgraph MVP["<br>"]
+        m1["Több fájl támogatás - JPG, PNG, HEIC"]
+        m2["EXIF + caption generálás"]
+        m3["Kép méret optimalizálás"]
+        m4["Testreszabható vízjel"]
+        m5["Kép szerkesztés"]
+        m6["LUT kezelések"]
+  end
+ subgraph WEB["<br>"]
+        w1["Drag & Drop feltöltés"]
+        w2["Kép szerkesztés"]
+        w3["Vízjel pozíció/méret"]
+        w4["Szöveg elhelyezés"]
+        w5["Előnézet"]
+        w6["FastAPI API\nfolyamatban"]
+  end
+ subgraph ADV["</br>"]
+        a1["Saját galéria"]
+        a2["Térkép képekhez"]
+        a3["OAuth2 autentikáció"]
+  end
+    Start["Projekt indulás"] --> MVP
+    MVP --> WEB
+    WEB --> ADV
+    ADV --> End(["Release"])
 
-    section MVP (Konzolos prototípus)
-        Több fájl támogatás (JPG, PNG, HEIC) : kész
-        EXIF adat kinyerés és caption generálás : kész
-        Kép méret optimalizálás közösségi médiára : kész
-        Testreszabható vízjel : kész
-        Kép szerkesztési funkciók : kész
-        LUT kezelések : kész
-
-    section Webalkalmazás
-        Drag&drop feltöltés : kész
-        Kép szerkesztési funkciók : kész
-        Vízjel pozíció és méret kezelése : kész
-        Szöveg elhelyezése a képen : folyamatban
-        Kép szerkesztési előnézet : folyamatban
-        FastAPI REST API kialakítása : folyamatban
-
-    section Haladó funkciók
-        Saját galéria létrehozása : tervezett
-        Saját térkép készítése feltöltött képekhez : tervezett
-        Felhasználói authentikáció (OAuth2) : tervezett
+    Start@{ shape: terminal}
+    style MVP fill:#C8E6C9,color:#00C853
+    style WEB fill:#FFE0B2
+    style ADV fill:#FFCDD2
 ```
 
-**Kiemelet feature táblázat**
+**Kiemelt feature táblázat**
 
-| Funkció                                  | Státusz        |
-| ---------------------------------------- | -------------- |
-| EXIF kinyerés                            | ✅ kész         |
-| Caption generálás                        | ✅ kész         |
-| Vízjel pozíció/méret                     | ✅ kész         |
-| Kép szerkesztés (fényerő/kontraszt/stb.) | ✅ kész         |
-| Szöveg elhelyezése a képen               | ⚠️ folyamatban |
-| LUT kezelések                            | ⏳ tervezett    |
-| Saját galéria                            | ⏳ tervezett    |
-| Saját térkép                             | ⏳ tervezett    |
-| Authentikáció (OAuth2)                   | ⏳ tervezett    |
+| Funkció | Státusz |
+|--------|--------|
+| EXIF kinyerés | ✅ Kész |
+| Caption generálás | ✅ Kész |
+| Vízjel | ✅ Kész |
+| Szerkesztés | 🟡 Folyamatban |
+| LUT | ⬜ Tervezett |
 
 <p align="right"><a href="#top">Vissza a tetejére</a></p>
 
 ---
 
-## Mappa struktúra
+## Architektúra 
+
+> [!NOTE]
+> Ez a felépítés még tervezés alatt van, ez csak egy gondolati ábra, így lehet nem a legjobb megoldás....
 
 ```mermaid
-graph TD
-n_2[src/]
-n_3[backend/]
-n_4[classes/]
-n_5[functions/]
-n_6[frontend/]
-n_7[app/]
-n_8[components/]
-n_9[editing/]
-n_10[caption/]
-n_11[copyright/]
-n_12[lut/]
-n_13[text/]
-n_14[icons/]
-n_15[sidebar/]
-n_16[ui/]
-n_17[upload/]
-n_18[interfaces/]
-n_19[providers/]
-n_20[stores/]
-n_21[websocket/]
-n_22[handlers/]
-n_2 --> n_3
-n_3 --> n_4
-n_3 --> n_5
-n_2 --> n_6
-n_6 --> n_7
-n_6 --> n_8
-n_8 --> n_9
-n_9 --> n_10
-n_9 --> n_11
-n_9 --> n_12
-n_9 --> n_13
-n_8 --> n_14
-n_8 --> n_15
-n_8 --> n_16
-n_8 --> n_17
-n_6 --> n_18
-n_6 --> n_19
-n_6 --> n_20
-n_6 --> n_21
-n_21 --> n_22
+---
+config:
+  look: handDrawn
+---
+flowchart LR
+ subgraph Frontend["Frontend"]
+        NextJS["Next.js App"]
+  end
+ subgraph Backend["Backend"]
+        API["Python FastAPI"]
+  end
+ subgraph s1["Adatbázis"]
+        Postgres[("PostgreSQL")]
+  end
+ subgraph s2["Tárolás"]
+        FájlTárolás["Docker Volume"]
+  end
+ subgraph subGraph4["Docker Hálózat"]
+        Nginx["Nginx Reverse Proxy + Statikus szerverek"]
+        Frontend
+        Backend
+        s1
+        s2
+  end
+    User["Felhasználó / Böngésző"] -- HTTP/HTTPS --> Nginx
+    Nginx -- / --> NextJS
+    Nginx -- /api --> API
+    Nginx -- /images --> FájlTárolás
+    API -- ORM --> Postgres
+    API -- Fájl mentés / olvasás --> FájlTárolás
+    NextJS -- API hívások --> API
+
+    FájlTárolás@{ shape: db}
 ```
 
-<p align="right"><a href="#top">Vissza a tetejére</a></p>
+---
+
+## Screenshot
+
+> [!NOTE]
+> A képernyőkép 2026.03.21-én készült. A projekt jelenleg **BÉTA** állapotban van, így előfordulhatnak hibák, és a felület még fejlesztés alatt áll.
+
+<img width="1566" height="990" max-width="100%" alt="Képernyőfotó 2026-03-21 - 7 58 08" src="https://github.com/user-attachments/assets/1644ff23-6e30-4ac8-ab52-2614138f68b7" />
 
 ---
 
