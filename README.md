@@ -162,6 +162,8 @@ flowchart LR
     FájlTárolás@{ shape: db}
 ```
 
+<p align="right"><a href="#top">Vissza a tetejére</a></p>
+
 ---
 
 ## Screenshot
@@ -170,6 +172,8 @@ flowchart LR
 > A képernyőkép 2026.03.21-én készült. A projekt jelenleg **BÉTA** állapotban van, így előfordulhatnak hibák, és a felület még fejlesztés alatt áll.
 
 <img width="1566" height="990" max-width="100%" alt="Képernyőfotó 2026-03-21 - 7 58 08" src="https://github.com/user-attachments/assets/1644ff23-6e30-4ac8-ab52-2614138f68b7" />
+
+<p align="right"><a href="#top">Vissza a tetejére</a></p>
 
 ---
 
