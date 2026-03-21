@@ -118,7 +118,7 @@ flowchart LR
         NextJS["Next.js App"]
   end
  subgraph Backend["Backend"]
-        API["Python API"]
+        API["Python FastAPI"]
   end
  subgraph s1["Adatbázis"]
         Postgres[("PostgreSQL")]
