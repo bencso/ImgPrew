@@ -1,20 +1,10 @@
 <a id="top"></a>
 
 <div align="center">
-
-![version](https://img.shields.io/badge/verzió-v0.1-black?style=for-the-badge)
-&nbsp;
-![status](https://img.shields.io/badge/státusz-folyamatban-blue?style=for-the-badge)
-&nbsp;
-![target](https://img.shields.io/badge/Cél-2026%20Q2-red?style=for-the-badge)
-&nbsp;
-![last commit](https://img.shields.io/github/last-commit/bencso/ImgPrew?style=for-the-badge)
-
-</div>
-
-<div align="center">
-  <h1>ImgPrew</h1>
-  <p><strong>Gyorsítsd fel a fotós workflow-d!</strong></p>
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/5e1bb59d-78b2-4a1b-9b22-1979ac3526c6" alt="full logo" width="280" />
+</p>
+  <h2>Gyorsítsd fel a fotós workflow-d!</h2>
   <p><em>EXIF adatok kinyerése és manipulálása, képszerkesztés és közösségi médiára felkészítés egy helyen.</em></p>
 <p align="center">
   <a href="#technológiák">Technológiák</a> | 
@@ -22,7 +12,6 @@
   <a href="#architektúra">Architektúra</a> |
   <a href="#screenshot">Screenshot</a> |
   <a href="#közreműködés">Közreműködés</a> |
-  <a href="https://github.com/bencso/ImgPrew/tree/develop">Fejlesztés</a>
 </p>
 </div>
 
@@ -168,11 +157,12 @@ flowchart LR
 
 ## Screenshot
 
-> [!NOTE]
-> A képernyőkép 2026.03.21-én készült. A projekt jelenleg **BÉTA** állapotban van, így előfordulhatnak hibák, és a felület még fejlesztés alatt áll.
+> [!WARNING]
+> **BÉTA verzió (2026.03.21)** – hibák előfordulhatnak!
 
 <img width="1566" height="990" max-width="100%" alt="Képernyőfotó 2026-03-21 - 7 58 08" src="https://github.com/user-attachments/assets/1644ff23-6e30-4ac8-ab52-2614138f68b7" />
 
+</br>
 <p align="right"><a href="#top">Vissza a tetejére</a></p>
 
 ---
@@ -192,3 +182,15 @@ A projekt jelenleg **fejlesztés alatt** áll, ezért külső hozzájárulás m�
 </p>
 
 <p align="right"><a href="#top">Vissza a tetejére</a></p>
+
+---
+
+<div align="center">
+  
+![verzio](https://forthebadge.com/api/badges/generate?panels=2&primaryLabel=VERZI%C3%93&secondaryLabel=1.0&primaryBGColor=%2368bcd1&primaryTextColor=%23FFFFFF&secondaryBGColor=%23273b41&secondaryTextColor=%23FFFFFF&primaryFontSize=12&primaryFontWeight=600&primaryLetterSpacing=2&primaryFontFamily=Montserrat&primaryTextTransform=uppercase&secondaryFontSize=12&secondaryFontWeight=900&secondaryLetterSpacing=0&secondaryFontFamily=Verdana&secondaryTextTransform=uppercase)
+&nbsp;
+![statusz](https://forthebadge.com/api/badges/generate?panels=2&primaryLabel=ST%C3%81TUSZ&secondaryLabel=FOLYAMATBAN&primaryBGColor=%2368bcd1&primaryTextColor=%23FFFFFF&secondaryBGColor=%23273b41&secondaryTextColor=%23FFFFFF&primaryFontSize=12&primaryFontWeight=600&primaryLetterSpacing=2&primaryFontFamily=Montserrat&primaryTextTransform=uppercase&secondaryFontSize=12&secondaryFontWeight=900&secondaryLetterSpacing=0&secondaryFontFamily=Verdana&secondaryTextTransform=uppercase)
+&nbsp;
+![celkituzes](https://forthebadge.com/api/badges/generate?panels=2&primaryLabel=C%C3%89L+D%C3%81TUM&secondaryLabel=2026+Q2&primaryBGColor=%2368bcd1&primaryTextColor=%23FFFFFF&secondaryBGColor=%23273b41&secondaryTextColor=%23FFFFFF&primaryFontSize=12&primaryFontWeight=600&primaryLetterSpacing=2&primaryFontFamily=Montserrat&primaryTextTransform=uppercase&secondaryFontSize=12&secondaryFontWeight=900&secondaryLetterSpacing=0&secondaryFontFamily=Verdana&secondaryTextTransform=uppercase)
+
+</div>
