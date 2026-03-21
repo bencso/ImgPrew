@@ -1,0 +1,60 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ./dockerfiles/development/frontend.Dockerfile
+    image: frontend
+    ports:
+      - 3000:3000
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    env_file:
+      - ./frontend/.env
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:3000/status" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - wizpx_app
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ./dockerfiles/development/backend.Dockerfile
+    image: backend
+    ports:
+      - 3001:3001
+    env_file:
+      - ./backend/.env
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:3001/status" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - wizpx_app
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      frontend:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+    networks:
+      - wizpx_app
+
+networks:
+  wizpx_app:
+    external: true
+
+volumes:
+  frontend_node_modules:

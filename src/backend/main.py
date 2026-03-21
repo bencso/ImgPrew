@@ -2,12 +2,13 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 import json
 from .classes.wsmessage import WebSocketMessage
 from .classes.uploadedimage import UploadedImage
-from .functions.get_exif_data import GetExifData
 from .functions.caption_generator import CaptionGenerator
-from .dependencies import CAPTIONS_SAMPLES
 
 app = FastAPI()
 
+@app.get("/status")
+def status():
+    return {"status": "ok"}
 
 @app.websocket("/ws/")
 async def ws_check(websocket: WebSocket):
@@ -60,7 +61,7 @@ async def ws_check(websocket: WebSocket):
                         img_index = int(wsmess.data)
                         img = imgs[img_index]
                         img = img.get_img()
-                        
+
                         sender.message = "initSuccess"
                         caption_helper = CaptionGenerator(img=img)
                         caption_sample = (
