@@ -4,8 +4,6 @@ from dependencies import X_AXIS, Y_AXIS
 from PIL import ImageOps
 from classes.customtext import Text
 import io
-import os
-
 
 class WaterMarking:
     def __init__(

@@ -2,7 +2,7 @@ from PIL import Image, ImageOps
 from typing import Optional
 from dependencies import SOCIAL_IMAGES_SIZES
 import logging
-from .valid_colors import validColors
+from valid_colors import validColors
 import io
 
 class ResizeImg:
@@ -22,13 +22,13 @@ class ResizeImg:
         else:
             self.height = height
             self.width = width
-        self.img = image.copy() 
+        self.img = image.copy()
         self.expand = expand if expand else False
         self.expand_bg = validColors(expand_bg)
-    
+
     def __enter__(self):
         return self
-    
+
     def __exit__(self, *args):
         self.buffer = io.BytesIO()
         self.img.save(self.buffer, format="PNG")

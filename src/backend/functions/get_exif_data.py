@@ -1,5 +1,5 @@
 from PIL import Image
-from ..dependencies import EXIF_TAG_NAMES_LIST, REPLACEMENTS
+from dependencies import EXIF_TAG_NAMES_LIST, REPLACEMENTS
 from typing import List, Optional
 import piexif
 import reverse_geocoder

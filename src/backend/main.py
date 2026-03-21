@@ -1,8 +1,8 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 import json
-from .classes.wsmessage import WebSocketMessage
-from .classes.uploadedimage import UploadedImage
-from .functions.caption_generator import CaptionGenerator
+from classes.wsmessage import WebSocketMessage
+from classes.uploadedimage import UploadedImage
+from functions.caption_generator import CaptionGenerator
 
 app = FastAPI()
 
@@ -13,9 +13,10 @@ def status():
 @app.websocket("/ws/")
 async def ws_check(websocket: WebSocket):
     await websocket.accept()
+    print("TESZT")
     imgs: list[UploadedImage] = []
     slices = None
-    sender = WebSocketMessage("info", f"Az új kapcsolat sikeresen létrejött")
+    sender = WebSocketMessage("info", "Az új kapcsolat sikeresen létrejött")
     try:
         while True:
             try:

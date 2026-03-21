@@ -2,18 +2,16 @@ services:
   db:
     image: postgres:18
     restart: unless-stopped
+    build:
+      context: ./db
+      dockerfile: Dockerfile
     volumes:
-      - ./db/postgres:/var/lib/postgresql/data:rw
+      - ./db/postgres:/var/lib/postgresql
     ports:
       - 5432:5432
     env_file:
       - ./db/.env
     shm_size: 128mb
-    healthcheck:
-      test: [ "CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'" ]
-      interval: 30s
-      timeout: 10s
-      retries: 5
     networks:
       - wizpx_app
 
@@ -23,13 +21,10 @@ services:
       - ./db/.env
     ports:
       - 5050:5050
-    depends_on:
-      db:
-        condition: service_healthy
   frontend:
     build:
       context: ./frontend
-      dockerfile: ./frontend/Dockerfile.development
+      dockerfile: Dockerfile.development
     image: frontend
     ports:
       - 3000:3000
@@ -39,18 +34,13 @@ services:
     env_file:
       - ./frontend/.env
     restart: unless-stopped
-    healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:3000/status" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
     networks:
       - wizpx_app
 
   backend:
     build:
       context: ./backend
-      dockerfile: ./backend/Dockerfile.development
+      dockerfile: Dockerfile.development
     image: backend
     ports:
       - 3001:3001
@@ -62,9 +52,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-    depends_on:
-      db:
-        condition: service_healthy
     networks:
       - wizpx_app
 
@@ -76,17 +63,12 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - images:/images
-    depends_on:
-      frontend:
-        condition: service_healthy
-      backend:
-        condition: service_healthy
     networks:
       - wizpx_app
 
 networks:
   wizpx_app:
-    external: true
+
 
 volumes:
   frontend_node_modules:

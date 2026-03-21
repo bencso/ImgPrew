@@ -1,8 +1,8 @@
-from ..dependencies import CAPTION_REGEX, CAPTIONS_SAMPLES
+from dependencies import CAPTION_REGEX, CAPTIONS_SAMPLES
 import re
 from typing import Optional
 from PIL import Image
-from ..functions.get_exif_data import GetExifData
+from functions.get_exif_data import GetExifData
 
 
 class CaptionGenerator:
