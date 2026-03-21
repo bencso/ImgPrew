@@ -21,7 +21,7 @@
 
 > **Cél:** Egyszerűsíteni a fotósok közösségi média munkafolyamatát anélkül, hogy profi képszerkesztő szoftvert kellene használni.
 
-Az **ImgPrew** lehetővé teszi, hogy a fotósok gyorsan készítsenek *közösségi médiára felkészített* képeket, mindezt egy könnyen kezelhető webes felületen.
+Az **WizPX** lehetővé teszi, hogy a fotósok gyorsan készítsenek *közösségi médiára felkészített* képeket, mindezt egy könnyen kezelhető webes felületen.
 
 ### Főbb funkciók:
 
@@ -178,7 +178,7 @@ A projekt jelenleg **fejlesztés alatt** áll, ezért külső hozzájárulás m�
 * `CONTRIBUTING.md` dokumentáció
 
 <p align="center">
-  <img src="https://contrib.rocks/image?repo=bencso/ImgPrew" />
+  <img src="https://contrib.rocks/image?repo=bencso/WizPX" />
 </p>
 
 <p align="right"><a href="#top">Vissza a tetejére</a></p>
