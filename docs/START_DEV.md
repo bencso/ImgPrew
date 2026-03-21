@@ -7,18 +7,18 @@
   <h2>Gyorsítsd fel a fotós workflow-d!</h2>
   <p><em>EXIF adatok kinyerése és manipulálása, képszerkesztés és közösségi médiára felkészítés egy helyen.</em></p>
 <p align="center">
-  <a href="#technológiák">Technológiák</a> |
-  <a href="#roadmap">Roadmap</a> |
-  <a href="#architektúra">Architektúra</a> |
+  <a href="/README.md/#technológiák">Technológiák</a> |
+  <a href="/README.md/##roadmap">Roadmap</a> |
+  <a href="/README.md/##architektúra">Architektúra</a> |
   <a href="/docs/START_DEV.md"><strong>Első indítás (Fejlesztői)</strong></a> |
-  <a href="#screenshot">Screenshot</a> |
-  <a href="#közreműködés">Közreműködés</a> |
+  <a href="/README.md/#screenshot">Screenshot</a> |
+  <a href="/README.md/#közreműködés">Közreműködés</a> |
 </p>
 </div>
 
 ---
 
-## 🔹 Első indítás - Dev setup
+## Első indítás - Dev setup
 
 ### 1. `.env` fájlok létrehozása
 
@@ -55,7 +55,7 @@ docker compose -f compose.dev.yml up
 | Backend API  | [http://localhost/api](http://localhost/api)               |
 | pgAdmin      | [http://localhost:5050](http://localhost:5050)             |
 
-> ![NOTE]
+> [!NOTE]
 > pgAdmin login: `.env`-ben megadott felhasználó/jelszó.
 
 ---
@@ -75,7 +75,7 @@ docker compose -f compose.dev.yml logs -f
 docker compose -f compose.dev.yml up --build
 ```
 
-> ![NOTE]
+> [!NOTE]
 > Kódfrissítéshez **volumes miatt** nem kell újra buildelni.
 
 ---
