@@ -56,6 +56,10 @@ Az **ImgPrew** lehetővé teszi, hogy a fotósok gyorsan készítsenek *közöss
 ## Roadmap
 
 ```mermaid
+---
+config:
+  theme: redux
+---
 timeline
     title Projekt ütemezés
 
@@ -96,6 +100,49 @@ timeline
 | Authentikáció (OAuth2)                   | ⏳ tervezett    |
 
 <p align="right"><a href="#top">Vissza a tetejére</a></p>
+
+---
+
+## Architektúra 
+
+> [!NOTE]
+> Ez a felépítés még tervezés alatt van, ez csak egy gondolati ábra, így lehet nem a legjobb megoldás....
+
+```mermaid
+---
+config:
+  look: handDrawn
+---
+flowchart LR
+ subgraph Frontend["Frontend"]
+        NextJS["Next.js App"]
+  end
+ subgraph Backend["Backend"]
+        API["Python API"]
+  end
+ subgraph s1["Adatbázis"]
+        Postgres[("PostgreSQL")]
+  end
+ subgraph s2["Tárolás"]
+        FájlTárolás["Docker Volume"]
+  end
+ subgraph subGraph4["Docker Hálózat"]
+        Nginx["Nginx Reverse Proxy + Statikus szerverek"]
+        Frontend
+        Backend
+        s1
+        s2
+  end
+    User["Felhasználó / Böngésző"] -- HTTP/HTTPS --> Nginx
+    Nginx -- / --> NextJS
+    Nginx -- /api --> API
+    Nginx -- /images --> FájlTárolás
+    API -- ORM --> Postgres
+    API -- Fájl mentés / olvasás --> FájlTárolás
+    NextJS -- API hívások --> API
+
+    FájlTárolás@{ shape: db}
+```
 
 ---
 
