@@ -187,7 +187,7 @@ A projekt jelenleg **fejlesztés alatt** áll, ezért külső hozzájárulás m�
 
 <div align="center">
   
-![verzio](https://forthebadge.com/api/badges/generate?panels=2&primaryLabel=VERZI%C3%93&secondaryLabel=1.0&primaryBGColor=%2368bcd1&primaryTextColor=%23FFFFFF&secondaryBGColor=%23273b41&secondaryTextColor=%23FFFFFF&primaryFontSize=12&primaryFontWeight=600&primaryLetterSpacing=2&primaryFontFamily=Montserrat&primaryTextTransform=uppercase&secondaryFontSize=12&secondaryFontWeight=900&secondaryLetterSpacing=0&secondaryFontFamily=Verdana&secondaryTextTransform=uppercase)
+![verzio](https://forthebadge.com/api/badges/generate?panels=2&primaryLabel=VERZI%C3%93&secondaryLabel=0.01&primaryBGColor=%2368bcd1&primaryTextColor=%23FFFFFF&secondaryBGColor=%23273b41&secondaryTextColor=%23FFFFFF&primaryFontSize=12&primaryFontWeight=600&primaryLetterSpacing=2&primaryFontFamily=Montserrat&primaryTextTransform=uppercase&secondaryFontSize=12&secondaryFontWeight=900&secondaryLetterSpacing=0&secondaryFontFamily=Verdana&secondaryTextTransform=uppercase)
 &nbsp;
 ![statusz](https://forthebadge.com/api/badges/generate?panels=2&primaryLabel=ST%C3%81TUSZ&secondaryLabel=FOLYAMATBAN&primaryBGColor=%2368bcd1&primaryTextColor=%23FFFFFF&secondaryBGColor=%23273b41&secondaryTextColor=%23FFFFFF&primaryFontSize=12&primaryFontWeight=600&primaryLetterSpacing=2&primaryFontFamily=Montserrat&primaryTextTransform=uppercase&secondaryFontSize=12&secondaryFontWeight=900&secondaryLetterSpacing=0&secondaryFontFamily=Verdana&secondaryTextTransform=uppercase)
 &nbsp;
