@@ -58,31 +58,40 @@ Az **ImgPrew** lehetővé teszi, hogy a fotósok gyorsan készítsenek *közöss
 ```mermaid
 ---
 config:
-  theme: redux
+  look: handDrawn
+  layout: elk
 ---
-timeline
-    title Projekt ütemezés
+flowchart LR
+ subgraph MVP["<br>"]
+        m1["Több fájl támogatás - JPG, PNG, HEIC"]
+        m2["EXIF + caption generálás"]
+        m3["Kép méret optimalizálás"]
+        m4["Testreszabható vízjel"]
+        m5["Kép szerkesztés"]
+        m6["LUT kezelések"]
+  end
+ subgraph WEB["<br>"]
+        w1["Drag & Drop feltöltés"]
+        w2["Kép szerkesztés"]
+        w3["Vízjel pozíció/méret"]
+        w4["Szöveg elhelyezés"]
+        w5["Előnézet"]
+        w6["FastAPI API\nfolyamatban"]
+  end
+ subgraph ADV["</br>"]
+        a1["Saját galéria"]
+        a2["Térkép képekhez"]
+        a3["OAuth2 auth"]
+  end
+    Start["Projekt indulás"] --> MVP
+    MVP --> WEB
+    WEB --> ADV
+    ADV --> End(["Release"])
 
-    section MVP (Konzolos prototípus)
-        Több fájl támogatás (JPG, PNG, HEIC) : kész
-        EXIF adat kinyerés és caption generálás : kész
-        Kép méret optimalizálás közösségi médiára : kész
-        Testreszabható vízjel : kész
-        Kép szerkesztési funkciók : kész
-        LUT kezelések : kész
-
-    section Webalkalmazás
-        Drag&drop feltöltés : kész
-        Kép szerkesztési funkciók : kész
-        Vízjel pozíció és méret kezelése : kész
-        Szöveg elhelyezése a képen : folyamatban
-        Kép szerkesztési előnézet : folyamatban
-        FastAPI REST API kialakítása : folyamatban
-
-    section Haladó funkciók
-        Saját galéria létrehozása : tervezett
-        Saját térkép készítése feltöltött képekhez : tervezett
-        Felhasználói authentikáció (OAuth2) : tervezett
+    Start@{ shape: terminal}
+    style MVP fill:#C8E6C9,color:#00C853
+    style WEB fill:#FFE0B2
+    style ADV fill:#FFCDD2
 ```
 
 **Kiemelet feature táblázat**
