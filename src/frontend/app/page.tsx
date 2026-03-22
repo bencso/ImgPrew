@@ -1,106 +1,86 @@
 "use client";
 
-import keyboardShortcuts from "@/components/editing/keyboardShortCuts";
-import { ImageDropZone } from "@/components/upload/dropzone";
-import { useWorkSession } from "@/providers/sessionprovider";
-import { useWebsocket } from "@/providers/websocketprovider";
-import { useSessionStore } from "@/stores/sessionData";
-import { handleMessage } from "@/websocket/handlers/handleMessage";
-import { Box, Flex, useBreakpointValue } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
-import SideBar from "@/components/editing/sidebar";
-import BottomBar from "@/components/editing/moreImagesBottomBar";
-import TopBar from "@/components/editing/topBar";
-import ImageWorkPlace from "@/components/editing/webglComponents";
+import {
+  AbsoluteCenter,
+  Button,
+  Heading,
+  Image,
+  Stack,
+  Text,
+} from "@chakra-ui/react";
+import { useState } from "react";
+import { FaGoogle } from "react-icons/fa";
+import { BeatLoader } from "react-spinners";
 
 export default function Page() {
-  //#region contextek
-  const { step, imgs, setStep, setImgs, setSelectedImg, selectedImg } =
-    useWorkSession();
-  const [selectedImage, setSelectedImage] = useState<string>();
+  const [loading, setLoading] = useState(false);
 
-  const { ws, sendMessage } = useWebsocket();
-  const { setExifDataForImage, setCaptionSamplesForImage, addImage } =
-    useSessionStore();
-  //#endregion
-
-  //#region breakPoint beállíátoks (isMd)
-  const isMd = useBreakpointValue(
-    { base: false, sm: false, md: false, lg: true, xl: true },
-    { ssr: false, fallback: "md" },
-  );
-  //#endregion
-
-  useEffect(() => {
-    setSelectedImage(imgs[selectedImg]);
-  }, [selectedImg, imgs]);
-
-  //#region WebSocket kezelés
-  useEffect(() => {
-    const wscurr = ws.current;
-    if (!wscurr) return;
-
-    const messageHandler = (event: MessageEvent) => {
-      handleMessage(
-        event,
-        setStep,
-        setImgs,
-        setExifDataForImage,
-        setCaptionSamplesForImage,
-        addImage,
-      );
-    };
-
-    wscurr.addEventListener("message", messageHandler);
-
-    return () => {
-      wscurr.removeEventListener("message", messageHandler);
-    };
-  }, [ws]);
-  //#endregion
-
-  keyboardShortcuts({
-    selectedImg,
-    sendMessage,
-    setImgs,
-    setSelectedImage,
-    setSelectedImg,
-    setStep,
-    step,
-    imgs,
-  });
-
-  if (step === 0) return <ImageDropZone ws={ws} sendMessage={sendMessage} />;
-  if (step === 1)
-    return (
-      <Flex
-        direction={!isMd ? "column" : "row"}
-        h="full"
-        w="full"
-        minW="0"
-        minH={"0"}
-        flex="1"
+  return (
+    <AbsoluteCenter>
+      <Stack
+        mx={4}
+        fontSize="sm"
+        minW={"lg"}
+        maxW={"lg"}
+        px={12}
+        py={10}
+        borderRadius="xl"
+        backgroundColor={"bg.panel"}
+        borderColor={"border.muted"}
+        borderWidth={1}
+        gap={8}
+        boxShadow={"sm"}
       >
-        <Flex h="full" w="full" minW="0" minH={"0"} flex="1" direction="column">
-          <TopBar setSelectedImage={setSelectedImage} />
-          <Box flex="1" minH="0" p={4}>
-            {selectedImage && <ImageWorkPlace />}
-          </Box>
-          <BottomBar />
-        </Flex>
+        <Stack gap={3} alignItems={"center"}>
+          <Image src={"/logo.png"} boxSize={16} />
+          <Heading
+            as={"h1"}
+            fontSize={"2xl"}
+            fontWeight={"semibold"}
+            textAlign={"center"}
+          >
+            Folytasd ahol abbahagytad
+          </Heading>
+          <Text
+            fontSize="md"
+            color="gray.500"
+            lineHeight={"tall"}
+            textAlign="center"
+            maxW="sm"
+          >
+            Jelentkezz be Google fiókoddal.
+          </Text>
+        </Stack>
 
-        <Flex
-          w={isMd ? "fit" : "full"}
-          h={!isMd ? "fit" : "full"}
-          minH="0"
-          minW="0"
-          flexShrink={0}
-          direction={isMd ? "column" : "row"}
-          borderLeftWidth={isMd ? "1px" : 0}
-          borderColor="border.disabled"
-        >
-          <SideBar />
-        </Flex>
-      </Flex>
-    );
+        <Stack gap={4}>
+          <Button
+            type="button"
+            w={"full"}
+            size="lg"
+            loading={loading}
+            display={"flex"}
+            alignItems={"center"}
+            variant={"solid"}
+            gap={2}
+            colorPalette={"teal"}
+            spinner={<BeatLoader />}
+          >
+            <FaGoogle /> Bejelentkezés Google-vel
+          </Button>
+
+          <Text
+            fontSize="xs"
+            color="gray.500"
+            textAlign="center"
+            maxW="xs"
+            lineHeight={"tall"}
+            mx="auto"
+          >
+            A bejelentkezéssel elfogadod a felhasználási feltételeket és az
+            adatvédelmi irányelveket.
+          </Text>
+        </Stack>
+      </Stack>
+    </AbsoluteCenter>
+  );
 }

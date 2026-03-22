@@ -26,6 +26,7 @@ import {
 import React, { Fragment, useState } from "react";
 import ImageIcon from "../icons/imageIcon";
 import { LuEraser, LuFileUp, LuRotateCcw } from "react-icons/lu";
+import { BeatLoader } from "react-spinners";
 
 const activeStyle = {
   borderLeftColor: "teal.fg",
@@ -176,6 +177,7 @@ const Item = ({ items }: { items: EditItemProp }) => {
               return (
                 <Button
                   key={index}
+                  spinner={<BeatLoader />}
                   onClick={
                     item.onChange
                       ? item.onChange

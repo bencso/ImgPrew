@@ -6,11 +6,9 @@ import {
   FileUpload,
   Flex,
   Grid,
-  GridItem,
   Icon,
   IconButton,
   Input,
-  InputGroup,
   Stack,
   useFileUpload,
 } from "@chakra-ui/react";

@@ -1,12 +1,12 @@
 "use client";
 
-import SiteSplitter from "@/components/sitesplitter";
-import { ColorModeProvider } from "@/components/ui/color-mode";
+import { Suspense, useEffect, useLayoutEffect, useState } from "react";
+
 import { Provider } from "@/components/ui/provider";
-import { Toaster } from "@/components/ui/toaster";
+import { ColorModeProvider } from "@/components/ui/color-mode";
 import { LangugeProvider } from "@/providers/languageprovider";
-import { WorkSessionProvider } from "@/providers/sessionprovider";
-import { WebsocketProvider } from "@/providers/websocketprovider";
+import { Toaster } from "@/components/ui/toaster";
+import Loader from "@/components/loader";
 
 export default function RootLayout({
   children,
@@ -19,14 +19,8 @@ export default function RootLayout({
         <Provider>
           <ColorModeProvider>
             <LangugeProvider>
-              <WebsocketProvider>
-                <WorkSessionProvider>
-                  <SiteSplitter>
-                    <Toaster />
-                    {children}
-                  </SiteSplitter>
-                </WorkSessionProvider>
-              </WebsocketProvider>
+              <Toaster />
+              {children}
             </LangugeProvider>
           </ColorModeProvider>
         </Provider>

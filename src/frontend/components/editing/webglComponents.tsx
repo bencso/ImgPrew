@@ -11,7 +11,6 @@ import {
   calculationTypeEnum,
   DraggableImageEvent,
 } from "@/interfaces/interface";
-import { element } from "three/src/nodes/tsl/TSLCore.js";
 
 const ImageMaterial = shaderMaterial(
   {
@@ -245,39 +244,38 @@ export default function ImageWorkPlace() {
       >
         {texts.map((element: DraggableImageEvent) => {
           return (
-            <>
-              <Span
-                ref={setTextRef(element.id)}
-                onMouseEnter={() => {
-                  setDraggableId(element.id);
-                }}
-                id={element.id}
-                w={"fit"}
-                h={"fit"}
-                position={"absolute"}
-                cursor={"pointer"}
-                top={
-                  typeof textPositions[element.id]?.y === "number"
-                    ? textPositions[element.id]!.y
-                    : 5
-                }
-                left={
-                  typeof textPositions[element.id]?.x === "number"
-                    ? textPositions[element.id]!.x
-                    : 5
-                }
-                textWrap={"balance"}
-                style={{
-                  fontSize: element.fontSize || 20,
-                  fontFamily: element.fontFamily || "Inter",
-                  fontWeight: element.fontWeight || 500,
-                  color: element.color || "#ffff",
-                  lineHeight: 1,
-                }}
-              >
-                {element.text}
-              </Span>
-            </>
+            <Span
+              key={element.id}
+              ref={setTextRef(element.id)}
+              onMouseEnter={() => {
+                setDraggableId(element.id);
+              }}
+              id={element.id}
+              w={"fit"}
+              h={"fit"}
+              position={"absolute"}
+              cursor={"pointer"}
+              top={
+                typeof textPositions[element.id]?.y === "number"
+                  ? textPositions[element.id]!.y
+                  : 5
+              }
+              left={
+                typeof textPositions[element.id]?.x === "number"
+                  ? textPositions[element.id]!.x
+                  : 5
+              }
+              textWrap={"balance"}
+              style={{
+                fontSize: element.fontSize || 20,
+                fontFamily: element.fontFamily || "Inter",
+                fontWeight: element.fontWeight || 500,
+                color: element.color || "#ffff",
+                lineHeight: 1,
+              }}
+            >
+              {element.text}
+            </Span>
           );
         })}
         {draggableId && textElements[draggableId] && (

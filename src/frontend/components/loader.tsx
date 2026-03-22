@@ -1,7 +1,8 @@
-import { Box, Spinner } from "@chakra-ui/react";
+import { Box } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
+import { BeatLoader } from "react-spinners";
 
-export default function Loader({ isLoaded }: { isLoaded: boolean }) {
+export default function Loader() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -9,20 +10,18 @@ export default function Loader({ isLoaded }: { isLoaded: boolean }) {
   }, []);
 
   if (!mounted) return null;
-  if (isLoaded) return null;
 
   return (
     <Box
-      position="fixed"
-      inset="0"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      bg="rgba(0,0,0,0.4)"
-      backdropFilter="blur(12px)"
-      zIndex="overlay"
+      position={"fixed"}
+      inset={0}
+      display={"flex"}
+      justifyContent={"center"}
+      alignItems={"center"}
+      backgroundColor={"bg"}
+      zIndex={"max"}
     >
-      <Spinner color="teal.400" size="xl" />
+      <BeatLoader color="#38B2AC" size={12} />
     </Box>
   );
 }

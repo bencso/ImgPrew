@@ -18,7 +18,7 @@ export function ColorModeProvider(props: ColorModeProviderProps) {
     setMounted(true);
   }, []);
 
-  if (!mounted) return <Loader isLoaded={mounted} />;
+  if (!mounted) return <Loader />;
 
   return (
     <ThemeProvider attribute="class" disableTransitionOnChange {...props} />
