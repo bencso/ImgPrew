@@ -9,6 +9,7 @@ from dependencies import IMAGE_EXTENSIONS
 router = APIRouter(prefix="/images", tags=["images"])
 
 
+# TODO: Itt azt kell csinálni majd, hogy az adatbázisba fel küldjük rögtön a sessionok közé (amit elkezdtünk képeket szerkeszteni ott fogjuk tárolni "automatikus mentés dologgal")
 @router.post("/upload")
 async def uploadImage(file: UploadFile):
     try:

@@ -6,9 +6,7 @@ app = FastAPI()
 
 app.include_router(image.router)
 
+
 @app.get("/status")
 def status():
-    return JSONResponse(
-            status_code=200,
-            content={"status": "OK"}
-        )
+    return JSONResponse(status_code=200, content={"status": "OK"})
