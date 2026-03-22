@@ -109,8 +109,8 @@ export const ImageDropZone = ({
           }}
           colorPalette="teal"
           variant="surface"
-          disabled={isLoading}
           loading={isLoading}
+          disabled={isLoading}
           spinner={<BeatLoader size={12} color={"#004d40"} />}
         >
           Tovább

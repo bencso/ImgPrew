@@ -97,8 +97,8 @@ function ImagePlane({
   const texture = useLoader(THREE.TextureLoader, src);
   if (!texture.image) return null;
 
-  const imgW = texture.image?.width ?? 1;
-  const imgH = texture.image?.height ?? 1;
+  const imgW = texture.image.width;
+  const imgH = texture.image.height;
 
   // Kiszámoljuk a képnél hogy melyik az ami belefér, majd kiválasszuk belőle a legkissebbet
   const scale = Math.min(viewport.width / imgW, viewport.height / imgH);
@@ -112,8 +112,9 @@ function ImagePlane({
     }
   }, [width, height]);
 
+  const m = new ImageMaterial();
+
   const mat = useMemo(() => {
-    const m = new ImageMaterial();
     m.uTexture = texture;
     m.uBrightness = filters.brightness;
     m.uContrast = filters.contrast;
@@ -178,10 +179,6 @@ export default function ImageWorkPlace() {
     Record<string, { x: number; y: number }>
   >({});
 
-  const copyrightImageSize = useSessionStore((s) =>
-    s.sessionData.find((sD) => sD.id === selectedImg),
-  );
-
   useEffect(() => {
     if (!copyrightImageRef) return;
     const position = calculationReFixPosition(
@@ -193,19 +190,14 @@ export default function ImageWorkPlace() {
       x: position.x,
       y: position.y,
     });
-  }, [selectedImg, copyrightImageSize, copyrightImageRef]);
+  }, [selectedImg, copyrightImageRef]);
 
   const [draggableId, setDraggableId] = useState<string | null>(null);
-  const textPosition = useSessionStore(
-    (s) => s.sessionData.find((sD) => sD.id === selectedImg)?.texts,
-    shallow,
-  );
+
   useEffect(() => {
     const newPositions: Record<string, { x: number; y: number }> = {};
 
     texts.forEach((element) => {
-      console.log("2:");
-      console.log(element);
       if (!textElements[element.id]) return;
 
       const textPosition = calculationReFixPosition(
@@ -218,12 +210,8 @@ export default function ImageWorkPlace() {
       newPositions[element.id] = textPosition;
     });
     setTextPositions(newPositions);
-  }, [selectedImg, textPosition]);
+  }, [selectedImg, texts, textElements]);
   //#endregion
-
-  useEffect(() => {
-    console.log(draggableId);
-  }, [draggableId]);
 
   return (
     <Flex
@@ -315,8 +303,8 @@ export default function ImageWorkPlace() {
             alt="copyright"
             height={copyrightImage.size + "px"}
             position={"relative"}
-            left={cpPosition.x}
-            top={cpPosition.y}
+            left={cpPosition.x + "px"}
+            top={cpPosition.y + "px"}
             draggable={false}
             userSelect={"none"}
           />
@@ -328,7 +316,6 @@ export default function ImageWorkPlace() {
           width: "100%",
           height: "100%",
         }}
-        frameloop="demand"
       >
         <ImagePlane
           src={imgs[selectedImg]}

@@ -3,29 +3,29 @@
 import { useEffect } from "react";
 
 interface UseKeyboardShortcutArgs {
-    key: string
-    onKeyPressed: () => void;
-    disabled?: boolean
+  key: string;
+  onKeyPressed: () => void;
+  disabled?: boolean;
 }
 
 export function useKeyboardShortcut({
-    key,
-    onKeyPressed,
-    disabled = false
+  key,
+  onKeyPressed,
+  disabled = false,
 }: UseKeyboardShortcutArgs) {
-    useEffect(() => {
-        if (disabled) return;
+  useEffect(() => {
+    if (disabled) return;
 
-        function keyDownHandler(e: KeyboardEvent) {
-            if (e.key === key) {
-                e.preventDefault();
-                onKeyPressed();
-            }
-        }
+    function keyDownHandler(e: KeyboardEvent) {
+      if (e.key === key) {
+        e.preventDefault();
+        onKeyPressed();
+      }
+    }
 
-        window.addEventListener("keydown", keyDownHandler);
-        return () => {
-            window.removeEventListener("keydown", keyDownHandler);
-        };
-    }, [key, onKeyPressed, disabled]);
+    window.addEventListener("keydown", keyDownHandler);
+    return () => {
+      window.removeEventListener("keydown", keyDownHandler);
+    };
+  }, [key, onKeyPressed, disabled]);
 }

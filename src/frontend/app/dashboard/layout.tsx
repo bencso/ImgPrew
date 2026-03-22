@@ -10,11 +10,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <Provider>
-      <SiteSplitter>
-        <Toaster />
-        {children}
-      </SiteSplitter>
-    </Provider>
+    <SiteSplitter>
+      <Toaster />
+      {children}
+    </SiteSplitter>
   );
 }

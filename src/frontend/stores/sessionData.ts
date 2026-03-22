@@ -62,27 +62,27 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
             x: number;
             y: number;
           }) || {
-            x: 5,
-            y: 5,
+            x: 20,
+            y: 20,
           }
-        : { x: 5, y: 5 };
+        : { x: 20, y: 20 };
 
       if (positions && positions.x && positions.y) {
         switch (positions.x) {
           case XPositions.LEFT:
             switch (positions.y) {
               case YPositions.TOP:
-                return { x: 5, y: 5 };
+                return { x: 20, y: 5 };
               case YPositions.CENTER:
-                return { x: 5, y: imageHCP / 2 };
+                return { x: 20, y: imageHCP / 2 };
               case YPositions.BOTTOM:
-                return { x: 5, y: imageHCP - 20 };
+                return { x: 20, y: imageHCP - 20 };
             }
 
           case XPositions.CENTER:
             switch (positions.y) {
               case YPositions.TOP:
-                return { x: imageHalf, y: 5 };
+                return { x: imageHalf, y: 20 };
               case YPositions.CENTER:
                 return { x: imageHalf, y: imageHCP / 2 };
               case YPositions.BOTTOM:
@@ -92,7 +92,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           case XPositions.RIGHT:
             switch (positions.y) {
               case YPositions.TOP:
-                return { x: imageWCP - 20, y: 5 };
+                return { x: imageWCP - 20, y: 20 };
               case YPositions.CENTER:
                 return { x: imageWCP - 20, y: imageHCP / 2 };
               case YPositions.BOTTOM:
@@ -305,8 +305,6 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
 
         const textIndex = image.texts.findIndex((text) => text.id === textId);
         if (textIndex === -1) return;
-        console.log(textIndex);
-        console.log(position);
 
         image.texts = [
           ...image.texts.slice(0, textIndex),
