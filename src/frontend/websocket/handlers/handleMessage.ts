@@ -52,6 +52,7 @@ export const handleMessage = (
       addImage && addImage();
       if (setImgs)
         setImgs((prev) => {
+          console.log("asda");
           const byteCharacters = atob(data);
           const byteNumbers = new Array(byteCharacters.length);
           for (let i = 0; i < byteCharacters.length; i++)

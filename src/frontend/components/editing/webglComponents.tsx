@@ -3,7 +3,14 @@ import { useSessionStore } from "@/stores/sessionData";
 import { Box, Flex, Image, Span } from "@chakra-ui/react";
 import { shaderMaterial } from "@react-three/drei";
 import { Canvas, extend, useLoader, useThree } from "@react-three/fiber";
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import * as THREE from "three";
 import Moveable from "react-moveable";
 import { shallow } from "zustand/shallow";
@@ -112,15 +119,14 @@ function ImagePlane({
     }
   }, [width, height]);
 
-  const m = new ImageMaterial();
+  const mat = useMemo(() => new ImageMaterial(), []);
 
-  const mat = useMemo(() => {
-    m.uTexture = texture;
-    m.uBrightness = filters.brightness;
-    m.uContrast = filters.contrast;
-    m.uSaturation = filters.saturation;
-    m.uExposure = filters.exposure;
-    return m;
+  useEffect(() => {
+    mat.uTexture = texture;
+    mat.uBrightness = filters.brightness;
+    mat.uContrast = filters.contrast;
+    mat.uSaturation = filters.saturation;
+    mat.uExposure = filters.exposure;
   }, [texture, filters]);
 
   return (
@@ -161,14 +167,14 @@ export default function ImageWorkPlace() {
     shallow,
   );
 
-  const setTextRef = (textId: string) => (el: any) => {
-    if (el && textElements[textId] !== el) {
-      setTextElements((prev) => ({
-        ...prev,
-        [textId]: el,
-      }));
-    }
-  };
+  const setTextRef = useCallback(
+    (textId: string) => (el: any) => {
+      if (el && textElements[textId] !== el) {
+        setTextElements((prev) => ({ ...prev, [textId]: el }));
+      }
+    },
+    [textElements],
+  );
 
   //#region CP position manipuláció
   const [cpPosition, setCpPosition] = useState<{ x: number; y: number }>({
@@ -273,31 +279,27 @@ export default function ImageWorkPlace() {
             </Span>
           );
         })}
-        {draggableId && textElements[draggableId] && (
-          <Moveable
-            target={textElements[draggableId]}
-            draggable={true}
-            throttleDrag={0}
-            hideDefaultLines
-            hideChildMoveableDefaultLines
-            hideThrottleDragRotateLine
-            edgeDraggable={false}
-            origin={false}
-            startDragRotate={0}
-            throttleDragRotate={0}
-            onDrag={(e) => {
-              const textId = draggableId;
-              if (!textId) return;
 
-              setDraggableId(textId);
-              const position = {
-                x: e.left,
-                y: e.top,
-              };
-              setTextPosition(selectedImg, textId, position);
-            }}
-          />
-        )}
+        <Moveable
+          target={draggableId ? textElements[draggableId] : null}
+          draggable={true}
+          throttleDrag={0}
+          hideDefaultLines
+          hideChildMoveableDefaultLines
+          hideThrottleDragRotateLine
+          edgeDraggable={false}
+          origin={false}
+          startDragRotate={0}
+          throttleDragRotate={0}
+          onDrag={(e) => {
+            if (!draggableId) return;
+            setTextPosition(selectedImg, draggableId, {
+              x: e.left,
+              y: e.top,
+            });
+          }}
+        />
+
         {copyrightImage && copyrightImage.blob && (
           <Image
             ref={(el) => {
@@ -316,9 +318,10 @@ export default function ImageWorkPlace() {
       </Box>
       <Canvas
         orthographic
-        style={{
-          width: "100%",
-          height: "100%",
+        style={{ width: "100%", height: "100%" }}
+        gl={{
+          antialias: true,
+          toneMapping: THREE.ACESFilmicToneMapping,
         }}
       >
         <ImagePlane
