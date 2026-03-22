@@ -96,7 +96,7 @@ export default function Page() {
       >
         <Flex h="full" w="full" minW="0" minH={"0"} flex="1" direction="column">
           <TopBar setSelectedImage={setSelectedImage} />
-          <Box flex="1" minH="0" p={4}>
+          <Box flex="1" minH="0" h={"full"} w={"full"} minW={0} p={4}>
             {selectedImage && <ImageWorkPlace />}
           </Box>
           <BottomBar />

@@ -99,6 +99,7 @@ export default function TextBlock() {
         <Accordion.Root variant="enclosed" collapsible>
           {texts.map((text) => {
             const element = textElements[text.id];
+
             if (!element) return;
             const textPosition = getTextPosition(selectedImg, text.id);
 

@@ -300,17 +300,13 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       position: { x: number | XPositions; y: number | YPositions },
     ) =>
       set((state) => {
-        if (
-          (typeof position.x === "number" && position.x < 0) ||
-          (typeof position.y === "number" && position.y < 0)
-        ) {
-          return;
-        }
         const image = state.sessionData.find((img) => img.id === imageId);
-        if (!image || !image.texts) return;
+        if (!image || !image.texts || !image.dimesions) return;
 
         const textIndex = image.texts.findIndex((text) => text.id === textId);
         if (textIndex === -1) return;
+        console.log(textIndex);
+        console.log(position);
 
         image.texts = [
           ...image.texts.slice(0, textIndex),

@@ -3,14 +3,7 @@ import { useSessionStore } from "@/stores/sessionData";
 import { Box, Flex, Image, Span } from "@chakra-ui/react";
 import { shaderMaterial } from "@react-three/drei";
 import { Canvas, extend, useLoader, useThree } from "@react-three/fiber";
-import {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
 import * as THREE from "three";
 import Moveable from "react-moveable";
 import { shallow } from "zustand/shallow";
@@ -267,13 +260,13 @@ export default function ImageWorkPlace() {
               cursor={"pointer"}
               top={
                 typeof textPositions[element.id]?.y === "number"
-                  ? textPositions[element.id]!.y
-                  : 5
+                  ? `${textPositions[element.id]!.y}px`
+                  : "5px"
               }
               left={
                 typeof textPositions[element.id]?.x === "number"
-                  ? textPositions[element.id]!.x
-                  : 5
+                  ? `${textPositions[element.id]!.x}px`
+                  : "5px"
               }
               textWrap={"balance"}
               style={{
