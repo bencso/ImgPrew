@@ -4,18 +4,14 @@ export default function keyboardShortcuts({
   setSelectedImg,
   selectedImg,
   step,
-  imgs,
-  sendMessage,
-  setImgs,
+  sessionData,
   setSelectedImage,
   setStep,
 }: {
   setSelectedImg: any;
   selectedImg: any;
   step: number;
-  imgs: any;
-  sendMessage: any;
-  setImgs: any;
+  sessionData: any;
   setSelectedImage: any;
   setStep: any;
 }) {
@@ -35,7 +31,7 @@ export default function keyboardShortcuts({
     key: "ArrowRight",
     onKeyPressed: () => {
       if (step === 1) {
-        if (selectedImg + 1 < imgs.length) {
+        if (selectedImg + 1 < sessionData.length) {
           setSelectedImg(selectedImg + 1);
         }
       }
@@ -46,8 +42,6 @@ export default function keyboardShortcuts({
     key: "R",
     onKeyPressed: () => {
       if (step === 1) {
-        sendMessage({ message: "newSession" });
-        setImgs([]);
         setSelectedImage(undefined);
         setSelectedImg(0);
         setStep(0);

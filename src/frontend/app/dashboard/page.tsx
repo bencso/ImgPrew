@@ -3,15 +3,13 @@
 import keyboardShortcuts from "@/components/editing/keyboardShortCuts";
 import { ImageDropZone } from "@/components/upload/dropzone";
 import { useWorkSession } from "@/providers/sessionprovider";
-import { useWebsocket } from "@/providers/websocketprovider";
-import { useSessionStore } from "@/stores/sessionData";
-import { handleMessage } from "@/websocket/handlers/handleMessage";
 import { Box, Flex, useBreakpointValue } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import SideBar from "@/components/editing/sidebar";
 import BottomBar from "@/components/editing/moreImagesBottomBar";
 import TopBar from "@/components/editing/topBar";
 import dynamic from "next/dynamic";
+import { useSessionStore } from "@/stores/sessionData";
 
 const ImageWorkPlace = dynamic(
   () => import("@/components/editing/webglComponents"),
@@ -20,70 +18,31 @@ const ImageWorkPlace = dynamic(
 
 export default function Page() {
   //#region contextek
-  const {
-    step,
-    imgs,
-    setStep,
-    setImgs,
-    setSelectedImg,
-    selectedImg,
-    setIsLoading,
-  } = useWorkSession();
+  const { step, setStep, setSelectedImg, selectedImg } = useWorkSession();
+  const { sessionData } = useSessionStore();
   const [selectedImage, setSelectedImage] = useState<string>();
-
-  const { ws, sendMessage } = useWebsocket();
-  const { setExifDataForImage, setCaptionSamplesForImage, addImage } =
-    useSessionStore();
-  //#endregion
 
   keyboardShortcuts({
     selectedImg,
-    sendMessage,
-    setImgs,
     setSelectedImage,
     setSelectedImg,
+    sessionData,
     setStep,
     step,
-    imgs,
   });
 
   //#region breakPoint beállíátoks (isMd)
   const isMd = useBreakpointValue(
     { base: false, sm: false, md: false, lg: true, xl: true },
-    { ssr: false, fallback: "md" },
+    { fallback: "md" },
   );
   //#endregion
 
   useEffect(() => {
-    setIsLoading(false);
-    setSelectedImage(imgs[selectedImg]);
-  }, [selectedImg, imgs]);
+    if (sessionData.length > 0) setSelectedImage(sessionData[selectedImg].blob);
+  }, [selectedImg, sessionData]);
 
-  //#region WebSocket kezelés
-  useEffect(() => {
-    const wscurr = ws.current;
-    if (!wscurr) return;
-
-    const messageHandler = (event: MessageEvent) => {
-      handleMessage(
-        event,
-        setStep,
-        setImgs,
-        setExifDataForImage,
-        setCaptionSamplesForImage,
-        addImage,
-      );
-    };
-
-    wscurr.addEventListener("message", messageHandler);
-
-    return () => {
-      wscurr.removeEventListener("message", messageHandler);
-    };
-  }, [ws]);
-  //#endregion
-
-  if (step === 0) return <ImageDropZone ws={ws} sendMessage={sendMessage} />;
+  if (step === 0) return <ImageDropZone />;
   if (step === 1)
     return (
       <Flex

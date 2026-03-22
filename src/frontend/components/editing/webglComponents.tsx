@@ -138,15 +138,18 @@ function ImagePlane({
 
 export default function ImageWorkPlace() {
   const {
-    imgs,
     selectedImg,
     textElements,
     setTextElements,
     setCopyrightImageRef,
     copyrightImageRef,
   } = useWorkSession();
-  const { setTextPosition, setImageSize, calculationReFixPosition } =
-    useSessionStore();
+  const {
+    setTextPosition,
+    setImageSize,
+    calculationReFixPosition,
+    sessionData,
+  } = useSessionStore();
   const [size, setSize] = useState<{ width: number; height: number } | null>(
     null,
   );
@@ -325,7 +328,7 @@ export default function ImageWorkPlace() {
         }}
       >
         <ImagePlane
-          src={imgs[selectedImg]}
+          src={sessionData[selectedImg].blob}
           filters={filters}
           setSize={setSize}
           setImageSize={setImageDimension}

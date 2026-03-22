@@ -23,10 +23,14 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       set((state) => {
         state.sessionData = [];
       }),
-    addImage: () =>
+    addImage: (blob: string) =>
       set((state) => {
         const nextId = state.sessionData.length;
-        state.sessionData.push({ id: nextId, exportFileExtension: "jpg" });
+        state.sessionData.push({
+          id: nextId,
+          blob: blob,
+          exportFileExtension: "jpg",
+        });
       }),
     //#endregion
 

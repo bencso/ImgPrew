@@ -10,12 +10,11 @@ import {
 } from "@chakra-ui/react";
 import { LuUpload } from "react-icons/lu";
 import { toaster } from "@/components/ui/toaster";
-import { ServerMessage } from "@/providers/websocketprovider";
-import { RefObject } from "react";
-import { uploadFile } from "@/websocket/handlers/fileUpload";
+import { uploadFile } from "@/handlers/fileUpload";
 import { FileUploadList } from "@/components/upload/fileuploadlist";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { BeatLoader } from "react-spinners";
+import { useSessionStore } from "@/stores/sessionData";
 
 const MAX_FILES = 5;
 export const ACCEPTED_FILES = [
@@ -26,13 +25,7 @@ export const ACCEPTED_FILES = [
   "image/webp",
 ];
 
-export const ImageDropZone = ({
-  ws,
-  sendMessage,
-}: {
-  ws: RefObject<WebSocket | null>;
-  sendMessage({ message, data }: ServerMessage): void;
-}) => {
+export const ImageDropZone = () => {
   const fileUpload = useFileUpload({
     maxFiles: MAX_FILES,
     accept: ACCEPTED_FILES.join(","),
@@ -48,7 +41,8 @@ export const ImageDropZone = ({
     },
   });
 
-  const { isLoading, setIsLoading } = useWorkSession();
+  const { isLoading, setIsLoading, setStep, setSelectedImg } = useWorkSession();
+  const { addImage } = useSessionStore();
 
   return (
     <Stack
@@ -105,7 +99,13 @@ export const ImageDropZone = ({
           as="div"
           onClick={() => {
             setIsLoading(true);
-            uploadFile({ fileUpload, ws, sendMessage });
+            uploadFile({
+              fileUpload,
+              addImage,
+              setStep,
+              setSelectedImg,
+              setIsLoading,
+            });
           }}
           colorPalette="teal"
           variant="surface"

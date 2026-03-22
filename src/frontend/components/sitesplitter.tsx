@@ -1,9 +1,6 @@
 "use client";
 
-import {
-  Splitter,
-  useBreakpointValue,
-} from "@chakra-ui/react";
+import { Splitter, useBreakpointValue } from "@chakra-ui/react";
 import { useLocalStorage } from "react-use";
 import { ReactNode } from "react";
 import { LeftSide } from "./sidebar/leftside";
@@ -16,8 +13,10 @@ export default function SiteSplitter({ children }: { children: ReactNode }) {
     lg: "horizontal",
   });
   const isDesktop = orientation === "horizontal";
-  const [sizes, setSizes] = useLocalStorage<number[]>("splitter-sizes", DEFAULT_SIZES);
-
+  const [sizes, setSizes] = useLocalStorage<number[]>(
+    "splitter-sizes",
+    DEFAULT_SIZES,
+  );
 
   return (
     <Splitter.Root
@@ -39,7 +38,7 @@ export default function SiteSplitter({ children }: { children: ReactNode }) {
       maxW={"100vw"}
       w={"full"}
       h={"full"}
-       minW={0}
+      minW={0}
       defaultSize={sizes}
       orientation={orientation}
     >
@@ -47,12 +46,18 @@ export default function SiteSplitter({ children }: { children: ReactNode }) {
         <LeftSide isDesktop={isDesktop} />
       </Splitter.Panel>
 
-      {isDesktop && <Splitter.ResizeTrigger id="a:b" minH={isDesktop ? "100vh" : "full"}>
-        <Splitter.ResizeTriggerSeparator />
-        <Splitter.ResizeTriggerIndicator hidden />
-      </Splitter.ResizeTrigger>}
+      {isDesktop && (
+        <Splitter.ResizeTrigger id="a:b" minH={isDesktop ? "100vh" : "full"}>
+          <Splitter.ResizeTriggerSeparator />
+          <Splitter.ResizeTriggerIndicator hidden />
+        </Splitter.ResizeTrigger>
+      )}
 
-      <Splitter.Panel  id="b" minH={isDesktop ? "100vh" : "full"} textStyle="2xl">
+      <Splitter.Panel
+        id="b"
+        minH={isDesktop ? "100vh" : "full"}
+        textStyle="2xl"
+      >
         {children}
       </Splitter.Panel>
     </Splitter.Root>

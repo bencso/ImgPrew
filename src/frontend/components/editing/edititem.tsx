@@ -1,6 +1,5 @@
 import { EditItemProp, InputTypes } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
-import { useWebsocket } from "@/providers/websocketprovider";
 import {
   Box,
   Button,
@@ -111,9 +110,8 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
 const Item = ({ items }: { items: EditItemProp }) => {
   //#region contextek, és egyéb függőségek
   const { editFunction, selectedImg } = useWorkSession();
-  const { ws, sendMessage } = useWebsocket();
   const handleChange = (name: string, value: any) => {
-    editFunction(ws, selectedImg, items.function, name, value);
+    editFunction(selectedImg, items.function, name, value);
   };
   //#endregion
 
@@ -178,15 +176,7 @@ const Item = ({ items }: { items: EditItemProp }) => {
                 <Button
                   key={index}
                   spinner={<BeatLoader size={12} color={"#004d40"} />}
-                  onClick={
-                    item.onChange
-                      ? item.onChange
-                      : (e) => {
-                          sendMessage({
-                            message: item.name,
-                          });
-                        }
-                  }
+                  onClick={item.onChange ? item.onChange : (e) => {}}
                 >
                   {item.name}
                 </Button>

@@ -1,6 +1,5 @@
 import { EditItemProp } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
-import { useWebsocket } from "@/providers/websocketprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { SliderValueChangeDetails, Button } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
@@ -18,14 +17,12 @@ import {
   LuCopyright,
 } from "react-icons/lu";
 import CaptionBlock from "./caption/captionBlock";
-import Histogram from "./histogram";
 import TextBlock from "./text/textBlock";
 import CopyrightBlock from "./copyright/copyrightBlock";
 
 const sidebarElements = (
   exportAllDataForImage: any,
   setExportFileExtension: any,
-  sendMessage: any,
   selectedImg: any,
   selectedExtension: any,
   editFilters: any,
@@ -87,11 +84,6 @@ const sidebarElements = (
       function: "filters",
       icon: <LuFilter />,
       inputs: [
-        {
-          name: "Histogram",
-          inputType: "customElement",
-          options: <Histogram />,
-        },
         {
           name: "Fényerő",
           icon: <LuSun />,
@@ -175,10 +167,6 @@ const sidebarElements = (
           inputType: "submit",
           onChange: () => {
             const data = exportAllDataForImage(selectedImg);
-            sendMessage({
-              message: "export",
-              data: JSON.stringify(data),
-            });
           },
         },
       ],
@@ -191,7 +179,6 @@ export default function SideBar() {
   const { selectedImg, addFunction } = useWorkSession();
   const [editItems, setEditItems] = useState<EditItemProp[]>([]);
 
-  const { sendMessage } = useWebsocket();
   const {
     sessionData,
     setExportFileExtension,
@@ -221,7 +208,6 @@ export default function SideBar() {
       sidebarElements(
         exportAllDataForImage,
         setExportFileExtension,
-        sendMessage,
         selectedImg,
         selectedExtension,
         editFilters,

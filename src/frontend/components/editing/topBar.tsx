@@ -1,5 +1,4 @@
 import { useWorkSession } from "@/providers/sessionprovider";
-import { useWebsocket } from "@/providers/websocketprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { Box, Button, Flex, Group, Input, InputGroup } from "@chakra-ui/react";
 import { useState } from "react";
@@ -10,10 +9,9 @@ export default function TopBar({
 }: {
   setSelectedImage: any;
 }) {
-  const { setStep, setImgs, setSelectedImg } = useWorkSession();
+  const { setStep, setSelectedImg } = useWorkSession();
   const [presetId, setPresetId] = useState<string>();
   const { clearSessionData } = useSessionStore();
-  const { sendMessage } = useWebsocket();
 
   return (
     <Flex
@@ -30,8 +28,6 @@ export default function TopBar({
         variant={"subtle"}
         colorPalette={"teal"}
         onClick={() => {
-          sendMessage({ message: "newSession" });
-          setImgs([]);
           setSelectedImage(undefined);
           setSelectedImg(0);
           setStep(0);

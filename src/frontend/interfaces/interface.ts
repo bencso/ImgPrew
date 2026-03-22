@@ -58,6 +58,7 @@ export interface DraggableImageEvent {
 
 export interface CustomImage {
   id: number;
+  blob: string;
   exportFileExtension: string;
   caption?: string;
   exifDatas?: string[];
@@ -80,7 +81,7 @@ export interface SessionStore {
   sessionData: CustomImage[];
   setSessionData: (data: CustomImage[]) => any;
   clearSessionData: () => any;
-  addImage: () => any;
+  addImage: (blob: string) => any;
   //#endregion
 
   //#region Segédfüggvények
@@ -196,7 +197,6 @@ export interface FunctionsState {
   functions: FunctionItem[];
   addFunction: (name: string, inputs: FunctionProp[]) => void;
   editFunction: (
-    ws: RefObject<WebSocket | null>,
     selectedImg: number,
     functionName: string,
     inputName: string,
@@ -209,8 +209,6 @@ export interface FunctionsState {
 export interface WorkSessionContextProps {
   step: number;
   setStep: Dispatch<SetStateAction<number>>;
-  imgs: string[];
-  setImgs: Dispatch<SetStateAction<string[]>>;
   selectedImg: number;
   setSelectedImg: Dispatch<SetStateAction<number>>;
   sessionData: CustomImage[];
@@ -218,7 +216,6 @@ export interface WorkSessionContextProps {
   functions: FunctionItem[];
   addFunction: (name: string, inputs: FunctionProp[]) => void;
   editFunction: (
-    ws: RefObject<WebSocket | null>,
     selectedImg: number,
     functionName: string,
     inputName: string,

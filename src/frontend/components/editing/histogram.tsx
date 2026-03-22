@@ -4,14 +4,17 @@ import { useEffect, useRef } from "react";
 
 export default function Histogram() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const { selectedImg, imgs } = useWorkSession();
+  const { selectedImg } = useWorkSession();
   const { convertHistogram, sessionData } = useSessionStore();
 
-  let histogramData = convertHistogram(canvasRef, imgs[selectedImg]);
+  let histogramData = convertHistogram(
+    canvasRef,
+    sessionData[selectedImg].blob,
+  );
 
   useEffect(() => {
-    histogramData = convertHistogram(canvasRef, imgs[selectedImg]);
-  }, [sessionData]);
+    histogramData = convertHistogram(canvasRef, sessionData[selectedImg].blob);
+  }, [selectedImg]);
 
   if (!(histogramData instanceof Array)) return;
 
