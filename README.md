@@ -2,7 +2,7 @@
 
 <div align="center">
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/5e1bb59d-78b2-4a1b-9b22-1979ac3526c6" alt="full logo" width="280" />
+  <img width="280" alt="full logo" src="https://github.com/user-attachments/assets/e8460afd-c540-44d7-9d6e-441583bb9026" />
 </p>
   <h2>Gyorsítsd fel a fotós workflow-d!</h2>
   <p><em>EXIF adatok kinyerése és manipulálása, képszerkesztés és közösségi médiára felkészítés egy helyen.</em></p>
