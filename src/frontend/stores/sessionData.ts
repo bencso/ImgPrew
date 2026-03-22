@@ -72,7 +72,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           case XPositions.LEFT:
             switch (positions.y) {
               case YPositions.TOP:
-                return { x: 20, y: 5 };
+                return { x: 20, y: 20 };
               case YPositions.CENTER:
                 return { x: 20, y: imageHCP / 2 };
               case YPositions.BOTTOM:

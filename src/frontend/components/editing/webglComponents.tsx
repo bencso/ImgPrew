@@ -179,6 +179,10 @@ export default function ImageWorkPlace() {
     Record<string, { x: number; y: number }>
   >({});
 
+  const copyrightImageSize = useSessionStore((s) =>
+    s.sessionData.find((sD) => sD.id === selectedImg),
+  );
+
   useEffect(() => {
     if (!copyrightImageRef) return;
     const position = calculationReFixPosition(
@@ -190,7 +194,7 @@ export default function ImageWorkPlace() {
       x: position.x,
       y: position.y,
     });
-  }, [selectedImg, copyrightImageRef]);
+  }, [selectedImg, copyrightImageRef, copyrightImageSize]);
 
   const [draggableId, setDraggableId] = useState<string | null>(null);
 

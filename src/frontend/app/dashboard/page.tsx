@@ -36,6 +36,17 @@ export default function Page() {
     useSessionStore();
   //#endregion
 
+  keyboardShortcuts({
+    selectedImg,
+    sendMessage,
+    setImgs,
+    setSelectedImage,
+    setSelectedImg,
+    setStep,
+    step,
+    imgs,
+  });
+
   //#region breakPoint beállíátoks (isMd)
   const isMd = useBreakpointValue(
     { base: false, sm: false, md: false, lg: true, xl: true },
@@ -71,17 +82,6 @@ export default function Page() {
     };
   }, [ws]);
   //#endregion
-
-  keyboardShortcuts({
-    selectedImg,
-    sendMessage,
-    setImgs,
-    setSelectedImage,
-    setSelectedImg,
-    setStep,
-    step,
-    imgs,
-  });
 
   if (step === 0) return <ImageDropZone ws={ws} sendMessage={sendMessage} />;
   if (step === 1)
