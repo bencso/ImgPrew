@@ -3,7 +3,14 @@ import { useSessionStore } from "@/stores/sessionData";
 import { Box, Flex, Image, Span } from "@chakra-ui/react";
 import { shaderMaterial } from "@react-three/drei";
 import { Canvas, extend, useLoader, useThree } from "@react-three/fiber";
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import * as THREE from "three";
 import Moveable from "react-moveable";
 import { shallow } from "zustand/shallow";
@@ -112,12 +119,15 @@ function ImagePlane({
     }
   }, [width, height]);
 
-  const mat = new ImageMaterial();
-  mat.uTexture = texture;
-  mat.uBrightness = filters.brightness;
-  mat.uContrast = filters.contrast;
-  mat.uSaturation = filters.saturation;
-  mat.uExposure = filters.exposure;
+  const mat = useMemo(() => {
+    const m = new ImageMaterial();
+    m.uTexture = texture;
+    m.uBrightness = filters.brightness;
+    m.uContrast = filters.contrast;
+    m.uSaturation = filters.saturation;
+    m.uExposure = filters.exposure;
+    return m;
+  }, [texture, filters]);
 
   return (
     <mesh scale={[width, height, 1]} material={mat}>
@@ -314,6 +324,8 @@ export default function ImageWorkPlace() {
             position={"relative"}
             left={cpPosition.x}
             top={cpPosition.y}
+            draggable={false}
+            userSelect={"none"}
           />
         )}
       </Box>

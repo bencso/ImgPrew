@@ -1,25 +1,21 @@
 "use client";
 
+import { useWorkSession } from "@/providers/sessionprovider";
 import type { IconButtonProps, SpanProps } from "@chakra-ui/react";
 import { ClientOnly, IconButton, Skeleton, Span } from "@chakra-ui/react";
 import { ThemeProvider, useTheme } from "next-themes";
 import type { ThemeProviderProps } from "next-themes";
-import * as React from "react";
+import { forwardRef, useEffect } from "react";
 import { LuMoon, LuSun } from "react-icons/lu";
-import dynamic from "next/dynamic";
-
-const Loader = dynamic(() => import("../loader"), { ssr: false });
 
 export interface ColorModeProviderProps extends ThemeProviderProps {}
 
 export function ColorModeProvider(props: ColorModeProviderProps) {
-  const [mounted, setMounted] = React.useState(false);
-  React.useEffect(() => {
-    setMounted(true);
+  const { setIsLoading } = useWorkSession();
+
+  useEffect(() => {
+    setIsLoading(false);
   }, []);
-
-  if (!mounted) return <Loader />;
-
   return (
     <ThemeProvider attribute="class" disableTransitionOnChange {...props} />
   );
@@ -58,7 +54,7 @@ export function ColorModeIcon() {
 
 interface ColorModeButtonProps extends Omit<IconButtonProps, "aria-label"> {}
 
-export const ColorModeButton = React.forwardRef<
+export const ColorModeButton = forwardRef<
   HTMLButtonElement,
   ColorModeButtonProps
 >(function ColorModeButton(props, ref) {
@@ -85,7 +81,7 @@ export const ColorModeButton = React.forwardRef<
   );
 });
 
-export const LightMode = React.forwardRef<HTMLSpanElement, SpanProps>(
+export const LightMode = forwardRef<HTMLSpanElement, SpanProps>(
   function LightMode(props, ref) {
     return (
       <Span
@@ -101,7 +97,7 @@ export const LightMode = React.forwardRef<HTMLSpanElement, SpanProps>(
   },
 );
 
-export const DarkMode = React.forwardRef<HTMLSpanElement, SpanProps>(
+export const DarkMode = forwardRef<HTMLSpanElement, SpanProps>(
   function DarkMode(props, ref) {
     return (
       <Span

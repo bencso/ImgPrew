@@ -30,6 +30,7 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
   );
   const [copyrightImageRef, setCopyrightImageRef] =
     useState<HTMLImageElement | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const { sendMessage } = useWebsocket();
 
@@ -61,6 +62,8 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       setTextElements,
       copyrightImageRef,
       setCopyrightImageRef,
+      isLoading,
+      setIsLoading,
     }),
     [
       imgs,
@@ -70,6 +73,7 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       sessionData,
       textElements,
       copyrightImageRef,
+      isLoading,
     ],
   );
 

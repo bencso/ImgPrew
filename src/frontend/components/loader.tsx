@@ -21,7 +21,7 @@ export default function Loader() {
       backgroundColor={"bg"}
       zIndex={"max"}
     >
-      <BeatLoader color="#38B2AC" size={12} />
+      <BeatLoader size={12} color={"#004d40"} />
     </Box>
   );
 }

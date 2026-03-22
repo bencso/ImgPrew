@@ -63,7 +63,7 @@ export default function Page() {
             variant={"solid"}
             gap={2}
             colorPalette={"teal"}
-            spinner={<BeatLoader />}
+            spinner={<BeatLoader size={12} color={"#004d40"} />}
           >
             <FaGoogle /> Bejelentkezés Google-vel
           </Button>

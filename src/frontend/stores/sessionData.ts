@@ -76,7 +76,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
               case YPositions.CENTER:
                 return { x: 5, y: imageHCP / 2 };
               case YPositions.BOTTOM:
-                return { x: 5, y: imageHCP };
+                return { x: 5, y: imageHCP - 20 };
             }
 
           case XPositions.CENTER:
@@ -86,17 +86,17 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
               case YPositions.CENTER:
                 return { x: imageHalf, y: imageHCP / 2 };
               case YPositions.BOTTOM:
-                return { x: imageHalf, y: imageHCP };
+                return { x: imageHalf, y: imageHCP - 20 };
             }
 
           case XPositions.RIGHT:
             switch (positions.y) {
               case YPositions.TOP:
-                return { x: imageWCP, y: 5 };
+                return { x: imageWCP - 20, y: 5 };
               case YPositions.CENTER:
-                return { x: imageWCP, y: imageHCP / 2 };
+                return { x: imageWCP - 20, y: imageHCP / 2 };
               case YPositions.BOTTOM:
-                return { x: imageWCP, y: imageHCP };
+                return { x: imageWCP - 20, y: imageHCP - 20 };
             }
         }
       }

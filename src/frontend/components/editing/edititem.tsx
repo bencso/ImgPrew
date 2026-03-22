@@ -177,7 +177,7 @@ const Item = ({ items }: { items: EditItemProp }) => {
               return (
                 <Button
                   key={index}
-                  spinner={<BeatLoader />}
+                  spinner={<BeatLoader size={12} color={"#004d40"} />}
                   onClick={
                     item.onChange
                       ? item.onChange

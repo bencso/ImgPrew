@@ -11,12 +11,24 @@ import { useEffect, useState } from "react";
 import SideBar from "@/components/editing/sidebar";
 import BottomBar from "@/components/editing/moreImagesBottomBar";
 import TopBar from "@/components/editing/topBar";
-import ImageWorkPlace from "@/components/editing/webglComponents";
+import dynamic from "next/dynamic";
+
+const ImageWorkPlace = dynamic(
+  () => import("@/components/editing/webglComponents"),
+  { ssr: false },
+);
 
 export default function Page() {
   //#region contextek
-  const { step, imgs, setStep, setImgs, setSelectedImg, selectedImg } =
-    useWorkSession();
+  const {
+    step,
+    imgs,
+    setStep,
+    setImgs,
+    setSelectedImg,
+    selectedImg,
+    setIsLoading,
+  } = useWorkSession();
   const [selectedImage, setSelectedImage] = useState<string>();
 
   const { ws, sendMessage } = useWebsocket();
@@ -32,6 +44,7 @@ export default function Page() {
   //#endregion
 
   useEffect(() => {
+    setIsLoading(false);
     setSelectedImage(imgs[selectedImg]);
   }, [selectedImg, imgs]);
 

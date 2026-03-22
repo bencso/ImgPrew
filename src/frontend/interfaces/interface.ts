@@ -228,6 +228,8 @@ export interface WorkSessionContextProps {
   setTextElements: Dispatch<SetStateAction<Record<UUID, HTMLElement>>>;
   copyrightImageRef: HTMLImageElement | null;
   setCopyrightImageRef: Dispatch<SetStateAction<HTMLImageElement | null>>;
+  isLoading: boolean;
+  setIsLoading: Dispatch<SetStateAction<boolean>>;
 }
 //#endregion
 

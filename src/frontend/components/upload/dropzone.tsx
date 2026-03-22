@@ -14,6 +14,8 @@ import { ServerMessage } from "@/providers/websocketprovider";
 import { RefObject } from "react";
 import { uploadFile } from "@/websocket/handlers/fileUpload";
 import { FileUploadList } from "@/components/upload/fileuploadlist";
+import { useWorkSession } from "@/providers/sessionprovider";
+import { BeatLoader } from "react-spinners";
 
 const MAX_FILES = 5;
 export const ACCEPTED_FILES = [
@@ -45,6 +47,8 @@ export const ImageDropZone = ({
       return (details.files = []);
     },
   });
+
+  const { isLoading, setIsLoading } = useWorkSession();
 
   return (
     <Stack
@@ -99,9 +103,15 @@ export const ImageDropZone = ({
         <Button
           w={"full"}
           as="div"
-          onClick={() => uploadFile({ fileUpload, ws, sendMessage })}
+          onClick={() => {
+            setIsLoading(true);
+            uploadFile({ fileUpload, ws, sendMessage });
+          }}
           colorPalette="teal"
           variant="surface"
+          disabled={isLoading}
+          loading={isLoading}
+          spinner={<BeatLoader size={12} color={"#004d40"} />}
         >
           Tovább
         </Button>

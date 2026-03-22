@@ -87,15 +87,10 @@ export default function CopyrightBlock() {
               </FileUpload.DropzoneContent>
             </FileUpload.Dropzone>
           ) : (
-            <Box
-              overflowY={"scroll"}
-              scrollbar={"hidden"}
-              maxH={200}
-              w={"full"}
-            >
+            <Box overflowY={"scroll"} scrollbar={"hidden"} w={"full"}>
               <FileUpload.ItemGroup>
                 {accepted.map((file) => (
-                  <FileUpload.Item key={file.name} file={file}>
+                  <FileUpload.Item key={file.name} file={file} justifyContent={"space-between"}>
                     <FileUpload.ItemName />
                     <FileUpload.ItemDeleteTrigger
                       onClick={() => {
@@ -107,13 +102,13 @@ export default function CopyrightBlock() {
                   </FileUpload.Item>
                 ))}
               </FileUpload.ItemGroup>
+              <Stack gap="2" mt={4}>
+                <ImageManipulationBlock />
+              </Stack>
             </Box>
           )}
         </FileUpload.RootProvider>
       </Flex>
-      <Stack gap="2" mt={4}>
-        <ImageManipulationBlock />
-      </Stack>
     </Box>
   );
 }
