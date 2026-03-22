@@ -1,9 +1,11 @@
 "use client";
 
 import { Splitter, useBreakpointValue } from "@chakra-ui/react";
-import { useLocalStorage } from "react-use";
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { LeftSide } from "./sidebar/leftside";
+import { useSessionStore } from "@/stores/sessionData";
+import { useWorkSession } from "@/providers/sessionprovider";
+import Loader from "./loader";
 
 const DEFAULT_SIZES = [20, 80];
 
@@ -13,10 +15,25 @@ export default function SiteSplitter({ children }: { children: ReactNode }) {
     lg: "horizontal",
   });
   const isDesktop = orientation === "horizontal";
-  const [sizes, setSizes] = useLocalStorage<number[]>(
-    "splitter-sizes",
-    DEFAULT_SIZES,
-  );
+  const [sizes, setSizes] = useState<number[] | null>(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("splitter-sizes");
+    if (stored) {
+      setSizes(JSON.parse(stored));
+    } else {
+      setSizes(DEFAULT_SIZES);
+      localStorage.setItem("splitter-sizes", JSON.stringify(DEFAULT_SIZES));
+    }
+    console.log(sizes);
+  }, []);
+
+  const handleResizeEnd = (e: any) => {
+    setSizes(e.size);
+    localStorage.setItem("splitter-sizes", JSON.stringify(e.size));
+  };
+
+  if (sizes === null) return <Loader />;
 
   return (
     <Splitter.Root
@@ -30,7 +47,7 @@ export default function SiteSplitter({ children }: { children: ReactNode }) {
         },
         { id: "b", minSize: isDesktop ? 85 : 90 },
       ]}
-      onResizeEnd={(e) => setSizes(e.size)}
+      onResizeEnd={handleResizeEnd}
       borderWidth="1px"
       overflow={"hidden"}
       maxH={"100vh"}

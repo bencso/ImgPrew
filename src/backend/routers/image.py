@@ -1,5 +1,8 @@
+import json
+
 from fastapi import UploadFile, APIRouter
 from fastapi.responses import JSONResponse
+from functions.caption_generator import CaptionGenerator
 from classes.uploadedimage import UploadedImage
 from dependencies import IMAGE_EXTENSIONS
 
@@ -17,11 +20,28 @@ async def uploadImage(file: UploadFile):
         file_bytes = await file.read()
         img = UploadedImage(file_bytes)
 
+        caption_helper = CaptionGenerator(img=img.get_img())
+        caption_sample = caption_helper.getSampleForPhoto() or []
+        data = json.dumps(
+            {
+                "exif_data": [
+                    item for _, item in caption_helper.getExifInfos().items()
+                ],
+                "caption_samples": caption_sample,
+                "byte": img.encode_bytes(),
+            }
+        )
         return JSONResponse(
             status_code=200,
-            content={"message": "Sikeres feltöltés", "data": img.encode_bytes()},
+            content={
+                "message": "Sikeres feltöltés",
+                "data": data,
+            },
         )
     except Exception as ex:
         return JSONResponse(
-            status_code=400, content={"message": f"{ex}", "status": 400}
+            status_code=400,
+            content={
+                "message": f"{ex}",
+            },
         )

@@ -99,13 +99,14 @@ export const ImageDropZone = () => {
           as="div"
           onClick={() => {
             setIsLoading(true);
-            uploadFile({
-              fileUpload,
-              addImage,
-              setStep,
-              setSelectedImg,
-              setIsLoading,
-            });
+            if (!isLoading)
+              uploadFile({
+                fileUpload,
+                addImage,
+                setStep,
+                setSelectedImg,
+                setIsLoading,
+              });
           }}
           colorPalette="teal"
           variant="surface"

@@ -18,7 +18,8 @@ const ImageWorkPlace = dynamic(
 
 export default function Page() {
   //#region contextek
-  const { step, setStep, setSelectedImg, selectedImg } = useWorkSession();
+  const { step, setStep, setSelectedImg, selectedImg, isLoading } =
+    useWorkSession();
   const { sessionData } = useSessionStore();
   const [selectedImage, setSelectedImage] = useState<string>();
 

@@ -3,6 +3,7 @@ import { immer } from "zustand/middleware/immer";
 import { RefObject } from "react";
 import {
   calculationTypeEnum,
+  CustomImage,
   DraggableImageEvent,
   SessionStore,
   XPositions,
@@ -23,14 +24,18 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       set((state) => {
         state.sessionData = [];
       }),
-    addImage: (blob: string) =>
+    addImage: (blob: string, exifData?: string[], captionSamples?: string[]) =>
       set((state) => {
         const nextId = state.sessionData.length;
-        state.sessionData.push({
+        const sessionData = {
           id: nextId,
           blob: blob,
           exportFileExtension: "jpg",
-        });
+        } as CustomImage;
+
+        if (exifData) sessionData.exifDatas = exifData;
+        if (captionSamples) sessionData.captionSamples = captionSamples;
+        state.sessionData.push(sessionData);
       }),
     //#endregion
 

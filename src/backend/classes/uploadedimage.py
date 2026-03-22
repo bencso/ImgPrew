@@ -16,9 +16,6 @@ class UploadedImage:
 
     def get_img(self):
         return Image.open(io.BytesIO(self.edited_image))
-    
-    def get_exif(self):
-        return ""
 
     def __exit__(self, **args):
         part = base64.b64encode(self.edited_image).decode("ascii")

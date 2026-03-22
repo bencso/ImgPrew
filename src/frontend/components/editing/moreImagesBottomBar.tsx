@@ -3,7 +3,6 @@ import { useSessionStore } from "@/stores/sessionData";
 import {
   Box,
   Flex,
-  GridItem,
   Kbd,
   Separator,
   Image,
@@ -110,6 +109,7 @@ export default function BottomBar() {
                   transition="opacity 0.2s"
                   _hover={{ opacity: 0.8 }}
                   onClick={() => setSelectedImg(index)}
+                  backgroundColor={"bg.emphasized"}
                 >
                   <Image
                     src={img.blob}

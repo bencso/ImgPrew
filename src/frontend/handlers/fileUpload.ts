@@ -3,7 +3,11 @@ import { Dispatch, SetStateAction } from "react";
 
 interface uploadFileProps {
   fileUpload: UseFileUploadReturn;
-  addImage: (blob: string) => any;
+  addImage: (
+    blob: string,
+    exifData?: string[] | undefined,
+    captionSamples?: string[] | undefined,
+  ) => void;
   setStep: Dispatch<SetStateAction<number>>;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
   setSelectedImg: Dispatch<SetStateAction<number>>;
@@ -19,37 +23,38 @@ export const uploadFile = async ({
   var files = fileUpload.acceptedFiles;
 
   try {
-    files.map(async (file) => {
-      const formData = new FormData();
-      formData.append("file", file);
+    await Promise.all(
+      files.map(async (file) => {
+        const formData = new FormData();
+        formData.append("file", file);
 
-      const response = await fetch("/api/images/upload", {
-        method: "POST",
-        body: formData,
-      })
-        .then(async (e) => {
-          return await e.json();
-        })
-        .catch(() => {
-          return null;
-        });
+        const res = await fetch("/api/images/upload", {
+          method: "POST",
+          body: formData,
+        }).catch(() => null);
 
-      const responseByte = response.data;
-      const byteCharacters = atob(responseByte);
-      const byteNumbers = new Array(byteCharacters.length);
+        if (!res || !res.ok) return;
 
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteNumbers[i] = byteCharacters.charCodeAt(i);
-      }
+        const response = await res.json();
+        const responseData = JSON.parse(response.data);
 
-      const byteArray = new Uint8Array(byteNumbers);
-      const blob = new Blob([byteArray], { type: "image/jpeg" });
-      addImage(URL.createObjectURL(blob));
-    });
+        if (!responseData["byte"]) return;
+
+        const byteArray = Uint8Array.from(atob(responseData["byte"]), (c) =>
+          c.charCodeAt(0),
+        );
+        const blob = new Blob([byteArray], { type: "image/jpeg" });
+
+        const exifData = responseData["exif_data"];
+        const captionSamples = responseData["caption_samples"];
+
+        addImage(URL.createObjectURL(blob), exifData, captionSamples);
+      }),
+    );
+    setIsLoading(false);
     setSelectedImg(0);
     setStep(1);
-    setIsLoading(false);
-  } catch {
-    return null;
+  } catch (err: any) {
+    console.error("Hiba fájlfeltöltés közben! Error: " + err);
   }
 };

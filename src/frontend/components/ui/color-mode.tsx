@@ -16,8 +16,15 @@ export function ColorModeProvider(props: ColorModeProviderProps) {
   useEffect(() => {
     setIsLoading(false);
   }, []);
+
   return (
-    <ThemeProvider attribute="class" disableTransitionOnChange {...props} />
+    <ThemeProvider
+      enableSystem
+      defaultTheme="system"
+      attribute="class"
+      disableTransitionOnChange
+      {...props}
+    />
   );
 }
 

@@ -6,6 +6,7 @@ import { Canvas, extend, useLoader, useThree } from "@react-three/fiber";
 import {
   Dispatch,
   SetStateAction,
+  Suspense,
   useCallback,
   useEffect,
   useMemo,
@@ -18,6 +19,8 @@ import {
   calculationTypeEnum,
   DraggableImageEvent,
 } from "@/interfaces/interface";
+import Loader from "../loader";
+import { GridLoader, SyncLoader } from "react-spinners";
 
 const ImageMaterial = shaderMaterial(
   {
@@ -102,6 +105,7 @@ function ImagePlane({
 }) {
   const { viewport } = useThree();
   const texture = useLoader(THREE.TextureLoader, src);
+
   if (!texture.image) return null;
 
   const imgW = texture.image.width;
@@ -236,9 +240,6 @@ export default function ImageWorkPlace() {
       justifyContent={"center"}
       alignItems={"center"}
     >
-      {
-        //TODO: külön elszaparálni majd késöbbre
-      }
       <Box
         zIndex={100}
         h={size?.height || 0}
@@ -319,21 +320,23 @@ export default function ImageWorkPlace() {
           />
         )}
       </Box>
-      <Canvas
-        orthographic
-        style={{ width: "100%", height: "100%" }}
-        gl={{
-          antialias: true,
-          toneMapping: THREE.ACESFilmicToneMapping,
-        }}
-      >
-        <ImagePlane
-          src={sessionData[selectedImg].blob}
-          filters={filters}
-          setSize={setSize}
-          setImageSize={setImageDimension}
-        />
-      </Canvas>
+      <Suspense fallback={<SyncLoader size={12} color="teal" />}>
+        <Canvas
+          orthographic
+          style={{ width: "100%", height: "100%" }}
+          gl={{
+            antialias: true,
+            toneMapping: THREE.ACESFilmicToneMapping,
+          }}
+        >
+          <ImagePlane
+            src={sessionData[selectedImg].blob}
+            filters={filters}
+            setSize={setSize}
+            setImageSize={setImageDimension}
+          />
+        </Canvas>
+      </Suspense>
     </Flex>
   );
 }

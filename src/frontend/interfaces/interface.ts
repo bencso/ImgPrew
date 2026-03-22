@@ -81,7 +81,11 @@ export interface SessionStore {
   sessionData: CustomImage[];
   setSessionData: (data: CustomImage[]) => any;
   clearSessionData: () => any;
-  addImage: (blob: string) => any;
+  addImage: (
+    blob: string,
+    exifData?: string[] | undefined,
+    captionSamples?: string[] | undefined,
+  ) => void;
   //#endregion
 
   //#region Segédfüggvények

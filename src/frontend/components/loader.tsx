@@ -22,6 +22,9 @@ export default function Loader() {
       alignItems={"center"}
       backgroundColor={"bg"}
       zIndex={"max"}
+      transition="all"
+      animation={"ease-in-out"}
+      animationName={"fade-out"}
     >
       <BeatLoader size={12} color={"#004d40"} />
     </Box>

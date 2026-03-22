@@ -13,18 +13,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="hu">
+    <html lang="hu" suppressHydrationWarning>
       <body>
         <WorkSessionProvider>
           <Provider>
-            <ColorModeProvider>
-              <LangugeProvider>
-                <Suspense fallback={<Loader />}>
+            <Suspense fallback={<Loader />}>
+              <ColorModeProvider>
+                <LangugeProvider>
                   <Toaster />
                   {children}
-                </Suspense>
-              </LangugeProvider>
-            </ColorModeProvider>
+                </LangugeProvider>
+              </ColorModeProvider>
+            </Suspense>
           </Provider>
         </WorkSessionProvider>
       </body>
