@@ -3,7 +3,6 @@ import {
   Dispatch,
   HTMLInputTypeAttribute,
   ReactNode,
-  RefObject,
   SetStateAction,
 } from "react";
 
@@ -175,7 +174,8 @@ export interface SessionStore {
     brightness: number;
     contrast: number;
     saturation: number;
-    exposure: number;
+    gamma: number;
+    temperature: number;
   };
   //#endregion
 }

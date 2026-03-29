@@ -400,7 +400,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       return {
         brightness: getValue(
           img?.filters?.find((f) => f.name === "brightness")?.value,
-          0.5,
+          1,
         ),
         contrast: getValue(
           img?.filters?.find((f) => f.name === "contrast")?.value,
@@ -412,6 +412,14 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         ),
         exposure: getValue(
           img?.filters?.find((f) => f.name === "exposure")?.value,
+          0,
+        ),
+        temperature: getValue(
+          img?.filters?.find((f) => f.name === "temperature")?.value,
+          1,
+        ),
+        gamma: getValue(
+          img?.filters?.find((f) => f.name === "gamma")?.value,
           0,
         ),
       };

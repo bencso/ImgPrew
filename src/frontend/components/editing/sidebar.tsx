@@ -4,15 +4,17 @@ import { useSessionStore } from "@/stores/sessionData";
 import { SliderValueChangeDetails } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
 import {
-  LuAperture,
   LuBlend,
   LuCaptions,
+  LuChartBar,
   LuContrast,
   LuCopyright,
   LuFilter,
   LuImageDown,
+  LuImageUpscale,
   LuSun,
-  LuText,
+  LuThermometer,
+  LuType,
 } from "react-icons/lu";
 import CaptionBlock from "./caption/captionBlock";
 import CopyrightBlock from "./copyright/copyrightBlock";
@@ -42,7 +44,7 @@ const sidebarElements = (
     },
     {
       function: "Szövegek",
-      icon: <LuText />,
+      icon: <LuType />,
       inputs: [
         {
           name: "",
@@ -64,7 +66,7 @@ const sidebarElements = (
     },
     {
       function: "Resize",
-      icon: <LuText />,
+      icon: <LuImageUpscale />,
       inputs: [
         {
           name: "",
@@ -117,7 +119,7 @@ const sidebarElements = (
           max: 1,
           step: 0.01,
           inputType: "slider",
-          defaultValue: getFilterValue(selectedImg, "contrast") || 0,
+          defaultValue: getFilterValue(selectedImg, "contrast") ?? 0,
           onChange: (e: SliderValueChangeDetails) => {
             editFilters(selectedImg, "contrast", e.value[0]);
           },
@@ -132,7 +134,7 @@ const sidebarElements = (
           max: 1,
           step: 0.01,
           inputType: "slider",
-          defaultValue: getFilterValue(selectedImg, "saturation") || 0,
+          defaultValue: getFilterValue(selectedImg, "saturation") ?? 0,
           onChange: (e: SliderValueChangeDetails) => {
             editFilters(selectedImg, "saturation", e.value[0]);
           },
@@ -141,18 +143,33 @@ const sidebarElements = (
           },
         },
         {
-          name: "Exposure",
-          icon: <LuAperture />,
+          name: "Gamma",
+          icon: <LuChartBar />,
           min: -1,
           max: 1,
           step: 0.01,
           inputType: "slider",
-          defaultValue: getFilterValue(selectedImg, "exposure") || 0,
+          defaultValue: getFilterValue(selectedImg, "gamma") ?? 0,
           onChange: (e: SliderValueChangeDetails) => {
-            editFilters(selectedImg, "exposure", e.value[0]);
+            editFilters(selectedImg, "gamma", e.value[0]);
           },
           clearFunc: () => {
-            editFilters(selectedImg, "exposure", 0);
+            editFilters(selectedImg, "gamma", 0);
+          },
+        },
+        {
+          name: "Temperature",
+          icon: <LuThermometer />,
+          min: 0.5,
+          max: 1.5,
+          step: 0.01,
+          inputType: "slider",
+          defaultValue: getFilterValue(selectedImg, "temperature") ?? 1,
+          onChange: (e: SliderValueChangeDetails) => {
+            editFilters(selectedImg, "temperature", e.value[0]);
+          },
+          clearFunc: () => {
+            editFilters(selectedImg, "temperature", 1);
           },
         },
       ],

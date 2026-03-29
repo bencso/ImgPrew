@@ -11,8 +11,10 @@ import {
   Sprite,
   Texture,
 } from "pixi.js";
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef } from "react";
 import { shallow } from "zustand/shallow";
+
+//todo: valamiért kétszer generálodik le a canvas... este van már debugolni :D:DD:
 
 export default function WebGlComponent({
   size,
@@ -28,7 +30,6 @@ export default function WebGlComponent({
   const canvasRef = useRef<HTMLDivElement>(null);
   const { selectedImg } = useWorkSession();
   const { sessionData } = useSessionStore();
-  const [url, setUrl] = useState<string>();
   const appRef = useRef<Application | null>(null);
   const spriteRef = useRef<Sprite | null>(null);
   const textureRef = useRef<Texture | null>(null);
@@ -38,13 +39,7 @@ export default function WebGlComponent({
   const filters = useSessionStore((s) => s.getFilters(selectedImg), shallow);
 
   useEffect(() => {
-    if (sessionData[selectedImg]?.blob) {
-      setUrl(sessionData[selectedImg].blob);
-    }
-  }, [sessionData, selectedImg]);
-
-  useEffect(() => {
-    if (!canvasRef.current || !url) return;
+    if (!canvasRef.current) return;
 
     const app = new Application();
     const container = new Container();
@@ -55,19 +50,13 @@ export default function WebGlComponent({
       await app.init({
         width: 1200,
         height: 1200,
-        resolution: 1,
         antialias: true,
         resizeTo: canvasRef.current!,
       });
 
-      canvasRef.current!.appendChild(app.canvas);
-
+      if (canvasRef.current) canvasRef.current.appendChild(app.canvas);
       const img = new Image();
       img.onload = () => {
-        if (!appRef.current) return;
-
-        URL.revokeObjectURL(img.src);
-
         const source = new ImageSource({ resource: img });
         const texture = new Texture({ source });
         textureRef.current = texture;
@@ -78,20 +67,20 @@ export default function WebGlComponent({
         app.stage.addChild(sprite);
         spriteRef.current = sprite;
 
+        applyFilters();
         resizeSprite();
       };
 
-      img.src = url;
+      img.src = sessionData[selectedImg].blob;
     })();
 
     return () => {
-      app.destroy(true, { children: true });
       appRef.current = null;
       spriteRef.current = null;
       textureRef.current = null;
       if (canvasRef.current) canvasRef.current.innerHTML = "";
     };
-  }, [url]);
+  }, [selectedImg]);
 
   useEffect(() => {
     if (!appRef.current) return;
@@ -106,7 +95,7 @@ export default function WebGlComponent({
     return () => {
       window.removeEventListener("resize", handleResize);
     };
-  }, [textureRef.current]);
+  }, []);
 
   const resizeSprite = () => {
     if (!spriteRef.current || !textureRef.current || !canvasRef.current) return;
@@ -133,9 +122,9 @@ export default function WebGlComponent({
     setSize({ width, height });
     setImageSize(width, height);
   };
-
-  useEffect(() => {
+  const applyFilters = () => {
     if (!spriteRef.current || !appRef.current) return;
+
     const colorMatrix = new ColorMatrixFilter();
     const adjustmentFilter = new AdjustmentFilter();
     const bevelFilter = new BevelFilter();
@@ -147,18 +136,22 @@ export default function WebGlComponent({
     //   blacks = 0,
     //   highlights = 0;
 
-    console.log(filters);
     colorMatrix.brightness(filters.brightness, true);
     colorMatrix.saturate(filters.saturation, true);
     colorMatrix.contrast(filters.contrast, true);
     colorMatrix.hue(0, true);
 
-    // // GAMMA
-    // adjustmentFilter.gamma = 0;
+    const gamma =
+      filters.gamma < 0 ? 1 + filters.gamma * 0.5 : 1 + filters.gamma * 1;
 
-    // // TEMPERATURE
-    // adjustmentFilter.red = temperature; // + melegítés
-    // adjustmentFilter.blue = -temperature; // - hűtés
+    adjustmentFilter.gamma = gamma;
+
+    // TEMPERATURE
+    const t = filters.temperature;
+
+    adjustmentFilter.red = t;
+    adjustmentFilter.green = 1;
+    adjustmentFilter.blue = 2 - t;
 
     // // BLACKS/WHITE
     // adjustmentFilter.contrast = whites - blacks;
@@ -182,11 +175,15 @@ export default function WebGlComponent({
 
     spriteRef.current.filters = [
       colorMatrix,
-      // adjustmentFilter,
+      adjustmentFilter,
       // bevelFilter,
       // // sharpenFilter,
       // noiseFilter,
     ];
+  };
+
+  useEffect(() => {
+    applyFilters();
   }, [filters]);
 
   return <div ref={canvasRef} style={{ width: "100%", height: "100%" }} />;
