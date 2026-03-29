@@ -3,29 +3,29 @@ import { useWorkSession } from "@/providers/sessionprovider";
 import {
   Box,
   Button,
-  Slider,
   CloseButton,
   createListCollection,
   Field,
   FileUpload,
+  Flex,
   HStack,
+  IconButton,
   Input,
   InputGroup,
   Popover,
   Portal,
   RadioCard,
   Select,
+  Slider,
   Span,
   Stack,
   Text,
   useBreakpointValue,
-  IconButton,
-  Flex,
 } from "@chakra-ui/react";
 import React, { Fragment, useState } from "react";
-import ImageIcon from "../icons/imageIcon";
-import { LuEraser, LuFileUp, LuRotateCcw } from "react-icons/lu";
+import { LuFileUp, LuRotateCcw } from "react-icons/lu";
 import { BeatLoader } from "react-spinners";
+import ImageIcon from "../icons/imageIcon";
 
 const activeStyle = {
   borderLeftColor: "teal.fg",
@@ -280,14 +280,13 @@ const Item = ({ items }: { items: EditItemProp }) => {
             case "slider":
               return (
                 <Slider.Root
-                  value={[item.defaultValue ? Number(item.defaultValue) : 0]}
+                  value={[Number(item.defaultValue)]}
                   onValueChange={item.onChange ? item.onChange : undefined}
-                  defaultValue={[0]}
-                  step={item.step ? item.step : 1}
                   key={index}
                   thumbAlignment="center"
-                  min={item.min ? item.min : -100}
-                  max={item.max ? item.max : 100}
+                  min={item.min ?? 0}
+                  max={item.max ?? 1}
+                  step={item.step ?? 0.1}
                 >
                   <Box
                     alignItems={"center"}
@@ -298,7 +297,7 @@ const Item = ({ items }: { items: EditItemProp }) => {
                     <Slider.Label>{item.name}</Slider.Label>
                     <Flex gap={2} alignItems={"center"}>
                       {item.clearFunc !== undefined &&
-                        Number(item.defaultValue) !== 0 && (
+                        Number(item.defaultValue) !== null && (
                           <IconButton
                             size={"sm"}
                             variant={"ghost"}

@@ -1,9 +1,11 @@
-from PIL import Image, ImageOps
-from typing import Optional
-from dependencies import SOCIAL_IMAGES_SIZES
-import logging
-from valid_colors import validColors
 import io
+import logging
+from typing import Optional
+
+from dependencies import SOCIAL_IMAGES_SIZES
+from PIL import Image, ImageOps
+from valid_colors import validColors
+
 
 class ResizeImg:
     def __init__(
@@ -44,7 +46,7 @@ class ResizeImg:
 
     def apply(self) -> Image:
         try:
-            if self.expand == False:
+            if not self.expand:
                 SIZE = (self.width, self.height)
                 resized_img = ImageOps.fit(
                     self.img,

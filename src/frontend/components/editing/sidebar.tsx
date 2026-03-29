@@ -1,24 +1,24 @@
 import { EditItemProp } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
-import { SliderValueChangeDetails, Button } from "@chakra-ui/react";
+import { SliderValueChangeDetails } from "@chakra-ui/react";
 import { useMemo, useState } from "react";
-import { EditItem } from "./edititem";
 import {
   LuAperture,
   LuBlend,
   LuCaptions,
   LuContrast,
+  LuCopyright,
   LuFilter,
   LuImageDown,
-  LuText,
   LuSun,
-  LuImage,
-  LuCopyright,
+  LuText,
 } from "react-icons/lu";
 import CaptionBlock from "./caption/captionBlock";
-import TextBlock from "./text/textBlock";
 import CopyrightBlock from "./copyright/copyrightBlock";
+import { EditItem } from "./edititem";
+import ResizeBlock from "./resize/resizeBlock";
+import TextBlock from "./text/textBlock";
 
 const sidebarElements = (
   exportAllDataForImage: any,
@@ -62,6 +62,17 @@ const sidebarElements = (
         },
       ],
     },
+    {
+      function: "Resize",
+      icon: <LuText />,
+      inputs: [
+        {
+          name: "",
+          inputType: "customElement",
+          options: <ResizeBlock />,
+        },
+      ],
+    },
     // {
     //     function: "lut_apply",
     //     icon: <LuFileImage />,
@@ -87,16 +98,16 @@ const sidebarElements = (
         {
           name: "Fényerő",
           icon: <LuSun />,
-          min: -10,
-          max: 10,
-          step: 0.1,
+          min: 0,
+          max: 2,
+          step: 0.01,
           inputType: "slider",
-          defaultValue: getFilterValue(selectedImg, "brightness") || 0,
+          defaultValue: getFilterValue(selectedImg, "brightness") ?? 1,
           onChange: (e: SliderValueChangeDetails) => {
             editFilters(selectedImg, "brightness", e.value[0]);
           },
           clearFunc: () => {
-            editFilters(selectedImg, "brightness", 0);
+            editFilters(selectedImg, "brightness", 1);
           },
         },
         {

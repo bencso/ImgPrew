@@ -1,6 +1,4 @@
-import { v4 as uuidv4 } from "uuid";
-import { immer } from "zustand/middleware/immer";
-import { RefObject } from "react";
+import { toaster } from "@/components/ui/toaster";
 import {
   calculationTypeEnum,
   CustomImage,
@@ -9,8 +7,10 @@ import {
   XPositions,
   YPositions,
 } from "@/interfaces/interface";
+import { RefObject } from "react";
+import { v4 as uuidv4 } from "uuid";
+import { immer } from "zustand/middleware/immer";
 import { createWithEqualityFn } from "zustand/traditional";
-import { toaster } from "@/components/ui/toaster";
 
 export const useSessionStore = createWithEqualityFn<SessionStore>()(
   immer((set, get) => ({
@@ -392,17 +392,28 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     getFilters: (id: number) => {
       const img = get().sessionData.find((img) => img.id === id);
 
+      const getValue = (val: any, fallback: number) => {
+        const num = Number(val);
+        return isNaN(num) ? fallback : num;
+      };
+
       return {
-        brightness:
-          Number(img?.filters?.find((f) => f.name === "brightness")?.value) ||
+        brightness: getValue(
+          img?.filters?.find((f) => f.name === "brightness")?.value,
+          0.5,
+        ),
+        contrast: getValue(
+          img?.filters?.find((f) => f.name === "contrast")?.value,
           0,
-        contrast:
-          Number(img?.filters?.find((f) => f.name === "contrast")?.value) || 0,
-        saturation:
-          Number(img?.filters?.find((f) => f.name === "saturation")?.value) ||
+        ),
+        saturation: getValue(
+          img?.filters?.find((f) => f.name === "saturation")?.value,
           0,
-        exposure:
-          Number(img?.filters?.find((f) => f.name === "exposure")?.value) || 0,
+        ),
+        exposure: getValue(
+          img?.filters?.find((f) => f.name === "exposure")?.value,
+          0,
+        ),
       };
     },
     //#endregion
