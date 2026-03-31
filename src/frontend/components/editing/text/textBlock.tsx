@@ -1,3 +1,4 @@
+//TODO: Holnap (04.01) megcsinálni hogy lehessen a szövegeket pontsabban gombokkal is irányitani
 import { XPositions, YPositions } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
@@ -145,7 +146,8 @@ export default function TextBlock() {
                         bgColor: "cyan.700/50",
                       }}
                       key={text.id + "-edit"}
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setEditId(text.id);
                       }}
                     >
@@ -161,13 +163,13 @@ export default function TextBlock() {
                         bgColor: "red.700/50",
                       }}
                       key={text.id + "-delete"}
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         deleteText(selectedImg, text.id);
                       }}
                     >
                       <LuTrash />
                     </Box>
-                    <Accordion.ItemIndicator />
                   </Accordion.ItemTrigger>
 
                   <Accordion.ItemContent>
