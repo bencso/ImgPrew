@@ -1,3 +1,4 @@
+import { XPositions, YPositions } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import {
@@ -5,6 +6,7 @@ import {
   Box,
   Button,
   ColorPicker,
+  createListCollection,
   Flex,
   Grid,
   HStack,
@@ -18,8 +20,7 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
-import { useState } from "react";
-import { createListCollection } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 import {
   LuArrowDown,
   LuArrowDownLeft,
@@ -30,10 +31,10 @@ import {
   LuArrowUpLeft,
   LuArrowUpRight,
   LuDot,
+  LuPen,
   LuTrash,
 } from "react-icons/lu";
 import { shallow } from "zustand/shallow";
-import { XPositions, YPositions } from "@/interfaces/interface";
 
 const fontWeightCollection = createListCollection({
   items: [
@@ -59,17 +60,32 @@ export default function TextBlock() {
     setTextColor,
     setTextPosition,
     getTextPosition,
+    editText,
   } = useSessionStore();
   const texts = useSessionStore(
     (s) => s.sessionData.find((si) => si.id === selectedImg)?.texts || [],
     shallow,
   );
+
   const imageSize = useSessionStore(
     (s) => s.sessionData.find((img) => img.id === selectedImg)?.dimesions,
     shallow,
   );
-
+  const [editId, setEditId] = useState<string | null>(null);
   const [text, setText] = useState("");
+
+  const textFromStore = useSessionStore(
+    (s) =>
+      s.sessionData
+        .find((i) => i.id === selectedImg)
+        ?.texts?.find((ti) => ti.id === editId)?.text || "",
+    shallow,
+  );
+
+  useEffect(() => {
+    if (!editId) return;
+    setText(textFromStore);
+  }, [editId, textFromStore]);
 
   return (
     <Box>
@@ -85,11 +101,16 @@ export default function TextBlock() {
           colorPalette="teal"
           onClick={() => {
             if (!text) return;
-            addTexts(selectedImg, text);
+            if (!editId) {
+              addTexts(selectedImg, text);
+            } else {
+              editText(selectedImg, editId, text);
+            }
+            setEditId(null);
             setText("");
           }}
         >
-          Hozzáadás
+          {!editId ? "Hozzáadás" : "Módosítás"}
         </Button>
       </Flex>
 
@@ -113,6 +134,23 @@ export default function TextBlock() {
                     >
                       {text.text}
                     </Span>
+
+                    <Box
+                      p={1}
+                      borderRadius={"md"}
+                      color={"cyan.400"}
+                      border={"1px solid"}
+                      borderColor={"cyan.700/50"}
+                      _hover={{
+                        bgColor: "cyan.700/50",
+                      }}
+                      key={text.id + "-edit"}
+                      onClick={() => {
+                        setEditId(text.id);
+                      }}
+                    >
+                      <LuPen />
+                    </Box>
                     <Box
                       p={1}
                       borderRadius={"md"}
@@ -122,7 +160,7 @@ export default function TextBlock() {
                       _hover={{
                         bgColor: "red.700/50",
                       }}
-                      key={text.id}
+                      key={text.id + "-delete"}
                       onClick={() => {
                         deleteText(selectedImg, text.id);
                       }}

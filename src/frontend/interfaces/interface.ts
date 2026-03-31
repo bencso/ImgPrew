@@ -133,6 +133,7 @@ export interface SessionStore {
   //#region TEXT
   addTexts: (imageId: number, text: string) => any;
   deleteText: (imageId: number, textId: string) => void;
+  editText: (imageId: number, textId: string, text: string) => void;
   setTextFontSize: (imageId: number, textId: string, fontSize: number) => any;
   setTextFontWeight: (
     imageId: number,

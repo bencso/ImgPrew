@@ -247,6 +247,21 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         image.texts = removedText.length > 0 ? [...removedText] : [];
       });
     },
+    editText: (imageId: number, textId: string, text: string) => {
+      set((state) => {
+        const image = state.sessionData.find((img) => img.id === imageId);
+        if (!image?.texts) return;
+
+        const textIndex = image.texts.findIndex((text) => text.id === textId);
+        if (textIndex === -1) return;
+
+        image.texts = [
+          ...image.texts.slice(0, textIndex),
+          { ...image.texts[textIndex], text },
+          ...image.texts.slice(textIndex + 1),
+        ];
+      });
+    },
     setTextFontSize: (imageId: number, textId: string, fontSize: number) =>
       set((state) => {
         if (fontSize <= 0) {
