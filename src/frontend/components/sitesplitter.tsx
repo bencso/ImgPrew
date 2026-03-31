@@ -39,10 +39,10 @@ export default function SiteSplitter({ children }: { children: ReactNode }) {
           id: "a",
           collapsible: isDesktop,
           collapsedSize: 5,
-          minSize: 15,
-          maxSize: 20,
+          minSize: isDesktop ? 15 : 8.5,
+          maxSize: isDesktop ? 20 : 8.5,
         },
-        { id: "b", minSize: isDesktop ? 85 : 90 },
+        { id: "b", minSize: isDesktop ? 85 : 100 },
       ]}
       onResizeEnd={handleResizeEnd}
       borderWidth="1px"

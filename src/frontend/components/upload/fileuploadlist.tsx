@@ -66,7 +66,7 @@ export const FileUploadList = () => {
               borderRadius="full"
               bg="teal.border/70"
               color="bg.muted"
-              _hover={{ bg: "teal.500/80", color: "bg.muted" }}
+              _hover={{ bg: "teal.500/90", color: "bg.muted" }}
             >
               <LuTrash size={14} />
             </FileUpload.ItemDeleteTrigger>

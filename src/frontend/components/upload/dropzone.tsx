@@ -80,11 +80,11 @@ export const ImageDropZone = () => {
         {fileUpload.acceptedFiles.length > 1 && (
           <Button
             as="div"
-            smDown={{ w: "full" }}
+            w={"full"}
             gap={3}
             onClick={() => fileUpload.clearFiles()}
-            colorPalette="blackAlpha"
-            variant="outline"
+            colorPalette="red"
+            variant="surface"
           >
             Minden törlés
           </Button>
@@ -111,6 +111,7 @@ export const ImageDropZone = () => {
           colorPalette="teal"
           variant="surface"
           loading={isLoading}
+          mt={2}
           disabled={isLoading}
           spinner={<BeatLoader size={12} color={"#004d40"} />}
         >

@@ -11,7 +11,7 @@ import {
   Sprite,
   Texture,
 } from "pixi.js";
-import { Dispatch, SetStateAction, useEffect, useRef } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 import { shallow } from "zustand/shallow";
 
 //todo: valamiért kétszer generálodik le a canvas... este van már debugolni :D:DD:
@@ -32,6 +32,7 @@ export default function WebGlComponent({
   const spriteRef = useRef<Sprite | null>(null);
   const textureRef = useRef<Texture | null>(null);
   const filtersRef = useRef<Container | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   //! shallow: nem generál le újra az objektumot hanem mintha cachelte volna mindig az adott objektumot irja felül / ÖSSZEHASONLÍT
   const filters = useSessionStore((s) => s.getFilters(selectedImg), shallow);
@@ -46,7 +47,7 @@ export default function WebGlComponent({
     appRef.current = app;
     filtersRef.current = container;
 
-    async function test() {
+    async function loadImage() {
       await app.init({
         width: 1200,
         height: 1200,
@@ -57,6 +58,7 @@ export default function WebGlComponent({
       if (canvasRef.current) canvasRef.current.appendChild(app.canvas);
 
       const img = new Image();
+
       img.onload = () => {
         const source = new ImageSource({ resource: img });
         const texture = new Texture({ source });
@@ -70,12 +72,13 @@ export default function WebGlComponent({
 
         applyFilters();
         resizeSprite();
+        setLoading(false);
       };
 
       img.src = sessionData[selectedImg].blob;
     }
 
-    test();
+    loadImage();
 
     return () => {
       isMounted = false;
@@ -176,6 +179,10 @@ export default function WebGlComponent({
     applyFilters();
     resizeSprite();
   }, [filters]);
+
+  useEffect(() => {
+    setLoading(true);
+  }, [selectedImg]);
 
   return <div ref={canvasRef} style={{ width: "100%", height: "100%" }} />;
 }
