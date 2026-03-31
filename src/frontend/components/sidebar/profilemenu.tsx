@@ -90,7 +90,6 @@ export const ProfileMenu = ({ children }: { children: ReactNode }) => {
           <Dialog.Positioner>
             <Dialog.Content>
               <Dialog.Header>
-                <Dialog.Title>Súgó</Dialog.Title>
                 <Dialog.CloseTrigger asChild>
                   <CloseButton size="sm" />
                 </Dialog.CloseTrigger>
@@ -116,8 +115,8 @@ export const ProfileMenu = ({ children }: { children: ReactNode }) => {
                               <HStack>
                                 {shortcut.keyboardShortcut
                                   .split(" ")
-                                  .map((item) => {
-                                    return <Kbd>{item}</Kbd>;
+                                  .map((item, index) => {
+                                    return <Kbd key={index}>{item}</Kbd>;
                                   })}
                               </HStack>
                             </HStack>
