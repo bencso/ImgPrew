@@ -1,14 +1,14 @@
 "use client";
 
 import { Avatar, Box, Flex, useSplitterContext } from "@chakra-ui/react";
-import ColormodeSwitcher from "@/components/sidebar/colormodeswitch";
+import ColormodeSwitcher from "@/components/sidebar/colormodeSwitch";
 import { ReactNode, useEffect, useState } from "react";
 import { LuGalleryThumbnails, LuHouse } from "react-icons/lu";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import LanguageSwitcher from "@/components/sidebar/languageswitch";
-import { ProfileMenu } from "@/components/sidebar/profilemenu";
-import InfoPopover from "./infopopover";
+import LanguageSwitcher from "@/components/sidebar/languageSwitch";
+import { ProfileMenu } from "@/components/sidebar/profileMenu";
+import InfoPopover from "./infoPopover";
 
 interface Link {
   name?: string;

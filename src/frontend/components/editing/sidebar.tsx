@@ -7,6 +7,7 @@ import {
   LuBlend,
   LuCaptions,
   LuChartBar,
+  LuCircleDotDashed,
   LuContrast,
   LuCopyright,
   LuFilter,
@@ -32,7 +33,7 @@ const sidebarElements = (
 ) => {
   return [
     {
-      function: "create_caption",
+      function: "Kép szöveg",
       icon: <LuCaptions />,
       inputs: [
         {
@@ -43,58 +44,7 @@ const sidebarElements = (
       ],
     },
     {
-      function: "Szövegek",
-      icon: <LuType />,
-      inputs: [
-        {
-          name: "",
-          inputType: "customElement",
-          options: <TextBlock />,
-        },
-      ],
-    },
-    {
-      function: "Védjegy",
-      icon: <LuCopyright />,
-      inputs: [
-        {
-          name: "",
-          inputType: "customElement",
-          options: <CopyrightBlock />,
-        },
-      ],
-    },
-    {
-      function: "Resize",
-      icon: <LuImageUpscale />,
-      inputs: [
-        {
-          name: "",
-          inputType: "customElement",
-          options: <ResizeBlock />,
-        },
-      ],
-    },
-    // {
-    //     function: "lut_apply",
-    //     icon: <LuFileImage />,
-    //     inputs: [
-    //         {
-    //             name: "LUT fájl feltöltés",
-    //             inputType: "file",
-    //             onChange: (e: any) => {
-    //                 console.log(e);
-    //             },
-    //             options: [".cube"]
-    //         },
-    //         {
-    //             name: "LUT mentés",
-    //             inputType: "submit",
-    //         },
-    //     ],
-    // },
-    {
-      function: "filters",
+      function: "Szűrők",
       icon: <LuFilter />,
       inputs: [
         {
@@ -128,7 +78,7 @@ const sidebarElements = (
           },
         },
         {
-          name: "Saturation",
+          name: "Telítettésg",
           icon: <LuBlend />,
           min: -1,
           max: 1,
@@ -143,7 +93,7 @@ const sidebarElements = (
           },
         },
         {
-          name: "Gamma",
+          name: "Blacks / Whites",
           icon: <LuChartBar />,
           min: -1,
           max: 1,
@@ -158,7 +108,7 @@ const sidebarElements = (
           },
         },
         {
-          name: "Temperature",
+          name: "Hőmérséklet",
           icon: <LuThermometer />,
           min: 0.5,
           max: 1.5,
@@ -172,10 +122,76 @@ const sidebarElements = (
             editFilters(selectedImg, "temperature", 1);
           },
         },
+        {
+          name: "Zaj",
+          icon: <LuCircleDotDashed />,
+          min: 0,
+          max: 0.5,
+          step: 0.01,
+          inputType: "slider",
+          defaultValue: getFilterValue(selectedImg, "noise") ?? 0,
+          onChange: (e: SliderValueChangeDetails) => {
+            editFilters(selectedImg, "noise", e.value[0]);
+          },
+          clearFunc: () => {
+            editFilters(selectedImg, "noise", 0);
+          },
+        },
       ],
     },
     {
-      function: "export",
+      function: "Szövegek",
+      icon: <LuType />,
+      inputs: [
+        {
+          name: "",
+          inputType: "customElement",
+          options: <TextBlock />,
+        },
+      ],
+    },
+    {
+      function: "Overlay kép",
+      icon: <LuCopyright />,
+      inputs: [
+        {
+          name: "",
+          inputType: "customElement",
+          options: <CopyrightBlock />,
+        },
+      ],
+    },
+    {
+      function: "Méretezés",
+      icon: <LuImageUpscale />,
+      inputs: [
+        {
+          name: "",
+          inputType: "customElement",
+          options: <ResizeBlock />,
+        },
+      ],
+    },
+    // {
+    //     function: "lut_apply",
+    //     icon: <LuFileImage />,
+    //     inputs: [
+    //         {
+    //             name: "LUT fájl feltöltés",
+    //             inputType: "file",
+    //             onChange: (e: any) => {
+    //                 console.log(e);
+    //             },
+    //             options: [".cube"]
+    //         },
+    //         {
+    //             name: "LUT mentés",
+    //             inputType: "submit",
+    //         },
+    //     ],
+    // },
+    {
+      function: "Exportálás",
       icon: <LuImageDown />,
       inputs: [
         {

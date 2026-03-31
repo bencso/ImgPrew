@@ -1,7 +1,7 @@
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import "pixi-filters";
-import { AdjustmentFilter, BevelFilter } from "pixi-filters";
+import { AdjustmentFilter } from "pixi-filters";
 import {
   Application,
   ColorMatrixFilter,
@@ -17,11 +17,9 @@ import { shallow } from "zustand/shallow";
 //todo: valamiért kétszer generálodik le a canvas... este van már debugolni :D:DD:
 
 export default function WebGlComponent({
-  size,
   setSize,
   setImageSize,
 }: {
-  size: { width: number; height: number } | undefined;
   setSize: Dispatch<
     SetStateAction<{ width: number; height: number } | undefined>
   >;
@@ -40,21 +38,24 @@ export default function WebGlComponent({
 
   useEffect(() => {
     if (!canvasRef.current) return;
+    if (appRef.current) return;
+    let isMounted = true;
 
     const app = new Application();
     const container = new Container();
     appRef.current = app;
     filtersRef.current = container;
 
-    (async () => {
+    async function test() {
       await app.init({
         width: 1200,
         height: 1200,
-        antialias: true,
         resizeTo: canvasRef.current!,
       });
 
+      if (!isMounted) return;
       if (canvasRef.current) canvasRef.current.appendChild(app.canvas);
+
       const img = new Image();
       img.onload = () => {
         const source = new ImageSource({ resource: img });
@@ -72,29 +73,35 @@ export default function WebGlComponent({
       };
 
       img.src = sessionData[selectedImg].blob;
-    })();
+    }
+
+    test();
 
     return () => {
+      isMounted = false;
+
+      if (appRef.current && appRef.current.renderer) {
+        appRef.current.destroy(true);
+      }
+
       appRef.current = null;
       spriteRef.current = null;
       textureRef.current = null;
+
       if (canvasRef.current) canvasRef.current.innerHTML = "";
     };
   }, [selectedImg]);
 
   useEffect(() => {
-    if (!appRef.current) return;
+    if (!canvasRef.current) return;
 
-    const handleResize = () => {
+    const observer = new ResizeObserver(() => {
       resizeSprite();
-    };
+    });
 
-    window.addEventListener("resize", handleResize);
-    handleResize();
+    observer.observe(canvasRef.current);
 
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
+    return () => observer.disconnect();
   }, []);
 
   const resizeSprite = () => {
@@ -105,8 +112,8 @@ export default function WebGlComponent({
 
     // Kiszámoljuk a képnél hogy melyik az ami belefér, majd kiválasszuk belőle a legkissebbet
     const scale = Math.min(
-      canvasRef.current.clientWidth / imgW,
-      canvasRef.current.clientHeight / imgH,
+      canvasRef.current.offsetWidth / imgW,
+      canvasRef.current.offsetHeight / imgH,
     );
     const width = imgW * scale;
     const height = imgH * scale;
@@ -122,19 +129,13 @@ export default function WebGlComponent({
     setSize({ width, height });
     setImageSize(width, height);
   };
+
   const applyFilters = () => {
     if (!spriteRef.current || !appRef.current) return;
 
     const colorMatrix = new ColorMatrixFilter();
     const adjustmentFilter = new AdjustmentFilter();
-    const bevelFilter = new BevelFilter();
     const noiseFilter = new NoiseFilter();
-
-    // let sharpness = 0,
-    //   temperature = 0,
-    //   whites = 0,
-    //   blacks = 0,
-    //   highlights = 0;
 
     colorMatrix.brightness(filters.brightness, true);
     colorMatrix.saturate(filters.saturation, true);
@@ -153,13 +154,8 @@ export default function WebGlComponent({
     adjustmentFilter.green = 1;
     adjustmentFilter.blue = 2 - t;
 
-    // // BLACKS/WHITE
-    // adjustmentFilter.contrast = whites - blacks;
-
-    // // HIGHLIGHTS
-    // colorMatrix.brightness(1 + highlights, false);
-
-    // noiseFilter.noise = 0;
+    noiseFilter.noise = filters.noise;
+    noiseFilter.seed = Math.random();
 
     // const sharpenFilter = new ConvolutionFilter([
     //   0,
@@ -173,17 +169,12 @@ export default function WebGlComponent({
     //   0,
     // ]);
 
-    spriteRef.current.filters = [
-      colorMatrix,
-      adjustmentFilter,
-      // bevelFilter,
-      // // sharpenFilter,
-      // noiseFilter,
-    ];
+    spriteRef.current.filters = [colorMatrix, adjustmentFilter, noiseFilter];
   };
 
   useEffect(() => {
     applyFilters();
+    resizeSprite();
   }, [filters]);
 
   return <div ref={canvasRef} style={{ width: "100%", height: "100%" }} />;

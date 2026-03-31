@@ -2,10 +2,8 @@
 
 import { Splitter, useBreakpointValue } from "@chakra-ui/react";
 import { ReactNode, useEffect, useState } from "react";
-import { LeftSide } from "./sidebar/leftside";
-import { useSessionStore } from "@/stores/sessionData";
-import { useWorkSession } from "@/providers/sessionprovider";
 import Loader from "./loader";
+import { LeftSide } from "./sidebar/leftSide";
 
 const DEFAULT_SIZES = [20, 80];
 
@@ -25,7 +23,6 @@ export default function SiteSplitter({ children }: { children: ReactNode }) {
       setSizes(DEFAULT_SIZES);
       localStorage.setItem("splitter-sizes", JSON.stringify(DEFAULT_SIZES));
     }
-    console.log(sizes);
   }, []);
 
   const handleResizeEnd = (e: any) => {

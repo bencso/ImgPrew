@@ -1,5 +1,10 @@
 "use client";
 
+import { toaster } from "@/components/ui/toaster";
+import { FileUploadList } from "@/components/upload/fileuploadList";
+import { uploadFile } from "@/handlers/fileUpload";
+import { useWorkSession } from "@/providers/sessionprovider";
+import { useSessionStore } from "@/stores/sessionData";
 import {
   Box,
   Button,
@@ -9,12 +14,7 @@ import {
   useFileUpload,
 } from "@chakra-ui/react";
 import { LuUpload } from "react-icons/lu";
-import { toaster } from "@/components/ui/toaster";
-import { uploadFile } from "@/handlers/fileUpload";
-import { FileUploadList } from "@/components/upload/fileuploadlist";
-import { useWorkSession } from "@/providers/sessionprovider";
 import { BeatLoader } from "react-spinners";
-import { useSessionStore } from "@/stores/sessionData";
 
 const MAX_FILES = 5;
 export const ACCEPTED_FILES = [

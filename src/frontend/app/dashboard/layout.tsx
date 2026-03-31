@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Loader from "@/components/loader";
 
-const SiteSplitter = dynamic(() => import("@/components/sitesplitter"), {
+const SiteSplitter = dynamic(() => import("@/components/siteSplitter"), {
   ssr: false,
   loading: () => <Loader />,
 });

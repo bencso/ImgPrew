@@ -176,6 +176,11 @@ export interface SessionStore {
     saturation: number;
     gamma: number;
     temperature: number;
+    noise: number;
+    highlights: number;
+    shadows: number;
+    whites: number;
+    blacks: number;
   };
   //#endregion
 }

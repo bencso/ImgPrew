@@ -5,11 +5,10 @@ import {
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { Box, Flex, Image, Span } from "@chakra-ui/react";
-import { Suspense, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Moveable from "react-moveable";
-import { SyncLoader } from "react-spinners";
 import { shallow } from "zustand/shallow";
-import WebGlComponent from "../test";
+import WebGlComponent from "../webGlComponent";
 
 export default function ImageWorkPlace() {
   const {
@@ -182,13 +181,7 @@ export default function ImageWorkPlace() {
           />
         )}
       </Box>
-      <Suspense fallback={<SyncLoader size={12} color="teal" />}>
-        <WebGlComponent
-          size={size}
-          setSize={setSize}
-          setImageSize={setImageDimension}
-        />
-      </Suspense>
+      <WebGlComponent setSize={setSize} setImageSize={setImageDimension} />
     </Flex>
   );
 }

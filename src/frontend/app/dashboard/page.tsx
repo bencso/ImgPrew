@@ -12,7 +12,7 @@ import dynamic from "next/dynamic";
 import { useSessionStore } from "@/stores/sessionData";
 
 const ImageWorkPlace = dynamic(
-  () => import("@/components/editing/webglComponents"),
+  () => import("@/components/editing/imageWorkPlace"),
   { ssr: false },
 );
 
