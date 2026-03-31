@@ -36,11 +36,10 @@ export default function WebGlComponent({
 
   useEffect(() => {
     if (!canvasRef.current) return;
-    if (appRef.current) return;
-    let isMounted = true;
 
     const app = new Application();
     const container = new Container();
+
     appRef.current = app;
     filtersRef.current = container;
 
@@ -48,17 +47,18 @@ export default function WebGlComponent({
       await app.init({
         width: 1200,
         height: 1200,
-        resizeTo: canvasRef.current!,
       });
 
-      if (!isMounted) return;
       if (canvasRef.current) canvasRef.current.appendChild(app.canvas);
 
       const img = new Image();
 
       img.onload = () => {
+        if (!appRef.current) return;
+
         const source = new ImageSource({ resource: img });
         const texture = new Texture({ source });
+
         textureRef.current = texture;
 
         const sprite = new Sprite(texture);
@@ -68,6 +68,7 @@ export default function WebGlComponent({
         spriteRef.current = sprite;
 
         applyFilters();
+        resizeApp();
         resizeSprite();
       };
 
@@ -77,14 +78,13 @@ export default function WebGlComponent({
     loadImage();
 
     return () => {
-      isMounted = false;
+      if (spriteRef.current) spriteRef.current.destroy(false);
 
-      if (appRef.current && appRef.current.renderer) {
-        appRef.current.destroy(true);
-      }
+      if (textureRef.current) textureRef.current.destroy(false);
 
-      appRef.current = null;
       spriteRef.current = null;
+
+      textureRef.current?.source.unload();
       textureRef.current = null;
 
       if (canvasRef.current) canvasRef.current.innerHTML = "";
@@ -95,6 +95,7 @@ export default function WebGlComponent({
     if (!canvasRef.current) return;
 
     const observer = new ResizeObserver(() => {
+      resizeApp();
       resizeSprite();
     });
 
@@ -102,6 +103,15 @@ export default function WebGlComponent({
 
     return () => observer.disconnect();
   }, []);
+
+  const resizeApp = () => {
+    if (!appRef.current || !canvasRef.current) return;
+    if (appRef.current.renderer)
+      appRef.current.renderer.resize(
+        canvasRef.current.clientWidth,
+        canvasRef.current.clientHeight,
+      );
+  };
 
   const resizeSprite = () => {
     if (!spriteRef.current || !textureRef.current || !canvasRef.current) return;
@@ -154,7 +164,6 @@ export default function WebGlComponent({
     adjustmentFilter.blue = 2 - t;
 
     noiseFilter.noise = filters.noise;
-    noiseFilter.seed = Math.random();
 
     // const sharpenFilter = new ConvolutionFilter([
     //   0,
@@ -168,7 +177,7 @@ export default function WebGlComponent({
     //   0,
     // ]);
 
-    spriteRef.current.filters = [colorMatrix, adjustmentFilter, noiseFilter];
+    spriteRef.current.filters = [noiseFilter, adjustmentFilter, colorMatrix];
   };
 
   useEffect(() => {
