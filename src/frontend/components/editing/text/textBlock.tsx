@@ -63,6 +63,7 @@ export default function TextBlock() {
     getTextPosition,
     editText,
   } = useSessionStore();
+
   const texts = useSessionStore(
     (s) => s.sessionData.find((si) => si.id === selectedImg)?.texts || [],
     shallow,
@@ -279,6 +280,56 @@ export default function TextBlock() {
                         </ColorPicker.Root>
                       </Flex>
                       {/* Szöveg elhelyezése */}
+                      <Flex gap={4} width="full" alignItems="center">
+                        <Box
+                          display={"flex"}
+                          flexDir={"row"}
+                          gap={2}
+                          alignItems={"center"}
+                        >
+                          <Text w="fit">X:</Text>
+
+                          <HStack flex="1">
+                            <NumberInput.Root
+                              value={(text.position.x ?? 0).toString()}
+                              min={0}
+                              onValueChange={(e) =>
+                                setTextPosition(selectedImg, text.id, {
+                                  x: Number(e.value),
+                                  y: text.position.y,
+                                })
+                              }
+                            >
+                              <NumberInput.Control />
+                              <NumberInput.Input />
+                            </NumberInput.Root>
+                          </HStack>
+                        </Box>
+                        <Box
+                          display={"flex"}
+                          flexDir={"row"}
+                          gap={2}
+                          alignItems={"center"}
+                        >
+                          <Text w="fit">Y:</Text>
+
+                          <HStack flex="1">
+                            <NumberInput.Root
+                              value={(text.position.y ?? 0).toString()}
+                              min={0}
+                              onValueChange={(e) =>
+                                setTextPosition(selectedImg, text.id, {
+                                  x: text.position.x,
+                                  y: Number(e.value),
+                                })
+                              }
+                            >
+                              <NumberInput.Control />
+                              <NumberInput.Input />
+                            </NumberInput.Root>
+                          </HStack>
+                        </Box>
+                      </Flex>
                       <Grid
                         display={"grid"}
                         templateRows={"repeat(3, 1fr)"}

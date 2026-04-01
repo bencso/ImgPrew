@@ -40,7 +40,6 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     //#endregion
 
     //#region Segédfüggvények
-    //TODO: refaktorálása ennek a résznek
     calculationReFixPosition: (
       id: number,
       type: calculationTypeEnum,
@@ -77,39 +76,65 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         : { x: 20, y: 20 };
 
       if (positions && positions.x && positions.y) {
-        switch (positions.x) {
-          case XPositions.LEFT:
-            switch (positions.y) {
-              case YPositions.TOP:
-                return { x: 20, y: 20 };
-              case YPositions.CENTER:
-                return { x: 20, y: imageHCP / 2 };
-              case YPositions.BOTTOM:
-                return { x: 20, y: imageHCP - 20 };
-            }
+        let x, y;
 
-          case XPositions.CENTER:
-            switch (positions.y) {
-              case YPositions.TOP:
-                return { x: imageHalf, y: 20 };
-              case YPositions.CENTER:
-                return { x: imageHalf, y: imageHCP / 2 };
-              case YPositions.BOTTOM:
-                return { x: imageHalf, y: imageHCP - 20 };
-            }
-
-          case XPositions.RIGHT:
-            switch (positions.y) {
-              case YPositions.TOP:
-                return { x: imageWCP - 20, y: 20 };
-              case YPositions.CENTER:
-                return { x: imageWCP - 20, y: imageHCP / 2 };
-              case YPositions.BOTTOM:
-                return { x: imageWCP - 20, y: imageHCP - 20 };
-            }
+        x = Number(positions.x);
+        if (Number.isNaN(x)) {
+          x = positions.x.toString().toLowerCase();
         }
-      }
 
+        y = Number(positions.y);
+        if (Number.isNaN(y)) {
+          y = positions.y.toString().toLowerCase();
+        }
+
+        if (typeof x === "number") {
+          return {
+            x: x,
+            y:
+              typeof y === "number"
+                ? y
+                : y === "top"
+                  ? 20
+                  : y === "center"
+                    ? imageHCP / 2
+                    : imageHCP - 20,
+          };
+        }
+        if (typeof y === "number") {
+          return {
+            x:
+              typeof x === "number"
+                ? x
+                : x === "left"
+                  ? 20
+                  : x === "center"
+                    ? imageHalf
+                    : imageHCP - 20,
+            y: y,
+          };
+        }
+
+        const map: any = {
+          ["left"]: {
+            ["top"]: { x: 20, y: 20 },
+            ["center"]: { x: 20, y: imageHCP / 2 },
+            ["bottom"]: { x: 20, y: imageHCP - 20 },
+          },
+          ["center"]: {
+            ["top"]: { x: imageHalf, y: 20 },
+            ["center"]: { x: imageHalf, y: imageHCP / 2 },
+            ["bottom"]: { x: imageHalf, y: imageHCP - 20 },
+          },
+          ["right"]: {
+            ["top"]: { x: imageWCP - 20, y: 20 },
+            ["center"]: { x: imageWCP - 20, y: imageHCP / 2 },
+            ["bottom"]: { x: imageWCP - 20, y: imageHCP - 20 },
+          },
+        };
+
+        return map[x][y] || defaultPosition;
+      }
       return defaultPosition;
     },
     //#endregion
