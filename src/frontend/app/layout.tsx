@@ -1,11 +1,12 @@
-import { Suspense } from "react";
+import "./globals.css";
 
-import { Provider } from "@/components/ui/provider";
-import { ColorModeProvider } from "@/components/ui/color-mode";
-import { LangugeProvider } from "@/providers/languageprovider";
-import { Toaster } from "@/components/ui/toaster";
-import { WorkSessionProvider } from "@/providers/sessionprovider";
 import Loader from "@/components/loader";
+import { ColorModeProvider } from "@/components/ui/color-mode";
+import { Provider } from "@/components/ui/provider";
+import { Toaster } from "@/components/ui/toaster";
+import { LangugeProvider } from "@/providers/languageprovider";
+import { WorkSessionProvider } from "@/providers/sessionprovider";
+import { Suspense } from "react";
 
 export default function RootLayout({
   children,

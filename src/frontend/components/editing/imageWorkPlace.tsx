@@ -7,6 +7,7 @@ import { useSessionStore } from "@/stores/sessionData";
 import { Box, Flex, Image, Span } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
 import Moveable from "react-moveable";
+import { ResizableBox } from "react-resizable";
 import { shallow } from "zustand/shallow";
 import WebGlComponent from "../webGlComponent";
 
@@ -90,6 +91,13 @@ export default function ImageWorkPlace() {
   function setImageDimension(width: number, height: number) {
     setImageSize(selectedImg, width, height);
   }
+
+  const [box, setBox] = useState({
+    x: 0,
+    y: 0,
+    width: 200,
+    height: 250,
+  });
 
   return (
     <Flex
@@ -180,6 +188,27 @@ export default function ImageWorkPlace() {
             userSelect={"none"}
           />
         )}
+
+        {/* <ResizableBox
+          className="box"
+          height={box.height}
+          width={box.width}
+          handle={(h, ref) => (
+            <Box className={`custom-handle custom-handle-${h}`} ref={ref} />
+          )}
+          resizeHandles={["sw", "se", "nw", "ne", "w", "e", "n", "s"]}
+          style={{ position: "relative" }}
+        >
+          <Box
+            h={"full"}
+            w={"full"}
+            backgroundColor={"blackAlpha.300"}
+            position={"relative"}
+            borderColor={"white"}
+            borderStyle={"solid"}
+            borderWidth={"2px"}
+          ></Box>
+        </ResizableBox> */}
       </Box>
       <WebGlComponent setSize={setSize} setImageSize={setImageDimension} />
     </Flex>

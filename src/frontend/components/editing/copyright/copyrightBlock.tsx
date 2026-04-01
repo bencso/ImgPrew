@@ -1,3 +1,6 @@
+import { toaster } from "@/components/ui/toaster";
+import { ACCEPTED_FILES } from "@/components/upload/dropzone";
+import { XPositions, YPositions } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import {
@@ -25,14 +28,6 @@ import {
   LuDot,
 } from "react-icons/lu";
 import { shallow } from "zustand/shallow";
-import { ACCEPTED_FILES } from "@/components/upload/dropzone";
-import { toaster } from "@/components/ui/toaster";
-import { useEffect, useState } from "react";
-import {
-  calculationTypeEnum,
-  XPositions,
-  YPositions,
-} from "@/interfaces/interface";
 
 export default function CopyrightBlock() {
   const { selectedImg, setCopyrightImageRef } = useWorkSession();
@@ -90,7 +85,11 @@ export default function CopyrightBlock() {
             <Box overflowY={"scroll"} scrollbar={"hidden"} w={"full"}>
               <FileUpload.ItemGroup>
                 {accepted.map((file) => (
-                  <FileUpload.Item key={file.name} file={file} justifyContent={"space-between"}>
+                  <FileUpload.Item
+                    key={file.name}
+                    file={file}
+                    justifyContent={"space-between"}
+                  >
                     <FileUpload.ItemName />
                     <FileUpload.ItemDeleteTrigger
                       onClick={() => {

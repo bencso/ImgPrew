@@ -1,0 +1,62 @@
+.custom-handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-repeat: no-repeat;
+  background-origin: content-box;
+  box-sizing: border-box;
+  background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2IDYiPjxwYXRoIGQ9Ik02IDYgTDAgNiBMIDAgNC4yIEwgNCA0LjIgTDQuMiA0LjIgTDQuMiAwIEwgNiAwIEwgNiA2IFoiIGZpbGw9IiNmZmZmZmYiLz48L3N2Zz4=");
+  background-position: bottom right;
+  padding: 0 3px 3px 0;
+}
+.custom-handle-sw {
+  bottom: 0;
+  left: 0;
+  cursor: sw-resize;
+  transform: rotate(90deg);
+}
+.custom-handle-se {
+  bottom: 0;
+  right: 0;
+  cursor: se-resize;
+}
+.custom-handle-nw {
+  top: 0;
+  left: 0;
+  cursor: nw-resize;
+  transform: rotate(180deg);
+}
+.custom-handle-ne {
+  top: 0;
+  right: 0;
+  cursor: ne-resize;
+  transform: rotate(270deg);
+}
+.custom-handle-w,
+.custom-handle-e {
+  top: 50%;
+  margin-top: -10px;
+  cursor: ew-resize;
+}
+.custom-handle-w {
+  left: 0;
+  transform: rotate(135deg);
+}
+.custom-handle-e {
+  right: 0;
+  transform: rotate(315deg);
+}
+.custom-handle-n,
+.custom-handle-s {
+  left: 50%;
+  margin-left: -10px;
+  cursor: ns-resize;
+}
+.custom-handle-n {
+  top: 0;
+  transform: rotate(225deg);
+}
+.custom-handle-s {
+  bottom: 0;
+  transform: rotate(45deg);
+}
