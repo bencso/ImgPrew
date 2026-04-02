@@ -15,6 +15,7 @@ export const WorkSessionContext = createContext<WorkSessionContextProps | null>(
 export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
   const [step, setStep] = useState<number>(0);
   const [selectedImg, setSelectedImg] = useState<number>(0);
+  const [selectedScale, setSelectedScale] = useState<number>(0);
   const [sessionData, setSessionData] = useState<CustomImage[]>([]);
   const [textElements, setTextElements] = useState<Record<string, HTMLElement>>(
     {},
@@ -42,6 +43,8 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       setCopyrightImageRef,
       isLoading,
       setIsLoading,
+      selectedScale,
+      setSelectedScale,
     }),
     [
       step,
@@ -51,6 +54,7 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       textElements,
       copyrightImageRef,
       isLoading,
+      selectedScale,
     ],
   );
 

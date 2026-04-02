@@ -65,6 +65,7 @@ export interface CustomImage {
   texts?: DraggableImageEvent[];
   filters?: { name: string; value: number }[];
   dimesions?: { width: number; height: number };
+  cropSize?: { width: number; height: number };
   copyrightImage?: {
     blob?: string;
     position?: {
@@ -98,6 +99,7 @@ export interface SessionStore {
 
   //#region MÉRETEK
   setImageSize: (id: number, width: number, height: number) => void;
+  setCropSize: (id: number, width: number, height: number) => void;
   //#endregion
 
   //#region Copyright kép
@@ -237,6 +239,8 @@ export interface WorkSessionContextProps {
   setCopyrightImageRef: Dispatch<SetStateAction<HTMLImageElement | null>>;
   isLoading: boolean;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
+  selectedScale: number;
+  setSelectedScale: Dispatch<SetStateAction<number>>;
 }
 //#endregion
 

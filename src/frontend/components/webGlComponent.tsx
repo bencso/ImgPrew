@@ -25,7 +25,7 @@ export default function WebGlComponent({
   setImageSize: (width: number, height: number) => void;
 }) {
   const canvasRef = useRef<HTMLDivElement>(null);
-  const { selectedImg } = useWorkSession();
+  const { selectedImg, setSelectedScale } = useWorkSession();
   const { sessionData } = useSessionStore();
   const appRef = useRef<Application | null>(null);
   const spriteRef = useRef<Sprite | null>(null);
@@ -118,6 +118,9 @@ export default function WebGlComponent({
       canvasRef.current.offsetWidth / imgW,
       canvasRef.current.offsetHeight / imgH,
     );
+
+    setSelectedScale(scale);
+
     const width = imgW * scale;
     const height = imgH * scale;
 

@@ -1,6 +1,11 @@
+import {
+  FunctionProp,
+  FunctionsInputs,
+  FunctionsState,
+  InputTypes,
+} from "@/interfaces/interface";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
-import { FunctionsInputs, FunctionsState, FunctionProp, InputTypes } from "@/interfaces/interface";
 
 export const useFunctionsStore = create<FunctionsState>()(
   immer((set) => ({
@@ -35,34 +40,21 @@ export const useFunctionsStore = create<FunctionsState>()(
         });
       }),
 
-    editFunction: (ws, selectedImg, functionName, inputName, value) =>
+    editFunction: (selectedImg, functionName, inputName, value) =>
       set((state) => {
         const existingFunction = state.functions.find(
-          (fn) => fn.name === functionName
+          (fn) => fn.name === functionName,
         );
         if (!existingFunction) return;
 
         const inputItem = existingFunction.inputs.find(
-          (inp) => inp.name === inputName
+          (inp) => inp.name === inputName,
         );
         if (!inputItem) return;
 
         if (inputItem.input === "checkbox")
-          inputItem.value = { ...inputItem.value, ...value }
-        else
-          inputItem.value = value;
-
-        ws.current?.send(
-          JSON.stringify({
-            message: "function",
-            data: {
-              selectedImg,
-              name: functionName,
-              input: inputName,
-              value: inputItem.value,
-            },
-          })
-        );
+          inputItem.value = { ...inputItem.value, ...value };
+        else inputItem.value = value;
       }),
-  }))
+  })),
 );

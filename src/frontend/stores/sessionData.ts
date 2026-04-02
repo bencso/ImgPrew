@@ -203,6 +203,19 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         const image = state.sessionData.find((img) => img.id === id);
         if (image) image.dimesions = { width, height };
       }),
+    setCropSize: (id: number, width: number, height: number) =>
+      set((state) => {
+        if (height <= 0 || width <= 0) {
+          toaster.create({
+            type: "error",
+            title: "Hibás érték",
+            description: "A méret nem lehet kisebb vagy egyenlő, mint 0",
+          });
+          return;
+        }
+        const image = state.sessionData.find((img) => img.id === id);
+        if (image) image.cropSize = { width, height };
+      }),
     //#endregion
 
     //#region EXIF ADATOK

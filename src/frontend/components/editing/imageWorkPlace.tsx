@@ -7,6 +7,7 @@ import { useSessionStore } from "@/stores/sessionData";
 import { Box, Flex, Image, Span } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
 import Moveable from "react-moveable";
+import { ResizableBox } from "react-resizable";
 import { shallow } from "zustand/shallow";
 import WebGlComponent from "../webGlComponent";
 
@@ -20,9 +21,34 @@ export default function ImageWorkPlace() {
     setTextElements,
     setCopyrightImageRef,
     copyrightImageRef,
+    selectedScale,
   } = useWorkSession();
-  const { setTextPosition, setImageSize, calculationReFixPosition } =
-    useSessionStore();
+  const {
+    setTextPosition,
+    setImageSize,
+    calculationReFixPosition,
+    setCropSize,
+  } = useSessionStore();
+
+  const imageSize = useSessionStore(
+    (state) => state.sessionData[selectedImg].dimesions,
+  );
+  const cropSize = useSessionStore(
+    (state) => state.sessionData[selectedImg].cropSize,
+  );
+
+  const scale = Math.min(
+    (imageSize?.width || 0) / (cropSize?.width || 0),
+    (imageSize?.height || 0) / (cropSize?.width || 0),
+  );
+
+  const cropSizeSaved = cropSize && cropSize.height && cropSize.width;
+
+  const cropSizeRelative = {
+    height: (cropSize?.height || 0) * scale,
+    width: (cropSize?.width || 0) * scale,
+  };
+
   const [size, setSize] = useState<{ width: number; height: number }>();
 
   const copyrightImage = useSessionStore(
@@ -100,6 +126,14 @@ export default function ImageWorkPlace() {
     width: 200,
     height: 250,
   });
+
+  useEffect(() => {
+    setBox((prev) => ({
+      ...prev,
+      height: cropSizeRelative.height,
+      width: cropSizeRelative.width,
+    }));
+  }, [selectedScale, cropSize]);
 
   return (
     <Flex
@@ -191,26 +225,31 @@ export default function ImageWorkPlace() {
           />
         )}
 
-        {/* <ResizableBox
-          className="box"
-          height={box.height}
-          width={box.width}
-          handle={(h, ref) => (
-            <Box className={`custom-handle custom-handle-${h}`} ref={ref} />
-          )}
-          resizeHandles={["sw", "se", "nw", "ne", "w", "e", "n", "s"]}
-          style={{ position: "relative" }}
-        >
-          <Box
-            h={"full"}
-            w={"full"}
-            backgroundColor={"blackAlpha.300"}
-            position={"relative"}
-            borderColor={"white"}
-            borderStyle={"solid"}
-            borderWidth={"2px"}
-          ></Box>
-        </ResizableBox> */}
+        {cropSizeSaved && (
+          <ResizableBox
+            className="box"
+            height={box.height}
+            width={box.width}
+            handle={(h, ref) => (
+              <Box className={`custom-handle custom-handle-${h}`} ref={ref} />
+            )}
+            onResize={(e) => {
+              console.log(e);
+            }}
+            resizeHandles={["sw", "se", "nw", "ne", "w", "e", "n", "s"]}
+            style={{ position: "relative" }}
+          >
+            <Box
+              h={"full"}
+              w={"full"}
+              backgroundColor={"blackAlpha.300"}
+              position={"relative"}
+              borderColor={"white"}
+              borderStyle={"solid"}
+              borderWidth={"2px"}
+            ></Box>
+          </ResizableBox>
+        )}
       </Box>
       <WebGlComponent setSize={setSize} setImageSize={setImageDimension} />
     </Flex>

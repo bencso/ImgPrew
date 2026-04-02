@@ -12,18 +12,32 @@ import { useState } from "react";
 import { FaGoogle } from "react-icons/fa";
 import { BeatLoader } from "react-spinners";
 
+//TODO: A responsivitás miatt vannak error-ok
 export default function Page() {
   const [loading, setLoading] = useState(false);
 
   return (
-    <AbsoluteCenter>
+    <AbsoluteCenter w={"full"} px={8}>
       <Stack
         mx={4}
         fontSize="sm"
-        minW={"lg"}
-        maxW={"lg"}
-        px={12}
-        py={10}
+        w={"full"}
+        minW={{
+          smDown: "full",
+          base: "xl",
+        }}
+        maxW={{
+          smDown: "full",
+          base: "xl",
+        }}
+        px={{
+          smDown: 6,
+          base: 12,
+        }}
+        py={{
+          smDown: 8,
+          base: 10,
+        }}
         borderRadius="xl"
         backgroundColor={"bg.panel"}
         borderColor={"border.muted"}
@@ -35,14 +49,20 @@ export default function Page() {
           <Image src={"/logo.png"} boxSize={16} />
           <Heading
             as={"h1"}
-            fontSize={"2xl"}
+            fontSize={{
+              smDown: "lg",
+              base: "2xl",
+            }}
             fontWeight={"semibold"}
             textAlign={"center"}
           >
             Folytasd ahol abbahagytad
           </Heading>
           <Text
-            fontSize="md"
+            fontSize={{
+              smDown: "sm",
+              base: "md",
+            }}
             color="gray.500"
             lineHeight={"tall"}
             textAlign="center"
@@ -56,7 +76,10 @@ export default function Page() {
           <Button
             type="button"
             w={"full"}
-            size="lg"
+            size={{
+              smDown: "sm",
+              base: "lg",
+            }}
             loading={loading}
             display={"flex"}
             alignItems={"center"}
