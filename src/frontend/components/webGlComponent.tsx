@@ -1,5 +1,6 @@
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
+import { Box } from "@chakra-ui/react";
 import "pixi-filters";
 import { AdjustmentFilter } from "pixi-filters";
 import {
@@ -44,12 +45,14 @@ export default function WebGlComponent({
     filtersRef.current = container;
 
     async function loadImage() {
-      await app.init({
-        width: 1200,
-        height: 1200,
+      if (!appRef.current) return;
+
+      await appRef.current.init({
+        backgroundAlpha: 0,
       });
 
-      if (canvasRef.current) canvasRef.current.appendChild(app.canvas);
+      if (canvasRef.current)
+        canvasRef.current.appendChild(appRef.current.canvas);
 
       const img = new Image();
 
@@ -68,7 +71,6 @@ export default function WebGlComponent({
         spriteRef.current = sprite;
 
         applyFilters();
-        resizeApp();
         resizeSprite();
       };
 
@@ -79,14 +81,10 @@ export default function WebGlComponent({
 
     return () => {
       if (spriteRef.current) spriteRef.current.destroy(false);
-
       if (textureRef.current) textureRef.current.destroy(false);
-
       spriteRef.current = null;
-
       textureRef.current?.source.unload();
       textureRef.current = null;
-
       if (canvasRef.current) canvasRef.current.innerHTML = "";
     };
   }, [selectedImg]);
@@ -95,7 +93,6 @@ export default function WebGlComponent({
     if (!canvasRef.current) return;
 
     const observer = new ResizeObserver(() => {
-      resizeApp();
       resizeSprite();
     });
 
@@ -104,17 +101,14 @@ export default function WebGlComponent({
     return () => observer.disconnect();
   }, []);
 
-  const resizeApp = () => {
-    if (!appRef.current || !canvasRef.current) return;
-    if (appRef.current.renderer)
-      appRef.current.renderer.resize(
-        canvasRef.current.clientWidth,
-        canvasRef.current.clientHeight,
-      );
-  };
-
   const resizeSprite = () => {
-    if (!spriteRef.current || !textureRef.current || !canvasRef.current) return;
+    if (
+      !spriteRef.current ||
+      !textureRef.current ||
+      !canvasRef.current ||
+      !appRef.current
+    )
+      return;
 
     const imgW = textureRef.current.width;
     const imgH = textureRef.current.height;
@@ -129,6 +123,12 @@ export default function WebGlComponent({
 
     spriteRef.current.width = width;
     spriteRef.current.height = height;
+
+    if (appRef.current.renderer)
+      appRef.current.renderer.resize(
+        canvasRef.current.clientWidth,
+        canvasRef.current.clientHeight,
+      );
 
     if (appRef.current) {
       spriteRef.current.x = appRef.current.canvas.width / 2;
@@ -185,5 +185,5 @@ export default function WebGlComponent({
     resizeSprite();
   }, [filters]);
 
-  return <div ref={canvasRef} style={{ width: "100%", height: "100%" }} />;
+  return <Box ref={canvasRef} h={"100%"} w={"100%"} />;
 }

@@ -7,9 +7,11 @@ import { useSessionStore } from "@/stores/sessionData";
 import { Box, Flex, Image, Span } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
 import Moveable from "react-moveable";
-import { ResizableBox } from "react-resizable";
 import { shallow } from "zustand/shallow";
 import WebGlComponent from "../webGlComponent";
+
+//TODO: A nem Expandolosnál ami igazánból a croppolás, ott ugy lesz megoldva a dolog,
+//  hogy lesz egy felső div ami overflow hiddenes és igy mindig meglesz az eredeti fotó stb.
 
 export default function ImageWorkPlace() {
   const {
@@ -101,8 +103,8 @@ export default function ImageWorkPlace() {
 
   return (
     <Flex
-      w="full"
-      h="full"
+      h={"full"}
+      w={"full"}
       boxSizing={"border-box"}
       overflow="hidden"
       p={4}

@@ -1,10 +1,64 @@
-import { Box, ColorPicker, HStack, Portal, Tabs } from "@chakra-ui/react";
-import { LuExpand, LuMaximize2 } from "react-icons/lu";
+import {
+  Box,
+  Button,
+  ColorPicker,
+  Grid,
+  GridItem,
+  HStack,
+  Portal,
+  Tabs,
+  Text,
+} from "@chakra-ui/react";
+import { LuExpand, LuInstagram, LuMaximize2 } from "react-icons/lu";
+
+const sizesDatas = [
+  {
+    name: "Instagram",
+    icon: <LuInstagram size={20} />,
+    sizes: {
+      width: 300,
+      height: 300,
+    },
+  },
+];
 
 export default function ResizeBlock() {
   return (
     <Box>
-      <Tabs.Root defaultValue="expand" variant="plain">
+      {
+        //
+      }
+      <Grid gridTemplateColumns={"repeat(2,1fr)"} gap={6} mb={3}>
+        {sizesDatas.map((size, index) => {
+          return (
+            <GridItem
+              gap={2}
+              bg={"bg.muted"}
+              border={"1px solid"}
+              borderColor={"bg.emphasized"}
+              colorPalette={"teal"}
+              display={"flex"}
+              p={4}
+              flexDirection={"column"}
+              alignItems={"center"}
+              borderRadius={"lg"}
+              key={index}
+            >
+              <HStack flexDirection={"column"}>
+                {size.icon}
+                <Text>{size.name}</Text>
+              </HStack>
+              <Text fontSize={10}>
+                ({size.sizes.height} x {size.sizes.width})
+              </Text>
+            </GridItem>
+          );
+        })}
+      </Grid>
+      {
+        //
+      }
+      <Tabs.Root defaultValue="crop" variant="plain">
         <Tabs.List
           bg="bg.muted"
           rounded="l3"
@@ -14,13 +68,13 @@ export default function ResizeBlock() {
           flexDir={"row"}
         >
           <Tabs.Trigger
-            value="fill"
+            value="crop"
             w={"full"}
             display={"flex"}
             justifyContent={"center"}
           >
             <LuMaximize2 />
-            Fill
+            Crop
           </Tabs.Trigger>
           <Tabs.Trigger
             value="expand"
@@ -33,7 +87,11 @@ export default function ResizeBlock() {
           </Tabs.Trigger>
           <Tabs.Indicator rounded="l2" />
         </Tabs.List>
-        <Tabs.Content value="fill">Manage your team members</Tabs.Content>
+        <Tabs.Content value="crop">
+          <Button w={"full"} variant={"surface"} colorPalette={"teal"}>
+            Crop
+          </Button>
+        </Tabs.Content>
         <Tabs.Content value="expand">
           <ColorPicker.Root>
             <ColorPicker.HiddenInput />
