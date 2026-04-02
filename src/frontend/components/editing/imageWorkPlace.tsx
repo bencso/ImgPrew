@@ -23,30 +23,18 @@ export default function ImageWorkPlace() {
     copyrightImageRef,
     selectedScale,
   } = useWorkSession();
-  const {
-    setTextPosition,
-    setImageSize,
-    calculationReFixPosition,
-    setCropSize,
-  } = useSessionStore();
+  const { setTextPosition, setImageSize, calculationReFixPosition } =
+    useSessionStore();
 
-  const imageSize = useSessionStore(
-    (state) => state.sessionData[selectedImg].dimesions,
-  );
   const cropSize = useSessionStore(
     (state) => state.sessionData[selectedImg].cropSize,
-  );
-
-  const scale = Math.min(
-    (imageSize?.width || 0) / (cropSize?.width || 0),
-    (imageSize?.height || 0) / (cropSize?.width || 0),
   );
 
   const cropSizeSaved = cropSize && cropSize.height && cropSize.width;
 
   const cropSizeRelative = {
-    height: (cropSize?.height || 0) * scale,
-    width: (cropSize?.width || 0) * scale,
+    height: (cropSize?.height || 0) * (selectedScale?.scale || 0),
+    width: (cropSize?.width || 0) * (selectedScale?.scale || 0),
   };
 
   const [size, setSize] = useState<{ width: number; height: number }>();

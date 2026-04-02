@@ -239,8 +239,27 @@ export interface WorkSessionContextProps {
   setCopyrightImageRef: Dispatch<SetStateAction<HTMLImageElement | null>>;
   isLoading: boolean;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
-  selectedScale: number;
-  setSelectedScale: Dispatch<SetStateAction<number>>;
+  selectedScale:
+    | {
+        image: {
+          height: number;
+          width: number;
+        };
+        scale: number;
+      }
+    | undefined;
+  setSelectedScale: Dispatch<
+    SetStateAction<
+      | {
+          image: {
+            height: number;
+            width: number;
+          };
+          scale: number;
+        }
+      | undefined
+    >
+  >;
 }
 //#endregion
 

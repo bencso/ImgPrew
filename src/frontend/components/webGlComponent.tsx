@@ -119,7 +119,13 @@ export default function WebGlComponent({
       canvasRef.current.offsetHeight / imgH,
     );
 
-    setSelectedScale(scale);
+    setSelectedScale({
+      image: {
+        height: imgH,
+        width: imgW,
+      },
+      scale: scale,
+    });
 
     const width = imgW * scale;
     const height = imgH * scale;
