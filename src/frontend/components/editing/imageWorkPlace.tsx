@@ -5,14 +5,15 @@ import {
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { Box, Flex, Image, Span } from "@chakra-ui/react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Moveable from "react-moveable";
-import { ResizableBox } from "react-resizable";
 import { shallow } from "zustand/shallow";
 import WebGlComponent from "../webGlComponent";
 
 //TODO: A nem Expandolosnál ami igazánból a croppolás, ott ugy lesz megoldva a dolog,
 //  hogy lesz egy felső div ami overflow hiddenes és igy mindig meglesz az eredeti fotó stb.
+
+//TODO: Mjad frissiteni kell mindig a resizeBoxot hogy jót mutasson
 
 export default function ImageWorkPlace() {
   const {
@@ -30,12 +31,11 @@ export default function ImageWorkPlace() {
     (state) => state.sessionData[selectedImg].cropSize,
   );
 
-  const cropSizeSaved = cropSize && cropSize.height && cropSize.width;
-
   const cropSizeRelative = {
     height: (cropSize?.height || 0) * (selectedScale?.scale || 0),
     width: (cropSize?.width || 0) * (selectedScale?.scale || 0),
   };
+  const cropRef = useRef<HTMLElement>(null);
 
   const [size, setSize] = useState<{ width: number; height: number }>();
 
@@ -213,30 +213,48 @@ export default function ImageWorkPlace() {
           />
         )}
 
-        {cropSizeSaved && (
-          <ResizableBox
-            className="box"
-            height={box.height}
-            width={box.width}
-            handle={(h, ref) => (
-              <Box className={`custom-handle custom-handle-${h}`} ref={ref} />
-            )}
-            onResize={(e) => {
-              console.log(e);
-            }}
-            resizeHandles={["sw", "se", "nw", "ne", "w", "e", "n", "s"]}
-            style={{ position: "relative" }}
-          >
+        {cropSize && (
+          <>
             <Box
-              h={"full"}
-              w={"full"}
-              backgroundColor={"blackAlpha.300"}
-              position={"relative"}
-              borderColor={"white"}
-              borderStyle={"solid"}
-              borderWidth={"2px"}
-            ></Box>
-          </ResizableBox>
+              ref={cropRef}
+              style={{
+                transform: `translate(${box.x}px, ${box.y}px)`,
+              }}
+              position={"absolute"}
+              width={box.width}
+              height={box.height}
+              backgroundColor="blackAlpha.300"
+              border="2px solid white"
+              boxSizing="border-box"
+            />
+            {cropRef.current && box.height && box.width && (
+              <Moveable
+                edgeDraggable={false}
+                origin={false}
+                target={cropRef.current}
+                draggable
+                hideDefaultLines
+                hideChildMoveableDefaultLines
+                hideThrottleDragRotateLine
+                throttleResize={1}
+                resizable
+                onDrag={({ beforeTranslate }) => {
+                  setBox((prev) => ({
+                    ...prev,
+                    x: beforeTranslate[0],
+                    y: beforeTranslate[1],
+                  }));
+                }}
+                onResize={({ width, height }) => {
+                  setBox((prev) => ({
+                    ...prev,
+                    height: height,
+                    width: width,
+                  }));
+                }}
+              />
+            )}
+          </>
         )}
       </Box>
       <WebGlComponent setSize={setSize} setImageSize={setImageDimension} />

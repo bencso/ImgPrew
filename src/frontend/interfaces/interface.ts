@@ -65,7 +65,7 @@ export interface CustomImage {
   texts?: DraggableImageEvent[];
   filters?: { name: string; value: number }[];
   dimesions?: { width: number; height: number };
-  cropSize?: { width: number; height: number };
+  cropSize?: { width: number | null; height: number | null };
   copyrightImage?: {
     blob?: string;
     position?: {
@@ -99,7 +99,11 @@ export interface SessionStore {
 
   //#region MÉRETEK
   setImageSize: (id: number, width: number, height: number) => void;
-  setCropSize: (id: number, width: number, height: number) => void;
+  setCropSize: (
+    id: number,
+    width: number | null,
+    height: number | null,
+  ) => void;
   //#endregion
 
   //#region Copyright kép

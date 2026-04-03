@@ -203,9 +203,9 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         const image = state.sessionData.find((img) => img.id === id);
         if (image) image.dimesions = { width, height };
       }),
-    setCropSize: (id: number, width: number, height: number) =>
+    setCropSize: (id: number, width: number | null, height: number | null) =>
       set((state) => {
-        if (height <= 0 || width <= 0) {
+        if ((height && height <= 0) || (width && width <= 0)) {
           toaster.create({
             type: "error",
             title: "Hibás érték",

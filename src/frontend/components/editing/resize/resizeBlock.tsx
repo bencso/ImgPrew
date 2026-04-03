@@ -62,11 +62,15 @@ const sizesDatas = [
 export default function ResizeBlock() {
   const { selectedImg } = useWorkSession();
   const { setCropSize } = useSessionStore();
+
   const cropSize = useSessionStore(
     (state) => state.sessionData[selectedImg].cropSize,
   );
 
-  const cropSizeSaved = cropSize && cropSize.height && cropSize.width;
+  const cropSizeSaved =
+    cropSize && cropSize.height !== null && cropSize.width !== null
+      ? true
+      : false;
 
   return (
     <Box>
@@ -78,11 +82,29 @@ export default function ResizeBlock() {
         orientation="horizontal"
         align="center"
         w={"full"}
-        value={cropSizeSaved ? cropSize.width + "-" + cropSize.height : ""}
+        value={
+          cropSizeSaved
+            ? cropSize && cropSize.width + "-" + cropSize.height
+            : ""
+        }
         onValueChange={(e) => {
           if (!e.value) return;
           const [width, height] = e.value?.split("-");
+
           setCropSize(selectedImg, Number(width), Number(height));
+        }}
+        onClick={(e: React.MouseEvent) => {
+          const target = e.target as HTMLInputElement;
+          if (!target.value) return;
+          const [width, height] = target.value.split("-");
+          if (
+            cropSizeSaved &&
+            cropSize &&
+            cropSize.height === Number(height) &&
+            cropSize.width === Number(width)
+          ) {
+            setCropSize(selectedImg, null, null);
+          }
         }}
       >
         <ScrollArea.Root width="full" size="xs" overflow={"hidden"}>
