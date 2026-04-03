@@ -23,6 +23,9 @@ export default function ImageWorkPlace() {
     setCopyrightImageRef,
     copyrightImageRef,
     selectedScale,
+    textureRef,
+    spriteRef,
+    appRef,
   } = useWorkSession();
   const { setTextPosition, setImageSize, calculationReFixPosition } =
     useSessionStore();
@@ -37,7 +40,6 @@ export default function ImageWorkPlace() {
   };
   const cropRef = useRef<HTMLElement>(null);
   const workPlaceRef = useRef<HTMLDivElement>(null);
-
   const [size, setSize] = useState<{ width: number; height: number }>();
 
   const copyrightImage = useSessionStore(
@@ -109,9 +111,14 @@ export default function ImageWorkPlace() {
     setImageSize(selectedImg, width, height);
   }
 
-  const [box, setBox] = useState({
-    x: 0,
-    y: 0,
+  const [box, setBox] = useState<{
+    x: number | null;
+    y: number | null;
+    width: number;
+    height: number;
+  }>({
+    x: null,
+    y: null,
     width: 200,
     height: 250,
   });
@@ -220,9 +227,6 @@ export default function ImageWorkPlace() {
             <>
               <Box
                 ref={cropRef}
-                style={{
-                  transform: `translate(${box.x}px, ${box.y}px)`,
-                }}
                 position={"absolute"}
                 width={box.width}
                 height={box.height}
@@ -241,12 +245,18 @@ export default function ImageWorkPlace() {
                   hideThrottleDragRotateLine
                   throttleResize={1}
                   resizable
-                  onDrag={({ beforeTranslate }) => {
+                  onDrag={({ delta }) => {
+                    console.log(delta);
                     setBox((prev) => ({
                       ...prev,
-                      x: beforeTranslate[0],
-                      y: beforeTranslate[1],
+                      x: delta[0],
+                      y: delta[1],
                     }));
+
+                    if (spriteRef.current) {
+                      if (box.x) spriteRef.current.x += box.x;
+                      if (box.y) spriteRef.current.y += box.y;
+                    }
                   }}
                   onResize={({ width, height }) => {
                     setBox((prev) => ({
@@ -264,6 +274,7 @@ export default function ImageWorkPlace() {
           //
         }
         <WebGlComponent
+          box={box}
           workPlaceRef={workPlaceRef}
           setSize={setSize}
           setImageSize={setImageDimension}

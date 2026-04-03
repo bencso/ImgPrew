@@ -1,8 +1,10 @@
 import { UUID } from "crypto";
+import { Application, Renderer, Sprite, Texture, TextureSource } from "pixi.js";
 import {
   Dispatch,
   HTMLInputTypeAttribute,
   ReactNode,
+  RefObject,
   SetStateAction,
 } from "react";
 
@@ -264,6 +266,9 @@ export interface WorkSessionContextProps {
       | undefined
     >
   >;
+  spriteRef: RefObject<Sprite | null>;
+  textureRef: RefObject<Texture<TextureSource<any>> | null>;
+  appRef: RefObject<Application<Renderer> | null>;
 }
 //#endregion
 

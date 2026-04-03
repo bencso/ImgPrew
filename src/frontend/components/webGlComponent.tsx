@@ -19,19 +19,25 @@ export default function WebGlComponent({
   setSize,
   setImageSize,
   workPlaceRef,
+  box,
 }: {
   setSize: Dispatch<
     SetStateAction<{ width: number; height: number } | undefined>
   >;
   setImageSize: (width: number, height: number) => void;
   workPlaceRef: RefObject<HTMLDivElement | null>;
+  box: {
+    x: number | null;
+    y: number | null;
+    width: number;
+    height: number;
+  };
 }) {
-  const { selectedImg, setSelectedScale } = useWorkSession();
+  const { selectedImg, setSelectedScale, textureRef, spriteRef, appRef } =
+    useWorkSession();
   const { sessionData } = useSessionStore();
+
   const canvasRef = useRef<HTMLElement | null>(null);
-  const appRef = useRef<Application | null>(null);
-  const spriteRef = useRef<Sprite | null>(null);
-  const textureRef = useRef<Texture | null>(null);
   const filtersRef = useRef<Container | null>(null);
 
   //! shallow: nem generál le újra az objektumot hanem mintha cachelte volna mindig az adott objektumot irja felül / ÖSSZEHASONLÍT

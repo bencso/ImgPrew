@@ -6,7 +6,8 @@ import {
   WorkSessionProviderProps,
 } from "@/interfaces/interface";
 import { useFunctionsStore } from "@/stores/functionsStore";
-import { createContext, useContext, useMemo, useState } from "react";
+import { Application, Sprite, Texture } from "pixi.js";
+import { createContext, useContext, useMemo, useRef, useState } from "react";
 
 export const WorkSessionContext = createContext<WorkSessionContextProps | null>(
   null,
@@ -29,7 +30,9 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
   const [copyrightImageRef, setCopyrightImageRef] =
     useState<HTMLImageElement | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
+  const spriteRef = useRef<Sprite | null>(null);
+  const textureRef = useRef<Texture | null>(null);
+  const appRef = useRef<Application | null>(null);
   const { functions, addFunction, editFunction } = useFunctionsStore();
 
   const contextValue = useMemo<WorkSessionContextProps>(
@@ -51,6 +54,9 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       setIsLoading,
       selectedScale,
       setSelectedScale,
+      spriteRef,
+      textureRef,
+      appRef,
     }),
     [
       step,
@@ -61,6 +67,9 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       copyrightImageRef,
       isLoading,
       selectedScale,
+      spriteRef,
+      textureRef,
+      appRef,
     ],
   );
 
