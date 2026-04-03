@@ -12,21 +12,23 @@ import {
   Sprite,
   Texture,
 } from "pixi.js";
-import { Dispatch, SetStateAction, useEffect, useRef } from "react";
+import { Dispatch, RefObject, SetStateAction, useEffect, useRef } from "react";
 import { shallow } from "zustand/shallow";
 
 export default function WebGlComponent({
   setSize,
   setImageSize,
+  workPlaceRef,
 }: {
   setSize: Dispatch<
     SetStateAction<{ width: number; height: number } | undefined>
   >;
   setImageSize: (width: number, height: number) => void;
+  workPlaceRef: RefObject<HTMLDivElement | null>;
 }) {
-  const canvasRef = useRef<HTMLDivElement>(null);
   const { selectedImg, setSelectedScale } = useWorkSession();
   const { sessionData } = useSessionStore();
+  const canvasRef = useRef<HTMLElement | null>(null);
   const appRef = useRef<Application | null>(null);
   const spriteRef = useRef<Sprite | null>(null);
   const textureRef = useRef<Texture | null>(null);
@@ -51,8 +53,9 @@ export default function WebGlComponent({
         backgroundAlpha: 0,
       });
 
-      if (canvasRef.current)
+      if (canvasRef.current) {
         canvasRef.current.appendChild(appRef.current.canvas);
+      }
 
       const img = new Image();
 
@@ -90,13 +93,13 @@ export default function WebGlComponent({
   }, [selectedImg]);
 
   useEffect(() => {
-    if (!canvasRef.current) return;
+    if (!workPlaceRef.current) return;
 
     const observer = new ResizeObserver(() => {
       resizeSprite();
     });
 
-    observer.observe(canvasRef.current);
+    observer.observe(workPlaceRef.current);
 
     return () => observer.disconnect();
   }, []);
@@ -106,7 +109,8 @@ export default function WebGlComponent({
       !spriteRef.current ||
       !textureRef.current ||
       !canvasRef.current ||
-      !appRef.current
+      !appRef.current ||
+      !workPlaceRef.current
     )
       return;
 
@@ -115,8 +119,8 @@ export default function WebGlComponent({
 
     // Kiszámoljuk a képnél hogy melyik az ami belefér, majd kiválasszuk belőle a legkissebbet
     const scale = Math.min(
-      canvasRef.current.offsetWidth / imgW,
-      canvasRef.current.offsetHeight / imgH,
+      workPlaceRef.current.offsetWidth / imgW,
+      workPlaceRef.current.offsetHeight / imgH,
     );
 
     setSelectedScale({
@@ -135,8 +139,8 @@ export default function WebGlComponent({
 
     if (appRef.current.renderer)
       appRef.current.renderer.resize(
-        canvasRef.current.clientWidth,
-        canvasRef.current.clientHeight,
+        workPlaceRef.current.clientWidth,
+        workPlaceRef.current.clientHeight,
       );
 
     if (appRef.current) {
@@ -194,5 +198,5 @@ export default function WebGlComponent({
     resizeSprite();
   }, [filters]);
 
-  return <Box ref={canvasRef} h={"100%"} w={"100%"} />;
+  return <Box ref={canvasRef} />;
 }

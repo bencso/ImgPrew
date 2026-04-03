@@ -36,6 +36,7 @@ export default function ImageWorkPlace() {
     width: (cropSize?.width || 0) * (selectedScale?.scale || 0),
   };
   const cropRef = useRef<HTMLElement>(null);
+  const workPlaceRef = useRef<HTMLDivElement>(null);
 
   const [size, setSize] = useState<{ width: number; height: number }>();
 
@@ -118,13 +119,18 @@ export default function ImageWorkPlace() {
   useEffect(() => {
     setBox((prev) => ({
       ...prev,
-      height: cropSizeRelative.height,
-      width: cropSizeRelative.width,
+      height:
+        cropSize && cropSize.height
+          ? cropSizeRelative.height
+          : size?.height || 0,
+      width:
+        cropSize && cropSize.width ? cropSizeRelative.width : size?.width || 0,
     }));
-  }, [selectedScale, cropSize]);
+  }, [selectedScale, cropSize, selectedImg]);
 
   return (
     <Flex
+      ref={workPlaceRef}
       h={"full"}
       w={"full"}
       boxSizing={"border-box"}
@@ -132,132 +138,159 @@ export default function ImageWorkPlace() {
       p={4}
       justifyContent={"center"}
       alignItems={"center"}
+      className="workPlaceRef"
     >
       <Box
-        zIndex={100}
-        h={size?.height || 0}
-        w={size?.width || 0}
-        position={"absolute"}
+        w={box.width}
+        h={box.height}
+        alignContent={"center"}
+        justifyContent={"center"}
+        display={"flex"}
         overflow={"hidden"}
+        className="manipulalhato"
       >
-        {texts.map((element: DraggableImageEvent) => {
-          return (
-            <Span
-              key={element.id}
-              ref={setTextRef(element.id)}
-              onMouseEnter={() => {
-                setDraggableId(element.id);
+        <Box
+          zIndex={100}
+          h={box.height}
+          w={box.width}
+          position={"absolute"}
+          className="3"
+        >
+          {
+            //
+          }
+          {texts.map((element: DraggableImageEvent) => {
+            return (
+              <Span
+                key={element.id}
+                ref={setTextRef(element.id)}
+                onMouseEnter={() => {
+                  setDraggableId(element.id);
+                }}
+                id={element.id}
+                w={"fit"}
+                h={"fit"}
+                position={"absolute"}
+                cursor={"pointer"}
+                top={
+                  typeof textPositions[element.id]?.y === "number"
+                    ? `${textPositions[element.id]!.y}px`
+                    : "5px"
+                }
+                left={
+                  typeof textPositions[element.id]?.x === "number"
+                    ? `${textPositions[element.id]!.x}px`
+                    : "5px"
+                }
+                textWrap={"balance"}
+                style={{
+                  fontSize: element.fontSize || 20,
+                  fontFamily: element.fontFamily || "Inter",
+                  fontWeight: element.fontWeight || 500,
+                  color: element.color || "#ffff",
+                  lineHeight: 1,
+                }}
+              >
+                {element.text}
+              </Span>
+            );
+          })}
+          {
+            //
+          }
+          {copyrightImage && copyrightImage.blob && (
+            <Image
+              ref={(el) => {
+                if (el) setCopyrightImageRef(el);
               }}
-              id={element.id}
-              w={"fit"}
-              h={"fit"}
-              position={"absolute"}
-              cursor={"pointer"}
-              top={
-                typeof textPositions[element.id]?.y === "number"
-                  ? `${textPositions[element.id]!.y}px`
-                  : "5px"
-              }
-              left={
-                typeof textPositions[element.id]?.x === "number"
-                  ? `${textPositions[element.id]!.x}px`
-                  : "5px"
-              }
-              textWrap={"balance"}
-              style={{
-                fontSize: element.fontSize || 20,
-                fontFamily: element.fontFamily || "Inter",
-                fontWeight: element.fontWeight || 500,
-                color: element.color || "#ffff",
-                lineHeight: 1,
-              }}
-            >
-              {element.text}
-            </Span>
-          );
-        })}
-
-        <Moveable
-          target={draggableId ? textElements[draggableId] : null}
-          draggable={true}
-          throttleDrag={0}
-          hideDefaultLines
-          hideChildMoveableDefaultLines
-          hideThrottleDragRotateLine
-          edgeDraggable={false}
-          origin={false}
-          startDragRotate={0}
-          throttleDragRotate={0}
-          onDrag={(e) => {
-            if (!draggableId) return;
-            setTextPosition(selectedImg, draggableId, {
-              x: e.left,
-              y: e.top,
-            });
-          }}
-        />
-
-        {copyrightImage && copyrightImage.blob && (
-          <Image
-            ref={(el) => {
-              if (el) setCopyrightImageRef(el);
-            }}
-            src={copyrightImage.blob}
-            alt="copyright"
-            height={copyrightImage.size + "px"}
-            position={"relative"}
-            left={cpPosition.x + "px"}
-            top={cpPosition.y + "px"}
-            draggable={false}
-            userSelect={"none"}
-          />
-        )}
-
-        {cropSize && (
-          <>
-            <Box
-              ref={cropRef}
-              style={{
-                transform: `translate(${box.x}px, ${box.y}px)`,
-              }}
-              position={"absolute"}
-              width={box.width}
-              height={box.height}
-              backgroundColor="blackAlpha.300"
-              border="2px solid white"
-              boxSizing="border-box"
+              src={copyrightImage.blob}
+              alt="copyright"
+              height={copyrightImage.size + "px"}
+              position={"relative"}
+              left={cpPosition.x + "px"}
+              top={cpPosition.y + "px"}
+              draggable={false}
+              userSelect={"none"}
             />
-            {cropRef.current && box.height && box.width && (
-              <Moveable
-                edgeDraggable={false}
-                origin={false}
-                target={cropRef.current}
-                draggable
-                hideDefaultLines
-                hideChildMoveableDefaultLines
-                hideThrottleDragRotateLine
-                throttleResize={1}
-                resizable
-                onDrag={({ beforeTranslate }) => {
-                  setBox((prev) => ({
-                    ...prev,
-                    x: beforeTranslate[0],
-                    y: beforeTranslate[1],
-                  }));
+          )}
+          {
+            //
+          }
+          {cropSize?.width && cropSize.height && (
+            <>
+              <Box
+                ref={cropRef}
+                style={{
+                  transform: `translate(${box.x}px, ${box.y}px)`,
                 }}
-                onResize={({ width, height }) => {
-                  setBox((prev) => ({
-                    ...prev,
-                    height: height,
-                    width: width,
-                  }));
-                }}
+                position={"absolute"}
+                width={box.width}
+                height={box.height}
+                backgroundColor="blackAlpha.300"
+                border="2px solid white"
+                boxSizing="border-box"
               />
-            )}
-          </>
-        )}
+              {cropRef.current && box.height && box.width && (
+                <Moveable
+                  edgeDraggable={false}
+                  origin={false}
+                  target={cropRef.current}
+                  draggable
+                  hideDefaultLines
+                  hideChildMoveableDefaultLines
+                  hideThrottleDragRotateLine
+                  throttleResize={1}
+                  resizable
+                  onDrag={({ beforeTranslate }) => {
+                    setBox((prev) => ({
+                      ...prev,
+                      x: beforeTranslate[0],
+                      y: beforeTranslate[1],
+                    }));
+                  }}
+                  onResize={({ width, height }) => {
+                    setBox((prev) => ({
+                      ...prev,
+                      height: height,
+                      width: width,
+                    }));
+                  }}
+                />
+              )}
+            </>
+          )}
+        </Box>
+        {
+          //
+        }
+        <WebGlComponent
+          workPlaceRef={workPlaceRef}
+          setSize={setSize}
+          setImageSize={setImageDimension}
+        />
       </Box>
-      <WebGlComponent setSize={setSize} setImageSize={setImageDimension} />
+      {
+        //
+      }
+      <Moveable
+        target={draggableId ? textElements[draggableId] : null}
+        draggable={true}
+        throttleDrag={0}
+        hideDefaultLines
+        hideChildMoveableDefaultLines
+        hideThrottleDragRotateLine
+        edgeDraggable={false}
+        origin={false}
+        startDragRotate={0}
+        throttleDragRotate={0}
+        onDrag={(e) => {
+          if (!draggableId) return;
+          setTextPosition(selectedImg, draggableId, {
+            x: e.left,
+            y: e.top,
+          });
+        }}
+      />
     </Flex>
   );
 }
