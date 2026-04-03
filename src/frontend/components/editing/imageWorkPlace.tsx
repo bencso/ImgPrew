@@ -10,10 +10,7 @@ import Moveable from "react-moveable";
 import { shallow } from "zustand/shallow";
 import WebGlComponent from "../webGlComponent";
 
-//TODO: A nem Expandolosnál ami igazánból a croppolás, ott ugy lesz megoldva a dolog,
-//  hogy lesz egy felső div ami overflow hiddenes és igy mindig meglesz az eredeti fotó stb.
-
-//TODO: Mjad frissiteni kell mindig a resizeBoxot hogy jót mutasson
+//TODO: A boxokat minden képre külön megcsinálni hogy ha több kép van akkor a képek között váltásnál ne álljon vissza
 
 export default function ImageWorkPlace() {
   const {
