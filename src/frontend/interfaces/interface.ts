@@ -252,6 +252,10 @@ export interface WorkSessionContextProps {
           width: number;
         };
         scale: number;
+        position: {
+          x: number;
+          y: number;
+        };
       }
     | undefined;
   setSelectedScale: Dispatch<
@@ -262,6 +266,10 @@ export interface WorkSessionContextProps {
             width: number;
           };
           scale: number;
+          position: {
+            x: number;
+            y: number;
+          };
         }
       | undefined
     >

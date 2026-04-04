@@ -121,8 +121,23 @@ export default function ImageWorkPlace() {
   });
 
   useEffect(() => {
+    let pos = {
+      x: 0,
+      y: 0,
+    };
+
+    if (cropSize?.height === null && cropSize.width === null) {
+      if (appRef.current && spriteRef.current) {
+        pos.x = appRef.current.canvas.width / 2;
+        pos.y = appRef.current.canvas.height / 2;
+        spriteRef.current.x = appRef.current.canvas.width / 2;
+        spriteRef.current.y = appRef.current.canvas.height / 2;
+      }
+    }
+
     setBox((prev) => ({
-      ...prev,
+      x: pos.x > 0 ? pos.x : prev.x,
+      y: pos.y > 0 ? pos.y : prev.y,
       height:
         cropSize && cropSize.height
           ? cropSizeRelative.height
@@ -243,16 +258,52 @@ export default function ImageWorkPlace() {
                   throttleResize={1}
                   resizable
                   onDrag={({ delta }) => {
-                    console.log(delta);
                     setBox((prev) => ({
                       ...prev,
                       x: delta[0],
                       y: delta[1],
                     }));
 
-                    if (spriteRef.current) {
-                      if (box.x) spriteRef.current.x += box.x;
-                      if (box.y) spriteRef.current.y += box.y;
+                    if (spriteRef.current && selectedScale && box.x && box.y) {
+                      const nextPosX = spriteRef.current.x + box.x;
+                      const nextPosY = spriteRef.current.y + box.y;
+                      //
+                      const borderMaxRight =
+                        selectedScale.position.x -
+                        (selectedScale?.image.width / 2) *
+                          selectedScale?.scale +
+                        box.width / 2;
+                      const borderMaxLeft =
+                        selectedScale.position.x +
+                        (selectedScale?.image.width / 2) *
+                          selectedScale?.scale -
+                        box.width / 2;
+                      //
+                      const borderMaxBottom =
+                        selectedScale.position.y -
+                        selectedScale?.image.height * selectedScale?.scale +
+                        box.height;
+                      const borderMaxTop = selectedScale.position.y;
+                      //
+                      console.table({
+                        borderMaxBottom,
+                        borderMaxTop,
+                        nextPosY: nextPosY,
+                      });
+
+                      if (
+                        nextPosX > borderMaxRight &&
+                        nextPosX < borderMaxLeft &&
+                        box.x
+                      )
+                        spriteRef.current.x += box.x;
+
+                      if (
+                        nextPosY < borderMaxTop &&
+                        nextPosY > borderMaxBottom &&
+                        box.y
+                      )
+                        spriteRef.current.y += box.y;
                     }
                   }}
                   onResize={({ width, height }) => {

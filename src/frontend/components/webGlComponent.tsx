@@ -129,14 +129,6 @@ export default function WebGlComponent({
       workPlaceRef.current.offsetHeight / imgH,
     );
 
-    setSelectedScale({
-      image: {
-        height: imgH,
-        width: imgW,
-      },
-      scale: scale,
-    });
-
     const width = imgW * scale;
     const height = imgH * scale;
 
@@ -153,6 +145,18 @@ export default function WebGlComponent({
       spriteRef.current.x = appRef.current.canvas.width / 2;
       spriteRef.current.y = appRef.current.canvas.height / 2;
     }
+
+    setSelectedScale({
+      image: {
+        height: imgH,
+        width: imgW,
+      },
+      scale: scale,
+      position: {
+        x: spriteRef.current.x,
+        y: spriteRef.current.y,
+      },
+    });
 
     setSize({ width, height });
     setImageSize(width, height);

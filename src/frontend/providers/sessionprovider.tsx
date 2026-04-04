@@ -22,6 +22,10 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       width: number;
     };
     scale: number;
+    position: {
+      x: number;
+      y: number;
+    };
   }>();
   const [sessionData, setSessionData] = useState<CustomImage[]>([]);
   const [textElements, setTextElements] = useState<Record<string, HTMLElement>>(
