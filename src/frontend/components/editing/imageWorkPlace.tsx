@@ -35,6 +35,8 @@ export default function ImageWorkPlace() {
     height: (cropSize?.height || 0) * (selectedScale?.scale || 0),
     width: (cropSize?.width || 0) * (selectedScale?.scale || 0),
   };
+
+  const [renderDirections, setRenderDirections] = useState<string[]>([]);
   const cropRef = useRef<HTMLElement>(null);
   const workPlaceRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState<{ width: number; height: number }>();
@@ -237,6 +239,12 @@ export default function ImageWorkPlace() {
           }
           {cropSize?.width && cropSize.height && (
             <>
+              {
+                {
+                  //TODO: csak arra resizeolja ténylegesen amerre engedi (ha jobbra huzom "jobb oldalra" adjon hozzá -> elsőnek az jut eszembe:
+                  // hogy hozzáadunk a szélességhez és annyit kivonunk/hozzáadunk a poshoz és akkor egyhelybe marad reszerimte, (igy este ez jutott eszembe))
+                }
+              }
               <Box
                 ref={cropRef}
                 position={"absolute"}
@@ -244,19 +252,24 @@ export default function ImageWorkPlace() {
                 height={box.height}
                 backgroundColor="blackAlpha.300"
                 border="2px solid white"
-                boxSizing="border-box"
               />
               {cropRef.current && box.height && box.width && (
                 <Moveable
+                  target={cropRef.current}
                   edgeDraggable={false}
                   origin={false}
-                  target={cropRef.current}
                   draggable
                   hideDefaultLines
                   hideChildMoveableDefaultLines
                   hideThrottleDragRotateLine
-                  throttleResize={1}
-                  resizable
+                  throttleResize={0}
+                  resizable={{
+                    keepRatio: false,
+                  }}
+                  keepRatio={false}
+                  checkResizableError={true}
+                  edge={false}
+                  renderDirections={renderDirections}
                   onDrag={({ delta }) => {
                     setBox((prev) => ({
                       ...prev,
@@ -285,12 +298,6 @@ export default function ImageWorkPlace() {
                         box.height;
                       const borderMaxTop = selectedScale.position.y;
                       //
-                      console.table({
-                        borderMaxBottom,
-                        borderMaxTop,
-                        nextPosY: nextPosY,
-                      });
-
                       if (
                         nextPosX > borderMaxRight &&
                         nextPosX < borderMaxLeft &&
@@ -304,13 +311,47 @@ export default function ImageWorkPlace() {
                         box.y
                       )
                         spriteRef.current.y += box.y;
+
+                      const directions = [];
+
+                      if (nextPosX >= borderMaxRight) directions.push("e");
+                      if (nextPosX <= borderMaxLeft) directions.push("w");
+                      if (nextPosY >= borderMaxBottom) directions.push("s");
+                      if (nextPosY <= borderMaxTop) directions.push("n");
+
+                      if (nextPosX <= borderMaxLeft && nextPosY <= borderMaxTop)
+                        directions.push("nw");
+
+                      if (
+                        nextPosX >= borderMaxRight &&
+                        nextPosY <= borderMaxTop
+                      )
+                        directions.push("ne");
+
+                      if (
+                        nextPosX <= borderMaxLeft &&
+                        nextPosY >= borderMaxBottom
+                      )
+                        directions.push("sw");
+
+                      if (
+                        nextPosX >= borderMaxRight &&
+                        nextPosY >= borderMaxBottom
+                      )
+                        directions.push("se");
+
+                      setRenderDirections(directions);
                     }
                   }}
-                  onResize={({ width, height }) => {
+                  onResize={({ width, height, drag }) => {
+                    const [x, y] = drag.beforeTranslate;
+
                     setBox((prev) => ({
                       ...prev,
-                      height: height,
-                      width: width,
+                      width,
+                      height,
+                      x,
+                      y,
                     }));
                   }}
                 />
