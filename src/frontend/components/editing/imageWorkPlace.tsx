@@ -115,11 +115,13 @@ export default function ImageWorkPlace() {
     y: number | null;
     width: number;
     height: number;
+    transform: any;
   }>({
     x: null,
     y: null,
     width: 200,
     height: 250,
+    transform: null,
   });
 
   useEffect(() => {
@@ -138,6 +140,7 @@ export default function ImageWorkPlace() {
     }
 
     setBox((prev) => ({
+      ...prev,
       x: pos.x > 0 ? pos.x : prev.x,
       y: pos.y > 0 ? pos.y : prev.y,
       height:
@@ -237,17 +240,12 @@ export default function ImageWorkPlace() {
           {
             //
           }
-          {cropSize?.width && cropSize.height && (
+          {cropSize && cropSize.width && cropSize.height && (
             <>
-              {
-                {
-                  //TODO: csak arra resizeolja ténylegesen amerre engedi (ha jobbra huzom "jobb oldalra" adjon hozzá -> elsőnek az jut eszembe:
-                  // hogy hozzáadunk a szélességhez és annyit kivonunk/hozzáadunk a poshoz és akkor egyhelybe marad reszerimte, (igy este ez jutott eszembe))
-                }
-              }
               <Box
                 ref={cropRef}
                 position={"absolute"}
+                transform={box.transform}
                 width={box.width}
                 height={box.height}
                 backgroundColor="blackAlpha.300"
@@ -346,12 +344,23 @@ export default function ImageWorkPlace() {
                   onResize={({ width, height, drag }) => {
                     const [x, y] = drag.beforeTranslate;
 
+                    //TODO: ezt is megcsinálni:  matrix3d(1,0,0,0,0,1,0,0,0,0,1,0,-98,-33,0,1) , és majd ennek köszönhetően manipulálhatjuk a spriteot
+                    const transform = String(drag.transform);
+                    const match = transform.match(
+                      /translate\(\s*([^) ,]+)\s*,\s*([^) ,]+)\s*\)/i,
+                    );
+                    const [, translateX = null, translateY = null] =
+                      match || [];
+
+                    console.log(translateX, translateY);
+
                     setBox((prev) => ({
                       ...prev,
                       width,
                       height,
                       x,
                       y,
+                      transform: drag.transform,
                     }));
                   }}
                 />
