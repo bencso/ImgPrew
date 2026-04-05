@@ -115,13 +115,11 @@ export default function ImageWorkPlace() {
     y: number | null;
     width: number;
     height: number;
-    transform: any;
   }>({
     x: null,
     y: null,
     width: 200,
     height: 250,
-    transform: null,
   });
 
   useEffect(() => {
@@ -165,8 +163,8 @@ export default function ImageWorkPlace() {
       className="workPlaceRef"
     >
       <Box
-        w={box.width}
-        h={box.height}
+        w={box.width + "px"}
+        h={box.height + "px"}
         alignContent={"center"}
         justifyContent={"center"}
         display={"flex"}
@@ -245,7 +243,6 @@ export default function ImageWorkPlace() {
               <Box
                 ref={cropRef}
                 position={"absolute"}
-                transform={box.transform}
                 width={box.width}
                 height={box.height}
                 backgroundColor="blackAlpha.300"
@@ -256,15 +253,13 @@ export default function ImageWorkPlace() {
                   target={cropRef.current}
                   edgeDraggable={false}
                   origin={false}
+                  keepRatio={false}
                   draggable
                   hideDefaultLines
                   hideChildMoveableDefaultLines
                   hideThrottleDragRotateLine
                   throttleResize={0}
-                  resizable={{
-                    keepRatio: false,
-                  }}
-                  keepRatio={false}
+                  resizable
                   checkResizableError={true}
                   edge={false}
                   renderDirections={renderDirections}
@@ -341,26 +336,29 @@ export default function ImageWorkPlace() {
                       setRenderDirections(directions);
                     }
                   }}
-                  onResize={({ width, height, drag }) => {
-                    const [x, y] = drag.beforeTranslate;
+                  onResize={({ width, height, direction, delta }) => {
+                    if (!spriteRef.current || !selectedScale) return;
+                    const [dx, dy] = delta;
 
-                    //TODO: ezt is megcsinálni:  matrix3d(1,0,0,0,0,1,0,0,0,0,1,0,-98,-33,0,1) , és majd ennek köszönhetően manipulálhatjuk a spriteot
-                    const transform = String(drag.transform);
-                    const match = transform.match(
-                      /translate\(\s*([^) ,]+)\s*,\s*([^) ,]+)\s*\)/i,
-                    );
-                    const [, translateX = null, translateY = null] =
-                      match || [];
+                    const left = direction[0] === -1;
+                    const right = direction[0] === 1;
+                    const top = direction[1] === -1;
+                    const bottom = direction[1] === 1;
 
-                    console.log(translateX, translateY);
+                    if (spriteRef.current) {
+                      if (left) spriteRef.current.x += dx;
+                      if (right) spriteRef.current.x -= dx;
+
+                      if (top) spriteRef.current.y += dy;
+                      if (bottom) spriteRef.current.y -= dy;
+                    }
 
                     setBox((prev) => ({
                       ...prev,
-                      width,
+                      x: dx,
+                      y: dy,
                       height,
-                      x,
-                      y,
-                      transform: drag.transform,
+                      width,
                     }));
                   }}
                 />
