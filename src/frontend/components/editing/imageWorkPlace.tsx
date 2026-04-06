@@ -122,6 +122,79 @@ export default function ImageWorkPlace() {
     height: 250,
   });
 
+  function calculationBorders() {
+    if (selectedScale) {
+      const borderMaxRight =
+        selectedScale.position.x -
+        (selectedScale?.image.width / 2) * selectedScale?.scale +
+        box.width / 2;
+      const borderMaxLeft =
+        selectedScale.position.x +
+        (selectedScale?.image.width / 2) * selectedScale?.scale -
+        box.width / 2;
+      //
+      const borderMaxBottom =
+        selectedScale.position.y -
+        selectedScale?.image.height * selectedScale?.scale +
+        box.height;
+      const borderMaxTop = selectedScale.position.y;
+      return [borderMaxTop, borderMaxRight, borderMaxBottom, borderMaxLeft];
+    }
+    return [null, null, null, null];
+  }
+
+  function setDirectionsCrop(
+    nextPosX: number,
+    nextPosY: number,
+    borderMaxBottom: number,
+    borderMaxLeft: number,
+    borderMaxRight: number,
+    borderMaxTop: number,
+  ) {
+    const directions = [];
+
+    if (nextPosX >= borderMaxRight) directions.push("e");
+    if (nextPosX <= borderMaxLeft) directions.push("w");
+    if (nextPosY >= borderMaxBottom) directions.push("s");
+    if (nextPosY <= borderMaxTop) directions.push("n");
+
+    setRenderDirections(directions);
+  }
+
+  function grabCrop(box: {
+    x: number | null;
+    y: number | null;
+    width: number;
+    height: number;
+  }) {
+    if (spriteRef.current && selectedScale && box.x && box.y) {
+      const nextPosX = spriteRef.current.x + box.x;
+      const nextPosY = spriteRef.current.y + box.y;
+      //
+      const [borderMaxTop, borderMaxRight, borderMaxBottom, borderMaxLeft] =
+        calculationBorders();
+
+      if (borderMaxTop && borderMaxRight && borderMaxBottom && borderMaxLeft) {
+        console.log(nextPosX > borderMaxRight && nextPosX < borderMaxLeft);
+        //
+        if (nextPosX > borderMaxRight && nextPosX < borderMaxLeft)
+          spriteRef.current.x += box.x;
+
+        if (nextPosY < borderMaxTop && nextPosY > borderMaxBottom)
+          spriteRef.current.y += box.y;
+
+        setDirectionsCrop(
+          nextPosX,
+          nextPosY,
+          borderMaxBottom,
+          borderMaxLeft,
+          borderMaxRight,
+          borderMaxTop,
+        );
+      }
+    }
+  }
+
   useEffect(() => {
     let pos = {
       x: 0,
@@ -269,97 +342,63 @@ export default function ImageWorkPlace() {
                       x: delta[0],
                       y: delta[1],
                     }));
-
-                    if (spriteRef.current && selectedScale && box.x && box.y) {
-                      const nextPosX = spriteRef.current.x + box.x;
-                      const nextPosY = spriteRef.current.y + box.y;
-                      //
-                      const borderMaxRight =
-                        selectedScale.position.x -
-                        (selectedScale?.image.width / 2) *
-                          selectedScale?.scale +
-                        box.width / 2;
-                      const borderMaxLeft =
-                        selectedScale.position.x +
-                        (selectedScale?.image.width / 2) *
-                          selectedScale?.scale -
-                        box.width / 2;
-                      //
-                      const borderMaxBottom =
-                        selectedScale.position.y -
-                        selectedScale?.image.height * selectedScale?.scale +
-                        box.height;
-                      const borderMaxTop = selectedScale.position.y;
-                      //
-                      if (
-                        nextPosX > borderMaxRight &&
-                        nextPosX < borderMaxLeft &&
-                        box.x
-                      )
-                        spriteRef.current.x += box.x;
-
-                      if (
-                        nextPosY < borderMaxTop &&
-                        nextPosY > borderMaxBottom &&
-                        box.y
-                      )
-                        spriteRef.current.y += box.y;
-
-                      const directions = [];
-
-                      if (nextPosX >= borderMaxRight) directions.push("e");
-                      if (nextPosX <= borderMaxLeft) directions.push("w");
-                      if (nextPosY >= borderMaxBottom) directions.push("s");
-                      if (nextPosY <= borderMaxTop) directions.push("n");
-
-                      if (nextPosX <= borderMaxLeft && nextPosY <= borderMaxTop)
-                        directions.push("nw");
-
-                      if (
-                        nextPosX >= borderMaxRight &&
-                        nextPosY <= borderMaxTop
-                      )
-                        directions.push("ne");
-
-                      if (
-                        nextPosX <= borderMaxLeft &&
-                        nextPosY >= borderMaxBottom
-                      )
-                        directions.push("sw");
-
-                      if (
-                        nextPosX >= borderMaxRight &&
-                        nextPosY >= borderMaxBottom
-                      )
-                        directions.push("se");
-
-                      setRenderDirections(directions);
-                    }
+                    grabCrop(box);
                   }}
                   onResize={({ width, height, direction, delta }) => {
-                    if (!spriteRef.current || !selectedScale) return;
+                    if (!spriteRef.current) return;
+
                     const [dx, dy] = delta;
 
-                    const left = direction[0] === -1;
-                    const right = direction[0] === 1;
-                    const top = direction[1] === -1;
-                    const bottom = direction[1] === 1;
+                    setBox((prev) => {
+                      const [top, right, bottom, left] = calculationBorders();
 
-                    if (spriteRef.current) {
-                      if (left) spriteRef.current.x += dx;
-                      if (right) spriteRef.current.x -= dx;
+                      if (
+                        top == null ||
+                        right == null ||
+                        bottom == null ||
+                        left == null ||
+                        !spriteRef.current
+                      ) {
+                        return prev;
+                      }
 
-                      if (top) spriteRef.current.y += dy;
-                      if (bottom) spriteRef.current.y -= dy;
-                    }
+                      let nextPosX = spriteRef.current.x;
+                      let nextPosY = spriteRef.current.y;
 
-                    setBox((prev) => ({
-                      ...prev,
-                      x: dx,
-                      y: dy,
-                      height,
-                      width,
-                    }));
+                      // TODO: Majd még ezen kell egy kicsit igazitani, de jó lesz ez a séma
+                      if (direction[0] == 1 || direction[0] == -1) {
+                        if (dx > 0) {
+                          if (nextPosX > right) nextPosX = nextPosX - 1;
+                          else if (nextPosX < left) nextPosX = nextPosX + 1;
+                          else return prev;
+                        }
+
+                        spriteRef.current.x = nextPosX;
+                        return { ...prev, width };
+                      }
+
+                      if (direction[1] == 1 || direction[1] == -1) {
+                        if (dy > 0) {
+                          if (nextPosY > bottom) nextPosY = nextPosY - 1;
+                          else if (nextPosY < top) nextPosY = nextPosY + 1;
+                          else return prev;
+                        }
+
+                        spriteRef.current.y = nextPosY;
+                        return { ...prev, height };
+                      }
+
+                      setDirectionsCrop(
+                        nextPosX,
+                        nextPosY,
+                        bottom,
+                        left,
+                        right,
+                        top,
+                      );
+
+                      return prev;
+                    });
                   }}
                 />
               )}
