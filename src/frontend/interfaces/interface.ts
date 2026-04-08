@@ -76,6 +76,12 @@ export interface CustomImage {
     };
     size?: number;
   };
+  box?: {
+    x: number | null;
+    y: number | null;
+    width: number | null;
+    height: number | null;
+  };
 }
 
 export interface SessionStore {
@@ -101,11 +107,19 @@ export interface SessionStore {
 
   //#region MÉRETEK
   setImageSize: (id: number, width: number, height: number) => void;
-  setCropSize: (
-    id: number,
-    width: number | null,
-    height: number | null,
-  ) => void;
+  setCropBox: ({
+    id,
+    x,
+    y,
+    width,
+    height,
+  }: {
+    id: number;
+    x?: number | null;
+    y?: number | null;
+    width?: number | null;
+    height?: number | null;
+  }) => void;
   //#endregion
 
   //#region Copyright kép

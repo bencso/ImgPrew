@@ -12,26 +12,15 @@ import {
   Sprite,
   Texture,
 } from "pixi.js";
-import { Dispatch, RefObject, SetStateAction, useEffect, useRef } from "react";
+import { RefObject, useEffect, useRef } from "react";
 import { shallow } from "zustand/shallow";
 
 export default function WebGlComponent({
-  setSize,
   setImageSize,
   workPlaceRef,
-  box,
 }: {
-  setSize: Dispatch<
-    SetStateAction<{ width: number; height: number } | undefined>
-  >;
   setImageSize: (width: number, height: number) => void;
   workPlaceRef: RefObject<HTMLDivElement | null>;
-  box: {
-    x: number | null;
-    y: number | null;
-    width: number;
-    height: number;
-  };
 }) {
   const { selectedImg, setSelectedScale, textureRef, spriteRef, appRef } =
     useWorkSession();
@@ -158,7 +147,6 @@ export default function WebGlComponent({
       },
     });
 
-    setSize({ width, height });
     setImageSize(width, height);
   };
 

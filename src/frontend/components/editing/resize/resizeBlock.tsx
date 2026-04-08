@@ -60,17 +60,21 @@ const sizesDatas = [
 ];
 
 export default function ResizeBlock() {
-  const { selectedImg } = useWorkSession();
-  const { setCropSize } = useSessionStore();
+  const { selectedImg, selectedScale } = useWorkSession();
+  const { setCropBox } = useSessionStore();
+  const { appRef, spriteRef } = useWorkSession();
 
   const cropSize = useSessionStore(
-    (state) => state.sessionData[selectedImg].cropSize,
+    (state) => state.sessionData[selectedImg].box,
   );
 
-  const cropSizeSaved =
-    cropSize && cropSize.height !== null && cropSize.width !== null
-      ? true
-      : false;
+  const imageSize = useSessionStore(
+    (state) => state.sessionData.find((si) => si.id === selectedImg)?.dimesions,
+  );
+
+  const box = useSessionStore(
+    (state) => state.sessionData.find((si) => si.id === selectedImg)?.box,
+  );
 
   return (
     <Box>
@@ -83,27 +87,48 @@ export default function ResizeBlock() {
         align="center"
         w={"full"}
         value={
-          cropSizeSaved
-            ? cropSize && cropSize.width + "-" + cropSize.height
-            : ""
+          cropSize ? cropSize && cropSize.width + "-" + cropSize.height : ""
         }
-        onValueChange={(e) => {
-          if (!e.value) return;
-          const [width, height] = e.value?.split("-");
-
-          setCropSize(selectedImg, Number(width), Number(height));
-        }}
         onClick={(e: React.MouseEvent) => {
           const target = e.target as HTMLInputElement;
           if (!target.value) return;
+
           const [width, height] = target.value.split("-");
+
+          if (!width || !height) return;
+
+          let w = Number(width);
+          let h = Number(height);
+
+          const cropSizeRelative = {
+            height: h * (selectedScale?.scale || 0),
+            width: w * (selectedScale?.scale || 0),
+          };
+
           if (
-            cropSizeSaved &&
-            cropSize &&
-            cropSize.height === Number(height) &&
-            cropSize.width === Number(width)
+            box &&
+            imageSize &&
+            spriteRef.current &&
+            box.height === cropSizeRelative.height &&
+            box.width === cropSizeRelative.width &&
+            appRef.current
           ) {
-            setCropSize(selectedImg, null, null);
+            setCropBox({
+              id: selectedImg,
+              width: imageSize.width,
+              height: imageSize.height,
+              x: appRef.current.canvas.width / 2,
+              y: appRef.current.canvas.height / 2,
+            });
+            spriteRef.current.x = appRef.current.canvas.width / 2;
+            spriteRef.current.y = appRef.current.canvas.height / 2;
+          } else {
+            if (appRef.current)
+              setCropBox({
+                id: selectedImg,
+                width: cropSizeRelative.width,
+                height: cropSizeRelative.height,
+              });
           }
         }}
       >

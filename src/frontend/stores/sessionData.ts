@@ -31,6 +31,12 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           id: nextId,
           blob: blob,
           exportFileExtension: "jpg",
+          box: {
+            x: null,
+            y: null,
+            height: null,
+            width: null,
+          },
         } as CustomImage;
 
         if (exifData) sessionData.exifDatas = exifData;
@@ -201,21 +207,51 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           return;
         }
         const image = state.sessionData.find((img) => img.id === id);
-        if (image) image.dimesions = { width, height };
-      }),
-    setCropSize: (id: number, width: number | null, height: number | null) =>
-      set((state) => {
-        if ((height && height <= 0) || (width && width <= 0)) {
-          toaster.create({
-            type: "error",
-            title: "Hibás érték",
-            description: "A méret nem lehet kisebb vagy egyenlő, mint 0",
-          });
-          return;
+        if (image) {
+          image.dimesions = { width, height };
         }
-        const image = state.sessionData.find((img) => img.id === id);
-        if (image) image.cropSize = { width, height };
       }),
+    //#region Frontend Crop Box
+    setCropBox: ({
+      id,
+      x,
+      y,
+      width,
+      height,
+    }: {
+      id: number;
+      x?: number | null;
+      y?: number | null;
+      width?: number | null;
+      height?: number | null;
+    }) => {
+      set((state) => {
+        const image = state.sessionData.find((img) => img.id === id);
+
+        if (image && image.box) {
+          let newX = x ? x : image.box.x;
+          let newY = y ? y : image.box.y;
+          console.log(height);
+          let newH = height
+            ? height
+            : image.box.height
+              ? image.box.height
+              : (image.dimesions?.height ?? 0);
+          let newW = width
+            ? width
+            : image.box.width
+              ? image.box.width
+              : (image.dimesions?.width ?? 0);
+          image.box = {
+            ...image.box,
+            x: newX,
+            y: newY,
+            height: newH,
+            width: newW,
+          };
+        }
+      });
+    },
     //#endregion
 
     //#region EXIF ADATOK

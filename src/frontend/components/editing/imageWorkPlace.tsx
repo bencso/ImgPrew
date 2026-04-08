@@ -10,8 +10,6 @@ import Moveable from "react-moveable";
 import { shallow } from "zustand/shallow";
 import WebGlComponent from "../webGlComponent";
 
-//TODO: A boxokat minden képre külön megcsinálni hogy ha több kép van akkor a képek között váltásnál ne álljon vissza
-
 export default function ImageWorkPlace() {
   const {
     selectedImg,
@@ -20,26 +18,26 @@ export default function ImageWorkPlace() {
     setCopyrightImageRef,
     copyrightImageRef,
     selectedScale,
-    textureRef,
     spriteRef,
-    appRef,
   } = useWorkSession();
-  const { setTextPosition, setImageSize, calculationReFixPosition } =
-    useSessionStore();
+  const {
+    setTextPosition,
+    setImageSize,
+    calculationReFixPosition,
+    setCropBox,
+  } = useSessionStore();
 
-  const cropSize = useSessionStore(
-    (state) => state.sessionData[selectedImg].cropSize,
+  const box = useSessionStore(
+    (state) => state.sessionData.find((si) => si.id === selectedImg)?.box,
   );
 
-  const cropSizeRelative = {
-    height: (cropSize?.height || 0) * (selectedScale?.scale || 0),
-    width: (cropSize?.width || 0) * (selectedScale?.scale || 0),
-  };
+  const imageSize = useSessionStore(
+    (state) => state.sessionData.find((si) => si.id === selectedImg)?.dimesions,
+  );
 
   const [renderDirections, setRenderDirections] = useState<string[]>([]);
   const cropRef = useRef<HTMLElement>(null);
   const workPlaceRef = useRef<HTMLDivElement>(null);
-  const [size, setSize] = useState<{ width: number; height: number }>();
 
   const copyrightImage = useSessionStore(
     (s) => s.sessionData.find((sD) => sD.id === selectedImg)?.copyrightImage,
@@ -110,33 +108,21 @@ export default function ImageWorkPlace() {
     setImageSize(selectedImg, width, height);
   }
 
-  const [box, setBox] = useState<{
-    x: number | null;
-    y: number | null;
-    width: number;
-    height: number;
-  }>({
-    x: null,
-    y: null,
-    width: 200,
-    height: 250,
-  });
-
   function calculationBorders() {
     if (selectedScale) {
       const borderMaxRight =
         selectedScale.position.x -
         (selectedScale?.image.width / 2) * selectedScale?.scale +
-        box.width / 2;
+        (box?.width || 0) / 2;
       const borderMaxLeft =
         selectedScale.position.x +
         (selectedScale?.image.width / 2) * selectedScale?.scale -
-        box.width / 2;
+        (box?.width || 0) / 2;
       //
       const borderMaxBottom =
         selectedScale.position.y -
         selectedScale?.image.height * selectedScale?.scale +
-        box.height;
+        (box?.height || 0);
       const borderMaxTop = selectedScale.position.y;
       return [borderMaxTop, borderMaxRight, borderMaxBottom, borderMaxLeft];
     }
@@ -144,48 +130,45 @@ export default function ImageWorkPlace() {
   }
 
   function setDirectionsCrop(
-    nextPosX: number,
-    nextPosY: number,
     borderMaxBottom: number,
     borderMaxLeft: number,
     borderMaxRight: number,
     borderMaxTop: number,
   ) {
+    if (!box || !box.x || !box.y) return;
     const directions = [];
 
-    if (nextPosX >= borderMaxRight) directions.push("e");
-    if (nextPosX <= borderMaxLeft) directions.push("w");
-    if (nextPosY >= borderMaxBottom) directions.push("s");
-    if (nextPosY <= borderMaxTop) directions.push("n");
+    if (box.x > borderMaxRight) directions.push("e");
+    if (box.x < borderMaxLeft) directions.push("w");
+    if (box.y > borderMaxBottom) directions.push("s");
+    if (box.y < borderMaxTop) directions.push("n");
 
     setRenderDirections(directions);
   }
 
-  function grabCrop(box: {
-    x: number | null;
-    y: number | null;
-    width: number;
-    height: number;
-  }) {
-    if (spriteRef.current && selectedScale && box.x && box.y) {
-      const nextPosX = spriteRef.current.x + box.x;
-      const nextPosY = spriteRef.current.y + box.y;
+  function grabCrop(x: number, y: number) {
+    if (spriteRef.current && selectedScale && box && y && x) {
+      const nextPosX = spriteRef.current.x + x;
+      const nextPosY = spriteRef.current.y + y;
       //
       const [borderMaxTop, borderMaxRight, borderMaxBottom, borderMaxLeft] =
         calculationBorders();
 
       if (borderMaxTop && borderMaxRight && borderMaxBottom && borderMaxLeft) {
-        console.log(nextPosX > borderMaxRight && nextPosX < borderMaxLeft);
         //
         if (nextPosX > borderMaxRight && nextPosX < borderMaxLeft)
-          spriteRef.current.x += box.x;
+          spriteRef.current.x = nextPosX;
 
         if (nextPosY < borderMaxTop && nextPosY > borderMaxBottom)
-          spriteRef.current.y += box.y;
+          spriteRef.current.y = nextPosY;
+
+        setCropBox({
+          id: selectedImg,
+          x: nextPosX,
+          y: nextPosY,
+        });
 
         setDirectionsCrop(
-          nextPosX,
-          nextPosY,
           borderMaxBottom,
           borderMaxLeft,
           borderMaxRight,
@@ -194,34 +177,6 @@ export default function ImageWorkPlace() {
       }
     }
   }
-
-  useEffect(() => {
-    let pos = {
-      x: 0,
-      y: 0,
-    };
-
-    if (cropSize?.height === null && cropSize.width === null) {
-      if (appRef.current && spriteRef.current) {
-        pos.x = appRef.current.canvas.width / 2;
-        pos.y = appRef.current.canvas.height / 2;
-        spriteRef.current.x = appRef.current.canvas.width / 2;
-        spriteRef.current.y = appRef.current.canvas.height / 2;
-      }
-    }
-
-    setBox((prev) => ({
-      ...prev,
-      x: pos.x > 0 ? pos.x : prev.x,
-      y: pos.y > 0 ? pos.y : prev.y,
-      height:
-        cropSize && cropSize.height
-          ? cropSizeRelative.height
-          : size?.height || 0,
-      width:
-        cropSize && cropSize.width ? cropSizeRelative.width : size?.width || 0,
-    }));
-  }, [selectedScale, cropSize, selectedImg]);
 
   return (
     <Flex
@@ -236,8 +191,8 @@ export default function ImageWorkPlace() {
       className="workPlaceRef"
     >
       <Box
-        w={box.width + "px"}
-        h={box.height + "px"}
+        w={box?.width + "px"}
+        h={box?.height + "px"}
         alignContent={"center"}
         justifyContent={"center"}
         display={"flex"}
@@ -246,8 +201,8 @@ export default function ImageWorkPlace() {
       >
         <Box
           zIndex={100}
-          h={box.height}
-          w={box.width}
+          h={box?.height ? box.height : imageSize?.height}
+          w={box?.width ? box.width : imageSize?.width}
           position={"absolute"}
           className="3"
         >
@@ -311,7 +266,7 @@ export default function ImageWorkPlace() {
           {
             //
           }
-          {cropSize && cropSize.width && cropSize.height && (
+          {box && box.width && box.height && (
             <>
               <Box
                 ref={cropRef}
@@ -321,84 +276,80 @@ export default function ImageWorkPlace() {
                 backgroundColor="blackAlpha.300"
                 border="2px solid white"
               />
-              {cropRef.current && box.height && box.width && (
+              {cropRef.current && box?.height && box.width && (
                 <Moveable
                   target={cropRef.current}
                   edgeDraggable={false}
                   origin={false}
                   keepRatio={false}
                   draggable
+                  resizable
                   hideDefaultLines
                   hideChildMoveableDefaultLines
                   hideThrottleDragRotateLine
-                  throttleResize={0}
-                  resizable
+                  throttleResize={1}
+                  throttleDrag={1}
                   checkResizableError={true}
                   edge={false}
                   renderDirections={renderDirections}
                   onDrag={({ delta }) => {
-                    setBox((prev) => ({
-                      ...prev,
-                      x: delta[0],
-                      y: delta[1],
-                    }));
-                    grabCrop(box);
+                    const [dx, dy] = delta;
+
+                    grabCrop(dx, dy);
                   }}
                   onResize={({ width, height, direction, delta }) => {
                     if (!spriteRef.current) return;
 
                     const [dx, dy] = delta;
 
-                    setBox((prev) => {
-                      const [top, right, bottom, left] = calculationBorders();
+                    const [top, right, bottom, left] = calculationBorders();
+                    if (!top || !right || !bottom || !left) return;
 
-                      if (
-                        top == null ||
-                        right == null ||
-                        bottom == null ||
-                        left == null ||
-                        !spriteRef.current
-                      ) {
-                        return prev;
-                      }
+                    let nextPosX = spriteRef.current.x;
+                    let nextPosY = spriteRef.current.y;
 
-                      let nextPosX = spriteRef.current.x;
-                      let nextPosY = spriteRef.current.y;
-
-                      // TODO: Majd még ezen kell egy kicsit igazitani, de jó lesz ez a séma
-                      if (direction[0] == 1 || direction[0] == -1) {
-                        if (dx > 0) {
-                          if (nextPosX > right) nextPosX = nextPosX - 1;
-                          else if (nextPosX < left) nextPosX = nextPosX + 1;
-                          else return prev;
+                    if (direction[0] == 1 || direction[0] == -1) {
+                      if (dx > 0) {
+                        if (nextPosX > right) {
+                          nextPosX = nextPosX - 0.5;
+                          spriteRef.current.x = nextPosX;
+                        } else if (nextPosX < left) {
+                          nextPosX = nextPosX + 0.5;
+                          spriteRef.current.x = nextPosX;
                         }
-
-                        spriteRef.current.x = nextPosX;
-                        return { ...prev, width };
                       }
+                    }
 
-                      if (direction[1] == 1 || direction[1] == -1) {
-                        if (dy > 0) {
-                          if (nextPosY > bottom) nextPosY = nextPosY - 1;
-                          else if (nextPosY < top) nextPosY = nextPosY + 1;
-                          else return prev;
+                    if (direction[1] == 1 || direction[1] == -1) {
+                      if (dy > 0) {
+                        if (nextPosY > bottom) {
+                          nextPosY = nextPosY - 0.5;
+                          spriteRef.current.y = nextPosY;
+                        } else if (nextPosY < top) {
+                          nextPosY = nextPosY + 0.5;
+                          spriteRef.current.y = nextPosY;
                         }
-
-                        spriteRef.current.y = nextPosY;
-                        return { ...prev, height };
                       }
+                    }
 
-                      setDirectionsCrop(
-                        nextPosX,
-                        nextPosY,
-                        bottom,
-                        left,
-                        right,
-                        top,
-                      );
+                    if (
+                      imageSize &&
+                      width < imageSize.width &&
+                      imageSize.height > height
+                    )
+                      setCropBox({
+                        id: selectedImg,
+                        height: height,
+                        width: width,
+                      });
 
-                      return prev;
+                    setCropBox({
+                      id: selectedImg,
+                      x: nextPosX,
+                      y: nextPosY,
                     });
+
+                    setDirectionsCrop(bottom, left, right, top);
                   }}
                 />
               )}
@@ -409,9 +360,7 @@ export default function ImageWorkPlace() {
           //
         }
         <WebGlComponent
-          box={box}
           workPlaceRef={workPlaceRef}
-          setSize={setSize}
           setImageSize={setImageDimension}
         />
       </Box>
