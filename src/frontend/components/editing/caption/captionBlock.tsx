@@ -1,5 +1,6 @@
 "use client";
 
+import { useColorMode } from "@/components/ui/color-mode";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import {
@@ -18,7 +19,6 @@ import {
   Text,
   useBreakpointValue,
 } from "@chakra-ui/react";
-import { useEffect, useMemo, useRef, useState } from "react";
 import {
   EmojiClickData,
   EmojiStyle,
@@ -27,9 +27,9 @@ import {
   SuggestionMode,
   Theme,
 } from "emoji-picker-react";
-import { LuLaugh } from "react-icons/lu";
-import { useColorMode } from "@/components/ui/color-mode";
 import dynamic from "next/dynamic";
+import { useMemo, useRef, useState } from "react";
+import { LuLaugh } from "react-icons/lu";
 import { shallow } from "zustand/shallow";
 
 export default function CaptionBlock() {
@@ -320,9 +320,6 @@ export default function CaptionBlock() {
               <Portal>
                 <Select.Positioner w={"fit"}>
                   <Select.Content w={"fit"}>
-                    {
-                      //TODO: Egy typeot példányosítani neki :)
-                    }
                     {captionSamples.map((tag: any) => (
                       <Select.Item item={tag} key={tag.key}>
                         <Stack gap="0">

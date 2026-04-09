@@ -12,7 +12,6 @@ import { useState } from "react";
 import { FaGoogle } from "react-icons/fa";
 import { BeatLoader } from "react-spinners";
 
-//TODO: A responsivitás miatt vannak error-ok
 export default function Page() {
   const [loading, setLoading] = useState(false);
 

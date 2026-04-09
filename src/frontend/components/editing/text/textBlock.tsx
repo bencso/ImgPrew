@@ -1,4 +1,3 @@
-//TODO: Holnap (04.01) megcsinálni hogy lehessen a szövegeket pontsabban gombokkal is irányitani
 import { XPositions, YPositions } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";

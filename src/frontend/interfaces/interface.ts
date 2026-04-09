@@ -76,6 +76,7 @@ export interface CustomImage {
     };
     size?: number;
   };
+  isExpandMode: boolean;
   box?: {
     x: number | null;
     y: number | null;
@@ -175,6 +176,10 @@ export interface SessionStore {
     },
   ) => void;
   setTextColor: (imageId: number, textId: string, color: string) => void;
+  //#endregion
+
+  //#region EXPAND
+  setExpandMode: (id: number) => void;
   //#endregion
 
   //#region EXPORT

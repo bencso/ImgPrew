@@ -412,6 +412,17 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       }),
     //#endregion
 
+    //#region EXPAND
+    setExpandMode: (id: number) => {
+      set((state) => {
+        const image = state.sessionData.find((img) => img.id === id);
+        if (!image) return;
+        const expandMode = image.isExpandMode || false;
+        image.isExpandMode = !expandMode;
+      });
+    },
+    //#endregion
+
     //#region EXPORT
     exportAllDataForImage: (id: number) => {
       const image = get().sessionData.find((img) => img.id === id);

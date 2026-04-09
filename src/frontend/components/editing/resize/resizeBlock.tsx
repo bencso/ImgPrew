@@ -61,7 +61,7 @@ const sizesDatas = [
 
 export default function ResizeBlock() {
   const { selectedImg, selectedScale } = useWorkSession();
-  const { setCropBox } = useSessionStore();
+  const { setCropBox, setExpandMode } = useSessionStore();
   const { appRef, spriteRef } = useWorkSession();
 
   const cropSize = useSessionStore(
@@ -167,7 +167,13 @@ export default function ResizeBlock() {
       {
         //
       }
-      <Tabs.Root defaultValue="crop" variant="plain">
+      <Tabs.Root
+        defaultValue="crop"
+        variant="plain"
+        onValueChange={() => {
+          setExpandMode(selectedImg);
+        }}
+      >
         <Tabs.List
           bg="bg.muted"
           rounded="l3"

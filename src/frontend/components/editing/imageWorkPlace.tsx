@@ -25,6 +25,7 @@ export default function ImageWorkPlace() {
     setImageSize,
     calculationReFixPosition,
     setCropBox,
+    setExpandMode
   } = useSessionStore();
 
   const box = useSessionStore(
