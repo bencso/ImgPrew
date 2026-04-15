@@ -76,7 +76,7 @@ export interface CustomImage {
     };
     size?: number;
   };
-  isExpandMode: boolean;
+  expandMode: string;
   expandBackground: string;
   expandSize?: {
     width: number;
@@ -184,7 +184,7 @@ export interface SessionStore {
   //#endregion
 
   //#region EXPAND
-  setExpandMode: (id: number, mode: boolean) => void;
+  setExpandMode: (id: number, mode: string) => void;
   setExpandBackground: (id: number, rgba: string) => void;
   setExpandSize: (
     id: number,

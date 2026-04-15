@@ -30,7 +30,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         const sessionData = {
           id: nextId,
           blob: blob,
-          isExpandMode: false,
+          expandMode: "no",
           exportFileExtension: "jpg",
           expandBackground: "rgba(255, 255, 255,1)",
           box: {
@@ -233,7 +233,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         if (image && image.box) {
           let newX = x ? x : image.box.x;
           let newY = y ? y : image.box.y;
-          console.log(height);
+
           let newH = height
             ? height
             : image.box.height
@@ -415,10 +415,11 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     //#endregion
 
     //#region EXPAND
-    setExpandMode: (id: number, mode: boolean) => {
+    setExpandMode: (id: number, mode: string) => {
+      if (mode !== "crop" && mode !== "no" && mode !== "expand") return;
       set((state) => ({
         sessionData: state.sessionData.map((img) =>
-          img.id === id ? { ...img, isExpandMode: mode } : img,
+          img.id === id ? { ...img, expandMode: mode } : img,
         ),
       }));
     },

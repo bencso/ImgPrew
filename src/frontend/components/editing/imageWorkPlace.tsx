@@ -39,7 +39,7 @@ export default function ImageWorkPlace() {
 
   const expandMode = useSessionStore(
     (state) =>
-      state.sessionData.find((si) => si.id === selectedImg)?.isExpandMode,
+      state.sessionData.find((si) => si.id === selectedImg)?.expandMode,
   );
 
   const [renderDirections, setRenderDirections] = useState<string[]>([]);
@@ -161,7 +161,6 @@ export default function ImageWorkPlace() {
         calculationBorders();
 
       if (borderMaxTop && borderMaxRight && borderMaxBottom && borderMaxLeft) {
-        //
         if (nextPosX > borderMaxRight && nextPosX < borderMaxLeft)
           spriteRef.current.x = nextPosX;
 
@@ -197,9 +196,13 @@ export default function ImageWorkPlace() {
       className="workPlaceRef"
     >
       <Box
-        width={expandMode === false && box?.width ? box.width + "px" : "100%"}
+        width={
+          expandMode === "crop" && box && box.width ? `${box.width}px` : "100%"
+        }
         height={
-          expandMode === false && box?.height ? box.height + "px" : "100%"
+          expandMode === "crop" && box && box.height
+            ? `${box.height}px`
+            : "100%"
         }
         alignContent={"center"}
         justifyContent={"center"}
@@ -214,9 +217,6 @@ export default function ImageWorkPlace() {
           position={"absolute"}
           className="3"
         >
-          {
-            //
-          }
           {texts.map((element: DraggableImageEvent) => {
             return (
               <Span
@@ -274,7 +274,7 @@ export default function ImageWorkPlace() {
           {
             //
           }
-          {expandMode === false && box && box.width && box.height && (
+          {expandMode === "crop" && box && box.width && box.height && (
             <>
               <Box
                 ref={cropRef}
@@ -302,7 +302,6 @@ export default function ImageWorkPlace() {
                   renderDirections={renderDirections}
                   onDrag={({ delta }) => {
                     const [dx, dy] = delta;
-
                     grabCrop(dx, dy);
                   }}
                   onResize={({ width, height, direction, delta }) => {
