@@ -23,9 +23,10 @@ import {
 } from "react-icons/lu";
 import { shallow } from "zustand/shallow";
 
-// TODO: Késöbb APIból kérjük le ezeket
 // TODO: A selectedScalet kicserélni nem kell már felesleges, és megirni külön képekre,
 //  a gépen jó már az expandelés de még mobilon és mozgatás közben nem, rájönni mit ronhottam el, és kijavitani
+//TODO: Lehesen az eredeti állapotba visszaállítani a dolgokat (ne legyen expand / crop csak)
+
 const sizesDatas = [
   {
     name: "Instagram",
@@ -65,8 +66,13 @@ const sizesDatas = [
 ];
 
 export default function ResizeBlock() {
-  const { setCropBox, setExpandMode, setExpandBackground, setExpandSize } =
-    useSessionStore();
+  const {
+    setCropBox,
+    setExpandMode,
+    setExpandBackground,
+    setExpandSize,
+    setImageSize,
+  } = useSessionStore();
   const {
     appRef,
     spriteRef,
@@ -85,7 +91,6 @@ export default function ResizeBlock() {
   const expandSize = useSessionStore(
     (state) =>
       state.sessionData.find((si) => si.id === selectedImg)?.expandSize,
-    shallow,
   );
 
   const expandBackground =
@@ -107,8 +112,10 @@ export default function ResizeBlock() {
   );
 
   function resizeImage() {
-    let w = Number(expandSize?.width);
-    let h = Number(expandSize?.height);
+    if (!expandSize) return;
+
+    let w = Number(expandSize.width);
+    let h = Number(expandSize.height);
 
     const cropSizeRelative = {
       height: h * (selectedScale?.scale ?? 1),
@@ -122,15 +129,23 @@ export default function ResizeBlock() {
         textureRef.current &&
         workPlaceRef.current
       ) {
-        const workPlaceSize = workPlaceRef.current.getBoundingClientRect();
-        const areaW = workPlaceSize.width;
-        const areaH = workPlaceSize.height;
+        const workPlaceSize = workPlaceRef.current;
+        const areaW = workPlaceSize.offsetWidth;
+        const areaH = workPlaceSize.offsetHeight;
+
+        if (!areaW || !areaH || !w || !h) return;
+
         const canvasScale = Math.min(areaW / w, areaH / h);
 
-        const canvasW = w * canvasScale;
-        const canvasH = h * canvasScale;
+        const canvasW = Math.round(w * canvasScale);
+        const canvasH = Math.round(h * canvasScale);
 
         appRef.current.renderer.resize(canvasW, canvasH);
+
+        const canvas = appRef.current.canvas;
+        canvas.style.width = `${canvasW}px`;
+        canvas.style.height = `${canvasH}px`;
+
         appRef.current.renderer.background.color = expandBackground;
 
         const imgW = textureRef.current.width;
@@ -140,16 +155,19 @@ export default function ResizeBlock() {
 
         spriteRef.current.anchor.set(0.5);
 
-        spriteRef.current.width = imgW * imageScale;
-        spriteRef.current.height = imgH * imageScale;
+        let spW = Math.round(imgW * imageScale);
+        let spH = Math.round(imgH * imageScale);
+
+        spriteRef.current.width = spW;
+        spriteRef.current.height = spH;
 
         spriteRef.current.x = canvasW / 2;
         spriteRef.current.y = canvasH / 2;
 
         setSelectedScale({
           image: {
-            width: w,
-            height: h,
+            width: spW,
+            height: spH,
           },
           scale: imageScale,
           position: {
@@ -189,8 +207,30 @@ export default function ResizeBlock() {
   }
 
   useEffect(() => {
-    resizeImage();
-  }, [expandSize, expandBackground]);
+    requestAnimationFrame(() => {
+      resizeImage();
+    });
+  }, [expandSize, expandBackground, expandMode]);
+
+  useEffect(() => {
+    if (!workPlaceRef.current) return;
+
+    let frame = 0;
+
+    const observer = new ResizeObserver(() => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        resizeImage();
+      });
+    });
+
+    observer.observe(workPlaceRef.current);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+    };
+  }, []);
 
   return (
     <Box>
@@ -200,6 +240,7 @@ export default function ResizeBlock() {
         w={"full"}
         value={box ? box && box.width + "-" + box.height : ""}
         colorPalette={"teal"}
+        defaultValue={expandSize?.width + "-" + expandSize?.height}
         onValueChange={(details) => {
           const value = details.value;
           if (!value) return;

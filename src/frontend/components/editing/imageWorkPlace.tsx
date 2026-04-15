@@ -197,8 +197,10 @@ export default function ImageWorkPlace() {
       className="workPlaceRef"
     >
       <Box
-        w={box?.width + "px"}
-        h={box?.height + "px"}
+        width={expandMode === false && box?.width ? box.width + "px" : "100%"}
+        height={
+          expandMode === false && box?.height ? box.height + "px" : "100%"
+        }
         alignContent={"center"}
         justifyContent={"center"}
         display={"flex"}
@@ -207,10 +209,8 @@ export default function ImageWorkPlace() {
       >
         <Box
           zIndex={100}
-          h={
-            expandMode == false && box?.height ? box.height : imageSize?.height
-          }
-          w={expandMode == false && box?.width ? box.width : imageSize?.width}
+          h={box?.height ? box.height : workPlaceRef.current?.offsetHeight}
+          w={box?.width ? box.width : workPlaceRef.current?.offsetWidth}
           position={"absolute"}
           className="3"
         >
@@ -274,7 +274,7 @@ export default function ImageWorkPlace() {
           {
             //
           }
-          {box && box.width && box.height && (
+          {expandMode === false && box && box.width && box.height && (
             <>
               <Box
                 ref={cropRef}

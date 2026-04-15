@@ -423,19 +423,24 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       }));
     },
     setExpandSize: (id: number, size: { width: number; height: number }) => {
-      set((state) => {
-        const image = state.sessionData.find((img) => img.id === id);
-        if (!image) return;
-        image.expandSize = size;
-      });
+      set((state) => ({
+        sessionData: state.sessionData.map((img) =>
+          img.id === id ? { ...img, expandSize: size } : img,
+        ),
+      }));
     },
-    //TODO: Ellenörzés RGBA-ra
+
     setExpandBackground: (id: number, rgba: string) => {
-      set((state) => {
-        const image = state.sessionData.find((img) => img.id === id);
-        if (!image) return;
-        image.expandBackground = rgba;
-      });
+      if (
+        /^rgba\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3}),\s*(\d*(?:\.\d+)?)\)$/.test(
+          rgba,
+        )
+      )
+        set((state) => ({
+          sessionData: state.sessionData.map((img) =>
+            img.id === id ? { ...img, expandBackground: rgba } : img,
+          ),
+        }));
     },
     //#endregion
 
