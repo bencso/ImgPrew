@@ -37,6 +37,8 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
   const spriteRef = useRef<Sprite | null>(null);
   const textureRef = useRef<Texture | null>(null);
   const appRef = useRef<Application | null>(null);
+  const workPlaceRef = useRef<HTMLDivElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const { functions, addFunction, editFunction } = useFunctionsStore();
 
   const contextValue = useMemo<WorkSessionContextProps>(
@@ -61,6 +63,8 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       spriteRef,
       textureRef,
       appRef,
+      workPlaceRef,
+      canvasRef,
     }),
     [
       step,
@@ -73,7 +77,9 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       selectedScale,
       spriteRef,
       textureRef,
+      workPlaceRef,
       appRef,
+      canvasRef,
     ],
   );
 

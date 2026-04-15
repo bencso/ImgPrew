@@ -12,18 +12,22 @@ import {
   Sprite,
   Texture,
 } from "pixi.js";
-import { RefObject, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { shallow } from "zustand/shallow";
 
 export default function WebGlComponent({
   setImageSize,
-  workPlaceRef,
 }: {
   setImageSize: (width: number, height: number) => void;
-  workPlaceRef: RefObject<HTMLDivElement | null>;
 }) {
-  const { selectedImg, setSelectedScale, textureRef, spriteRef, appRef } =
-    useWorkSession();
+  const {
+    selectedImg,
+    setSelectedScale,
+    textureRef,
+    spriteRef,
+    appRef,
+    workPlaceRef,
+  } = useWorkSession();
   const { sessionData } = useSessionStore();
 
   const canvasRef = useRef<HTMLElement | null>(null);

@@ -19,13 +19,13 @@ export default function ImageWorkPlace() {
     copyrightImageRef,
     selectedScale,
     spriteRef,
+    workPlaceRef,
   } = useWorkSession();
   const {
     setTextPosition,
     setImageSize,
     calculationReFixPosition,
     setCropBox,
-    setExpandMode
   } = useSessionStore();
 
   const box = useSessionStore(
@@ -34,11 +34,16 @@ export default function ImageWorkPlace() {
 
   const imageSize = useSessionStore(
     (state) => state.sessionData.find((si) => si.id === selectedImg)?.dimesions,
+    shallow,
+  );
+
+  const expandMode = useSessionStore(
+    (state) =>
+      state.sessionData.find((si) => si.id === selectedImg)?.isExpandMode,
   );
 
   const [renderDirections, setRenderDirections] = useState<string[]>([]);
   const cropRef = useRef<HTMLElement>(null);
-  const workPlaceRef = useRef<HTMLDivElement>(null);
 
   const copyrightImage = useSessionStore(
     (s) => s.sessionData.find((sD) => sD.id === selectedImg)?.copyrightImage,
@@ -202,8 +207,10 @@ export default function ImageWorkPlace() {
       >
         <Box
           zIndex={100}
-          h={box?.height ? box.height : imageSize?.height}
-          w={box?.width ? box.width : imageSize?.width}
+          h={
+            expandMode == false && box?.height ? box.height : imageSize?.height
+          }
+          w={expandMode == false && box?.width ? box.width : imageSize?.width}
           position={"absolute"}
           className="3"
         >
@@ -360,10 +367,7 @@ export default function ImageWorkPlace() {
         {
           //
         }
-        <WebGlComponent
-          workPlaceRef={workPlaceRef}
-          setImageSize={setImageDimension}
-        />
+        <WebGlComponent setImageSize={setImageDimension} />
       </Box>
       {
         //

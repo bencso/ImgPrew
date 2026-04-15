@@ -30,7 +30,9 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         const sessionData = {
           id: nextId,
           blob: blob,
+          isExpandMode: false,
           exportFileExtension: "jpg",
+          expandBackground: "rgba(255, 255, 255,1)",
           box: {
             x: null,
             y: null,
@@ -413,12 +415,26 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     //#endregion
 
     //#region EXPAND
-    setExpandMode: (id: number) => {
+    setExpandMode: (id: number, mode: boolean) => {
+      set((state) => ({
+        sessionData: state.sessionData.map((img) =>
+          img.id === id ? { ...img, isExpandMode: mode } : img,
+        ),
+      }));
+    },
+    setExpandSize: (id: number, size: { width: number; height: number }) => {
       set((state) => {
         const image = state.sessionData.find((img) => img.id === id);
         if (!image) return;
-        const expandMode = image.isExpandMode || false;
-        image.isExpandMode = !expandMode;
+        image.expandSize = size;
+      });
+    },
+    //TODO: Ellenörzés RGBA-ra
+    setExpandBackground: (id: number, rgba: string) => {
+      set((state) => {
+        const image = state.sessionData.find((img) => img.id === id);
+        if (!image) return;
+        image.expandBackground = rgba;
       });
     },
     //#endregion

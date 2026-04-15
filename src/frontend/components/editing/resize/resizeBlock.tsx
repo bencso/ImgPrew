@@ -7,11 +7,13 @@ import {
   Flex,
   HStack,
   Icon,
+  parseColor,
   Portal,
   RadioCard,
   ScrollArea,
   Tabs,
 } from "@chakra-ui/react";
+import { useEffect } from "react";
 import {
   LuExpand,
   LuFacebook,
@@ -19,8 +21,11 @@ import {
   LuMaximize2,
   LuTwitter,
 } from "react-icons/lu";
+import { shallow } from "zustand/shallow";
 
 // TODO: Késöbb APIból kérjük le ezeket
+// TODO: A selectedScalet kicserélni nem kell már felesleges, és megirni külön képekre,
+//  a gépen jó már az expandelés de még mobilon és mozgatás közben nem, rájönni mit ronhottam el, és kijavitani
 const sizesDatas = [
   {
     name: "Instagram",
@@ -60,76 +65,149 @@ const sizesDatas = [
 ];
 
 export default function ResizeBlock() {
-  const { selectedImg, selectedScale } = useWorkSession();
-  const { setCropBox, setExpandMode } = useSessionStore();
-  const { appRef, spriteRef } = useWorkSession();
-
-  const cropSize = useSessionStore(
-    (state) => state.sessionData[selectedImg].box,
-  );
+  const { setCropBox, setExpandMode, setExpandBackground, setExpandSize } =
+    useSessionStore();
+  const {
+    appRef,
+    spriteRef,
+    textureRef,
+    workPlaceRef,
+    selectedImg,
+    selectedScale,
+    setSelectedScale,
+  } = useWorkSession();
 
   const imageSize = useSessionStore(
     (state) => state.sessionData.find((si) => si.id === selectedImg)?.dimesions,
+    shallow,
   );
+
+  const expandSize = useSessionStore(
+    (state) =>
+      state.sessionData.find((si) => si.id === selectedImg)?.expandSize,
+    shallow,
+  );
+
+  const expandBackground =
+    useSessionStore(
+      (state) =>
+        state.sessionData.find((si) => si.id === selectedImg)?.expandBackground,
+      shallow,
+    ) ?? "rgba(255,255,255,1)";
+
+  const expandMode =
+    useSessionStore(
+      (state) =>
+        state.sessionData.find((si) => si.id === selectedImg)?.isExpandMode,
+    ) ?? false;
 
   const box = useSessionStore(
     (state) => state.sessionData.find((si) => si.id === selectedImg)?.box,
+    shallow,
   );
+
+  function resizeImage() {
+    let w = Number(expandSize?.width);
+    let h = Number(expandSize?.height);
+
+    const cropSizeRelative = {
+      height: h * (selectedScale?.scale ?? 1),
+      width: w * (selectedScale?.scale ?? 1),
+    };
+
+    if (expandMode === true) {
+      if (
+        appRef.current &&
+        spriteRef.current &&
+        textureRef.current &&
+        workPlaceRef.current
+      ) {
+        const workPlaceSize = workPlaceRef.current.getBoundingClientRect();
+        const areaW = workPlaceSize.width;
+        const areaH = workPlaceSize.height;
+        const canvasScale = Math.min(areaW / w, areaH / h);
+
+        const canvasW = w * canvasScale;
+        const canvasH = h * canvasScale;
+
+        appRef.current.renderer.resize(canvasW, canvasH);
+        appRef.current.renderer.background.color = expandBackground;
+
+        const imgW = textureRef.current.width;
+        const imgH = textureRef.current.height;
+
+        const imageScale = Math.min(canvasW / imgW, canvasH / imgH);
+
+        spriteRef.current.anchor.set(0.5);
+
+        spriteRef.current.width = imgW * imageScale;
+        spriteRef.current.height = imgH * imageScale;
+
+        spriteRef.current.x = canvasW / 2;
+        spriteRef.current.y = canvasH / 2;
+
+        setSelectedScale({
+          image: {
+            width: w,
+            height: h,
+          },
+          scale: imageScale,
+          position: {
+            x: canvasW / 2,
+            y: canvasH / 2,
+          },
+        });
+      }
+    } else if (expandMode === false) {
+      if (
+        box &&
+        imageSize &&
+        spriteRef.current &&
+        box.height === cropSizeRelative.height &&
+        box.width === cropSizeRelative.width &&
+        appRef.current
+      ) {
+        appRef.current.canvas.style.backgroundColor = "transparent";
+        setCropBox({
+          id: selectedImg,
+          width: imageSize.width,
+          height: imageSize.height,
+          x: appRef.current.canvas.width / 2,
+          y: appRef.current.canvas.height / 2,
+        });
+        spriteRef.current.x = appRef.current.canvas.width / 2;
+        spriteRef.current.y = appRef.current.canvas.height / 2;
+      } else {
+        if (appRef.current)
+          setCropBox({
+            id: selectedImg,
+            width: cropSizeRelative.width,
+            height: cropSizeRelative.height,
+          });
+      }
+    }
+  }
+
+  useEffect(() => {
+    resizeImage();
+  }, [expandSize, expandBackground]);
 
   return (
     <Box>
-      {
-        //
-      }
-
       <RadioCard.Root
         orientation="horizontal"
         align="center"
         w={"full"}
-        value={
-          cropSize ? cropSize && cropSize.width + "-" + cropSize.height : ""
-        }
-        onClick={(e: React.MouseEvent) => {
-          const target = e.target as HTMLInputElement;
-          if (!target.value) return;
-
-          const [width, height] = target.value.split("-");
-
+        value={box ? box && box.width + "-" + box.height : ""}
+        colorPalette={"teal"}
+        onValueChange={(details) => {
+          const value = details.value;
+          if (!value) return;
+          const [width, height] = value.split("-");
           if (!width || !height) return;
-
           let w = Number(width);
           let h = Number(height);
-
-          const cropSizeRelative = {
-            height: h * (selectedScale?.scale || 0),
-            width: w * (selectedScale?.scale || 0),
-          };
-
-          if (
-            box &&
-            imageSize &&
-            spriteRef.current &&
-            box.height === cropSizeRelative.height &&
-            box.width === cropSizeRelative.width &&
-            appRef.current
-          ) {
-            setCropBox({
-              id: selectedImg,
-              width: imageSize.width,
-              height: imageSize.height,
-              x: appRef.current.canvas.width / 2,
-              y: appRef.current.canvas.height / 2,
-            });
-            spriteRef.current.x = appRef.current.canvas.width / 2;
-            spriteRef.current.y = appRef.current.canvas.height / 2;
-          } else {
-            if (appRef.current)
-              setCropBox({
-                id: selectedImg,
-                width: cropSizeRelative.width,
-                height: cropSizeRelative.height,
-              });
-          }
+          setExpandSize(selectedImg, { width: w, height: h });
         }}
       >
         <ScrollArea.Root width="full" size="xs" overflow={"hidden"}>
@@ -168,10 +246,11 @@ export default function ResizeBlock() {
         //
       }
       <Tabs.Root
+        value={expandMode ? "expand" : "crop"}
         defaultValue="crop"
         variant="plain"
-        onValueChange={() => {
-          setExpandMode(selectedImg);
+        onValueChange={(e) => {
+          setExpandMode(selectedImg, e.value === "expand");
         }}
       >
         <Tabs.List
@@ -208,18 +287,25 @@ export default function ResizeBlock() {
           </Button>
         </Tabs.Content>
         <Tabs.Content value="expand">
-          <ColorPicker.Root>
+          <ColorPicker.Root
+            defaultValue={parseColor(expandBackground)}
+            onChange={(e: any) => {
+              let value = e.target.value;
+              if (value !== "") {
+                setExpandBackground(selectedImg, value);
+              }
+            }}
+          >
             <ColorPicker.HiddenInput />
             <ColorPicker.Control>
               <ColorPicker.Input />
               <ColorPicker.Trigger />
             </ColorPicker.Control>
             <Portal>
-              <ColorPicker.Positioner>
+              <ColorPicker.Positioner zIndex={10000}>
                 <ColorPicker.Content>
                   <ColorPicker.Area />
                   <HStack>
-                    <ColorPicker.EyeDropper size="xs" variant="outline" />
                     <ColorPicker.Sliders />
                   </HStack>
                 </ColorPicker.Content>

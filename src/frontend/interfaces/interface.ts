@@ -77,6 +77,11 @@ export interface CustomImage {
     size?: number;
   };
   isExpandMode: boolean;
+  expandBackground: string;
+  expandSize?: {
+    width: number;
+    height: number;
+  };
   box?: {
     x: number | null;
     y: number | null;
@@ -179,7 +184,15 @@ export interface SessionStore {
   //#endregion
 
   //#region EXPAND
-  setExpandMode: (id: number) => void;
+  setExpandMode: (id: number, mode: boolean) => void;
+  setExpandBackground: (id: number, rgba: string) => void;
+  setExpandSize: (
+    id: number,
+    size: {
+      width: number;
+      height: number;
+    },
+  ) => void;
   //#endregion
 
   //#region EXPORT
@@ -295,7 +308,9 @@ export interface WorkSessionContextProps {
   >;
   spriteRef: RefObject<Sprite | null>;
   textureRef: RefObject<Texture<TextureSource<any>> | null>;
+  workPlaceRef: RefObject<HTMLDivElement | null>;
   appRef: RefObject<Application<Renderer> | null>;
+  canvasRef: RefObject<HTMLCanvasElement | null>;
 }
 //#endregion
 
