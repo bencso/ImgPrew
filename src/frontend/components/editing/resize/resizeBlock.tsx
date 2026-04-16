@@ -73,7 +73,6 @@ export default function ResizeBlock() {
     workPlaceRef,
     selectedImg,
     selectedScale,
-    setSelectedScale,
   } = useWorkSession();
 
   const imageSize = useSessionStore(
@@ -193,8 +192,6 @@ export default function ResizeBlock() {
 
               const imageScale = Math.min(canvasW / imgW, canvasH / imgH);
 
-              spriteRef.current.anchor.set(0.5);
-
               let spW = Math.round(imgW * imageScale);
               let spH = Math.round(imgH * imageScale);
 
@@ -268,10 +265,16 @@ export default function ResizeBlock() {
               const areaH = workPlaceRef.current.offsetHeight;
 
               console.log(areaW, areaH);
+              const scale = Math.min(
+                areaH / imageSize.height,
+                areaW / imageSize.width,
+              );
               appRef.current.renderer.resize(areaW, areaH);
-              //TODO: Itt nem az areaW/areaH-t kell használni, hanem max itt is kiszámolni..
-              spriteRef.current.width = areaW;
-              spriteRef.current.height = areaH;
+              appRef.current.renderer.background.color = "transparent";
+              console.log(imageSize);
+              spriteRef.current.width = imageSize.width * scale;
+              spriteRef.current.height = imageSize.height * scale;
+
               spriteRef.current.x = appRef.current.canvas.width / 2;
               spriteRef.current.y = appRef.current.canvas.height / 2;
             } else {
@@ -298,8 +301,6 @@ export default function ResizeBlock() {
               const imgH = textureRef.current.height;
 
               const imageScale = Math.min(canvasW / imgW, canvasH / imgH);
-
-              spriteRef.current.anchor.set(0.5);
 
               let spW = Math.round(imgW * imageScale);
               let spH = Math.round(imgH * imageScale);
