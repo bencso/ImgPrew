@@ -101,7 +101,6 @@ export default function ResizeBlock() {
 
   const box = useSessionStore(
     (state) => state.sessionData.find((si) => si.id === selectedImg)?.box,
-    shallow,
   );
 
   return (
@@ -122,91 +121,53 @@ export default function ResizeBlock() {
             let w = Number(width);
             let h = Number(height);
 
-            if (expandMode === "expand") {
-              if (
-                appRef.current &&
-                spriteRef.current &&
-                textureRef.current &&
-                workPlaceRef.current
-              ) {
-                const workPlaceSize = workPlaceRef.current;
-                const areaW = workPlaceSize.offsetWidth;
-                const areaH = workPlaceSize.offsetHeight;
-
-                if (!areaW || !areaH || !w || !h) return;
-
-                const canvasScale = Math.min(areaW / w, areaH / h);
-
-                const canvasW = Math.round(w * canvasScale);
-                const canvasH = Math.round(h * canvasScale);
-
-                appRef.current.renderer.resize(canvasW, canvasH);
-
-                const canvas = appRef.current.canvas;
-                canvas.style.width = `${canvasW}px`;
-                canvas.style.height = `${canvasH}px`;
-
-                appRef.current.renderer.background.color = expandBackground;
-
-                const imgW = textureRef.current.width;
-                const imgH = textureRef.current.height;
-
-                const imageScale = Math.min(canvasW / imgW, canvasH / imgH);
-
-                spriteRef.current.anchor.set(0.5);
-
-                let spW = Math.round(imgW * imageScale);
-                let spH = Math.round(imgH * imageScale);
-
-                spriteRef.current.width = spW;
-                spriteRef.current.height = spH;
-
-                spriteRef.current.x = canvasW / 2;
-                spriteRef.current.y = canvasH / 2;
-
-                setSelectedScale({
-                  image: {
-                    width: spW,
-                    height: spH,
-                  },
-                  scale: imageScale,
-                  position: {
-                    x: canvasW / 2,
-                    y: canvasH / 2,
-                  },
-                });
-              }
-            } else if (expandMode === "crop") {
+            if (expandMode === "crop") {
               const cropSizeRelative = {
                 height: h * (selectedScale?.scale ?? 1),
                 width: w * (selectedScale?.scale ?? 1),
               };
 
-              if (
-                box &&
-                imageSize &&
-                spriteRef.current &&
-                box.height === cropSizeRelative.height &&
-                box.width === cropSizeRelative.width &&
-                appRef.current
-              ) {
-                appRef.current.canvas.style.backgroundColor = "transparent";
-                setCropBox({
-                  id: selectedImg,
-                  width: imageSize.width,
-                  height: imageSize.height,
-                  x: appRef.current.canvas.width / 2,
-                  y: appRef.current.canvas.height / 2,
-                });
-                spriteRef.current.x = appRef.current.canvas.width / 2;
-                spriteRef.current.y = appRef.current.canvas.height / 2;
-              } else {
-                if (appRef.current)
+              if (appRef.current && box && spriteRef.current) {
+                if (
+                  imageSize &&
+                  spriteRef.current &&
+                  box.height === cropSizeRelative.height &&
+                  box.width === cropSizeRelative.width &&
+                  appRef.current
+                ) {
+                  appRef.current.canvas.style.backgroundColor = "transparent";
+                  setCropBox({
+                    id: selectedImg,
+                    width: imageSize.width,
+                    height: imageSize.height,
+                  });
+                }
+
+                if (box.y && box.x) {
+                  setCropBox({
+                    id: selectedImg,
+                    width: cropSizeRelative.width,
+                    height: cropSizeRelative.height,
+                    x: box.x,
+                    y: box.y,
+                  });
+
+                  spriteRef.current.x = box.x;
+                  spriteRef.current.y = box.y;
+                } else {
                   setCropBox({
                     id: selectedImg,
                     width: cropSizeRelative.width,
                     height: cropSizeRelative.height,
                   });
+                  setCropBox({
+                    id: selectedImg,
+                    x: appRef.current.canvas.width / 2,
+                    y: appRef.current.canvas.height / 2,
+                  });
+                  spriteRef.current.x = appRef.current.canvas.width / 2;
+                  spriteRef.current.y = appRef.current.canvas.height / 2;
+                }
               }
             }
           }}
@@ -256,51 +217,37 @@ export default function ResizeBlock() {
         defaultValue="crop"
         variant="plain"
         onValueChange={(e) => {
-          setExpandMode(selectedImg, e.value);
-          if (e.value === "no") {
-            if (
-              workPlaceRef.current &&
-              spriteRef.current &&
-              appRef.current &&
-              imageSize
-            ) {
-              console.log(imageSize);
-              const imgW = imageSize.width;
-              const imgH = imageSize.height;
-
-              const scale = Math.min(
-                workPlaceRef.current.offsetWidth / imgW,
-                workPlaceRef.current.offsetHeight / imgH,
-              );
-
-              const width = imgW * scale;
-              const height = imgH * scale;
-
-              spriteRef.current.width = width;
-              spriteRef.current.height = height;
-
-              if (appRef.current.renderer)
-                appRef.current.renderer.resize(width, height);
-
-              const canvas = appRef.current.canvas;
-              canvas.style.width = `${width}px`;
-              canvas.style.height = `${height}px`;
-              appRef.current.renderer.background.color = "transparent";
-
+          const type = e.value;
+          setExpandMode(selectedImg, type);
+          if (box && appRef.current && spriteRef.current) {
+            const cropSizeRelative = {
+              height: box.height ?? 1 * (selectedScale?.scale ?? 1),
+              width: box.width ?? 1 * (selectedScale?.scale ?? 1),
+            };
+            console.table({ box, selectedScale, cropSizeRelative });
+            if (type === "no") {
               spriteRef.current.x = appRef.current.canvas.width / 2;
               spriteRef.current.y = appRef.current.canvas.height / 2;
+            }
+            if (type === "crop") {
+              if (
+                appRef.current &&
+                box &&
+                box.y &&
+                box.x &&
+                spriteRef.current
+              ) {
+                setCropBox({
+                  id: selectedImg,
+                  width: cropSizeRelative.width,
+                  height: cropSizeRelative.height,
+                  x: box.x,
+                  y: box.y,
+                });
 
-              setSelectedScale({
-                image: {
-                  width: width,
-                  height: height,
-                },
-                scale: scale,
-                position: {
-                  x: appRef.current.canvas.width / 2,
-                  y: appRef.current.canvas.height / 2,
-                },
-              });
+                spriteRef.current.x = box.x;
+                spriteRef.current.y = box.y;
+              }
             }
           }
         }}

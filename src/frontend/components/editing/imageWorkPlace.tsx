@@ -89,6 +89,10 @@ export default function ImageWorkPlace() {
     });
   }, [selectedImg, copyrightImageRef, copyrightImageSize]);
 
+  useEffect(() => {
+    calculationBorders();
+  }, [spriteRef.current]);
+
   const [draggableId, setDraggableId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -156,6 +160,7 @@ export default function ImageWorkPlace() {
     if (spriteRef.current && selectedScale && box && y && x) {
       const nextPosX = spriteRef.current.x + x;
       const nextPosY = spriteRef.current.y + y;
+
       //
       const [borderMaxTop, borderMaxRight, borderMaxBottom, borderMaxLeft] =
         calculationBorders();
@@ -274,7 +279,7 @@ export default function ImageWorkPlace() {
           {
             //
           }
-          {expandMode === "crop" && box && box.width && box.height && (
+          {box && box.width && box.height && (
             <>
               <Box
                 ref={cropRef}
@@ -283,83 +288,82 @@ export default function ImageWorkPlace() {
                 height={box.height}
                 backgroundColor="blackAlpha.300"
                 border="2px solid white"
+                hidden={expandMode !== "crop"}
               />
-              {cropRef.current && box?.height && box.width && (
-                <Moveable
-                  target={cropRef.current}
-                  edgeDraggable={false}
-                  origin={false}
-                  keepRatio={false}
-                  draggable
-                  resizable
-                  hideDefaultLines
-                  hideChildMoveableDefaultLines
-                  hideThrottleDragRotateLine
-                  throttleResize={1}
-                  throttleDrag={1}
-                  checkResizableError={true}
-                  edge={false}
-                  renderDirections={renderDirections}
-                  onDrag={({ delta }) => {
-                    const [dx, dy] = delta;
-                    grabCrop(dx, dy);
-                  }}
-                  onResize={({ width, height, direction, delta }) => {
-                    if (!spriteRef.current) return;
 
-                    const [dx, dy] = delta;
+              <Moveable
+                target={cropRef.current}
+                edgeDraggable={false}
+                origin={false}
+                keepRatio={false}
+                draggable={expandMode === "crop"}
+                resizable={expandMode === "crop"}
+                hideDefaultLines
+                hideChildMoveableDefaultLines
+                hideThrottleDragRotateLine
+                throttleResize={1}
+                throttleDrag={1}
+                edge={false}
+                renderDirections={renderDirections}
+                onDrag={({ delta }) => {
+                  const [dx, dy] = delta;
+                  grabCrop(dx, dy);
+                }}
+                onResize={({ width, height, direction, delta }) => {
+                  if (!spriteRef.current) return;
 
-                    const [top, right, bottom, left] = calculationBorders();
-                    if (!top || !right || !bottom || !left) return;
+                  const [dx, dy] = delta;
 
-                    let nextPosX = spriteRef.current.x;
-                    let nextPosY = spriteRef.current.y;
+                  const [top, right, bottom, left] = calculationBorders();
+                  if (!top || !right || !bottom || !left) return;
 
-                    if (direction[0] == 1 || direction[0] == -1) {
-                      if (dx > 0) {
-                        if (nextPosX > right) {
-                          nextPosX = nextPosX - 0.5;
-                          spriteRef.current.x = nextPosX;
-                        } else if (nextPosX < left) {
-                          nextPosX = nextPosX + 0.5;
-                          spriteRef.current.x = nextPosX;
-                        }
+                  let nextPosX = spriteRef.current.x;
+                  let nextPosY = spriteRef.current.y;
+
+                  if (direction[0] == 1 || direction[0] == -1) {
+                    if (dx > 0) {
+                      if (nextPosX > right) {
+                        nextPosX = nextPosX - 0.5;
+                        spriteRef.current.x = nextPosX;
+                      } else if (nextPosX < left) {
+                        nextPosX = nextPosX + 0.5;
+                        spriteRef.current.x = nextPosX;
                       }
                     }
+                  }
 
-                    if (direction[1] == 1 || direction[1] == -1) {
-                      if (dy > 0) {
-                        if (nextPosY > bottom) {
-                          nextPosY = nextPosY - 0.5;
-                          spriteRef.current.y = nextPosY;
-                        } else if (nextPosY < top) {
-                          nextPosY = nextPosY + 0.5;
-                          spriteRef.current.y = nextPosY;
-                        }
+                  if (direction[1] == 1 || direction[1] == -1) {
+                    if (dy > 0) {
+                      if (nextPosY > bottom) {
+                        nextPosY = nextPosY - 0.5;
+                        spriteRef.current.y = nextPosY;
+                      } else if (nextPosY < top) {
+                        nextPosY = nextPosY + 0.5;
+                        spriteRef.current.y = nextPosY;
                       }
                     }
+                  }
 
-                    if (
-                      imageSize &&
-                      width < imageSize.width &&
-                      imageSize.height > height
-                    )
-                      setCropBox({
-                        id: selectedImg,
-                        height: height,
-                        width: width,
-                      });
-
+                  if (
+                    imageSize &&
+                    width < imageSize.width &&
+                    imageSize.height > height
+                  )
                     setCropBox({
                       id: selectedImg,
-                      x: nextPosX,
-                      y: nextPosY,
+                      height: height,
+                      width: width,
                     });
 
-                    setDirectionsCrop(bottom, left, right, top);
-                  }}
-                />
-              )}
+                  setCropBox({
+                    id: selectedImg,
+                    x: nextPosX,
+                    y: nextPosY,
+                  });
+
+                  setDirectionsCrop(bottom, left, right, top);
+                }}
+              />
             </>
           )}
         </Box>
