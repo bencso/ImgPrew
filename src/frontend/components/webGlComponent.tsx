@@ -200,5 +200,18 @@ export default function WebGlComponent({
     resizeSprite();
   }, [filters]);
 
-  return <Box ref={canvasRef} />;
+  const expandMode =
+    useSessionStore(
+      (state) =>
+        state.sessionData.find((si) => si.id === selectedImg)?.expandMode,
+    ) ?? "no";
+
+  return (
+    <Box
+      alignItems={expandMode === "expand" ? "center" : undefined}
+      justifyContent={expandMode === "expand" ? "center" : undefined}
+      display={expandMode === "expand" ? "flex" : undefined}
+      ref={canvasRef}
+    />
+  );
 }

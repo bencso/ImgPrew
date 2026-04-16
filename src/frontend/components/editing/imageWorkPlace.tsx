@@ -10,6 +10,7 @@ import Moveable from "react-moveable";
 import { shallow } from "zustand/shallow";
 import WebGlComponent from "../webGlComponent";
 
+//TODO: A crop az még mobilnál nem a legjobb de mobilnál valószinüleg le is tiltom nem kényelmes szerintem
 export default function ImageWorkPlace() {
   const {
     selectedImg,

@@ -97,7 +97,7 @@ export default function ResizeBlock() {
     useSessionStore(
       (state) =>
         state.sessionData.find((si) => si.id === selectedImg)?.expandMode,
-    ) ?? false;
+    ) ?? "no";
 
   const box = useSessionStore(
     (state) => state.sessionData.find((si) => si.id === selectedImg)?.box,
@@ -120,7 +120,6 @@ export default function ResizeBlock() {
             if (!width || !height) return;
             let w = Number(width);
             let h = Number(height);
-
             if (expandMode === "crop") {
               const cropSizeRelative = {
                 height: h * (selectedScale?.scale ?? 1),
@@ -135,7 +134,6 @@ export default function ResizeBlock() {
                   box.width === cropSizeRelative.width &&
                   appRef.current
                 ) {
-                  appRef.current.canvas.style.backgroundColor = "transparent";
                   setCropBox({
                     id: selectedImg,
                     width: imageSize.width,
@@ -159,9 +157,6 @@ export default function ResizeBlock() {
                     id: selectedImg,
                     width: cropSizeRelative.width,
                     height: cropSizeRelative.height,
-                  });
-                  setCropBox({
-                    id: selectedImg,
                     x: appRef.current.canvas.width / 2,
                     y: appRef.current.canvas.height / 2,
                   });
@@ -169,6 +164,47 @@ export default function ResizeBlock() {
                   spriteRef.current.y = appRef.current.canvas.height / 2;
                 }
               }
+            }
+
+            if (
+              expandMode === "expand" &&
+              workPlaceRef.current &&
+              appRef.current &&
+              textureRef.current &&
+              spriteRef.current
+            ) {
+              const workPlaceSize = workPlaceRef.current;
+              const areaW = workPlaceSize.offsetWidth;
+              const areaH = workPlaceSize.offsetHeight;
+
+              if (!areaW || !areaH || !w || !h) return;
+
+              const canvasScale = Math.min(areaW / w, areaH / h);
+
+              const canvasW = Math.round(w * canvasScale);
+              const canvasH = Math.round(h * canvasScale);
+
+              appRef.current.renderer.resize(canvasW, canvasH);
+
+              appRef.current.renderer.background.color = expandBackground;
+
+              const imgW = textureRef.current.width;
+              const imgH = textureRef.current.height;
+
+              const imageScale = Math.min(canvasW / imgW, canvasH / imgH);
+
+              spriteRef.current.anchor.set(0.5);
+
+              let spW = Math.round(imgW * imageScale);
+              let spH = Math.round(imgH * imageScale);
+
+              spriteRef.current.width = spW;
+              spriteRef.current.height = spH;
+
+              spriteRef.current.x = canvasW / 2;
+              spriteRef.current.y = canvasH / 2;
+
+              setExpandSize(selectedImg, { width: w, height: h });
             }
           }}
         >
@@ -219,16 +255,67 @@ export default function ResizeBlock() {
         onValueChange={(e) => {
           const type = e.value;
           setExpandMode(selectedImg, type);
+
+          if (
+            appRef.current &&
+            textureRef.current &&
+            spriteRef.current &&
+            workPlaceRef.current &&
+            imageSize
+          )
+            if (type !== "expand") {
+              const areaW = workPlaceRef.current.offsetWidth;
+              const areaH = workPlaceRef.current.offsetHeight;
+
+              console.log(areaW, areaH);
+              appRef.current.renderer.resize(areaW, areaH);
+              spriteRef.current.width = areaW;
+              spriteRef.current.height = areaH;
+              spriteRef.current.x = appRef.current.canvas.width / 2;
+              spriteRef.current.y = appRef.current.canvas.height / 2;
+            } else {
+              if (!expandSize) return;
+
+              const workPlaceSize = workPlaceRef.current;
+              const areaW = workPlaceSize.offsetWidth;
+              const areaH = workPlaceSize.offsetHeight;
+              const h = expandSize.height;
+              const w = expandSize.width;
+
+              if (!areaW || !areaH || !w || !h) return;
+
+              const canvasScale = Math.min(areaW / w, areaH / h);
+
+              const canvasW = Math.round(w * canvasScale);
+              const canvasH = Math.round(h * canvasScale);
+
+              appRef.current.renderer.resize(canvasW, canvasH);
+
+              appRef.current.renderer.background.color = expandBackground;
+
+              const imgW = textureRef.current.width;
+              const imgH = textureRef.current.height;
+
+              const imageScale = Math.min(canvasW / imgW, canvasH / imgH);
+
+              spriteRef.current.anchor.set(0.5);
+
+              let spW = Math.round(imgW * imageScale);
+              let spH = Math.round(imgH * imageScale);
+
+              spriteRef.current.width = spW;
+              spriteRef.current.height = spH;
+
+              spriteRef.current.x = canvasW / 2;
+              spriteRef.current.y = canvasH / 2;
+            }
+
           if (box && appRef.current && spriteRef.current) {
             const cropSizeRelative = {
               height: box.height ?? 1 * (selectedScale?.scale ?? 1),
               width: box.width ?? 1 * (selectedScale?.scale ?? 1),
             };
-            console.table({ box, selectedScale, cropSizeRelative });
-            if (type === "no") {
-              spriteRef.current.x = appRef.current.canvas.width / 2;
-              spriteRef.current.y = appRef.current.canvas.height / 2;
-            }
+
             if (type === "crop") {
               if (
                 appRef.current &&
