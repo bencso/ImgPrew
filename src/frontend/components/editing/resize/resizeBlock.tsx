@@ -24,6 +24,7 @@ import {
 import { shallow } from "zustand/shallow";
 
 // TODO: EGY NAGYON NAGY BUG VAN // NAGYON CSUNYA MÁR A KÓD -> JAVITANI RAJTA, a képek méretezése nem jó
+//TODO: Kezdőállapotok beállítása
 
 const sizesDatas = [
   {
@@ -278,13 +279,11 @@ export default function ResizeBlock() {
               spriteRef.current.x = appRef.current.canvas.width / 2;
               spriteRef.current.y = appRef.current.canvas.height / 2;
             } else {
-              if (!expandSize) return;
-
               const workPlaceSize = workPlaceRef.current;
               const areaW = workPlaceSize.offsetWidth;
               const areaH = workPlaceSize.offsetHeight;
-              const h = expandSize.height;
-              const w = expandSize.width;
+              const h = expandSize?.height ?? imageSize.height;
+              const w = expandSize?.width ?? imageSize.width;
 
               if (!areaW || !areaH || !w || !h) return;
 
@@ -308,17 +307,28 @@ export default function ResizeBlock() {
               spriteRef.current.width = spW;
               spriteRef.current.height = spH;
 
-              spriteRef.current.x = canvasW / 2;
-              spriteRef.current.y = canvasH / 2;
+              spriteRef.current.x = appRef.current.canvas.width / 2;
+              spriteRef.current.y = appRef.current.canvas.height / 2;
             }
 
-          if (box && appRef.current && spriteRef.current) {
+          if (box && appRef.current && spriteRef.current && imageSize) {
             const cropSizeRelative = {
-              height: box.height ?? 1 * (selectedScale?.scale ?? 1),
-              width: box.width ?? 1 * (selectedScale?.scale ?? 1),
+              height:
+                box.height ?? imageSize.height * (selectedScale?.scale ?? 1),
+              width: box.width ?? imageSize.width * (selectedScale?.scale ?? 1),
             };
 
             if (type === "crop") {
+              setCropBox({
+                id: selectedImg,
+                width: cropSizeRelative.width,
+                height: cropSizeRelative.height,
+                x: appRef.current.canvas.width / 2,
+                y: appRef.current.canvas.height / 2,
+              });
+              spriteRef.current.x = appRef.current.canvas.width / 2;
+              spriteRef.current.y = appRef.current.canvas.height / 2;
+
               if (
                 appRef.current &&
                 box &&
