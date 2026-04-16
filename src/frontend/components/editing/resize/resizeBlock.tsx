@@ -269,6 +269,7 @@ export default function ResizeBlock() {
 
               console.log(areaW, areaH);
               appRef.current.renderer.resize(areaW, areaH);
+              //TODO: Itt nem az areaW/areaH-t kell használni, hanem max itt is kiszámolni..
               spriteRef.current.width = areaW;
               spriteRef.current.height = areaH;
               spriteRef.current.x = appRef.current.canvas.width / 2;
