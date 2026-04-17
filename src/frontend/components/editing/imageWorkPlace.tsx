@@ -127,17 +127,18 @@ export default function ImageWorkPlace() {
       const borderMaxRight =
         selectedScale.position.x -
         (selectedScale?.image.width / 2) * selectedScale?.scale +
-        (box?.width || 0) / 2;
+        (box?.width ?? 0) / 2;
       const borderMaxLeft =
         selectedScale.position.x +
         (selectedScale?.image.width / 2) * selectedScale?.scale -
-        (box?.width || 0) / 2;
+        (box?.width ?? 0) / 2;
       //
       const borderMaxBottom =
         selectedScale.position.y -
         selectedScale?.image.height * selectedScale?.scale +
-        (box?.height || 0);
-      const borderMaxTop = selectedScale.position.y;
+        (box?.height ?? 0);
+
+      const borderMaxTop = selectedScale.position.y - (box?.height ?? 0 / 2);
       return [borderMaxTop, borderMaxRight, borderMaxBottom, borderMaxLeft];
     }
     return [null, null, null, null];
@@ -160,6 +161,7 @@ export default function ImageWorkPlace() {
     setRenderDirections(directions);
   }
 
+  //TODO: Itt van most valami hiba az "új" rendszerrel
   function grabCrop(x: number, y: number) {
     if (spriteRef.current && selectedScale && box && y && x) {
       const nextPosX = spriteRef.current.x + x;
@@ -170,11 +172,11 @@ export default function ImageWorkPlace() {
         calculationBorders();
 
       if (borderMaxTop && borderMaxRight && borderMaxBottom && borderMaxLeft) {
-        if (nextPosX > borderMaxRight && nextPosX < borderMaxLeft)
-          spriteRef.current.x = nextPosX;
+        //if (nextPosX > borderMaxRight && nextPosX < borderMaxLeft)
+        spriteRef.current.x = nextPosX;
 
-        if (nextPosY < borderMaxTop && nextPosY > borderMaxBottom)
-          spriteRef.current.y = nextPosY;
+        //if (nextPosY < borderMaxTop && nextPosY > borderMaxBottom)
+        spriteRef.current.y = nextPosY;
 
         setCropBox({
           id: selectedImg,

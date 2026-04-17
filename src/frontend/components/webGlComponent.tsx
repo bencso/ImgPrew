@@ -38,57 +38,78 @@ export default function WebGlComponent({
   const filters = useSessionStore((s) => s.getFilters(selectedImg), shallow);
 
   useEffect(() => {
-    if (!canvasRef.current) return;
-
-    let cancelled = false;
-
-    const app = new Application();
-    const container = new Container();
-
-    appRef.current = app;
-    filtersRef.current = container;
-
-    async function loadImage() {
-      if (!appRef.current) return;
-
+    async function initApp() {
+      const app = new Application();
+      appRef.current = app;
       await appRef.current.init({
         backgroundAlpha: 0,
+        webgl: {
+          antialias: true,
+        },
+        webgpu: {
+          antialias: false,
+        },
+        textureGCActive: true,
+        textureGCMaxIdle: 7200,
+        textureGCCheckCountMax: 1200,
       });
-
       if (canvasRef.current) {
         canvasRef.current.appendChild(appRef.current.canvas);
       }
 
-      const img = new Image();
+      // window.__PIXI_DEVTOOLS__ = {
+      //   app,
+      // };
 
-      img.onload = () => {
-        if (cancelled) return;
-        if (!appRef.current) return;
-
-        const source = new ImageSource({ resource: img });
-        const texture = new Texture({ source });
-
-        textureRef.current = texture;
-
-        const sprite = new Sprite(texture);
-
-        sprite.anchor.set(0.5);
-
-        app.stage.addChild(sprite);
-        spriteRef.current = sprite;
-
-        applyFilters();
-        resizeSprite();
-      };
-
-      img.src = sessionData[selectedImg].blob;
+      // globalThis.__PIXI_APP__ = app;
     }
 
+    initApp();
+  }, []);
+
+  async function loadImage() {
+    if (!appRef.current) return;
+
+    const img = new Image();
+
+    img.onload = async () => {
+      if (!appRef.current) return;
+
+      await appRef.current.init();
+
+      const source = new ImageSource({ resource: img });
+      const texture = new Texture({ source });
+
+      textureRef.current = texture;
+      const sprite = new Sprite(texture);
+
+      sprite.anchor.set(0.5);
+
+      appRef.current.stage.addChild(sprite);
+      spriteRef.current = sprite;
+
+      applyFilters();
+      resizeSprite();
+    };
+
+    img.src = sessionData[selectedImg].blob;
+  }
+
+  let mounted = false;
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    if (mounted) return;
+
+    const container = new Container();
+    filtersRef.current = container;
+    console.log(selectedImg);
+
     loadImage();
+    mounted = true;
 
     return () => {
       if (spriteRef.current) {
-        spriteRef.current.destroy(false);
+        spriteRef.current.destroy();
         spriteRef.current = null;
       }
 
@@ -220,6 +241,11 @@ export default function WebGlComponent({
     shallow,
   );
 
+  const box = useSessionStore(
+    (state) => state.sessionData.find((si) => si.id === selectedImg)?.cropSize,
+    shallow,
+  );
+
   function calculateExpandMode() {
     const type = expandMode;
     if (
@@ -258,8 +284,8 @@ export default function WebGlComponent({
 
         const canvasW = Math.round(w * canvasScale);
         const canvasH = Math.round(h * canvasScale);
-        appRef.current.renderer.resize(canvasW, canvasH);
 
+        appRef.current.renderer.resize(canvasW, canvasH);
         appRef.current.renderer.background.color = expandBackground;
 
         const imgW = textureRef.current.width;
@@ -282,7 +308,7 @@ export default function WebGlComponent({
     calculateExpandMode();
   }, [expandMode]);
 
-  function calculateExpandSize() {
+  async function calculateExpandSize() {
     if (
       !workPlaceRef.current ||
       !appRef.current ||
@@ -316,8 +342,7 @@ export default function WebGlComponent({
 
     spriteRef.current.width = spW;
     spriteRef.current.height = spH;
-    console.log(spriteRef.current.anchor);
-    console.log(spriteRef.current.x, spriteRef.current.y);
+
     spriteRef.current.x = appRef.current.renderer.width / 2;
     spriteRef.current.y = appRef.current.renderer.height / 2;
   }
@@ -325,10 +350,6 @@ export default function WebGlComponent({
   useEffect(() => {
     calculateExpandSize();
   }, [expandSize, expandBackground]);
-
-  const box = useSessionStore(
-    (state) => state.sessionData.find((si) => si.id === selectedImg)?.box,
-  );
 
   return (
     <Box
