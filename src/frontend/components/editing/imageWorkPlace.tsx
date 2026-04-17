@@ -10,7 +10,6 @@ import Moveable from "react-moveable";
 import { shallow } from "zustand/shallow";
 import WebGlComponent from "../webGlComponent";
 
-//TODO: A crop az még mobilnál nem a legjobb de mobilnál valószinüleg le is tiltom nem kényelmes szerintem
 export default function ImageWorkPlace() {
   const {
     selectedImg,
@@ -21,6 +20,8 @@ export default function ImageWorkPlace() {
     selectedScale,
     spriteRef,
     workPlaceRef,
+    appRef,
+    canvasRef,
   } = useWorkSession();
   const {
     setTextPosition,
@@ -83,6 +84,7 @@ export default function ImageWorkPlace() {
       selectedImg,
       calculationTypeEnum.COPYRIGHT,
       copyrightImageRef,
+      appRef,
     );
     setCpPosition({
       x: position.x,
@@ -92,7 +94,7 @@ export default function ImageWorkPlace() {
 
   useEffect(() => {
     calculationBorders();
-  }, [spriteRef.current]);
+  }, [box]);
 
   const [draggableId, setDraggableId] = useState<string | null>(null);
 
@@ -106,6 +108,7 @@ export default function ImageWorkPlace() {
         selectedImg,
         calculationTypeEnum.TEXT,
         textElements[element.id],
+        appRef,
         element.id,
       );
 
@@ -212,15 +215,25 @@ export default function ImageWorkPlace() {
         }
         alignContent={"center"}
         justifyContent={"center"}
+        position={"relative"}
         display={"flex"}
         overflow={"hidden"}
         className="manipulalhato"
       >
         <Box
           zIndex={100}
-          h={box?.height ? box.height : workPlaceRef.current?.offsetHeight}
-          w={box?.width ? box.width : workPlaceRef.current?.offsetWidth}
+          h={"100%"}
+          w={
+            expandMode === "crop"
+              ? (box?.width ?? spriteRef.current?.width ?? 0)
+              : expandMode === "expand"
+                ? (appRef.current?.renderer?.width ?? 0)
+                : (spriteRef.current?.width ?? 0)
+          }
           position={"absolute"}
+          translate="-50% -50%"
+          top={"50%"}
+          left={"50%"}
           className="3"
         >
           {texts.map((element: DraggableImageEvent) => {

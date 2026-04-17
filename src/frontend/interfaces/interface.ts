@@ -107,8 +107,9 @@ export interface SessionStore {
     id: number,
     type: calculationTypeEnum,
     elementRef: HTMLElement | HTMLImageElement | HTMLDivElement,
+    canvasRef: any,
     textId?: string,
-  ) => { x: number; y: number };
+  ) => any;
   //#endregion
 
   //#region MÉRETEK

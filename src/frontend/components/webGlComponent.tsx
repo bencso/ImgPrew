@@ -15,6 +15,7 @@ import {
 import { useEffect, useRef } from "react";
 import { shallow } from "zustand/shallow";
 
+//TODO: Ha változik az app mérete akkor igazolodjon, ezt a kódot debug miatt kivettem majd visszatenni
 export default function WebGlComponent({
   setImageSize,
 }: {
@@ -39,6 +40,8 @@ export default function WebGlComponent({
   useEffect(() => {
     if (!canvasRef.current) return;
 
+    let cancelled = false;
+
     const app = new Application();
     const container = new Container();
 
@@ -59,6 +62,7 @@ export default function WebGlComponent({
       const img = new Image();
 
       img.onload = () => {
+        if (cancelled) return;
         if (!appRef.current) return;
 
         const source = new ImageSource({ resource: img });
@@ -67,6 +71,7 @@ export default function WebGlComponent({
         textureRef.current = texture;
 
         const sprite = new Sprite(texture);
+
         sprite.anchor.set(0.5);
 
         app.stage.addChild(sprite);
@@ -82,26 +87,20 @@ export default function WebGlComponent({
     loadImage();
 
     return () => {
-      if (spriteRef.current) spriteRef.current.destroy(false);
-      if (textureRef.current) textureRef.current.destroy(false);
-      spriteRef.current = null;
-      textureRef.current?.source.unload();
-      textureRef.current = null;
+      if (spriteRef.current) {
+        spriteRef.current.destroy(false);
+        spriteRef.current = null;
+      }
+
+      if (textureRef.current) {
+        textureRef.current.destroy(false);
+        textureRef.current?.source.unload();
+        textureRef.current = null;
+      }
+
       if (canvasRef.current) canvasRef.current.innerHTML = "";
     };
   }, [selectedImg]);
-
-  useEffect(() => {
-    if (!workPlaceRef.current) return;
-
-    const observer = new ResizeObserver(() => {
-      resizeSprite();
-    });
-
-    observer.observe(workPlaceRef.current);
-
-    return () => observer.disconnect();
-  }, []);
 
   const resizeSprite = () => {
     if (
@@ -197,7 +196,6 @@ export default function WebGlComponent({
 
   useEffect(() => {
     applyFilters();
-    resizeSprite();
   }, [filters]);
 
   const expandMode =
@@ -205,6 +203,132 @@ export default function WebGlComponent({
       (state) =>
         state.sessionData.find((si) => si.id === selectedImg)?.expandMode,
     ) ?? "no";
+
+  const expandSize = useSessionStore(
+    (state) =>
+      state.sessionData.find((si) => si.id === selectedImg)?.expandSize,
+  );
+
+  const expandBackground =
+    useSessionStore(
+      (state) =>
+        state.sessionData.find((si) => si.id === selectedImg)?.expandBackground,
+    ) ?? "#fffff";
+
+  const imageSize = useSessionStore(
+    (state) => state.sessionData.find((si) => si.id === selectedImg)?.dimesions,
+    shallow,
+  );
+
+  function calculateExpandMode() {
+    const type = expandMode;
+    if (
+      appRef.current &&
+      textureRef.current &&
+      spriteRef.current &&
+      workPlaceRef.current &&
+      imageSize
+    )
+      if (type !== "expand") {
+        const areaW = workPlaceRef.current.offsetWidth;
+        const areaH = workPlaceRef.current.offsetHeight;
+
+        const scale = Math.min(
+          areaH / imageSize.height,
+          areaW / imageSize.width,
+        );
+        appRef.current.renderer.resize(areaW, areaH);
+        appRef.current.renderer.background.color = "transparent";
+
+        spriteRef.current.width = imageSize.width * scale;
+        spriteRef.current.height = imageSize.height * scale;
+
+        spriteRef.current.x = appRef.current.canvas.width / 2;
+        spriteRef.current.y = appRef.current.canvas.height / 2;
+      } else {
+        const workPlaceSize = workPlaceRef.current;
+        const areaW = workPlaceSize.offsetWidth;
+        const areaH = workPlaceSize.offsetHeight;
+        const h = expandSize?.height ?? imageSize.height;
+        const w = expandSize?.width ?? imageSize.width;
+
+        if (!areaW || !areaH || !w || !h) return;
+
+        const canvasScale = Math.min(areaW / w, areaH / h);
+
+        const canvasW = Math.round(w * canvasScale);
+        const canvasH = Math.round(h * canvasScale);
+        appRef.current.renderer.resize(canvasW, canvasH);
+
+        appRef.current.renderer.background.color = expandBackground;
+
+        const imgW = textureRef.current.width;
+        const imgH = textureRef.current.height;
+
+        const imageScale = Math.min(canvasW / imgW, canvasH / imgH);
+
+        let spW = Math.round(imgW * imageScale);
+        let spH = Math.round(imgH * imageScale);
+
+        spriteRef.current.width = spW;
+        spriteRef.current.height = spH;
+
+        spriteRef.current.x = appRef.current.canvas.width / 2;
+        spriteRef.current.y = appRef.current.canvas.height / 2;
+      }
+  }
+
+  useEffect(() => {
+    calculateExpandMode();
+  }, [expandMode]);
+
+  function calculateExpandSize() {
+    if (
+      !workPlaceRef.current ||
+      !appRef.current ||
+      !textureRef.current ||
+      !spriteRef.current
+    )
+      return;
+
+    const workPlaceSize = workPlaceRef.current;
+    const areaW = workPlaceSize.offsetWidth;
+    const areaH = workPlaceSize.offsetHeight;
+    if (!areaW || !areaH || !expandSize) return;
+    const h = expandSize.height;
+    const w = expandSize.width;
+
+    const canvasScale = Math.min(areaW / w, areaH / h);
+
+    const canvasW = w * canvasScale;
+    const canvasH = h * canvasScale;
+
+    appRef.current.renderer.resize(canvasW, canvasH);
+    appRef.current.renderer.background.color = expandBackground;
+
+    const imgW = textureRef.current.width;
+    const imgH = textureRef.current.height;
+
+    const imageScale = Math.min(canvasW / imgW, canvasH / imgH);
+
+    let spW = imgW * imageScale;
+    let spH = imgH * imageScale;
+
+    spriteRef.current.width = spW;
+    spriteRef.current.height = spH;
+    console.log(spriteRef.current.anchor);
+    console.log(spriteRef.current.x, spriteRef.current.y);
+    spriteRef.current.x = appRef.current.renderer.width / 2;
+    spriteRef.current.y = appRef.current.renderer.height / 2;
+  }
+
+  useEffect(() => {
+    calculateExpandSize();
+  }, [expandSize, expandBackground]);
+
+  const box = useSessionStore(
+    (state) => state.sessionData.find((si) => si.id === selectedImg)?.box,
+  );
 
   return (
     <Box

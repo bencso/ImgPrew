@@ -48,29 +48,33 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     //#endregion
 
     //#region Segédfüggvények
+    //TODO: Átirni az any type-ot
     calculationReFixPosition: (
       id: number,
       type: calculationTypeEnum,
       elementRef: HTMLElement | HTMLImageElement | HTMLDivElement,
+      appRef: any,
       textId?: string,
     ) => {
       const image = get().sessionData.find((s) => s.id === id);
-      const imageSize = image?.dimesions;
 
       let positions = null;
+      console.log(appRef.current.canvas);
 
       if (type === calculationTypeEnum.TEXT)
         positions = image?.texts?.find((it) => it.id === textId)?.position;
       if (type === calculationTypeEnum.COPYRIGHT)
         positions = image?.copyrightImage?.position;
 
-      const imageHalf = imageSize
-        ? imageSize.width / 2 - elementRef.offsetWidth / 2
+      const imageHalf = appRef.current
+        ? appRef.current.canvas.width / 2 - elementRef.offsetWidth / 2
         : 0;
 
-      const imageWCP = imageSize ? imageSize.width - elementRef.offsetWidth : 0;
-      const imageHCP = imageSize
-        ? imageSize.height - elementRef.offsetHeight
+      const imageWCP = appRef.current
+        ? appRef.current.canvas.width - elementRef.offsetWidth
+        : 0;
+      const imageHCP = appRef.current
+        ? appRef.current.canvas.height - elementRef.offsetHeight
         : 0;
 
       const defaultPosition = textId

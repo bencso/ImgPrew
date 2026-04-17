@@ -21,7 +21,6 @@ import {
   LuMaximize2,
   LuTwitter,
 } from "react-icons/lu";
-import { shallow } from "zustand/shallow";
 
 // TODO: EGY NAGYON NAGY BUG VAN // NAGYON CSUNYA MÁR A KÓD -> JAVITANI RAJTA, a képek méretezése nem jó
 //TODO: Kezdőállapotok beállítása
@@ -78,7 +77,6 @@ export default function ResizeBlock() {
 
   const imageSize = useSessionStore(
     (state) => state.sessionData.find((si) => si.id === selectedImg)?.dimesions,
-    shallow,
   );
 
   const expandSize = useSessionStore(
@@ -90,7 +88,6 @@ export default function ResizeBlock() {
     useSessionStore(
       (state) =>
         state.sessionData.find((si) => si.id === selectedImg)?.expandBackground,
-      shallow,
     ) ?? "rgba(255,255,255,1)";
 
   const expandMode =
@@ -149,9 +146,6 @@ export default function ResizeBlock() {
                     x: box.x,
                     y: box.y,
                   });
-
-                  spriteRef.current.x = box.x;
-                  spriteRef.current.y = box.y;
                 } else {
                   setCropBox({
                     id: selectedImg,
@@ -160,8 +154,6 @@ export default function ResizeBlock() {
                     x: appRef.current.canvas.width / 2,
                     y: appRef.current.canvas.height / 2,
                   });
-                  spriteRef.current.x = appRef.current.canvas.width / 2;
-                  spriteRef.current.y = appRef.current.canvas.height / 2;
                 }
               }
             }
@@ -173,35 +165,6 @@ export default function ResizeBlock() {
               textureRef.current &&
               spriteRef.current
             ) {
-              const workPlaceSize = workPlaceRef.current;
-              const areaW = workPlaceSize.offsetWidth;
-              const areaH = workPlaceSize.offsetHeight;
-
-              if (!areaW || !areaH || !w || !h) return;
-
-              const canvasScale = Math.min(areaW / w, areaH / h);
-
-              const canvasW = Math.round(w * canvasScale);
-              const canvasH = Math.round(h * canvasScale);
-
-              appRef.current.renderer.resize(canvasW, canvasH);
-
-              appRef.current.renderer.background.color = expandBackground;
-
-              const imgW = textureRef.current.width;
-              const imgH = textureRef.current.height;
-
-              const imageScale = Math.min(canvasW / imgW, canvasH / imgH);
-
-              let spW = Math.round(imgW * imageScale);
-              let spH = Math.round(imgH * imageScale);
-
-              spriteRef.current.width = spW;
-              spriteRef.current.height = spH;
-
-              spriteRef.current.x = canvasW / 2;
-              spriteRef.current.y = canvasH / 2;
-
               setExpandSize(selectedImg, { width: w, height: h });
             }
           }}
@@ -261,94 +224,38 @@ export default function ResizeBlock() {
             workPlaceRef.current &&
             imageSize
           )
-            if (type !== "expand") {
-              const areaW = workPlaceRef.current.offsetWidth;
-              const areaH = workPlaceRef.current.offsetHeight;
+            if (box && appRef.current && spriteRef.current && imageSize) {
+              const cropSizeRelative = {
+                height: box.height ?? 1080 * (selectedScale?.scale ?? 1),
+                width: box.width ?? 1080 * (selectedScale?.scale ?? 1),
+              };
 
-              console.log(areaW, areaH);
-              const scale = Math.min(
-                areaH / imageSize.height,
-                areaW / imageSize.width,
-              );
-              appRef.current.renderer.resize(areaW, areaH);
-              appRef.current.renderer.background.color = "transparent";
-              console.log(imageSize);
-              spriteRef.current.width = imageSize.width * scale;
-              spriteRef.current.height = imageSize.height * scale;
-
-              spriteRef.current.x = appRef.current.canvas.width / 2;
-              spriteRef.current.y = appRef.current.canvas.height / 2;
-            } else {
-              const workPlaceSize = workPlaceRef.current;
-              const areaW = workPlaceSize.offsetWidth;
-              const areaH = workPlaceSize.offsetHeight;
-              const h = expandSize?.height ?? imageSize.height;
-              const w = expandSize?.width ?? imageSize.width;
-
-              if (!areaW || !areaH || !w || !h) return;
-
-              const canvasScale = Math.min(areaW / w, areaH / h);
-
-              const canvasW = Math.round(w * canvasScale);
-              const canvasH = Math.round(h * canvasScale);
-
-              appRef.current.renderer.resize(canvasW, canvasH);
-
-              appRef.current.renderer.background.color = expandBackground;
-
-              const imgW = textureRef.current.width;
-              const imgH = textureRef.current.height;
-
-              const imageScale = Math.min(canvasW / imgW, canvasH / imgH);
-
-              let spW = Math.round(imgW * imageScale);
-              let spH = Math.round(imgH * imageScale);
-
-              spriteRef.current.width = spW;
-              spriteRef.current.height = spH;
-
-              spriteRef.current.x = appRef.current.canvas.width / 2;
-              spriteRef.current.y = appRef.current.canvas.height / 2;
-            }
-
-          if (box && appRef.current && spriteRef.current && imageSize) {
-            const cropSizeRelative = {
-              height:
-                box.height ?? imageSize.height * (selectedScale?.scale ?? 1),
-              width: box.width ?? imageSize.width * (selectedScale?.scale ?? 1),
-            };
-
-            if (type === "crop") {
-              setCropBox({
-                id: selectedImg,
-                width: cropSizeRelative.width,
-                height: cropSizeRelative.height,
-                x: appRef.current.canvas.width / 2,
-                y: appRef.current.canvas.height / 2,
-              });
-              spriteRef.current.x = appRef.current.canvas.width / 2;
-              spriteRef.current.y = appRef.current.canvas.height / 2;
-
-              if (
-                appRef.current &&
-                box &&
-                box.y &&
-                box.x &&
-                spriteRef.current
-              ) {
+              if (type === "crop") {
                 setCropBox({
                   id: selectedImg,
                   width: cropSizeRelative.width,
                   height: cropSizeRelative.height,
-                  x: box.x,
-                  y: box.y,
+                  x: appRef.current.renderer.width / 2,
+                  y: appRef.current.renderer.height / 2,
                 });
 
-                spriteRef.current.x = box.x;
-                spriteRef.current.y = box.y;
+                if (
+                  appRef.current &&
+                  box &&
+                  box.y &&
+                  box.x &&
+                  spriteRef.current
+                ) {
+                  setCropBox({
+                    id: selectedImg,
+                    width: cropSizeRelative.width,
+                    height: cropSizeRelative.height,
+                    x: box.x,
+                    y: box.y,
+                  });
+                }
               }
             }
-          }
         }}
       >
         <Tabs.List
