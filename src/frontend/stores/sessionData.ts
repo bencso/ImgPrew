@@ -59,7 +59,6 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       const image = get().sessionData.find((s) => s.id === id);
 
       let positions = null;
-      console.log(appRef.current.canvas);
 
       if (type === calculationTypeEnum.TEXT)
         positions = image?.texts?.find((it) => it.id === textId)?.position;

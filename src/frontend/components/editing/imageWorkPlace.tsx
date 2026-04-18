@@ -138,7 +138,7 @@ export default function ImageWorkPlace() {
         selectedScale?.image.height * selectedScale?.scale +
         (box?.height ?? 0);
 
-      const borderMaxTop = selectedScale.position.y - (box?.height ?? 0 / 2);
+      const borderMaxTop = selectedScale.position.y;
       return [borderMaxTop, borderMaxRight, borderMaxBottom, borderMaxLeft];
     }
     return [null, null, null, null];
@@ -172,11 +172,11 @@ export default function ImageWorkPlace() {
         calculationBorders();
 
       if (borderMaxTop && borderMaxRight && borderMaxBottom && borderMaxLeft) {
-        //if (nextPosX > borderMaxRight && nextPosX < borderMaxLeft)
-        spriteRef.current.x = nextPosX;
+        if (nextPosX > borderMaxRight && nextPosX < borderMaxLeft)
+          spriteRef.current.x = nextPosX;
 
-        //if (nextPosY < borderMaxTop && nextPosY > borderMaxBottom)
-        spriteRef.current.y = nextPosY;
+        if (nextPosY < borderMaxTop && nextPosY > borderMaxBottom)
+          spriteRef.current.y = nextPosY;
 
         setCropBox({
           id: selectedImg,

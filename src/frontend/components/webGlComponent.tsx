@@ -57,11 +57,11 @@ export default function WebGlComponent({
         canvasRef.current.appendChild(appRef.current.canvas);
       }
 
-      // window.__PIXI_DEVTOOLS__ = {
-      //   app,
-      // };
+      window.__PIXI_DEVTOOLS__ = {
+        app,
+      };
 
-      // globalThis.__PIXI_APP__ = app;
+      globalThis.__PIXI_APP__ = app;
     }
 
     initApp();
@@ -102,7 +102,6 @@ export default function WebGlComponent({
 
     const container = new Container();
     filtersRef.current = container;
-    console.log(selectedImg);
 
     loadImage();
     mounted = true;
@@ -171,7 +170,7 @@ export default function WebGlComponent({
       },
     });
 
-    setImageSize(width, height);
+    setImageSize(imgW, imgH);
   };
 
   const applyFilters = () => {
@@ -238,11 +237,6 @@ export default function WebGlComponent({
 
   const imageSize = useSessionStore(
     (state) => state.sessionData.find((si) => si.id === selectedImg)?.dimesions,
-    shallow,
-  );
-
-  const box = useSessionStore(
-    (state) => state.sessionData.find((si) => si.id === selectedImg)?.cropSize,
     shallow,
   );
 

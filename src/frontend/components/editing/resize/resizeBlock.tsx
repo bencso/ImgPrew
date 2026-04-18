@@ -138,23 +138,13 @@ export default function ResizeBlock() {
                   });
                 }
 
-                if (box.y && box.x) {
-                  setCropBox({
-                    id: selectedImg,
-                    width: cropSizeRelative.width,
-                    height: cropSizeRelative.height,
-                    x: box.x,
-                    y: box.y,
-                  });
-                } else {
-                  setCropBox({
-                    id: selectedImg,
-                    width: cropSizeRelative.width,
-                    height: cropSizeRelative.height,
-                    x: appRef.current.canvas.width / 2,
-                    y: appRef.current.canvas.height / 2,
-                  });
-                }
+                setCropBox({
+                  id: selectedImg,
+                  width: cropSizeRelative.width,
+                  height: cropSizeRelative.height,
+                  x: appRef.current.renderer.width / 2,
+                  y: cropSizeRelative.height / 2,
+                });
               }
             }
 
@@ -226,8 +216,10 @@ export default function ResizeBlock() {
           )
             if (box && appRef.current && spriteRef.current && imageSize) {
               const cropSizeRelative = {
-                height: box.height ?? 1080 * (selectedScale?.scale ?? 1),
-                width: box.width ?? 1080 * (selectedScale?.scale ?? 1),
+                height:
+                  box.height ?? imageSize.height * (selectedScale?.scale ?? 1),
+                width:
+                  box.width ?? imageSize.width * (selectedScale?.scale ?? 1),
               };
 
               if (type === "crop") {
