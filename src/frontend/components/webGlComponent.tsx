@@ -28,6 +28,7 @@ export default function WebGlComponent({
     spriteRef,
     appRef,
     workPlaceRef,
+    textAndImagePlaceRef,
   } = useWorkSession();
   const { sessionData } = useSessionStore();
 
@@ -153,6 +154,17 @@ export default function WebGlComponent({
         workPlaceRef.current.clientHeight,
       );
 
+    if (textAndImagePlaceRef.current) {
+      textAndImagePlaceRef.current.style.height =
+        expandMode === "crop"
+          ? "100%"
+          : (expandMode === "expand"
+              ? appRef.current.renderer.height
+              : (spriteRef.current?.height ?? 0)) + "px";
+
+      textAndImagePlaceRef.current.style.width = "100%";
+    }
+
     if (appRef.current) {
       spriteRef.current.x = appRef.current.canvas.width / 2;
       spriteRef.current.y = appRef.current.canvas.height / 2;
@@ -237,7 +249,6 @@ export default function WebGlComponent({
 
   const imageSize = useSessionStore(
     (state) => state.sessionData.find((si) => si.id === selectedImg)?.dimesions,
-    shallow,
   );
 
   function calculateExpandMode() {
@@ -263,6 +274,17 @@ export default function WebGlComponent({
         spriteRef.current.width = imageSize.width * scale;
         spriteRef.current.height = imageSize.height * scale;
 
+        if (textAndImagePlaceRef.current) {
+          textAndImagePlaceRef.current.style.height =
+            expandMode === "crop"
+              ? "100%"
+              : (expandMode === "expand"
+                  ? appRef.current.renderer.height
+                  : (spriteRef.current?.height ?? 0)) + "px";
+
+          textAndImagePlaceRef.current.style.width = "100%";
+        }
+
         spriteRef.current.x = appRef.current.canvas.width / 2;
         spriteRef.current.y = appRef.current.canvas.height / 2;
       } else {
@@ -272,7 +294,8 @@ export default function WebGlComponent({
         const h = expandSize?.height ?? imageSize.height;
         const w = expandSize?.width ?? imageSize.width;
 
-        if (!areaW || !areaH || !w || !h) return;
+        if (!areaW || !areaH || !w || !h || !textAndImagePlaceRef.current)
+          return;
 
         const canvasScale = Math.min(areaW / w, areaH / h);
 
@@ -281,6 +304,15 @@ export default function WebGlComponent({
 
         appRef.current.renderer.resize(canvasW, canvasH);
         appRef.current.renderer.background.color = expandBackground;
+
+        textAndImagePlaceRef.current.style.height =
+          expandMode === "crop"
+            ? "100%"
+            : (expandMode === "expand"
+                ? appRef.current.renderer.height
+                : (spriteRef.current?.height ?? 0)) + "px";
+
+        textAndImagePlaceRef.current.style.width = "100%";
 
         const imgW = textureRef.current.width;
         const imgH = textureRef.current.height;
@@ -314,7 +346,10 @@ export default function WebGlComponent({
     const workPlaceSize = workPlaceRef.current;
     const areaW = workPlaceSize.offsetWidth;
     const areaH = workPlaceSize.offsetHeight;
-    if (!areaW || !areaH || !expandSize) return;
+
+    if (!areaW || !areaH || !expandSize || !textAndImagePlaceRef.current)
+      return;
+
     const h = expandSize.height;
     const w = expandSize.width;
 
@@ -325,6 +360,15 @@ export default function WebGlComponent({
 
     appRef.current.renderer.resize(canvasW, canvasH);
     appRef.current.renderer.background.color = expandBackground;
+
+    textAndImagePlaceRef.current.style.height =
+      expandMode === "crop"
+        ? "100%"
+        : (expandMode === "expand"
+            ? appRef.current.renderer.height
+            : (spriteRef.current?.height ?? 0)) + "px";
+
+    textAndImagePlaceRef.current.style.width = "100%";
 
     const imgW = textureRef.current.width;
     const imgH = textureRef.current.height;
@@ -347,9 +391,9 @@ export default function WebGlComponent({
 
   return (
     <Box
-      alignItems={expandMode === "expand" ? "center" : undefined}
-      justifyContent={expandMode === "expand" ? "center" : undefined}
-      display={expandMode === "expand" ? "flex" : undefined}
+      alignItems={expandMode !== "crop" ? "center" : undefined}
+      justifyContent={expandMode !== "crop" ? "center" : undefined}
+      display={expandMode !== "crop" ? "flex" : undefined}
       ref={canvasRef}
     />
   );

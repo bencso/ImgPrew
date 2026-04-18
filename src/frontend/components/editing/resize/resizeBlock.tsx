@@ -73,6 +73,7 @@ export default function ResizeBlock() {
     workPlaceRef,
     selectedImg,
     selectedScale,
+    textAndImagePlaceRef
   } = useWorkSession();
 
   const imageSize = useSessionStore(

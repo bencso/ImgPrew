@@ -38,6 +38,7 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
   const textureRef = useRef<Texture | null>(null);
   const appRef = useRef<Application | null>(null);
   const workPlaceRef = useRef<HTMLDivElement | null>(null);
+  const textAndImagePlaceRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const { functions, addFunction, editFunction } = useFunctionsStore();
 
@@ -65,6 +66,7 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       appRef,
       workPlaceRef,
       canvasRef,
+      textAndImagePlaceRef
     }),
     [
       step,
@@ -80,6 +82,7 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       workPlaceRef,
       appRef,
       canvasRef,
+      textAndImagePlaceRef
     ],
   );
 

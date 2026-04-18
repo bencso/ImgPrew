@@ -21,7 +21,7 @@ export default function ImageWorkPlace() {
     spriteRef,
     workPlaceRef,
     appRef,
-    canvasRef,
+    textAndImagePlaceRef,
   } = useWorkSession();
   const {
     setTextPosition,
@@ -84,7 +84,7 @@ export default function ImageWorkPlace() {
       selectedImg,
       calculationTypeEnum.COPYRIGHT,
       copyrightImageRef,
-      appRef,
+      textAndImagePlaceRef,
     );
     setCpPosition({
       x: position.x,
@@ -108,7 +108,7 @@ export default function ImageWorkPlace() {
         selectedImg,
         calculationTypeEnum.TEXT,
         textElements[element.id],
-        appRef,
+        textAndImagePlaceRef,
         element.id,
       );
 
@@ -224,14 +224,7 @@ export default function ImageWorkPlace() {
       >
         <Box
           zIndex={100}
-          h={"100%"}
-          w={
-            expandMode === "crop"
-              ? (box?.width ?? spriteRef.current?.width ?? 0)
-              : expandMode === "expand"
-                ? (appRef.current?.renderer?.width ?? 0)
-                : (spriteRef.current?.width ?? 0)
-          }
+          ref={textAndImagePlaceRef}
           position={"absolute"}
           translate="-50% -50%"
           top={"50%"}

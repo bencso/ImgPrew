@@ -107,7 +107,7 @@ export interface SessionStore {
     id: number,
     type: calculationTypeEnum,
     elementRef: HTMLElement | HTMLImageElement | HTMLDivElement,
-    canvasRef: any,
+    textAndImagePlaceRef: any,
     textId?: string,
   ) => any;
   //#endregion
@@ -312,6 +312,7 @@ export interface WorkSessionContextProps {
   workPlaceRef: RefObject<HTMLDivElement | null>;
   appRef: RefObject<Application<Renderer> | null>;
   canvasRef: RefObject<HTMLCanvasElement | null>;
+  textAndImagePlaceRef: RefObject<HTMLDivElement | null>;
 }
 //#endregion
 
