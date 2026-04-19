@@ -54,9 +54,6 @@ export default function WebGlComponent({
         textureGCMaxIdle: 7200,
         textureGCCheckCountMax: 1200,
       });
-      if (canvasRef.current) {
-        canvasRef.current.appendChild(appRef.current.canvas);
-      }
 
       window.__PIXI_DEVTOOLS__ = {
         app,
@@ -85,9 +82,16 @@ export default function WebGlComponent({
       const sprite = new Sprite(texture);
 
       sprite.anchor.set(0.5);
-
+      const prevStage = appRef.current.stage.children.filter(
+        (fs) => fs !== sprite,
+      )[0];
+      if (prevStage) appRef.current.stage.removeChild(prevStage);
       appRef.current.stage.addChild(sprite);
       spriteRef.current = sprite;
+
+      if (canvasRef.current) {
+        canvasRef.current.replaceChildren(appRef.current.canvas);
+      }
 
       applyFilters();
       resizeSprite();
@@ -97,6 +101,7 @@ export default function WebGlComponent({
   }
 
   let mounted = false;
+
   useEffect(() => {
     if (!canvasRef.current) return;
     if (mounted) return;
@@ -104,8 +109,8 @@ export default function WebGlComponent({
     const container = new Container();
     filtersRef.current = container;
 
-    loadImage();
     mounted = true;
+    loadImage();
 
     return () => {
       if (spriteRef.current) {

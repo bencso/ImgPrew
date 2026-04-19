@@ -44,6 +44,11 @@ export default function ImageWorkPlace() {
       state.sessionData.find((si) => si.id === selectedImg)?.expandMode,
   );
 
+  const expandSize = useSessionStore(
+    (state) =>
+      state.sessionData.find((si) => si.id === selectedImg)?.expandSize,
+  );
+
   const [renderDirections, setRenderDirections] = useState<string[]>([]);
   const cropRef = useRef<HTMLElement>(null);
 
@@ -115,9 +120,8 @@ export default function ImageWorkPlace() {
       newPositions[element.id] = textPosition;
     });
 
-    console.log(newPositions);
     setTextPositions(newPositions);
-  }, [selectedImg, texts, textElements]);
+  }, [selectedImg, texts, textElements, expandSize, expandMode, box]);
   //#endregion
 
   function setImageDimension(width: number, height: number) {
