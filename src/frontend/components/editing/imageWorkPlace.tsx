@@ -209,6 +209,7 @@ export default function ImageWorkPlace() {
       p={4}
       justifyContent={"center"}
       alignItems={"center"}
+      mx={"auto"}
       className="workPlaceRef"
     >
       <Box
