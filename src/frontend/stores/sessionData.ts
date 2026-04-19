@@ -48,12 +48,12 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     //#endregion
 
     //#region Segédfüggvények
-    //TODO: Átirni az any type-ot
+
     calculationReFixPosition: (
       id: number,
       type: calculationTypeEnum,
       elementRef: HTMLElement | HTMLImageElement | HTMLDivElement,
-      textAndImagePlaceRef: any,
+      textAndImagePlaceRef?: any,
       textId?: string,
     ) => {
       const image = get().sessionData.find((s) => s.id === id);
@@ -65,9 +65,9 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       if (type === calculationTypeEnum.COPYRIGHT)
         positions = image?.copyrightImage?.position;
 
+      console.log(positions);
       const height = textAndImagePlaceRef.current.offsetHeight;
       const width = textAndImagePlaceRef.current.offsetWidth;
-
 
       const imageHalf = width / 2 - elementRef.offsetWidth / 2;
 
@@ -75,13 +75,13 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       const imageHCP = height - elementRef.offsetHeight;
 
       const defaultPosition = textId
-        ? (image?.texts?.find((ti) => ti.id === textId)?.position as {
+        ? ((positions as {
             x: number;
             y: number;
-          }) || {
+          }) ?? {
             x: 20,
             y: 20,
-          }
+          })
         : { x: 20, y: 20 };
 
       if (positions && positions.x && positions.y) {

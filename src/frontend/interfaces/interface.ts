@@ -107,7 +107,7 @@ export interface SessionStore {
     id: number,
     type: calculationTypeEnum,
     elementRef: HTMLElement | HTMLImageElement | HTMLDivElement,
-    textAndImagePlaceRef: any,
+    textAndImagePlaceRef?: any,
     textId?: string,
   ) => any;
   //#endregion

@@ -3,7 +3,6 @@
 import keyboardShortcuts from "@/components/editing/keyboardShortCuts";
 import BottomBar from "@/components/editing/moreImagesBottomBar";
 import SideBar from "@/components/editing/sidebar";
-import TopBar from "@/components/editing/topBar";
 import { ImageDropZone } from "@/components/upload/dropzone";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
@@ -54,7 +53,6 @@ export default function Page() {
         flex="1"
       >
         <Flex h="full" w="full" minW="0" minH={"0"} flex="1" direction="column">
-          <TopBar setSelectedImage={setSelectedImage} />
           <Box flex="1" minH="0" h={"full"} w={"full"} minW={0} p={4}>
             {selectedImage && <ImageWorkPlace />}
           </Box>

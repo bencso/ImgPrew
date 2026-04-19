@@ -20,7 +20,7 @@ export default function ImageWorkPlace() {
     selectedScale,
     spriteRef,
     workPlaceRef,
-    appRef,
+
     textAndImagePlaceRef,
   } = useWorkSession();
   const {
@@ -114,6 +114,8 @@ export default function ImageWorkPlace() {
 
       newPositions[element.id] = textPosition;
     });
+
+    console.log(newPositions);
     setTextPositions(newPositions);
   }, [selectedImg, texts, textElements]);
   //#endregion
@@ -161,7 +163,6 @@ export default function ImageWorkPlace() {
     setRenderDirections(directions);
   }
 
-  //TODO: Itt van most valami hiba az "új" rendszerrel
   function grabCrop(x: number, y: number) {
     if (spriteRef.current && selectedScale && box && y && x) {
       const nextPosX = spriteRef.current.x + x;
@@ -226,7 +227,7 @@ export default function ImageWorkPlace() {
           zIndex={100}
           ref={textAndImagePlaceRef}
           position={"absolute"}
-          translate="-50% -50%"
+          transform="translate(-50%, -50%)"
           top={"50%"}
           left={"50%"}
           className="3"
@@ -244,17 +245,17 @@ export default function ImageWorkPlace() {
                 h={"fit"}
                 position={"absolute"}
                 cursor={"pointer"}
-                top={
-                  typeof textPositions[element.id]?.y === "number"
-                    ? `${textPositions[element.id]!.y}px`
-                    : "5px"
-                }
-                left={
-                  typeof textPositions[element.id]?.x === "number"
-                    ? `${textPositions[element.id]!.x}px`
-                    : "5px"
-                }
                 textWrap={"balance"}
+                left={
+                  textPositions[element.id]
+                    ? `${textPositions[element.id].x}px`
+                    : "20px"
+                }
+                top={
+                  textPositions[element.id]
+                    ? `${textPositions[element.id].y}px`
+                    : "20px"
+                }
                 style={{
                   fontSize: element.fontSize || 20,
                   fontFamily: element.fontFamily || "Inter",
@@ -267,6 +268,7 @@ export default function ImageWorkPlace() {
               </Span>
             );
           })}
+
           {
             //
           }
@@ -387,19 +389,18 @@ export default function ImageWorkPlace() {
       <Moveable
         target={draggableId ? textElements[draggableId] : null}
         draggable={true}
-        throttleDrag={0}
         hideDefaultLines
         hideChildMoveableDefaultLines
         hideThrottleDragRotateLine
-        edgeDraggable={false}
         origin={false}
-        startDragRotate={0}
-        throttleDragRotate={0}
         onDrag={(e) => {
           if (!draggableId) return;
+          console.log(e.beforeTranslate);
+          const [x, y] = e.beforeTranslate;
+
           setTextPosition(selectedImg, draggableId, {
-            x: e.left,
-            y: e.top,
+            x,
+            y,
           });
         }}
       />
