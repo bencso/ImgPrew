@@ -10,7 +10,8 @@ import Moveable from "react-moveable";
 import { shallow } from "zustand/shallow";
 import WebGlComponent from "../webGlComponent";
 
-//TODO: Croppolás átdolgozása
+//TODO: Croppolás átdolgozása, egy origón legyen a crop és a kép is.
+// Top számítás pl.: origó (kép közepe) + képmagasságának fele - cropmagasságának fele
 
 export default function ImageWorkPlace() {
   const {
