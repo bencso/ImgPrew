@@ -365,6 +365,7 @@ export default function WebGlComponent({
       const workPlaceSize = workPlaceRef.current;
       const areaW = workPlaceSize.offsetWidth;
       const areaH = workPlaceSize.offsetHeight;
+      console.log(areaW);
       const h = expandSize?.height ?? imageSize.height;
       const w = expandSize?.width ?? imageSize.width;
 
@@ -388,6 +389,8 @@ export default function WebGlComponent({
 
       spriteRef.current.width = spW;
       spriteRef.current.height = spH;
+
+      console.log(canvasW);
 
       textAndImagePlaceRef.current.style.height =
         (appRef.current.renderer.height ?? spH) + "px";

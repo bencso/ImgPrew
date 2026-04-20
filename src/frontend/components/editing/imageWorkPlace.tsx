@@ -206,7 +206,6 @@ export default function ImageWorkPlace() {
       w={"full"}
       boxSizing={"border-box"}
       overflow="hidden"
-      p={4}
       justifyContent={"center"}
       alignItems={"center"}
       mx={"auto"}
