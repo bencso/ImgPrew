@@ -73,7 +73,7 @@ export default function ResizeBlock() {
     workPlaceRef,
     selectedImg,
     selectedScale,
-    textAndImagePlaceRef
+    textAndImagePlaceRef,
   } = useWorkSession();
 
   const imageSize = useSessionStore(
@@ -136,6 +136,8 @@ export default function ResizeBlock() {
                     id: selectedImg,
                     width: imageSize.width,
                     height: imageSize.height,
+                    x: appRef.current.canvas.width / 2,
+                    y: cropSizeRelative.height / 2,
                   });
                 }
 
@@ -143,9 +145,14 @@ export default function ResizeBlock() {
                   id: selectedImg,
                   width: cropSizeRelative.width,
                   height: cropSizeRelative.height,
-                  x: appRef.current.renderer.width / 2,
+                  x: appRef.current.canvas.width / 2,
                   y: cropSizeRelative.height / 2,
                 });
+
+                if (spriteRef.current) {
+                  spriteRef.current.x = appRef.current.canvas.width / 2;
+                  spriteRef.current.y = cropSizeRelative.height / 2;
+                }
               }
             }
 
@@ -228,8 +235,8 @@ export default function ResizeBlock() {
                   id: selectedImg,
                   width: cropSizeRelative.width,
                   height: cropSizeRelative.height,
-                  x: appRef.current.renderer.width / 2,
-                  y: appRef.current.renderer.height / 2,
+                  x: box.x ?? appRef.current.canvas.width / 2,
+                  y: box.y ?? cropSizeRelative.height / 2,
                 });
 
                 if (
@@ -243,8 +250,8 @@ export default function ResizeBlock() {
                     id: selectedImg,
                     width: cropSizeRelative.width,
                     height: cropSizeRelative.height,
-                    x: box.x,
-                    y: box.y,
+                    x: box.x ?? appRef.current.canvas.width / 2,
+                    y: box.y ?? cropSizeRelative.height / 2,
                   });
                 }
               }

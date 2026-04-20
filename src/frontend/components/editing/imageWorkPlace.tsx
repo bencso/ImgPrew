@@ -99,7 +99,7 @@ export default function ImageWorkPlace() {
 
   useEffect(() => {
     calculationBorders();
-  }, [box]);
+  }, [box, expandSize]);
 
   const [draggableId, setDraggableId] = useState<string | null>(null);
 
@@ -145,6 +145,13 @@ export default function ImageWorkPlace() {
         (box?.height ?? 0);
 
       const borderMaxTop = selectedScale.position.y;
+
+      console.log([
+        borderMaxTop,
+        borderMaxRight,
+        borderMaxBottom,
+        borderMaxLeft,
+      ]);
       return [borderMaxTop, borderMaxRight, borderMaxBottom, borderMaxLeft];
     }
     return [null, null, null, null];
@@ -399,7 +406,6 @@ export default function ImageWorkPlace() {
         origin={false}
         onDrag={(e) => {
           if (!draggableId) return;
-          console.log(e.beforeTranslate);
           const [x, y] = e.beforeTranslate;
 
           setTextPosition(selectedImg, draggableId, {

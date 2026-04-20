@@ -252,6 +252,10 @@ export default function WebGlComponent({
     (state) => state.sessionData.find((si) => si.id === selectedImg)?.dimesions,
   );
 
+  const box = useSessionStore(
+    (state) => state.sessionData.find((si) => si.id === selectedImg)?.box,
+  );
+
   function calculateExpandMode() {
     const type = expandMode;
     if (
@@ -286,8 +290,13 @@ export default function WebGlComponent({
           else textAndImagePlaceRef.current.style.width = "100%";
         }
 
-        spriteRef.current.x = appRef.current.canvas.width / 2;
-        spriteRef.current.y = appRef.current.canvas.height / 2;
+        if (expandMode === "crop") {
+          spriteRef.current.x = box?.x ?? appRef.current.canvas.width / 2;
+          spriteRef.current.y = box?.y ?? appRef.current.canvas.height / 2;
+        } else {
+          spriteRef.current.x = appRef.current.canvas.width / 2;
+          spriteRef.current.y = appRef.current.canvas.height / 2;
+        }
       } else {
         const workPlaceSize = workPlaceRef.current;
         const areaW = workPlaceSize.offsetWidth;
@@ -365,7 +374,7 @@ export default function WebGlComponent({
       const workPlaceSize = workPlaceRef.current;
       const areaW = workPlaceSize.offsetWidth;
       const areaH = workPlaceSize.offsetHeight;
-      console.log(areaW);
+
       const h = expandSize?.height ?? imageSize.height;
       const w = expandSize?.width ?? imageSize.width;
 
@@ -390,8 +399,6 @@ export default function WebGlComponent({
       spriteRef.current.width = spW;
       spriteRef.current.height = spH;
 
-      console.log(canvasW);
-
       textAndImagePlaceRef.current.style.height =
         (appRef.current.renderer.height ?? spH) + "px";
       textAndImagePlaceRef.current.style.width =
@@ -405,10 +412,6 @@ export default function WebGlComponent({
   useEffect(() => {
     calculateExpandSize();
   }, [expandSize, expandBackground]);
-
-  useEffect(() => {
-    console.log(textAndImagePlaceRef);
-  }, [textAndImagePlaceRef.current?.offsetWidth]);
 
   return (
     <Box
