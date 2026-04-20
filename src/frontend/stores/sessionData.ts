@@ -199,21 +199,17 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           };
       }),
     //#region KÉP MÉRETEK
-    setImageSize: (id: number, width: number, height: number) =>
-      set((state) => {
-        if (height <= 0 || width <= 0) {
-          toaster.create({
-            type: "error",
-            title: "Hibás érték",
-            description: "A méret nem lehet kisebb vagy egyenlő, mint 0",
-          });
-          return;
-        }
-        const image = state.sessionData.find((img) => img.id === id);
-        if (image) {
-          image.dimesions = { width, height };
-        }
-      }),
+    setImageSize: (id, width, height) =>
+      set((state) => ({
+        sessionData: state.sessionData.map((img) =>
+          img.id === id
+            ? {
+                ...img,
+                dimesions: { width, height },
+              }
+            : img,
+        ),
+      })),
     //#region Frontend Crop Box
     setCropBox: ({
       id,

@@ -10,6 +10,8 @@ import Moveable from "react-moveable";
 import { shallow } from "zustand/shallow";
 import WebGlComponent from "../webGlComponent";
 
+//TODO: Croppolás átdolgozása
+
 export default function ImageWorkPlace() {
   const {
     selectedImg,
@@ -20,15 +22,11 @@ export default function ImageWorkPlace() {
     selectedScale,
     spriteRef,
     workPlaceRef,
-
+    appRef,
     textAndImagePlaceRef,
   } = useWorkSession();
-  const {
-    setTextPosition,
-    setImageSize,
-    calculationReFixPosition,
-    setCropBox,
-  } = useSessionStore();
+  const { setTextPosition, calculationReFixPosition, setCropBox } =
+    useSessionStore();
 
   const box = useSessionStore(
     (state) => state.sessionData.find((si) => si.id === selectedImg)?.box,
@@ -124,34 +122,30 @@ export default function ImageWorkPlace() {
   }, [selectedImg, texts, textElements, expandSize, expandMode, box]);
   //#endregion
 
-  function setImageDimension(width: number, height: number) {
-    setImageSize(selectedImg, width, height);
-  }
-
   function calculationBorders() {
     if (selectedScale) {
       const borderMaxRight =
         selectedScale.position.x -
         (selectedScale?.image.width / 2) * selectedScale?.scale +
-        (box?.width ?? 0) / 2;
+        (box?.width || 0) / 2;
       const borderMaxLeft =
         selectedScale.position.x +
         (selectedScale?.image.width / 2) * selectedScale?.scale -
-        (box?.width ?? 0) / 2;
+        (box?.width || 0) / 2;
       //
       const borderMaxBottom =
         selectedScale.position.y -
         selectedScale?.image.height * selectedScale?.scale +
-        (box?.height ?? 0);
-
-      const borderMaxTop = selectedScale.position.y;
-
-      console.log([
+        (box?.height || 0) / 2;
+      const borderMaxTop = selectedScale.position.y - (box?.height || 0) / 2;
+      console.table({
+        boxX: box?.x,
+        boxY: box?.y,
         borderMaxTop,
         borderMaxRight,
         borderMaxBottom,
         borderMaxLeft,
-      ]);
+      });
       return [borderMaxTop, borderMaxRight, borderMaxBottom, borderMaxLeft];
     }
     return [null, null, null, null];
@@ -180,29 +174,14 @@ export default function ImageWorkPlace() {
       const nextPosY = spriteRef.current.y + y;
 
       //
-      const [borderMaxTop, borderMaxRight, borderMaxBottom, borderMaxLeft] =
-        calculationBorders();
+      spriteRef.current.x = nextPosX;
+      spriteRef.current.y = nextPosY;
 
-      if (borderMaxTop && borderMaxRight && borderMaxBottom && borderMaxLeft) {
-        if (nextPosX > borderMaxRight && nextPosX < borderMaxLeft)
-          spriteRef.current.x = nextPosX;
-
-        if (nextPosY < borderMaxTop && nextPosY > borderMaxBottom)
-          spriteRef.current.y = nextPosY;
-
-        setCropBox({
-          id: selectedImg,
-          x: nextPosX,
-          y: nextPosY,
-        });
-
-        setDirectionsCrop(
-          borderMaxBottom,
-          borderMaxLeft,
-          borderMaxRight,
-          borderMaxTop,
-        );
-      }
+      setCropBox({
+        id: selectedImg,
+        x: nextPosX,
+        y: nextPosY,
+      });
     }
   }
 
@@ -336,35 +315,32 @@ export default function ImageWorkPlace() {
 
                   const [dx, dy] = delta;
 
-                  const [top, right, bottom, left] = calculationBorders();
-                  if (!top || !right || !bottom || !left) return;
-
                   let nextPosX = spriteRef.current.x;
                   let nextPosY = spriteRef.current.y;
 
-                  if (direction[0] == 1 || direction[0] == -1) {
-                    if (dx > 0) {
-                      if (nextPosX > right) {
-                        nextPosX = nextPosX - 0.5;
-                        spriteRef.current.x = nextPosX;
-                      } else if (nextPosX < left) {
-                        nextPosX = nextPosX + 0.5;
-                        spriteRef.current.x = nextPosX;
-                      }
-                    }
-                  }
+                  // if (direction[0] == 1 || direction[0] == -1) {
+                  //   if (dx > 0) {
+                  //     if (nextPosX > right) {
+                  //       nextPosX = nextPosX - 0.5;
+                  //       spriteRef.current.x = nextPosX;
+                  //     } else if (nextPosX < left) {
+                  //       nextPosX = nextPosX + 0.5;
+                  //       spriteRef.current.x = nextPosX;
+                  //     }
+                  //   }
+                  // }
 
-                  if (direction[1] == 1 || direction[1] == -1) {
-                    if (dy > 0) {
-                      if (nextPosY > bottom) {
-                        nextPosY = nextPosY - 0.5;
-                        spriteRef.current.y = nextPosY;
-                      } else if (nextPosY < top) {
-                        nextPosY = nextPosY + 0.5;
-                        spriteRef.current.y = nextPosY;
-                      }
-                    }
-                  }
+                  // if (direction[1] == 1 || direction[1] == -1) {
+                  //   if (dy > 0) {
+                  //     if (nextPosY > bottom) {
+                  //       nextPosY = nextPosY - 0.5;
+                  //       spriteRef.current.y = nextPosY;
+                  //     } else if (nextPosY < top) {
+                  //       nextPosY = nextPosY + 0.5;
+                  //       spriteRef.current.y = nextPosY;
+                  //     }
+                  //   }
+                  // }
 
                   if (
                     imageSize &&
@@ -382,8 +358,6 @@ export default function ImageWorkPlace() {
                     x: nextPosX,
                     y: nextPosY,
                   });
-
-                  setDirectionsCrop(bottom, left, right, top);
                 }}
               />
             </>
@@ -392,7 +366,7 @@ export default function ImageWorkPlace() {
         {
           //
         }
-        <WebGlComponent setImageSize={setImageDimension} />
+        <WebGlComponent />
       </Box>
       {
         //

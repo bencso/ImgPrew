@@ -15,12 +15,7 @@ import {
 import { useEffect, useRef } from "react";
 import { shallow } from "zustand/shallow";
 
-//TODO: Ha változik az app mérete akkor igazolodjon, ezt a kódot debug miatt kivettem majd visszatenni
-export default function WebGlComponent({
-  setImageSize,
-}: {
-  setImageSize: (width: number, height: number) => void;
-}) {
+export default function WebGlComponent() {
   const {
     selectedImg,
     setSelectedScale,
@@ -30,7 +25,7 @@ export default function WebGlComponent({
     workPlaceRef,
     textAndImagePlaceRef,
   } = useWorkSession();
-  const { sessionData } = useSessionStore();
+  const { sessionData, setImageSize } = useSessionStore();
 
   const canvasRef = useRef<HTMLElement | null>(null);
   const filtersRef = useRef<Container | null>(null);
@@ -102,16 +97,17 @@ export default function WebGlComponent({
     img.src = sessionData[selectedImg].blob;
   }
 
-  let mounted = false;
+  const mounted = useRef(false);
 
   useEffect(() => {
     if (!canvasRef.current) return;
-    if (mounted) return;
+    if (mounted.current) return;
 
     const container = new Container();
     filtersRef.current = container;
 
-    mounted = true;
+    mounted.current = true;
+
     loadImage();
 
     return () => {
@@ -178,12 +174,12 @@ export default function WebGlComponent({
       },
       scale: scale,
       position: {
-        x: spriteRef.current.x,
-        y: spriteRef.current.y,
+        x: appRef.current.canvas.width / 2,
+        y: appRef.current.canvas.height / 2,
       },
     });
 
-    setImageSize(imgW, imgH);
+    setImageSize(selectedImg, imgW, imgH);
   };
 
   const applyFilters = () => {
@@ -336,11 +332,8 @@ export default function WebGlComponent({
       }
   }
 
-  useEffect(() => {
-    calculateExpandMode();
-  }, [expandMode]);
-
-  async function calculateExpandSize() {
+  function calculateExpandSize() {
+    console.log(imageSize);
     if (
       !workPlaceRef.current ||
       !appRef.current ||
@@ -410,8 +403,24 @@ export default function WebGlComponent({
   }
 
   useEffect(() => {
+    calculateExpandMode();
+  }, [expandMode, imageSize]);
+
+  useEffect(() => {
     calculateExpandSize();
-  }, [expandSize, expandBackground]);
+  }, [expandSize, expandBackground, imageSize]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      resizeSprite();
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [selectedImg]);
 
   return (
     <Box
