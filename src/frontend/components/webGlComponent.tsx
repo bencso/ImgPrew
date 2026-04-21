@@ -15,6 +15,8 @@ import {
 import { useEffect, useRef } from "react";
 import { shallow } from "zustand/shallow";
 
+
+//TODO: Képek változásnál nem változnak....
 export default function WebGlComponent() {
   const {
     selectedImg,
