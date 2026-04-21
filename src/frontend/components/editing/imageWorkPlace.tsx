@@ -10,10 +10,6 @@ import Moveable from "react-moveable";
 import { shallow } from "zustand/shallow";
 import WebGlComponent from "../webGlComponent";
 
-//TODO: Croppolás átdolgozása, egy origón legyen a crop és a kép is.
-// Top számítás pl.: origó (kép közepe) + képmagasságának fele - cropmagasságának fele
-// Croppolásnál is aspect:ratio kell legyen és ne pl 1080x1080 mert nem az....
-
 export default function ImageWorkPlace() {
   const {
     selectedImg,
@@ -24,6 +20,7 @@ export default function ImageWorkPlace() {
     selectedScale,
     spriteRef,
     workPlaceRef,
+    appRef,
     textAndImagePlaceRef,
   } = useWorkSession();
   const { setTextPosition, calculationReFixPosition, setCropBox } =
@@ -126,12 +123,25 @@ export default function ImageWorkPlace() {
   //#endregion
 
   function calculationBorders() {
-    if (selectedScale && box && box.height && box.width) {
-      //TODO: A közepét csak egyszer kelljen mert változhat mikor mozgatjuk s ugy nem lesz jó, de utána már jó lesz!!!
-      const center = {
-        x: box.x,
-        y: box.y,
+    if (
+      selectedScale &&
+      box &&
+      box.height &&
+      box.width &&
+      appRef.current &&
+      imageSize
+    ) {
+      const cropSizeRelative = {
+        height: box.height ?? imageSize.height * (selectedScale?.scale ?? 1),
+        width: box.width ?? imageSize.width * (selectedScale?.scale ?? 1),
       };
+
+      const center = {
+        x: appRef.current.canvas.width / 2,
+        y: cropSizeRelative.height / 2,
+      };
+
+      console.log(center);
 
       const borderMaxTop =
         (center.y ?? 0) +

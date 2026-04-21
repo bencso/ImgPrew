@@ -23,9 +23,6 @@ import {
   LuTwitter,
 } from "react-icons/lu";
 
-// TODO: EGY NAGYON NAGY BUG VAN // NAGYON CSUNYA MÁR A KÓD -> JAVITANI RAJTA, a képek méretezése nem jó
-//TODO: Kezdőállapotok beállítása
-
 const sizesDatas = [
   {
     name: "Instagram",
