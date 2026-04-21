@@ -12,6 +12,7 @@ import WebGlComponent from "../webGlComponent";
 
 //TODO: Croppolás átdolgozása, egy origón legyen a crop és a kép is.
 // Top számítás pl.: origó (kép közepe) + képmagasságának fele - cropmagasságának fele
+// Croppolásnál is aspect:ratio kell legyen és ne pl 1080x1080 mert nem az....
 
 export default function ImageWorkPlace() {
   const {
@@ -23,7 +24,6 @@ export default function ImageWorkPlace() {
     selectedScale,
     spriteRef,
     workPlaceRef,
-    appRef,
     textAndImagePlaceRef,
   } = useWorkSession();
   const { setTextPosition, calculationReFixPosition, setCropBox } =
@@ -77,6 +77,12 @@ export default function ImageWorkPlace() {
   const [textPositions, setTextPositions] = useState<
     Record<string, { x: number; y: number }>
   >({});
+  const [borderMax, setBorderMax] = useState<{
+    top: number;
+    bottom: number;
+    left: number;
+    right: number;
+  } | null>(null);
 
   const copyrightImageSize = useSessionStore((s) =>
     s.sessionData.find((sD) => sD.id === selectedImg),
@@ -95,10 +101,6 @@ export default function ImageWorkPlace() {
       y: position.y,
     });
   }, [selectedImg, copyrightImageRef, copyrightImageSize]);
-
-  useEffect(() => {
-    calculationBorders();
-  }, [box, expandSize]);
 
   const [draggableId, setDraggableId] = useState<string | null>(null);
 
@@ -124,65 +126,81 @@ export default function ImageWorkPlace() {
   //#endregion
 
   function calculationBorders() {
-    if (selectedScale) {
-      const borderMaxRight =
-        selectedScale.position.x -
-        (selectedScale?.image.width / 2) * selectedScale?.scale +
-        (box?.width || 0) / 2;
-      const borderMaxLeft =
-        selectedScale.position.x +
-        (selectedScale?.image.width / 2) * selectedScale?.scale -
-        (box?.width || 0) / 2;
-      //
+    if (selectedScale && box && box.height && box.width) {
+      //TODO: A közepét csak egyszer kelljen mert változhat mikor mozgatjuk s ugy nem lesz jó, de utána már jó lesz!!!
+      const center = {
+        x: box.x,
+        y: box.y,
+      };
+
+      const borderMaxTop =
+        (center.y ?? 0) +
+        (selectedScale.image.height * selectedScale.scale) / 2 -
+        box.height / 2;
+
       const borderMaxBottom =
-        selectedScale.position.y -
-        selectedScale?.image.height * selectedScale?.scale +
-        (box?.height || 0) / 2;
-      const borderMaxTop = selectedScale.position.y - (box?.height || 0) / 2;
-      console.table({
-        boxX: box?.x,
-        boxY: box?.y,
-        borderMaxTop,
-        borderMaxRight,
-        borderMaxBottom,
-        borderMaxLeft,
+        (center.y ?? 0) -
+        (selectedScale.image.height * selectedScale.scale) / 2 +
+        box.height / 2;
+
+      const borderMaxRight =
+        (center.x ?? 0) +
+        (selectedScale.image.width * selectedScale.scale) / 2 -
+        box.width / 2;
+
+      const borderMaxLeft =
+        (center.x ?? 0) -
+        (selectedScale.image.width * selectedScale.scale) / 2 +
+        box.width / 2;
+
+      setBorderMax({
+        top: borderMaxTop,
+        bottom: borderMaxBottom,
+        left: borderMaxLeft,
+        right: borderMaxRight,
       });
-      return [borderMaxTop, borderMaxRight, borderMaxBottom, borderMaxLeft];
+    } else {
+      setBorderMax(null);
     }
-    return [null, null, null, null];
   }
 
-  function setDirectionsCrop(
-    borderMaxBottom: number,
-    borderMaxLeft: number,
-    borderMaxRight: number,
-    borderMaxTop: number,
-  ) {
-    if (!box || !box.x || !box.y) return;
+  useEffect(() => {
+    calculationBorders();
+    setDirectionsCrop();
+  }, [box?.height, box?.width]);
+
+  function setDirectionsCrop() {
+    if (!box || !box.x || !box.y || !borderMax) return;
     const directions = [];
 
-    if (box.x > borderMaxRight) directions.push("e");
-    if (box.x < borderMaxLeft) directions.push("w");
-    if (box.y > borderMaxBottom) directions.push("s");
-    if (box.y < borderMaxTop) directions.push("n");
+    if (box.x <= borderMax.right) directions.push("e");
+    if (box.x >= borderMax.left) directions.push("w");
+    if (box.y >= borderMax.bottom) directions.push("s");
+    if (box.y <= borderMax.top) directions.push("n");
 
     setRenderDirections(directions);
   }
 
   function grabCrop(x: number, y: number) {
-    if (spriteRef.current && selectedScale && box && y && x) {
+    if (spriteRef.current && selectedScale && box && y && x && borderMax) {
       const nextPosX = spriteRef.current.x + x;
       const nextPosY = spriteRef.current.y + y;
 
-      //
-      spriteRef.current.x = nextPosX;
-      spriteRef.current.y = nextPosY;
+      console.log(borderMax);
+
+      if (nextPosX < borderMax.right && nextPosX > borderMax.left)
+        spriteRef.current.x = nextPosX;
+
+      if (nextPosY < borderMax.top && nextPosY > borderMax.bottom)
+        spriteRef.current.y = nextPosY;
 
       setCropBox({
         id: selectedImg,
         x: nextPosX,
         y: nextPosY,
       });
+
+      setDirectionsCrop();
     }
   }
 
@@ -312,36 +330,36 @@ export default function ImageWorkPlace() {
                   grabCrop(dx, dy);
                 }}
                 onResize={({ width, height, direction, delta }) => {
-                  if (!spriteRef.current) return;
+                  if (!spriteRef.current || !borderMax) return;
 
                   const [dx, dy] = delta;
 
                   let nextPosX = spriteRef.current.x;
                   let nextPosY = spriteRef.current.y;
 
-                  // if (direction[0] == 1 || direction[0] == -1) {
-                  //   if (dx > 0) {
-                  //     if (nextPosX > right) {
-                  //       nextPosX = nextPosX - 0.5;
-                  //       spriteRef.current.x = nextPosX;
-                  //     } else if (nextPosX < left) {
-                  //       nextPosX = nextPosX + 0.5;
-                  //       spriteRef.current.x = nextPosX;
-                  //     }
-                  //   }
-                  // }
+                  if (direction[0] == 1 || direction[0] == -1) {
+                    if (dx > 0) {
+                      if (nextPosX > borderMax.right) {
+                        nextPosX = nextPosX - 0.5;
+                        spriteRef.current.x = nextPosX;
+                      } else if (nextPosX < borderMax.left) {
+                        nextPosX = nextPosX + 0.5;
+                        spriteRef.current.x = nextPosX;
+                      }
+                    }
+                  }
 
-                  // if (direction[1] == 1 || direction[1] == -1) {
-                  //   if (dy > 0) {
-                  //     if (nextPosY > bottom) {
-                  //       nextPosY = nextPosY - 0.5;
-                  //       spriteRef.current.y = nextPosY;
-                  //     } else if (nextPosY < top) {
-                  //       nextPosY = nextPosY + 0.5;
-                  //       spriteRef.current.y = nextPosY;
-                  //     }
-                  //   }
-                  // }
+                  if (direction[1] == 1 || direction[1] == -1) {
+                    if (dy > 0) {
+                      if (nextPosY > borderMax.bottom) {
+                        nextPosY = nextPosY - 0.5;
+                        spriteRef.current.y = nextPosY;
+                      } else if (nextPosY < borderMax.top) {
+                        nextPosY = nextPosY + 0.5;
+                        spriteRef.current.y = nextPosY;
+                      }
+                    }
+                  }
 
                   if (
                     imageSize &&

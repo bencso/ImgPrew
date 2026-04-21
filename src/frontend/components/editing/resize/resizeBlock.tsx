@@ -12,6 +12,7 @@ import {
   RadioCard,
   ScrollArea,
   Tabs,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import {
   LuBotOff,
@@ -74,6 +75,13 @@ export default function ResizeBlock() {
     selectedImg,
     selectedScale,
   } = useWorkSession();
+
+  //#region breakPoint beállíátoks (isMd)
+  const isMd = useBreakpointValue(
+    { base: false, sm: false, md: false, lg: true, xl: true },
+    { fallback: "md" },
+  );
+  //#endregion
 
   const imageSize = useSessionStore(
     (state) => state.sessionData.find((si) => si.id === selectedImg)?.dimesions,
@@ -277,6 +285,7 @@ export default function ResizeBlock() {
           <Tabs.Trigger
             value="crop"
             w={"full"}
+            disabled={!isMd}
             display={"flex"}
             justifyContent={"center"}
           >
