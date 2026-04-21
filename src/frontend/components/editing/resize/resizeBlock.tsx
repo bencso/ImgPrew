@@ -23,7 +23,6 @@ import {
   LuTwitter,
 } from "react-icons/lu";
 
-// TODO: Cropolásnál a képarányt kéne csak nézni, és nem 1080x1080....
 const sizesDatas = [
   {
     name: "Instagram",
@@ -107,11 +106,7 @@ export default function ResizeBlock() {
   );
 
   function getCommonDivider(a: number, b: number) {
-    while (b) {
-      a %= b;
-      [a, b] = [b, a];
-    }
-    return a;
+    return b == 0 ? a : getCommonDivider(b, a % b);
   }
 
   return (
@@ -131,10 +126,27 @@ export default function ResizeBlock() {
             if (!width || !height) return;
             let w = Number(width);
             let h = Number(height);
-            if (expandMode === "crop") {
+            if (expandMode === "crop" && selectedScale) {
+              const ratio = Math.min(
+                selectedScale?.image.height / h,
+                selectedScale?.image.width / w,
+              );
+
+              const imageH = selectedScale.image.height * selectedScale.scale;
+              const imageW = selectedScale.image.width * selectedScale.scale;
+
+              const imageHR = h * ratio;
+              const imageWR = w * ratio;
+
               const cropSizeRelative = {
-                height: h * (selectedScale?.scale ?? 1),
-                width: w * (selectedScale?.scale ?? 1),
+                height:
+                  imageH > imageHR
+                    ? h * ratio
+                    : h * (selectedScale?.scale ?? 1),
+                width:
+                  imageW > imageWR
+                    ? w * ratio
+                    : w * (selectedScale?.scale ?? 1),
               };
 
               if (appRef.current && box && spriteRef.current) {
