@@ -105,10 +105,6 @@ export default function ResizeBlock() {
     (state) => state.sessionData.find((si) => si.id === selectedImg)?.box,
   );
 
-  function getCommonDivider(a: number, b: number) {
-    return b == 0 ? a : getCommonDivider(b, a % b);
-  }
-
   return (
     <Box>
       {expandMode !== "no" && (

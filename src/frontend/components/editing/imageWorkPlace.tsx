@@ -362,22 +362,25 @@ export default function ImageWorkPlace() {
                     }
                   }
 
-                  if (
-                    imageSize &&
-                    width < imageSize.width &&
-                    imageSize.height > height
-                  )
+                  if (selectedScale) {
+                    const imageH =
+                      selectedScale.image.height * selectedScale.scale;
+                    const imageW =
+                      selectedScale.image.width * selectedScale.scale;
+
+                    if (width < imageW && imageH > height)
+                      setCropBox({
+                        id: selectedImg,
+                        height: height,
+                        width: width,
+                      });
+
                     setCropBox({
                       id: selectedImg,
-                      height: height,
-                      width: width,
+                      x: nextPosX,
+                      y: nextPosY,
                     });
-
-                  setCropBox({
-                    id: selectedImg,
-                    x: nextPosX,
-                    y: nextPosY,
-                  });
+                  }
                 }}
               />
             </>
