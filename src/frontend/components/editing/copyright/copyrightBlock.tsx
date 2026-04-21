@@ -29,9 +29,18 @@ import {
 } from "react-icons/lu";
 import { shallow } from "zustand/shallow";
 
+// TODO: A képeket külön képenként kezelni
 export default function CopyrightBlock() {
   const { selectedImg, setCopyrightImageRef } = useWorkSession();
   const { uploadCopyrightImage, clearCopyrightImage } = useSessionStore();
+
+  const copyrightImage =
+    useSessionStore(
+      (s) =>
+        s.sessionData.find((img) => img.id === selectedImg)?.copyrightImage
+          ?.blob,
+      shallow,
+    ) ?? null;
 
   const fileUpload = useFileUpload({
     maxFiles: 1,
@@ -61,7 +70,7 @@ export default function CopyrightBlock() {
       <Flex gap={2}>
         <FileUpload.RootProvider value={fileUpload} w="full">
           <FileUpload.HiddenInput />
-          {accepted.length <= 0 ? (
+          {copyrightImage || accepted.length <= 0 ? (
             <FileUpload.Dropzone
               w={"full"}
               backgroundColor={"teal.subtle/30"}

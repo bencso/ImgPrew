@@ -15,7 +15,6 @@ import {
 import { useEffect, useRef } from "react";
 import { shallow } from "zustand/shallow";
 
-
 //TODO: Képek változásnál nem változnak....
 export default function WebGlComponent() {
   const {
@@ -99,16 +98,11 @@ export default function WebGlComponent() {
     img.src = sessionData[selectedImg].blob;
   }
 
-  const mounted = useRef(false);
-
   useEffect(() => {
     if (!canvasRef.current) return;
-    if (mounted.current) return;
 
     const container = new Container();
     filtersRef.current = container;
-
-    mounted.current = true;
 
     loadImage();
 
@@ -226,6 +220,10 @@ export default function WebGlComponent() {
   };
 
   useEffect(() => {
+    resizeSprite();
+  }, [selectedImg]);
+
+  useEffect(() => {
     applyFilters();
   }, [filters]);
 
@@ -335,7 +333,6 @@ export default function WebGlComponent() {
   }
 
   function calculateExpandSize() {
-    console.log(imageSize);
     if (
       !workPlaceRef.current ||
       !appRef.current ||
@@ -363,8 +360,22 @@ export default function WebGlComponent() {
           imageSize.width * scale + "px";
       }
 
-      spriteRef.current.x = appRef.current.canvas.width / 2;
-      spriteRef.current.y = appRef.current.canvas.height / 2;
+      if (expandMode == "crop" && box) {
+        const cropSizeRelative = {
+          height: box.height ?? imageSize.height * (scale ?? 1),
+          width: box.width ?? imageSize.width * (scale ?? 1),
+        };
+
+        spriteRef.current.x = box.x ?? appRef.current.canvas.width / 2;
+        spriteRef.current.y = box.y ?? cropSizeRelative.height / 2;
+        if (textAndImagePlaceRef.current) {
+          textAndImagePlaceRef.current.style.height = box.height + "px";
+          textAndImagePlaceRef.current.style.width = box.width + "px";
+        }
+      } else {
+        spriteRef.current.x = appRef.current.canvas.width / 2;
+        spriteRef.current.y = appRef.current.canvas.height / 2;
+      }
     } else {
       const workPlaceSize = workPlaceRef.current;
       const areaW = workPlaceSize.offsetWidth;
@@ -406,11 +417,11 @@ export default function WebGlComponent() {
 
   useEffect(() => {
     calculateExpandMode();
-  }, [expandMode, imageSize]);
+  }, [expandMode, imageSize, selectedImg]);
 
   useEffect(() => {
     calculateExpandSize();
-  }, [expandSize, expandBackground, imageSize]);
+  }, [expandSize, expandBackground, imageSize, selectedImg]);
 
   useEffect(() => {
     const handleResize = () => {

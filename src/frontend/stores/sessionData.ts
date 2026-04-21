@@ -65,7 +65,6 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       if (type === calculationTypeEnum.COPYRIGHT)
         positions = image?.copyrightImage?.position;
 
-      console.log(positions);
       const height = textAndImagePlaceRef.current.offsetHeight;
       const width = textAndImagePlaceRef.current.offsetWidth;
 

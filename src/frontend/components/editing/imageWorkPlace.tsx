@@ -141,8 +141,6 @@ export default function ImageWorkPlace() {
         y: cropSizeRelative.height / 2,
       };
 
-      console.log(center);
-
       const borderMaxTop =
         (center.y ?? 0) +
         (selectedScale.image.height * selectedScale.scale) / 2 -
@@ -163,6 +161,13 @@ export default function ImageWorkPlace() {
         (selectedScale.image.width * selectedScale.scale) / 2 +
         box.width / 2;
 
+      console.table({
+        top: borderMaxTop,
+        bottom: borderMaxBottom,
+        left: borderMaxLeft,
+        right: borderMaxRight,
+      });
+
       setBorderMax({
         top: borderMaxTop,
         bottom: borderMaxBottom,
@@ -176,27 +181,12 @@ export default function ImageWorkPlace() {
 
   useEffect(() => {
     calculationBorders();
-    setDirectionsCrop();
-  }, [box?.height, box?.width]);
-
-  function setDirectionsCrop() {
-    if (!box || !box.x || !box.y || !borderMax) return;
-    const directions = [];
-
-    if (box.x <= borderMax.right) directions.push("e");
-    if (box.x >= borderMax.left) directions.push("w");
-    if (box.y >= borderMax.bottom) directions.push("s");
-    if (box.y <= borderMax.top) directions.push("n");
-
-    setRenderDirections(directions);
-  }
+  }, [box?.height, box?.width, expandSize, expandMode, selectedScale]);
 
   function grabCrop(x: number, y: number) {
     if (spriteRef.current && selectedScale && box && y && x && borderMax) {
       const nextPosX = spriteRef.current.x + x;
       const nextPosY = spriteRef.current.y + y;
-
-      console.log(borderMax);
 
       if (nextPosX < borderMax.right && nextPosX > borderMax.left)
         spriteRef.current.x = nextPosX;
@@ -209,8 +199,6 @@ export default function ImageWorkPlace() {
         x: nextPosX,
         y: nextPosY,
       });
-
-      setDirectionsCrop();
     }
   }
 
@@ -314,6 +302,9 @@ export default function ImageWorkPlace() {
               <Box
                 ref={cropRef}
                 position={"absolute"}
+                transform="translate(-50%, -50%)"
+                top={"50%"}
+                left={"50%"}
                 width={box.width}
                 height={box.height}
                 backgroundColor="blackAlpha.300"
@@ -334,7 +325,7 @@ export default function ImageWorkPlace() {
                 throttleResize={1}
                 throttleDrag={1}
                 edge={false}
-                renderDirections={renderDirections}
+                renderDirections={["w", "s", "e", "n"]}
                 onDrag={({ delta }) => {
                   const [dx, dy] = delta;
                   grabCrop(dx, dy);

@@ -23,6 +23,7 @@ import {
   LuTwitter,
 } from "react-icons/lu";
 
+// TODO: Cropolásnál a képarányt kéne csak nézni, és nem 1080x1080....
 const sizesDatas = [
   {
     name: "Instagram",
@@ -104,6 +105,14 @@ export default function ResizeBlock() {
   const box = useSessionStore(
     (state) => state.sessionData.find((si) => si.id === selectedImg)?.box,
   );
+
+  function getCommonDivider(a: number, b: number) {
+    while (b) {
+      a %= b;
+      [a, b] = [b, a];
+    }
+    return a;
+  }
 
   return (
     <Box>
