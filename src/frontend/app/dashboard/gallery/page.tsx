@@ -13,6 +13,7 @@ import {
   HStack,
   IconButton,
   Image,
+  Input,
   Text,
   useBreakpointValue,
   VStack,
@@ -58,33 +59,41 @@ const stats = [
   {
     label: "Utoljára módosítva:",
     value: "2026. 04. 12.",
-    diff: 12,
     helpText: "Mikor volt utoljára szerkesztve a kép",
   },
   {
     label: "Készítés dátuma:",
     value: "2026. 04. 12.",
-    diff: 12,
     helpText: "Mikor készült a kép",
   },
   {
     label: "Helyszín:",
     value: "Budapest, HU",
-    diff: 4.5,
     helpText: "Hol készült a kép",
+  },
+  {
+    label: "Képfelbontás:",
+    value: "1200x1200 (4:3)",
   },
 ];
 
 export default function Gallery() {
   const [selectedImage, setSelectedImage] = useState<number | null>();
-  const isMd = useBreakpointValue(
+  const isLg = useBreakpointValue(
     { base: false, sm: false, md: false, lg: true, xl: true },
+    { ssr: false },
+  );
+
+  const isXl = useBreakpointValue(
+    { base: false, sm: false, md: false, lg: false, xl: true },
     { ssr: false },
   );
 
   return (
     <Grid
-      templateColumns={typeof selectedImage === "number" ? "80% 20%" : "100%"}
+      templateColumns={
+        isLg ? (typeof selectedImage === "number" ? "80% 20%" : "100%") : "100%"
+      }
       h="full"
       w="full"
       minH={"0"}
@@ -92,6 +101,7 @@ export default function Gallery() {
       <GridItem
         h="full"
         w={"full"}
+        position={"relative"}
         maxH={"100vh"}
         scrollBehavior={"auto"}
         overflowY={"scroll"}
@@ -102,30 +112,63 @@ export default function Gallery() {
           flex={1}
           css={{
             columnGap: "8px",
-            mdDown: { columnCount: 0 },
-            md: { columnCount: 1 },
-            lgDown: { columnCount: 2 },
-            lg: { columnCount: 2 },
-            xl: { columnCount: 3 },
-            xlTo2xl: { columnCount: 3 },
+            base: { columnCount: 1 },
+            sm: { columnCount: 2 },
+            md: { columnCount: 3 },
           }}
         >
           {srces.map((src, index) => (
-            <Image
+            <Box
               key={src + "-" + index}
-              src={src}
-              alt="Alt"
-              w="100%"
-              mb="8px"
               borderRadius="md"
-              display="block"
               cursor="pointer"
-              onClick={() => {
-                setSelectedImage(index);
-              }}
-            />
+              overflow="hidden"
+              position={"relative"}
+              onClick={() => setSelectedImage(index)}
+              mb={"8px"}
+            >
+              <Image
+                src={src}
+                alt="Alt"
+                w="100%"
+                display="block"
+                borderRadius="md"
+              />
+              {index === selectedImage && (
+                <Box
+                  position="absolute"
+                  top={0}
+                  left={0}
+                  w="100%"
+                  h="100%"
+                  bgGradient="to-t"
+                  gradientFrom="teal.400"
+                  opacity={0.7}
+                  gradientTo="transparent"
+                  pointerEvents="none"
+                />
+              )}
+            </Box>
           ))}
         </Box>
+
+        <Center
+          position={"sticky"}
+          px={isLg ? 0 : 4}
+          bottom={isLg ? 8 : 4}
+          left={0}
+        >
+          <Box w={"lg"} p={3} bg={"bg.panel"} rounded={"xl"} boxShadow={"xl"}>
+            <Input
+              placeholder="Keresés"
+              size="md"
+              variant={"subtle"}
+              colorPalette={"teal"}
+              rounded={"lg"}
+              bg={"bg.emphasized"}
+            />
+          </Box>
+        </Center>
       </GridItem>
       {typeof selectedImage === "number" && (
         <GridItem>
@@ -135,44 +178,67 @@ export default function Gallery() {
             p={4}
             flexDir={"column"}
             h={"full"}
-            bg={"bg.muted"}
+            bg={"bg.panel"}
             justifyContent={"space-between"}
             alignItems={"start"}
           >
             <VStack justifyContent={"start"} alignItems={"start"} w={"full"}>
-              <Image
-                w={"full"}
-                minH={0}
-                h={"full"}
-                maxH={"300px"}
-                objectFit={"fill"}
-                bg={"bg.emphasized"}
-                borderRadius={"xl"}
-                d="inline-block"
-                src={srces[selectedImage]}
-                alt={srces[selectedImage] + " kép"}
-              />
-              <Box mt={3}>
-                <Text fontWeight={"bold"}>imgprew.png</Text>
+              {isLg && (
+                <Image
+                  w={"full"}
+                  h={"full"}
+                  minHeight={"300px"}
+                  maxH={"300px"}
+                  objectFit={"cover"}
+                  bg={"bg.emphasized"}
+                  borderRadius={"xl"}
+                  d="inline-block"
+                  src={srces[selectedImage]}
+                  alt={srces[selectedImage] + " kép"}
+                />
+              )}
+              <Box mt={3} w={"full"}>
+                <Text
+                  fontWeight={"bold"}
+                  w={"full"}
+                  maxW={"full"}
+                  lineClamp={1}
+                >
+                  imgprew.png
+                </Text>
               </Box>
               <DataList.Root
                 w={"full"}
                 divideStyle={"dotted"}
                 divideY={"1px"}
                 divideColor={"fg.subtle"}
-                orientation="horizontal"
+                orientation={isXl ? "horizontal" : "vertical"}
               >
                 {stats.map((item) => (
                   <DataList.Item key={item.label} pt={4}>
                     <DataList.ItemLabel gap={0}>
-                      {item.label}{" "}
-                      <ToggleTip content={item.helpText}>
-                        <Button size="xs" variant="ghost">
-                          <LuInfo />
-                        </Button>
-                      </ToggleTip>
+                      {item.helpText && (
+                        <ToggleTip
+                          positioning={{
+                            placement: "top-start",
+                          }}
+                          content={item.helpText}
+                        >
+                          <Text userSelect={"none"} display={"flex"} gap={2}>
+                            {item.label} <LuInfo />
+                          </Text>
+                        </ToggleTip>
+                      )}
+                      {!item.helpText && (
+                        <Text userSelect={"none"} display={"flex"} gap={2}>
+                          {item.label}
+                        </Text>
+                      )}
                     </DataList.ItemLabel>
-                    <DataList.ItemValue justifyContent={"end"}>
+                    <DataList.ItemValue
+                      userSelect={"all"}
+                      justifyContent={isXl ? "end" : "start"}
+                    >
                       {item.value}
                     </DataList.ItemValue>
                   </DataList.Item>
