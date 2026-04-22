@@ -1,13 +1,13 @@
 "use client";
 
-import { Avatar, Box, Flex, useSplitterContext } from "@chakra-ui/react";
 import ColormodeSwitcher from "@/components/sidebar/colormodeSwitch";
-import { ReactNode, useEffect, useState } from "react";
-import { LuGalleryThumbnails, LuHouse } from "react-icons/lu";
-import { usePathname } from "next/navigation";
-import Link from "next/link";
 import LanguageSwitcher from "@/components/sidebar/languageSwitch";
 import { ProfileMenu } from "@/components/sidebar/profileMenu";
+import { Avatar, Box, Flex, useSplitterContext } from "@chakra-ui/react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { ReactNode, useEffect, useState } from "react";
+import { LuGalleryThumbnails, LuHouse } from "react-icons/lu";
 import InfoPopover from "./infoPopover";
 
 interface Link {
@@ -27,8 +27,13 @@ export const LeftSide = ({ isDesktop }: { isDesktop: ReactNode }) => {
   const links: Link[] = [
     {
       name: "Főoldal",
-      link: "/",
+      link: "/dashboard",
       icon: <LuHouse size={22} />,
+    },
+    {
+      name: "Galéria",
+      link: "/dashboard/gallery",
+      icon: <LuGalleryThumbnails size={22} />,
     },
   ];
   //#endregion

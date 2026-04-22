@@ -15,6 +15,7 @@ import {
   Stack,
   useFileUpload,
 } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 import {
   LuArrowDown,
   LuArrowDownLeft,
@@ -29,10 +30,10 @@ import {
 } from "react-icons/lu";
 import { shallow } from "zustand/shallow";
 
-// TODO: A képeket külön képenként kezelni
 export default function CopyrightBlock() {
   const { selectedImg, setCopyrightImageRef } = useWorkSession();
   const { uploadCopyrightImage, clearCopyrightImage } = useSessionStore();
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
   const copyrightImage =
     useSessionStore(
@@ -41,6 +42,16 @@ export default function CopyrightBlock() {
           ?.blob,
       shallow,
     ) ?? null;
+
+  useEffect(() => {
+    (async () => {
+      if (copyrightImage) {
+        const blob = await fetch(copyrightImage).then((r) => r.blob());
+        const file = new File([blob], "uploadedCopyright");
+        setUploadedFile(file);
+      }
+    })();
+  }, [copyrightImage]);
 
   const fileUpload = useFileUpload({
     maxFiles: 1,
@@ -63,14 +74,12 @@ export default function CopyrightBlock() {
     },
   });
 
-  const accepted = fileUpload.acceptedFiles;
-
   return (
     <Box>
       <Flex gap={2}>
         <FileUpload.RootProvider value={fileUpload} w="full">
           <FileUpload.HiddenInput />
-          {copyrightImage || accepted.length <= 0 ? (
+          {!copyrightImage ? (
             <FileUpload.Dropzone
               w={"full"}
               backgroundColor={"teal.subtle/30"}
@@ -93,10 +102,10 @@ export default function CopyrightBlock() {
           ) : (
             <Box overflowY={"scroll"} scrollbar={"hidden"} w={"full"}>
               <FileUpload.ItemGroup>
-                {accepted.map((file) => (
+                {uploadedFile && (
                   <FileUpload.Item
-                    key={file.name}
-                    file={file}
+                    key={uploadedFile.name}
+                    file={uploadedFile}
                     justifyContent={"space-between"}
                   >
                     <FileUpload.ItemName />
@@ -108,7 +117,7 @@ export default function CopyrightBlock() {
                       color={"red.400"}
                     />
                   </FileUpload.Item>
-                ))}
+                )}
               </FileUpload.ItemGroup>
               <Stack gap="2" mt={4}>
                 <ImageManipulationBlock />
