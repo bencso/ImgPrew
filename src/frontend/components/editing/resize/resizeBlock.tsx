@@ -107,7 +107,7 @@ export default function ResizeBlock() {
 
   return (
     <Box>
-      {expandMode !== "no" && (
+      {expandMode !== "no" && expandMode !== "border" && (
         <RadioCard.Root
           orientation="horizontal"
           align="center"
@@ -230,7 +230,7 @@ export default function ResizeBlock() {
               ? "crop"
               : "no"
         }
-        defaultValue="crop"
+        defaultValue="no"
         variant="plain"
         onValueChange={(e) => {
           const type = e.value;
@@ -292,6 +292,7 @@ export default function ResizeBlock() {
             w={"full"}
             display={"flex"}
             justifyContent={"center"}
+            disabled={expandMode === "no" || expandMode === "border"}
           >
             <LuBotOff />
             No
@@ -299,9 +300,9 @@ export default function ResizeBlock() {
           <Tabs.Trigger
             value="crop"
             w={"full"}
-            disabled={!isMd}
             display={"flex"}
             justifyContent={"center"}
+            disabled={expandMode === "crop" || expandMode === "border" || !isMd}
           >
             <LuMaximize2 />
             Crop
@@ -311,6 +312,7 @@ export default function ResizeBlock() {
             w={"full"}
             display={"flex"}
             justifyContent={"center"}
+            disabled={expandMode === "expand" || expandMode === "border"}
           >
             <LuExpand />
             Expand

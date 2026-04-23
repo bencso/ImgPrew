@@ -237,6 +237,11 @@ export default function WebGlComponent() {
       state.sessionData.find((si) => si.id === selectedImg)?.expandSize,
   );
 
+  const borderSize = useSessionStore(
+    (state) =>
+      state.sessionData.find((si) => si.id === selectedImg)?.borderSize,
+  );
+
   const expandBackground =
     useSessionStore(
       (state) =>
@@ -358,6 +363,19 @@ export default function WebGlComponent() {
         textAndImagePlaceRef.current.style.width =
           imageSize.width * scale + "px";
       }
+      if (
+        expandMode == "border" &&
+        borderSize &&
+        borderSize.x &&
+        borderSize.y
+      ) {
+        spriteRef.current.width = imageSize.width * scale - +borderSize.x;
+        spriteRef.current.height = imageSize.height * scale - +borderSize.y;
+        const areaW = spriteRef.current.width + borderSize.x;
+        const areaH = spriteRef.current.height + borderSize.y;
+        appRef.current.renderer.background.color = expandBackground;
+        appRef.current.renderer.resize(areaW, areaH);
+      }
 
       if (expandMode == "crop" && box) {
         const cropSizeRelative = {
@@ -367,6 +385,7 @@ export default function WebGlComponent() {
 
         spriteRef.current.x = box.x ?? appRef.current.canvas.width / 2;
         spriteRef.current.y = box.y ?? cropSizeRelative.height / 2;
+
         if (textAndImagePlaceRef.current) {
           textAndImagePlaceRef.current.style.height = box.height + "px";
           textAndImagePlaceRef.current.style.width = box.width + "px";
@@ -420,7 +439,7 @@ export default function WebGlComponent() {
 
   useEffect(() => {
     calculateExpandSize();
-  }, [expandSize, expandBackground, imageSize, selectedImg]);
+  }, [expandSize, expandBackground, imageSize, selectedImg, borderSize]);
 
   useEffect(() => {
     const handleResize = () => {

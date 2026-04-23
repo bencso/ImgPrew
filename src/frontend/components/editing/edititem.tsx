@@ -59,9 +59,9 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
           textDecoration={"none"}
           alignItems={"center"}
           flexDirection={isMd ? "column" : "row"}
+          gap={4}
           justifyContent={"center"}
           h={"full"}
-          gap={8}
           w={"full"}
           minH={0}
           px={0}

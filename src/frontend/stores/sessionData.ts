@@ -412,7 +412,13 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
 
     //#region EXPAND
     setExpandMode: (id: number, mode: string) => {
-      if (mode !== "crop" && mode !== "no" && mode !== "expand") return;
+      if (
+        mode !== "crop" &&
+        mode !== "no" &&
+        mode !== "expand" &&
+        mode !== "border"
+      )
+        return;
       set((state) => ({
         sessionData: state.sessionData.map((img) =>
           img.id === id ? { ...img, expandMode: mode } : img,
@@ -566,11 +572,11 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
 
     //#region BORDER SIZE
     setBorderSize: (id: number, borderSize: { x: number; y: number }) =>
-      set((state) => {
-        const img = state.sessionData.find((fid) => fid.id === id);
-        if (!img || (!borderSize.x && !borderSize.y)) return;
-        img.borderSize = borderSize;
-      }),
+      set((state) => ({
+        sessionData: state.sessionData.map((img) =>
+          img.id === id ? { ...img, borderSize: borderSize } : img,
+        ),
+      })),
     //#endregion
   })),
 );
