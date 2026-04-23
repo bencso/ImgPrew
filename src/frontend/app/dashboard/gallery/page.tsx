@@ -20,7 +20,13 @@ import {
 } from "@chakra-ui/react";
 
 import { useState } from "react";
-import { LuCamera, LuDownload, LuInfo } from "react-icons/lu";
+import {
+  LuCamera,
+  LuDownload,
+  LuFilter,
+  LuInfo,
+  LuMousePointer2,
+} from "react-icons/lu";
 
 function EmptyGallery() {
   return (
@@ -91,9 +97,7 @@ export default function Gallery() {
 
   return (
     <Grid
-      templateColumns={
-        isLg ? (typeof selectedImage === "number" ? "80% 20%" : "100%") : "100%"
-      }
+      templateColumns={isLg ? "80% 20%" : "100%"}
       h="full"
       w="full"
       minH={"0"}
@@ -152,114 +156,157 @@ export default function Gallery() {
           ))}
         </Box>
 
-        <Center
-          position={"sticky"}
-          px={isLg ? 0 : 4}
-          bottom={isLg ? 8 : 4}
-          left={0}
-        >
-          <Box w={"lg"} p={3} bg={"bg.panel"} rounded={"xl"} boxShadow={"xl"}>
-            <Input
-              placeholder="Keresés"
-              size="md"
-              variant={"subtle"}
-              colorPalette={"teal"}
+        <Center position={"sticky"} px={4} bottom={isLg ? 4 : 2} left={0}>
+          <VStack w={"full"} alignItems={"end"} gap={isLg ? 2 : 1}>
+            <Button
+              aria-label="Filter"
+              w={"fit"}
+              p={2}
+              variant={"surface"}
               rounded={"lg"}
-              bg={"bg.emphasized"}
-            />
-          </Box>
+              boxShadow={"xl"}
+            >
+              <LuFilter />
+            </Button>
+            <Box
+              w={"full"}
+              p={2}
+              bg={"bg.panel"}
+              rounded={"xl"}
+              boxShadow={"xl"}
+            >
+              <Input
+                placeholder="Keresés"
+                size="md"
+                variant={"subtle"}
+                colorPalette={"teal"}
+                rounded={"lg"}
+                bg={"bg.emphasized"}
+              />
+            </Box>
+          </VStack>
         </Center>
       </GridItem>
-      {typeof selectedImage === "number" && (
+      {
         <GridItem>
-          <Flex
-            flex={1}
-            gap={6}
-            p={4}
-            flexDir={"column"}
-            h={"full"}
-            bg={"bg.panel"}
-            justifyContent={"space-between"}
-            alignItems={"start"}
-          >
-            <VStack justifyContent={"start"} alignItems={"start"} w={"full"}>
-              {isLg && (
-                <Image
+          {typeof selectedImage === "number" && (
+            <Flex
+              flex={1}
+              gap={isLg ? 6 : 4}
+              p={4}
+              flexDir={"column"}
+              h={"full"}
+              bg={"bg.panel"}
+              justifyContent={"space-between"}
+              alignItems={"start"}
+            >
+              <VStack justifyContent={"start"} alignItems={"start"} w={"full"}>
+                {isLg && (
+                  <Image
+                    w={"full"}
+                    h={"full"}
+                    minHeight={"300px"}
+                    maxH={"300px"}
+                    objectFit={"cover"}
+                    bg={"bg.emphasized"}
+                    borderRadius={"xl"}
+                    d="inline-block"
+                    src={srces[selectedImage]}
+                    alt={srces[selectedImage] + " kép"}
+                  />
+                )}
+                <Box mt={isLg ? 3 : 1} w={"full"}>
+                  <Text
+                    fontWeight={"bold"}
+                    w={"full"}
+                    maxW={"full"}
+                    fontSize={isLg ? "xl" : "md"}
+                    lineClamp={1}
+                  >
+                    imgprew.png
+                  </Text>
+                </Box>
+                <DataList.Root
                   w={"full"}
-                  h={"full"}
-                  minHeight={"300px"}
-                  maxH={"300px"}
-                  objectFit={"cover"}
-                  bg={"bg.emphasized"}
-                  borderRadius={"xl"}
-                  d="inline-block"
-                  src={srces[selectedImage]}
-                  alt={srces[selectedImage] + " kép"}
-                />
-              )}
-              <Box mt={3} w={"full"}>
-                <Text
-                  fontWeight={"bold"}
-                  w={"full"}
-                  maxW={"full"}
-                  lineClamp={1}
+                  divideStyle={"dotted"}
+                  divideY={"1px"}
+                  divideColor={"fg.subtle"}
+                  orientation={isXl ? "horizontal" : "vertical"}
                 >
-                  imgprew.png
-                </Text>
-              </Box>
-              <DataList.Root
-                w={"full"}
-                divideStyle={"dotted"}
-                divideY={"1px"}
-                divideColor={"fg.subtle"}
-                orientation={isXl ? "horizontal" : "vertical"}
-              >
-                {stats.map((item) => (
-                  <DataList.Item key={item.label} pt={4}>
-                    <DataList.ItemLabel gap={0}>
-                      {item.helpText && (
-                        <ToggleTip
-                          positioning={{
-                            placement: "top-start",
-                          }}
-                          content={item.helpText}
-                        >
-                          <Text userSelect={"none"} display={"flex"} gap={2}>
-                            {item.label} <LuInfo />
+                  {stats.map((item) => (
+                    <DataList.Item key={item.label} pt={isLg ? 4 : 1}>
+                      <DataList.ItemLabel gap={0}>
+                        {item.helpText && (
+                          <ToggleTip
+                            positioning={{
+                              placement: "top-start",
+                            }}
+                            content={item.helpText}
+                          >
+                            <Text
+                              userSelect={"none"}
+                              display={"flex"}
+                              gap={2}
+                              fontSize={isLg ? "sm" : "smaller"}
+                            >
+                              {item.label} <LuInfo />
+                            </Text>
+                          </ToggleTip>
+                        )}
+                        {!item.helpText && (
+                          <Text
+                            userSelect={"none"}
+                            display={"flex"}
+                            gap={2}
+                            fontSize={isLg ? "sm" : "smaller"}
+                          >
+                            {item.label}
                           </Text>
-                        </ToggleTip>
-                      )}
-                      {!item.helpText && (
-                        <Text userSelect={"none"} display={"flex"} gap={2}>
-                          {item.label}
-                        </Text>
-                      )}
-                    </DataList.ItemLabel>
-                    <DataList.ItemValue
-                      userSelect={"all"}
-                      justifyContent={isXl ? "end" : "start"}
-                    >
-                      {item.value}
-                    </DataList.ItemValue>
-                  </DataList.Item>
-                ))}
-              </DataList.Root>
-            </VStack>
-            <HStack w={"full"}>
-              <Button flex={1} colorPalette={"teal"}>
-                Szerkesztés újra
-              </Button>
-              <IconButton
-                aria-label="Letöltés"
-                variant={"surface"}
-                colorPalette={"teal"}
-              >
-                <LuDownload />
-              </IconButton>
-            </HStack>
-          </Flex>
+                        )}
+                      </DataList.ItemLabel>
+                      <DataList.ItemValue
+                        userSelect={"all"}
+                        justifyContent={isXl ? "end" : "start"}
+                        fontSize={isLg ? "sm" : "sm"}
+                      >
+                        {item.value}
+                      </DataList.ItemValue>
+                    </DataList.Item>
+                  ))}
+                </DataList.Root>
+              </VStack>
+              <HStack w={"full"}>
+                <Button flex={1} colorPalette={"teal"}>
+                  Szerkesztés újra
+                </Button>
+                <IconButton
+                  aria-label="Letöltés"
+                  variant={"surface"}
+                  colorPalette={"teal"}
+                >
+                  <LuDownload />
+                </IconButton>
+              </HStack>
+            </Flex>
+          )}
+          {typeof selectedImage !== "number" && (
+            <Center h={"full"}>
+              <EmptyState.Root size="sm">
+                <EmptyState.Content>
+                  <EmptyState.Indicator>
+                    {isLg && <LuMousePointer2 />}
+                  </EmptyState.Indicator>
+                  <VStack textAlign="center">
+                    <EmptyState.Title>
+                      Válassz ki valamit a galériádból
+                    </EmptyState.Title>
+                  </VStack>
+                </EmptyState.Content>
+              </EmptyState.Root>
+            </Center>
+          )}
         </GridItem>
-      )}
+      }
     </Grid>
   );
 }

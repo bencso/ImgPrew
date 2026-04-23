@@ -2,7 +2,9 @@ import { EditItemProp } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { SliderValueChangeDetails } from "@chakra-ui/react";
-import { useMemo, useState } from "react";
+import { OutlineFilter } from "pixi-filters";
+import { Sprite } from "pixi.js";
+import { RefObject, useMemo, useState } from "react";
 import {
   LuBlend,
   LuCaptions,
@@ -11,6 +13,7 @@ import {
   LuContrast,
   LuCopyright,
   LuFilter,
+  LuFrame,
   LuImageDown,
   LuImageUpscale,
   LuSun,
@@ -30,6 +33,7 @@ const sidebarElements = (
   selectedExtension: any,
   editFilters: any,
   getFilterValue: any,
+  spriteRef: RefObject<Sprite | null>,
 ) => {
   return [
     {
@@ -162,6 +166,30 @@ const sidebarElements = (
       ],
     },
     {
+      function: "Képkeret",
+      icon: <LuFrame />,
+      inputs: [
+        {
+          name: "Képkeret méret",
+          inputType: "number",
+          onChange: (e: any) => {
+            const number = e.target.valueAsNumber;
+            if (!spriteRef.current || typeof number !== "number") return;
+            //TODO: Ezt lecserélni inkább mintha expandolnánk módszer
+            if (typeof number === "number" && number < 12) {
+              spriteRef.current.filters = [
+                new OutlineFilter(number, 0x99ff99, 1, 1, false),
+              ];
+              if (number > 0) {
+                spriteRef.current.height = spriteRef.current.height - number;
+                spriteRef.current.width = spriteRef.current.width - number;
+              }
+            }
+          },
+        },
+      ],
+    },
+    {
       function: "Méretezés",
       icon: <LuImageUpscale />,
       inputs: [
@@ -220,8 +248,9 @@ const sidebarElements = (
 
 export default function SideBar() {
   //#region contextek
-  const { selectedImg, addFunction } = useWorkSession();
   const [editItems, setEditItems] = useState<EditItemProp[]>([]);
+
+  const { spriteRef, selectedImg, addFunction } = useWorkSession();
 
   const {
     sessionData,
@@ -256,6 +285,7 @@ export default function SideBar() {
         selectedExtension,
         editFilters,
         getFilterValue,
+        spriteRef,
       ),
     );
   }, [sessionData, selectedImg]);

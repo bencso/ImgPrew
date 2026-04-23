@@ -343,11 +343,12 @@ const Item = ({ items }: { items: EditItemProp }) => {
                     <Field.Label>{item.name}</Field.Label>
                   )}
                   <Input
-                    onChange={(event) =>
-                      handleChange(item.name, event.target.value)
-                    }
+                    onChange={(event) => {
+                      handleChange(item.name, event.target.value);
+                    }}
+                    onInput={item.onChange ? item.onChange : undefined}
                     type={item.inputType}
-                    placeholder="40px"
+                    placeholder={item.name}
                   />
                 </Field.Root>
               );
