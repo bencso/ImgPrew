@@ -119,7 +119,7 @@ export default function ImageWorkPlace() {
     });
 
     setTextPositions(newPositions);
-  }, [selectedImg, texts, textElements, expandSize, expandMode, box]);
+  }, [selectedImg, texts, textElements, expandSize, expandMode, box, selectedScale]);
   //#endregion
 
   function calculationBorders() {

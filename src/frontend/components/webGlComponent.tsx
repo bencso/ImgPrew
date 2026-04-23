@@ -385,11 +385,6 @@ export default function WebGlComponent() {
 
         spriteRef.current.x = box.x ?? appRef.current.canvas.width / 2;
         spriteRef.current.y = box.y ?? cropSizeRelative.height / 2;
-
-        if (textAndImagePlaceRef.current) {
-          textAndImagePlaceRef.current.style.height = box.height + "px";
-          textAndImagePlaceRef.current.style.width = box.width + "px";
-        }
       } else {
         spriteRef.current.x = appRef.current.canvas.width / 2;
         spriteRef.current.y = appRef.current.canvas.height / 2;

@@ -1,7 +1,13 @@
 import { EditItemProp } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
-import { SliderValueChangeDetails } from "@chakra-ui/react";
+import {
+  ColorPicker,
+  HStack,
+  parseColor,
+  Portal,
+  SliderValueChangeDetails,
+} from "@chakra-ui/react";
 import { Sprite } from "pixi.js";
 import { RefObject, useMemo, useState } from "react";
 import {
@@ -54,6 +60,8 @@ const sidebarElements = (
         };
       }
     | undefined,
+  setExpandBackground: (id: number, rgba: string) => void,
+  expandBackground: string,
 ) => {
   return [
     {
@@ -215,6 +223,37 @@ const sidebarElements = (
             }
           },
         },
+        {
+          name: "Szín",
+          inputType: "customElement",
+          options: (
+            <ColorPicker.Root
+              defaultValue={parseColor(expandBackground)}
+              onChange={(e: any) => {
+                let value = e.target.value;
+                if (value !== "") {
+                  setExpandBackground(selectedImg, value);
+                }
+              }}
+            >
+              <ColorPicker.HiddenInput />
+              <ColorPicker.Control>
+                <ColorPicker.Input />
+                <ColorPicker.Trigger />
+              </ColorPicker.Control>
+              <Portal>
+                <ColorPicker.Positioner zIndex={10000}>
+                  <ColorPicker.Content>
+                    <ColorPicker.Area />
+                    <HStack>
+                      <ColorPicker.Sliders />
+                    </HStack>
+                  </ColorPicker.Content>
+                </ColorPicker.Positioner>
+              </Portal>
+            </ColorPicker.Root>
+          ),
+        },
       ],
     },
     {
@@ -289,6 +328,7 @@ export default function SideBar() {
     getFilterValue,
     setExpandMode,
     setBorderSize,
+    setExpandBackground,
   } = useSessionStore();
   //#endregion
 
@@ -307,6 +347,12 @@ export default function SideBar() {
         s.sessionData.find((si) => si.id === selectedImg)?.exportFileExtension,
     ) || "";
 
+  const expandBackground =
+    useSessionStore(
+      (s) =>
+        s.sessionData.find((si) => si.id === selectedImg)?.expandBackground,
+    ) || "";
+
   useMemo(() => {
     setEditItems(
       sidebarElements(
@@ -320,6 +366,8 @@ export default function SideBar() {
         setExpandMode,
         setBorderSize,
         selectedScale,
+        setExpandBackground,
+        expandBackground,
       ),
     );
   }, [sessionData, selectedImg]);
