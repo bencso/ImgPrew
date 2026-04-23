@@ -58,16 +58,19 @@ export interface DraggableImageEvent {
 }
 
 export interface CustomImage {
+  //DEFAULT IMAGE SETTINGS
   id: number;
   blob: string;
   exportFileExtension: string;
-  caption?: string;
-  exifDatas?: string[];
-  captionSamples?: string[];
-  texts?: DraggableImageEvent[];
   filters?: { name: string; value: number }[];
   dimesions?: { width: number; height: number };
-  cropSize?: { width: number | null; height: number | null };
+  //EXIF, CAPTION
+  exifDatas?: string[];
+  caption?: string;
+  captionSamples?: string[];
+  //SZÖVEG
+  texts?: DraggableImageEvent[];
+  //COPYRIGHT IMAGE
   copyrightImage?: {
     blob?: string;
     position?: {
@@ -76,18 +79,23 @@ export interface CustomImage {
     };
     size?: number;
   };
+  //EXPAND MODE
   expandMode: string;
   expandBackground: string;
   expandSize?: {
     width: number;
     height: number;
   };
+  //CROP BOX
   box?: {
     x: number | null;
     y: number | null;
     width: number | null;
     height: number | null;
   };
+  cropSize?: { width: number | null; height: number | null };
+  //BORDER
+  borderSize?: { x: number | null; y: number | null };
 }
 
 export interface SessionStore {
@@ -207,6 +215,10 @@ export interface SessionStore {
     canvasRef: React.RefObject<HTMLCanvasElement | null>,
     imgSrc: string,
   ) => any;
+  //#endregion
+
+  //#region BORDER
+  setBorderSize(id: number, borderSize: { x: number; y: number }): void;
   //#endregion
 
   //#region FILTERS

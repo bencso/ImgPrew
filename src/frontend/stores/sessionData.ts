@@ -563,5 +563,14 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       };
     },
     //#endregion
+
+    //#region BORDER SIZE
+    setBorderSize: (id: number, borderSize: { x: number; y: number }) =>
+      set((state) => {
+        const img = state.sessionData.find((fid) => fid.id === id);
+        if (!img || (!borderSize.x && !borderSize.y)) return;
+        img.borderSize = borderSize;
+      }),
+    //#endregion
   })),
 );
