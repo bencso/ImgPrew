@@ -20,9 +20,9 @@
 
 ## Vízió
 
-> **Cél:** Egyszerűsíteni a fotósok, illetve az egyszerűbb fotósók közösségi média munkafolyamatát anélkül, hogy profi képszerkesztő szoftvert kellene használni alapvető feladatokra.
+> **Cél:** Megkönnyíteni a fotósok közösségi média munkafolyamatát – hogy az alapvető feladatokhoz ne legyen szükség professzionális képszerkesztő szoftverekre.
 
-Az **WizPX** lehetővé teszi, hogy a fotósok gyorsan készítsenek *közösségi médiára felkészített* képeket, mindezt egy könnyen kezelhető webes felületen.
+Az **WizPX** segítségével a fotósok *percek alatt* közösségi médiára kész képeket hozhatnak létre, egy egyszerű és átlátható webes felületen.
 
 ### Főbb funkciók:
 
