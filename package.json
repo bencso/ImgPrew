@@ -3,6 +3,7 @@
     "@pixi/core": "^7.4.3",
     "@pixi/filter-adjustment": "^5.1.1",
     "@pixi/react": "^8.0.5",
+    "moment": "^2.30.1",
     "pixi-filters": "^6.1.5",
     "pixi.js": "^8.17.1",
     "react-easy-crop": "^5.5.7",

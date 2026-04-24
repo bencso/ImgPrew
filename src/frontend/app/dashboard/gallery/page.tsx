@@ -18,15 +18,9 @@ import {
   useBreakpointValue,
   VStack,
 } from "@chakra-ui/react";
-
+import moment from "moment";
 import { useState } from "react";
-import {
-  LuCamera,
-  LuDownload,
-  LuFilter,
-  LuInfo,
-  LuMousePointer2,
-} from "react-icons/lu";
+import { LuCamera, LuDownload, LuFilter, LuInfo } from "react-icons/lu";
 
 function EmptyGallery() {
   return (
@@ -49,16 +43,241 @@ function EmptyGallery() {
 }
 
 const srces = [
-  "https://picsum.photos/200/400",
-  "https://picsum.photos/300/200",
-  "https://picsum.photos/400/400",
-  "https://picsum.photos/500/700",
-  "https://picsum.photos/600/500",
-  "https://picsum.photos/700/400",
-  "https://picsum.photos/800/500",
-  "https://picsum.photos/900/700",
-  "https://picsum.photos/1000/800",
-  "https://picsum.photos/1100/900",
+  {
+    date: "2026-04-10",
+    imgs: [
+      {
+        text: "Zsófi fotó",
+        location: "Turkey",
+        date: "2026-04-10",
+        img: "https://picsum.photos/400/400?random=20",
+      },
+      {
+        text: "Dóri képe",
+        location: "Germany",
+        date: "2026-01-15",
+        img: "https://picsum.photos/400/400?random=4",
+      },
+      {
+        text: "Erik városi fotó",
+        location: "France",
+        date: "2026-01-15",
+        img: "https://picsum.photos/300/400?random=5",
+      },
+      {
+        text: "KisJakab képe",
+        location: "Hungary",
+        date: "2026-04-06",
+        img: "https://picsum.photos/300/400?random=1",
+      },
+      {
+        text: "Anna portré",
+        location: "Austria",
+        date: "2026-04-06",
+        img: "https://picsum.photos/500/400?random=2",
+      },
+      {
+        text: "Juli fotó",
+        location: "Spain",
+        date: "2026-04-01",
+        img: "https://picsum.photos/400/400?random=10",
+      },
+      {
+        text: "Kata képe",
+        location: "Portugal",
+        date: "2026-04-01",
+        img: "https://picsum.photos/300/400?random=11",
+      },
+    ],
+  },
+  {
+    date: "2026-04-06",
+    imgs: [
+      {
+        text: "KisJakab képe",
+        location: "Hungary",
+        date: "2026-04-06",
+        img: "https://picsum.photos/300/400?random=1",
+      },
+      {
+        text: "Anna portré",
+        location: "Austria",
+        date: "2026-04-06",
+        img: "https://picsum.photos/500/400?random=2",
+      },
+      {
+        text: "Juli fotó",
+        location: "Spain",
+        date: "2026-04-01",
+        img: "https://picsum.photos/400/400?random=10",
+      },
+      {
+        text: "Kata képe",
+        location: "Portugal",
+        date: "2026-04-01",
+        img: "https://picsum.photos/300/400?random=11",
+      },
+    ],
+  },
+  {
+    date: "2026-04-01",
+    imgs: [
+      {
+        text: "Juli fotó",
+        location: "Spain",
+        date: "2026-04-01",
+        img: "https://picsum.photos/400/400?random=10",
+      },
+      {
+        text: "Kata képe",
+        location: "Portugal",
+        date: "2026-04-01",
+        img: "https://picsum.photos/300/400?random=11",
+      },
+    ],
+  },
+  {
+    date: "2026-03-22",
+    imgs: [
+      {
+        text: "Nóri fotó",
+        location: "Sweden",
+        date: "2026-03-22",
+        img: "https://picsum.photos/500/600?random=14",
+      },
+      {
+        text: "Olivér képe",
+        location: "Norway",
+        date: "2026-03-22",
+        img: "https://picsum.photos/500/400?random=15",
+      },
+    ],
+  },
+  {
+    date: "2026-03-01",
+    imgs: [
+      {
+        text: "Hédi képe",
+        location: "Poland",
+        date: "2026-03-01",
+        img: "https://picsum.photos/700/400?random=8",
+      },
+      {
+        text: "István portré",
+        location: "Czech Republic",
+        date: "2026-03-01",
+        img: "https://picsum.photos/400/400?random=9",
+      },
+    ],
+  },
+  {
+    date: "2026-02-18",
+    imgs: [
+      {
+        text: "Fanni portré",
+        location: "Italy",
+        date: "2026-02-18",
+        img: "https://picsum.photos/300/400?random=6",
+      },
+      {
+        text: "Gábor túra",
+        location: "Slovakia",
+        date: "2026-02-18",
+        img: "https://picsum.photos/500/400?random=7",
+      },
+    ],
+  },
+  {
+    date: "2026-02-14",
+    imgs: [
+      {
+        text: "Sára képe",
+        location: "Switzerland",
+        date: "2026-02-14",
+        img: "https://picsum.photos/300/400?random=18",
+      },
+      {
+        text: "Tamás portré",
+        location: "Greece",
+        date: "2026-02-14",
+        img: "https://picsum.photos/400/400?random=19",
+      },
+    ],
+  },
+  {
+    date: "2026-02-05",
+    imgs: [
+      {
+        text: "Laci portré",
+        location: "Netherlands",
+        date: "2026-02-05",
+        img: "https://picsum.photos/300/400?random=12",
+      },
+      {
+        text: "Márk utazás",
+        location: "Belgium",
+        date: "2026-02-05",
+        img: "https://picsum.photos/400/400?random=13",
+      },
+    ],
+  },
+  {
+    date: "2026-01-28",
+    imgs: [
+      {
+        text: "Petra portré",
+        location: "Denmark",
+        date: "2026-01-28",
+        img: "https://picsum.photos/600/400?random=16",
+      },
+      {
+        text: "Ricsi fotó",
+        location: "Finland",
+        date: "2026-01-28",
+        img: "https://picsum.photos/500/400?random=17",
+      },
+      {
+        text: "Dóri képe",
+        location: "Germany",
+        date: "2026-01-15",
+        img: "https://picsum.photos/400/400?random=4",
+      },
+      {
+        text: "Erik városi fotó",
+        location: "France",
+        date: "2026-01-15",
+        img: "https://picsum.photos/300/400?random=5",
+      },
+    ],
+  },
+  {
+    date: "2026-01-15",
+    imgs: [
+      {
+        text: "Dóri képe",
+        location: "Germany",
+        date: "2026-01-15",
+        img: "https://picsum.photos/400/400?random=4",
+      },
+      {
+        text: "Erik városi fotó",
+        location: "France",
+        date: "2026-01-15",
+        img: "https://picsum.photos/300/400?random=5",
+      },
+    ],
+  },
+  {
+    date: "2025-08-22",
+    imgs: [
+      {
+        text: "Balázs nyaralás",
+        location: "Croatia",
+        date: "2025-08-22",
+        img: "https://picsum.photos/500/400?random=3",
+      },
+    ],
+  },
 ];
 
 const stats = [
@@ -83,8 +302,129 @@ const stats = [
   },
 ];
 
+type ImageItem = {
+  text: string;
+  location: string;
+  date: string;
+  img: string;
+};
+
+type ImageGroup = {
+  date: string;
+  imgs: ImageItem[];
+};
+
+function DateHeader({ date }: { date: string }) {
+  return (
+    <Text fontWeight="bold" fontSize="xl" my={5}>
+      {moment(date).calendar()}
+    </Text>
+  );
+}
+
+function BottomBar() {
+  const isLg = useBreakpointValue(
+    { base: false, sm: false, md: false, lg: true, xl: true },
+    { ssr: false },
+  );
+  return (
+    <Center position={"sticky"} bottom={isLg ? 4 : 2} left={0} px={8}>
+      <VStack w={"full"} alignItems={"end"} gap={isLg ? 2 : 1}>
+        <Button
+          aria-label="Filter"
+          w={"fit"}
+          p={2}
+          variant={"surface"}
+          rounded={"lg"}
+          boxShadow={"xl"}
+        >
+          <LuFilter />
+        </Button>
+        <Box w={"full"} p={2} bg={"bg.panel"} rounded={"xl"} boxShadow={"xl"}>
+          <Input
+            placeholder="Keresés"
+            size="md"
+            variant={"subtle"}
+            colorPalette={"teal"}
+            rounded={"lg"}
+            bg={"bg.emphasized"}
+          />
+        </Box>
+      </VStack>
+    </Center>
+  );
+}
+
+function ImageCard({
+  img,
+  isSelected,
+  onClick,
+}: {
+  img: ImageItem;
+  isSelected: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <Box
+      borderRadius="md"
+      cursor="pointer"
+      overflow="hidden"
+      position="relative"
+      userSelect={"none"}
+      onClick={onClick}
+      mb="8px"
+    >
+      <Image src={img.img} alt={img.text} w="100%" borderRadius="md" />
+      {isSelected && (
+        <Box
+          position="absolute"
+          inset={0}
+          bgGradient="to-t"
+          gradientFrom="teal.400"
+          opacity={0.7}
+          gradientTo="transparent"
+        />
+      )}
+    </Box>
+  );
+}
+
+function ImageGrid({
+  imgs,
+  selectedId,
+  onSelect,
+}: {
+  imgs: ImageItem[];
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <Box
+      css={{
+        columnGap: "8px",
+        columnCount: { base: 1, sm: 2, md: 3 },
+      }}
+    >
+      {imgs.map((img, i) => {
+        const id = img.img + i;
+
+        return (
+          <ImageCard
+            key={id}
+            img={img}
+            isSelected={selectedId === id}
+            onClick={() => onSelect(id)}
+          />
+        );
+      })}
+    </Box>
+  );
+}
+
 export default function Gallery() {
-  const [selectedImage, setSelectedImage] = useState<number | null>();
+  const [images, setImages] = useState<ImageGroup[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
   const isLg = useBreakpointValue(
     { base: false, sm: false, md: false, lg: true, xl: true },
     { ssr: false },
@@ -95,101 +435,38 @@ export default function Gallery() {
     { ssr: false },
   );
 
+  if (!srces.length) {
+    return (
+      <Center h="full">
+        <EmptyGallery />
+      </Center>
+    );
+  }
+
   return (
-    <Grid
-      templateColumns={isLg ? "80% 20%" : "100%"}
-      h="full"
-      w="full"
-      minH={"0"}
-    >
-      <GridItem
+    <>
+      <Grid
+        templateColumns={{ base: "1fr", lg: "4fr 1fr" }}
         h="full"
-        w={"full"}
-        position={"relative"}
-        maxH={"100vh"}
-        scrollBehavior={"auto"}
-        overflowY={"scroll"}
-        scrollbarWidth={"3"}
+        userSelect={"none"}
       >
-        <Box
-          p={4}
-          flex={1}
-          css={{
-            columnGap: "8px",
-            base: { columnCount: 1 },
-            sm: { columnCount: 2 },
-            md: { columnCount: 3 },
-          }}
-        >
-          {srces.map((src, index) => (
-            <Box
-              key={src + "-" + index}
-              borderRadius="md"
-              cursor="pointer"
-              overflow="hidden"
-              position={"relative"}
-              onClick={() => setSelectedImage(index)}
-              mb={"8px"}
-            >
-              <Image
-                src={src}
-                alt="Alt"
-                w="100%"
-                display="block"
-                borderRadius="md"
+        <GridItem overflowY="auto">
+          {srces.map((group) => (
+            <Box key={group.date} p={8}>
+              <DateHeader date={group.date} />
+
+              <ImageGrid
+                imgs={group.imgs}
+                selectedId={selectedId}
+                onSelect={setSelectedId}
               />
-              {index === selectedImage && (
-                <Box
-                  position="absolute"
-                  top={0}
-                  left={0}
-                  w="100%"
-                  h="100%"
-                  bgGradient="to-t"
-                  gradientFrom="teal.400"
-                  opacity={0.7}
-                  gradientTo="transparent"
-                  pointerEvents="none"
-                />
-              )}
             </Box>
           ))}
-        </Box>
+          <BottomBar />
+        </GridItem>
 
-        <Center position={"sticky"} px={4} bottom={isLg ? 4 : 2} left={0}>
-          <VStack w={"full"} alignItems={"end"} gap={isLg ? 2 : 1}>
-            <Button
-              aria-label="Filter"
-              w={"fit"}
-              p={2}
-              variant={"surface"}
-              rounded={"lg"}
-              boxShadow={"xl"}
-            >
-              <LuFilter />
-            </Button>
-            <Box
-              w={"full"}
-              p={2}
-              bg={"bg.panel"}
-              rounded={"xl"}
-              boxShadow={"xl"}
-            >
-              <Input
-                placeholder="Keresés"
-                size="md"
-                variant={"subtle"}
-                colorPalette={"teal"}
-                rounded={"lg"}
-                bg={"bg.emphasized"}
-              />
-            </Box>
-          </VStack>
-        </Center>
-      </GridItem>
-      {
         <GridItem>
-          {typeof selectedImage === "number" && (
+          {selectedId && (
             <Flex
               flex={1}
               gap={isLg ? 6 : 4}
@@ -211,8 +488,6 @@ export default function Gallery() {
                     bg={"bg.emphasized"}
                     borderRadius={"xl"}
                     d="inline-block"
-                    src={srces[selectedImage]}
-                    alt={srces[selectedImage] + " kép"}
                   />
                 )}
                 <Box mt={isLg ? 3 : 1} w={"full"}>
@@ -289,24 +564,8 @@ export default function Gallery() {
               </HStack>
             </Flex>
           )}
-          {typeof selectedImage !== "number" && (
-            <Center h={"full"}>
-              <EmptyState.Root size="sm">
-                <EmptyState.Content>
-                  <EmptyState.Indicator>
-                    {isLg && <LuMousePointer2 />}
-                  </EmptyState.Indicator>
-                  <VStack textAlign="center">
-                    <EmptyState.Title>
-                      Válassz ki valamit a galériádból
-                    </EmptyState.Title>
-                  </VStack>
-                </EmptyState.Content>
-              </EmptyState.Root>
-            </Center>
-          )}
         </GridItem>
-      }
-    </Grid>
+      </Grid>
+    </>
   );
 }
