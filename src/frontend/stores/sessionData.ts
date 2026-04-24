@@ -571,12 +571,22 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     //#endregion
 
     //#region BORDER SIZE
-    setBorderSize: (id: number, borderSize: { x: number; y: number }) =>
+    setBorderSize: (id: number, borderSize: { x: number; y: number }) => {
+      if (borderSize.y < 0 && borderSize.x < 0) {
+        borderSize.x = 0;
+        borderSize.y = 0;
+        toaster.create({
+          title: "A border mérete csak 0 vagy fölötte lévő szám lehet",
+          type: "error",
+        });
+      }
       set((state) => ({
         sessionData: state.sessionData.map((img) =>
           img.id === id ? { ...img, borderSize: borderSize } : img,
         ),
-      })),
+      }));
+    },
+
     //#endregion
   })),
 );
