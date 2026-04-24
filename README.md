@@ -20,15 +20,15 @@
 
 ## Vízió
 
-> **Cél:** Egyszerűsíteni a fotósok közösségi média munkafolyamatát anélkül, hogy profi képszerkesztő szoftvert kellene használni.
+> **Cél:** Egyszerűsíteni a fotósok, illetve az egyszerűbb fotósók közösségi média munkafolyamatát anélkül, hogy profi képszerkesztő szoftvert kellene használni alapvető feladatokra.
 
 Az **WizPX** lehetővé teszi, hogy a fotósok gyorsan készítsenek *közösségi médiára felkészített* képeket, mindezt egy könnyen kezelhető webes felületen.
 
 ### Főbb funkciók:
 
 #### Feldolgozás
-- JPG, PNG, HEIC támogatás
-- EXIF → caption
+- `JPG`, `PNG`, `HEIC` támogatás
+- EXIF adatokból caption-ök generálása *(késöbb a szövegnél is elérhető lesz)*
 
 #### Szerkesztés
 - Fényerő / kontraszt / stb.
@@ -36,8 +36,11 @@ Az **WizPX** lehetővé teszi, hogy a fotósok gyorsan készítsenek *közössé
 
 #### Export
 - Vízjel
-- Szöveg
-- Közösségi médiára optimalizálás
+- Szöveg a fotóra
+- Képkeret
+- Közösségi médiára optimalizálás (expand / crop)
+
+#### LUT készítése (tervezet)
 
 <p align="right"><a href="#top">Vissza a tetejére</a></p>
 
@@ -85,6 +88,7 @@ flowchart LR
         a1["Saját galéria"]
         a2["Térkép képekhez"]
         a3["OAuth2 autentikáció"]
+        a4["LUT generálás WEBes felületen keresztül (amit fel lehet használni majd a fotókhoz - mentheti a felhasználó ezeket)"]
   end
     Start["Projekt indulás"] --> MVP
     MVP --> WEB
@@ -104,8 +108,10 @@ flowchart LR
 | EXIF kinyerés | ✅ Kész |
 | Caption generálás | ✅ Kész |
 | Vízjel | ✅ Kész |
+| Cropolás / Expandolás | ✅ Kész |
 | Szerkesztés | 🟡 Folyamatban |
-| LUT | ⬜ Tervezett |
+| Képkeret funkció | 🟡 Folyamatban (cropoláshoz is használható legyen) |
+| LUT használata / készítése | ⬜ Tervezés alatt |
 
 <p align="right"><a href="#top">Vissza a tetejére</a></p>
 
