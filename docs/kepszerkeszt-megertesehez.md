@@ -17,15 +17,9 @@ A Color correction *(vagyis színkorrekció)* esetén állítjuk be az alábbiak
 * **expozíció**
 * **kontraszt**
 
-
-
 A kép "normális" kinézetének megalkotása
 
-
-
 #### **Színosztályzás / Fényelés**
-
-
 
 A Color grading *(vagyis fényelés)* esetén az alábbi kép tulajdonságokat állíthatjuk:
 
@@ -33,20 +27,12 @@ A Color grading *(vagyis fényelés)* esetén az alábbi kép tulajdonságokat �
 * **középtónusok *(midtonees)***
 * **csúcsfények *(highlights)***
 
-
-
 *Lightroom*-os működés [(kép)](https://halado.fotokonyv.hu/wp-content/uploads/2021/09/2021-09-24_19-51-48.jpg):
-
-
 
 * Egy *"színes kör/kerék"*
 * Sliderek (HSL)
 
-##### 
-
 ##### *Kerék (ez kihagyható -> helyette elég csak a HSL sliderek)*
-
-
 
 A kerékben egy kezelő van, a kezelő a **telítettséget** szabályozza 
 
@@ -54,11 +40,7 @@ A kerékben egy kezelő van, a kezelő a **telítettséget** szabályozza
 
 ***=> minél szélibb van annál nagyobb érték***
 
-
-
 ###### *Slider (HSL)*
-
-
 
 A **színárnyalatot**, vagyis **HSL értékeket** lehet vele szabályozni:
 
@@ -68,17 +50,9 @@ S -> ***Saturation*:** <i>szín telítettség</i>
 
 L -> ***Luminance*:** <i>szín sötétség</i>
 
-
-
 * ***Tulajdonképpen a kerékkel ezeket állítjuk, "jobban látható kerékkel" hogy mi is történik, de ezeket az értékeket (H,S,L) változtatja ő is***
-
-
-
-###### 
-
+  
 ###### *Blending, Balance*
-
-
 
 **Blending** felel a *színek közötti átfedéséért* (közép érték -> 0 - 50 - 100) 
 
@@ -88,7 +62,6 @@ L -> ***Luminance*:** <i>szín sötétség</i>
 * Jobb vagyis 100 felé közelítve:
 
   * Jobban keverednek
-
 
 
 **Balance** pedig meghatározza, melyik **fényerőtartomány (^1)** legyen **dominánsabb** (közép érték -100 - 0 - 100)
@@ -101,12 +74,11 @@ L -> ***Luminance*:** <i>szín sötétség</i>
   * *Csúcsfény* veszi át a vezetést
 
 
+##### Lábjegyzet:
+- Lift, Gamma, Gain, Offset után nézni, mit állítm hogyan?
+- **Utánanézni:** Hogyan tudnám megvalósítani ezeket WebGL, és BE-n?
 
-
-
-
-
-###### Források:
+##### Források:
 
 * [https://halado.fotokonyv.hu/color-grading/ ](https://halado.fotokonyv.hu/color-grading/)
   *-> eddig felhasznált*
