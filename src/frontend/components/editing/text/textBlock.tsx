@@ -1,4 +1,3 @@
-//TODO: Refaktorálni
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import {

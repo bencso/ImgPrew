@@ -46,7 +46,6 @@ export default function ImageWorkPlace() {
       state.sessionData.find((si) => si.id === selectedImg)?.expandSize,
   );
 
-  const [renderDirections, setRenderDirections] = useState<string[]>([]);
   const cropRef = useRef<HTMLElement>(null);
 
   const copyrightImage = useSessionStore(
