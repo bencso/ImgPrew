@@ -1,5 +1,6 @@
 "use client";
 
+import Loader from "@/components/loader";
 import { ToggleTip } from "@/components/ui/toggle-tip";
 import {
   Box,
@@ -14,13 +15,14 @@ import {
   IconButton,
   Image,
   Input,
+  Tabs,
   Text,
   useBreakpointValue,
   VStack,
 } from "@chakra-ui/react";
 import moment from "moment";
-import { useState } from "react";
-import { LuCamera, LuDownload, LuFilter, LuInfo } from "react-icons/lu";
+import { useEffect, useState } from "react";
+import { LuCamera, LuDownload, LuInfo } from "react-icons/lu";
 
 function EmptyGallery() {
   return (
@@ -322,7 +324,12 @@ function DateHeader({ date }: { date: string }) {
   );
 }
 
-function BottomBar() {
+interface BottomBarProps {
+  galleryView: string;
+  galleryViewSetter(type: string): void;
+}
+
+function BottomBar(props: BottomBarProps) {
   const isLg = useBreakpointValue(
     { base: false, sm: false, md: false, lg: true, xl: true },
     { ssr: false },
@@ -330,16 +337,36 @@ function BottomBar() {
   return (
     <Center position={"sticky"} bottom={isLg ? 4 : 2} left={0} px={8}>
       <VStack w={"full"} alignItems={"end"} gap={isLg ? 2 : 1}>
-        <Button
-          aria-label="Filter"
-          w={"fit"}
-          p={2}
-          variant={"surface"}
-          rounded={"lg"}
-          boxShadow={"xl"}
+        <Tabs.Root
+          value={props.galleryView === "list" ? "list" : "default"}
+          defaultValue="default"
+          variant="subtle"
+          colorPalette={"teal"}
+          onValueChange={(e) => {
+            const type =
+              e.value === "default" || e.value === "list" ? e.value : "default";
+            props.galleryViewSetter(type);
+          }}
         >
-          <LuFilter />
-        </Button>
+          <Tabs.List
+            bg="bg.muted"
+            rounded="l3"
+            p="1"
+            w={"full"}
+            display={"flex"}
+            flexDir={"row"}
+          >
+            <Tabs.Trigger
+              value="default"
+              disabled={props.galleryView === "default"}
+            >
+              Alapértelmezett
+            </Tabs.Trigger>
+            <Tabs.Trigger disabled={props.galleryView === "list"} value="list">
+              Lista
+            </Tabs.Trigger>
+          </Tabs.List>
+        </Tabs.Root>
         <Box w={"full"} p={2} bg={"bg.panel"} rounded={"xl"} boxShadow={"xl"}>
           <Input
             placeholder="Keresés"
@@ -421,9 +448,59 @@ function ImageGrid({
   );
 }
 
+function ImageList({
+  imgs,
+  selectedId,
+  onSelect,
+}: {
+  imgs: ImageItem[];
+  selectedId: string | null;
+  onSelect: (id: string) => void;
+}) {
+  return (
+    <Box>
+      {imgs.map((img, i) => {
+        const id = img.img + i;
+
+        return (
+          <Flex
+            key={id}
+            py={2}
+            px={2}
+            borderBottom={"1px solid"}
+            borderBlockColor={"teal"}
+            bg={selectedId === id ? "teal" : "bg"}
+            onClick={() => onSelect(id)}
+            _hover={{
+              bg: selectedId === id ? "teal" : "teal.800",
+            }}
+          >
+            <Text fontSize={"md"}>{img.text || "Ismeretlen"}</Text>
+          </Flex>
+        );
+      })}
+    </Box>
+  );
+}
+
 export default function Gallery() {
   const [images, setImages] = useState<ImageGroup[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [galleryView, setGalleryView] = useState<string>("default");
+
+  useEffect(() => {
+    const stored = localStorage.getItem("galleryView");
+    if (stored) setGalleryView(JSON.parse(stored));
+    else galleryViewSetter("default");
+
+    setLoading(false);
+  }, []);
+
+  function galleryViewSetter(type: string) {
+    setGalleryView(type);
+    localStorage.setItem("galleryView", JSON.stringify(type));
+  }
 
   const isLg = useBreakpointValue(
     { base: false, sm: false, md: false, lg: true, xl: true },
@@ -443,6 +520,16 @@ export default function Gallery() {
     );
   }
 
+  if (loading) {
+    return (
+      <Center h="full">
+        <Loader />
+      </Center>
+    );
+  }
+
+  moment.locale("hu");
+
   return (
     <>
       <Grid
@@ -451,18 +538,32 @@ export default function Gallery() {
         userSelect={"none"}
       >
         <GridItem overflowY="auto">
-          {srces.map((group) => (
-            <Box key={group.date} p={8}>
-              <DateHeader date={group.date} />
+          {galleryView === "default"
+            ? srces.map((group) => (
+                <Box key={group.date} p={8}>
+                  <DateHeader date={group.date} />
 
-              <ImageGrid
-                imgs={group.imgs}
-                selectedId={selectedId}
-                onSelect={setSelectedId}
-              />
-            </Box>
-          ))}
-          <BottomBar />
+                  <ImageGrid
+                    imgs={group.imgs}
+                    selectedId={selectedId}
+                    onSelect={setSelectedId}
+                  />
+                </Box>
+              ))
+            : srces.map((group) => (
+                <Box key={group.date} p={8}>
+                  <DateHeader date={group.date} />
+                  <ImageList
+                    imgs={group.imgs}
+                    selectedId={selectedId}
+                    onSelect={setSelectedId}
+                  />
+                </Box>
+              ))}
+          <BottomBar
+            galleryView={galleryView}
+            galleryViewSetter={galleryViewSetter}
+          />
         </GridItem>
 
         <GridItem>

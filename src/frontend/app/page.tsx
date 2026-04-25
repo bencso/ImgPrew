@@ -5,6 +5,7 @@ import {
   Button,
   Heading,
   Image,
+  Link,
   Stack,
   Text,
 } from "@chakra-ui/react";
@@ -16,18 +17,19 @@ export default function Page() {
   const [loading, setLoading] = useState(false);
 
   return (
-    <AbsoluteCenter w={"full"} px={8}>
+    <AbsoluteCenter
+      w={"full"}
+      px={{
+        smDown: 4,
+        base: 8,
+      }}
+    >
       <Stack
         mx={4}
         fontSize="sm"
-        w={"full"}
-        minW={{
+        w={{
           smDown: "full",
-          base: "xl",
-        }}
-        maxW={{
-          smDown: "full",
-          base: "xl",
+          base: "lg",
         }}
         px={{
           smDown: 6,
@@ -98,8 +100,14 @@ export default function Page() {
             lineHeight={"tall"}
             mx="auto"
           >
-            A bejelentkezéssel elfogadod a felhasználási feltételeket és az
-            adatvédelmi irányelveket.
+            A bejelentkezéssel elfogadod a{" "}
+            <Link my={1} href="/adatvedelem">
+              felhasználási feltételeket
+            </Link>
+            és az
+            <Link ms={1} href="/adatvedelem">
+              adatvédelmi irányelveket.
+            </Link>
           </Text>
         </Stack>
       </Stack>

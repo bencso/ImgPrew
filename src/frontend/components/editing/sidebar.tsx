@@ -63,6 +63,7 @@ const sidebarElements = (
     | undefined,
   setExpandBackground: (id: number, rgba: string) => void,
   expandBackground: string,
+  expandMode: string,
 ) => {
   return [
     {
@@ -212,14 +213,20 @@ const sidebarElements = (
 
             if (typeof number === "number") {
               if (number > 0) {
-                setExpandMode(selectedImg, "border");
+                if (expandMode !== "crop") setExpandMode(selectedImg, "border");
 
                 setBorderSize(selectedImg, {
                   x: number,
                   y: number,
                 });
               } else {
-                setExpandMode(selectedImg, "no");
+                if (expandMode !== "crop") {
+                  setExpandMode(selectedImg, "no");
+                }
+                setBorderSize(selectedImg, {
+                  x: 0,
+                  y: 0,
+                });
               }
             }
           },
@@ -354,6 +361,11 @@ export default function SideBar() {
         s.sessionData.find((si) => si.id === selectedImg)?.expandBackground,
     ) || "";
 
+  const expandMode =
+    useSessionStore(
+      (s) => s.sessionData.find((si) => si.id === selectedImg)?.expandMode,
+    ) || "no";
+
   useMemo(() => {
     setEditItems(
       sidebarElements(
@@ -369,6 +381,7 @@ export default function SideBar() {
         selectedScale,
         setExpandBackground,
         expandBackground,
+        expandMode,
       ),
     );
   }, [sessionData, selectedImg]);

@@ -102,6 +102,7 @@ export interface CustomImage {
   };
   //CROP BOX
   box?: CropBox;
+  cropSave?: boolean;
   cropSize?: { width: number | null; height: number | null };
   //BORDER
   borderSize?: { x: number | null; y: number | null };
@@ -154,6 +155,7 @@ export interface SessionStore {
   //#region MÉRETEK
   setImageSize: (id: number, width: number, height: number) => void;
   setCropBox: ({ id, box }: { id: number; box: CropBox }) => void;
+  setCropSave: (id: number) => void;
   //#endregion
 
   //#region Copyright kép

@@ -1,3 +1,4 @@
+//TODO: Számítási logikák kitevése
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import {
@@ -22,6 +23,7 @@ import {
   LuMaximize2,
   LuTwitter,
 } from "react-icons/lu";
+import { shallow } from "zustand/shallow";
 
 const sizesDatas = [
   {
@@ -62,8 +64,13 @@ const sizesDatas = [
 ];
 
 export default function ResizeBlock() {
-  const { setCropBox, setExpandMode, setExpandBackground, setExpandSize } =
-    useSessionStore();
+  const {
+    setCropBox,
+    setExpandMode,
+    setExpandBackground,
+    setExpandSize,
+    setCropSave,
+  } = useSessionStore();
   const {
     appRef,
     spriteRef,
@@ -75,7 +82,7 @@ export default function ResizeBlock() {
 
   //#region breakPoint beállíátoks (isMd)
   const isMd = useBreakpointValue(
-    { base: false, sm: false, md: false, lg: true, xl: true },
+    { base: false, sm: false, md: true, lg: true, xl: true },
     { fallback: "md" },
   );
   //#endregion
@@ -105,9 +112,14 @@ export default function ResizeBlock() {
     (state) => state.sessionData.find((si) => si.id === selectedImg)?.box,
   );
 
+  const cropSaved = useSessionStore(
+    (state) => state.sessionData.find((si) => si.id === selectedImg)?.cropSave,
+    shallow,
+  );
+
   return (
     <Box>
-      {expandMode !== "no" && expandMode !== "border" && (
+      {expandMode !== "no" && expandMode !== "border" && !cropSaved && (
         <RadioCard.Root
           orientation="horizontal"
           align="center"
@@ -320,7 +332,11 @@ export default function ResizeBlock() {
             w={"full"}
             display={"flex"}
             justifyContent={"center"}
-            disabled={expandMode === "expand" || expandMode === "border"}
+            disabled={
+              expandMode === "expand" ||
+              expandMode === "border" ||
+              cropSaved === true
+            }
           >
             <LuExpand />
             Expand
@@ -328,8 +344,15 @@ export default function ResizeBlock() {
           <Tabs.Indicator rounded="l2" />
         </Tabs.List>
         <Tabs.Content value="crop">
-          <Button w={"full"} variant={"surface"} colorPalette={"teal"}>
-            Crop
+          <Button
+            w={"full"}
+            variant={"surface"}
+            colorPalette={cropSaved === true ? "red" : "teal"}
+            onClick={() => {
+              setCropSave(selectedImg);
+            }}
+          >
+            {cropSaved === true ? "Mégsem" : "Mentés"}
           </Button>
         </Tabs.Content>
         <Tabs.Content value="expand">

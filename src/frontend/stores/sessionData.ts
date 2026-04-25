@@ -40,6 +40,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
             height: null,
             width: null,
           },
+          cropSave: false,
         } as CustomImage;
 
         if (exifData) sessionData.exifDatas = exifData;
@@ -234,6 +235,12 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
             width: newW,
           };
         }
+      });
+    },
+    setCropSave: (id: number) => {
+      set((state) => {
+        const image = state.sessionData.find((img) => img.id === id);
+        if (image) image.cropSave = image.cropSave === true ? false : true;
       });
     },
     //#endregion
@@ -561,8 +568,9 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       if (borderSize.y < 0 && borderSize.x < 0) {
         borderSize.x = 0;
         borderSize.y = 0;
+        //TODO: Hiba üzeneteket különszedni, egységesíteni
         toaster.create({
-          title: "A border mérete csak 0 vagy fölötte lévő szám lehet",
+          title: "A border mérete nem lehet negatív",
           type: "error",
         });
       }

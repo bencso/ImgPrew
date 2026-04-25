@@ -57,6 +57,11 @@ export default function ImageWorkPlace() {
     shallow,
   );
 
+  const cropSaved = useSessionStore(
+    (s) => s.sessionData.find((si) => si.id === selectedImg)?.cropSave || false,
+    shallow,
+  );
+
   const setTextRef = useCallback(
     (textId: string) => (el: any) => {
       if (el && textElements[textId] !== el) {
@@ -316,7 +321,7 @@ export default function ImageWorkPlace() {
                 height={box.height}
                 backgroundColor="blackAlpha.300"
                 border="2px solid white"
-                hidden={expandMode !== "crop"}
+                hidden={expandMode !== "crop" || cropSaved === true}
               />
 
               <Moveable
@@ -324,8 +329,8 @@ export default function ImageWorkPlace() {
                 edgeDraggable={false}
                 origin={false}
                 keepRatio={false}
-                draggable={expandMode === "crop"}
-                resizable={expandMode === "crop"}
+                draggable={expandMode === "crop" && cropSaved === false}
+                resizable={expandMode === "crop" && cropSaved === false}
                 hideDefaultLines
                 hideChildMoveableDefaultLines
                 hideThrottleDragRotateLine

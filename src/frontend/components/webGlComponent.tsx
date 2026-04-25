@@ -39,7 +39,7 @@ export default function WebGlComponent() {
       const app = new Application();
       appRef.current = app;
       await appRef.current.init({
-        backgroundAlpha: 0,
+        backgroundAlpha: 1,
         webgl: {
           antialias: true,
         },
@@ -259,6 +259,12 @@ export default function WebGlComponent() {
     (state) => state.sessionData.find((si) => si.id === selectedImg)?.box,
   );
 
+  const cropSaved = useSessionStore(
+    (state) =>
+      state.sessionData.find((si) => si.id === selectedImg)?.cropSave || false,
+    shallow,
+  );
+
   function calculateExpandMode() {
     const type = expandMode;
     if (
@@ -367,20 +373,40 @@ export default function WebGlComponent() {
           imageSize.width * scale + "px";
       }
       if (
-        expandMode == "border" &&
-        borderSize &&
-        borderSize.x &&
-        borderSize.y
+        (expandMode === "border" &&
+          borderSize &&
+          borderSize.x &&
+          borderSize.y) ||
+        (expandMode === "crop" &&
+          borderSize &&
+          borderSize.x &&
+          borderSize.y &&
+          cropSaved)
       ) {
-        spriteRef.current.width = imageSize.width * scale - +borderSize.x;
-        spriteRef.current.height = imageSize.height * scale - +borderSize.y;
+        if (
+          expandMode === "crop" &&
+          box &&
+          box.height &&
+          box.width &&
+          box.x &&
+          box.y
+        ) {
+          //TODO: Tényleges croppolás kell itt mert különben nem jó, vagy valami overflow beállítás?
+          spriteRef.current.height = box.height - +borderSize.x;
+          spriteRef.current.width = box.width - +borderSize.y;
+          spriteRef.current.x = box.x / 2;
+          spriteRef.current.y = box.y / 2;
+        } else {
+          spriteRef.current.width = imageSize.width * scale - +borderSize.x;
+          spriteRef.current.height = imageSize.height * scale - +borderSize.y;
+        }
         const areaW = spriteRef.current.width + borderSize.x;
         const areaH = spriteRef.current.height + borderSize.y;
         appRef.current.renderer.background.color = expandBackground;
         appRef.current.renderer.resize(areaW, areaH);
       }
 
-      if (expandMode == "crop" && box) {
+      if (expandMode == "crop" && box && !cropSaved) {
         const cropSizeRelative = {
           height: box.height ?? imageSize.height * (scale ?? 1),
           width: box.width ?? imageSize.width * (scale ?? 1),
