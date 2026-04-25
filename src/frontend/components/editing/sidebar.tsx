@@ -1,3 +1,4 @@
+//TODO: Refaktorálni
 import { EditItemProp } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";

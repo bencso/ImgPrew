@@ -1,3 +1,4 @@
+//TODO: Refaktorálni
 import { XPositions, YPositions } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";

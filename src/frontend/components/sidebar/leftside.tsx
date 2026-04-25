@@ -1,3 +1,4 @@
+//TODO: Ezt a links tömböt ki lehetne tenni valami config fájl-ba
 "use client";
 
 import ColormodeSwitcher from "@/components/sidebar/colormodeSwitch";

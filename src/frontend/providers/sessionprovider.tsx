@@ -66,7 +66,7 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       appRef,
       workPlaceRef,
       canvasRef,
-      textAndImagePlaceRef
+      textAndImagePlaceRef,
     }),
     [
       step,
@@ -82,7 +82,7 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       workPlaceRef,
       appRef,
       canvasRef,
-      textAndImagePlaceRef
+      textAndImagePlaceRef,
     ],
   );
 

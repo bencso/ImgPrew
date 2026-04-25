@@ -1,3 +1,4 @@
+//TODO: Refaktorálás
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { Box } from "@chakra-ui/react";

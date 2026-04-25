@@ -1,3 +1,4 @@
+//TODO: Refaktorálni, és bug vadászat (fontos rész)
 "use client";
 
 import { useColorMode } from "@/components/ui/color-mode";

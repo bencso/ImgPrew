@@ -1,3 +1,4 @@
+//TODO: Itt a nagyobb typeokat különszedni és ugyhasználni a set action dispachtel
 import { UUID } from "crypto";
 import { Application, Renderer, Sprite, Texture, TextureSource } from "pixi.js";
 import {
