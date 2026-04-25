@@ -1,4 +1,3 @@
-//TODO: Itt a nagyobb typeokat különszedni és ugyhasználni a set action dispachtel
 import { UUID } from "crypto";
 import { Application, Renderer, Sprite, Texture, TextureSource } from "pixi.js";
 import {
@@ -58,6 +57,27 @@ export interface DraggableImageEvent {
   color: string;
 }
 
+//#region CopyRightImage
+export interface CopyrightImage {
+  blob?: string;
+  position?: {
+    x: XPositions;
+    y: YPositions;
+  };
+  size?: number;
+}
+//#endregion
+
+//#region CropBox
+export interface CropBox {
+  x?: number | null;
+  y?: number | null;
+  width?: number | null;
+  height?: number | null;
+}
+//#endregion
+
+//#region CustomImage
 export interface CustomImage {
   //DEFAULT IMAGE SETTINGS
   id: number;
@@ -72,14 +92,7 @@ export interface CustomImage {
   //SZÖVEG
   texts?: DraggableImageEvent[];
   //COPYRIGHT IMAGE
-  copyrightImage?: {
-    blob?: string;
-    position?: {
-      x: XPositions;
-      y: YPositions;
-    };
-    size?: number;
-  };
+  copyrightImage?: CopyrightImage;
   //EXPAND MODE
   expandMode: string;
   expandBackground: string;
@@ -88,22 +101,42 @@ export interface CustomImage {
     height: number;
   };
   //CROP BOX
-  box?: {
-    x: number | null;
-    y: number | null;
-    width: number | null;
-    height: number | null;
-  };
+  box?: CropBox;
   cropSize?: { width: number | null; height: number | null };
   //BORDER
   borderSize?: { x: number | null; y: number | null };
 }
 
+//#region CalculationReFixPositionProps
+export interface CalculationReFixPositionProps {
+  id: number;
+  type: calculationTypeEnum;
+  elementRef: HTMLElement;
+  textAndImagePlaceRef: RefObject<HTMLDivElement | null>;
+  textId?: string;
+}
+//#endregion
+
+//#region FilterProps
+export interface FilterProps {
+  brightness: number;
+  contrast: number;
+  saturation: number;
+  gamma: number;
+  temperature: number;
+  noise: number;
+  highlights: number;
+  shadows: number;
+  whites: number;
+  blacks: number;
+}
+//#endregion
+
 export interface SessionStore {
   //#region ADATOK
   sessionData: CustomImage[];
-  setSessionData: (data: CustomImage[]) => any;
-  clearSessionData: () => any;
+  setSessionData: (data: CustomImage[]) => void;
+  clearSessionData: () => void;
   addImage: (
     blob: string,
     exifData?: string[] | undefined,
@@ -112,30 +145,15 @@ export interface SessionStore {
   //#endregion
 
   //#region Segédfüggvények
-  calculationReFixPosition: (
-    id: number,
-    type: calculationTypeEnum,
-    elementRef: HTMLElement | HTMLImageElement | HTMLDivElement,
-    textAndImagePlaceRef?: any,
-    textId?: string,
-  ) => any;
+  calculationReFixPosition: (props: CalculationReFixPositionProps) => {
+    x: number;
+    y: number;
+  };
   //#endregion
 
   //#region MÉRETEK
   setImageSize: (id: number, width: number, height: number) => void;
-  setCropBox: ({
-    id,
-    x,
-    y,
-    width,
-    height,
-  }: {
-    id: number;
-    x?: number | null;
-    y?: number | null;
-    width?: number | null;
-    height?: number | null;
-  }) => void;
+  setCropBox: ({ id, box }: { id: number; box: CropBox }) => void;
   //#endregion
 
   //#region Copyright kép
@@ -152,32 +170,32 @@ export interface SessionStore {
   //#endregion
 
   //#region EXIF
-  setExifDataForImage: (id: number, exif: string[]) => any;
+  setExifDataForImage: (id: number, exif: string[]) => void;
   //#endregion
 
   //#region CAPTION SAMPLES
-  setCaptionSamplesForImage: (id: number, captionSamples: string[]) => any;
+  setCaptionSamplesForImage: (id: number, captionSamples: string[]) => void;
   //#endregion
 
   //#region CAPTION
   getCaptionForImage: (id: number) => string;
-  setCaptionForImage: (id: number, caption: string) => any;
+  setCaptionForImage: (id: number, caption: string) => void;
   //#endregion
 
   //#region EXPORT FILE EXTENSION
-  setExportFileExtension: (id: number, extension: string) => any;
+  setExportFileExtension: (id: number, extension: string) => void;
   //#endregion
 
   //#region TEXT
-  addTexts: (imageId: number, text: string) => any;
+  addTexts: (imageId: number, text: string) => void;
   deleteText: (imageId: number, textId: string) => void;
   editText: (imageId: number, textId: string, text: string) => void;
-  setTextFontSize: (imageId: number, textId: string, fontSize: number) => any;
+  setTextFontSize: (imageId: number, textId: string, fontSize: number) => void;
   setTextFontWeight: (
     imageId: number,
     textId: string,
     fontWeight: number,
-  ) => any;
+  ) => void;
   getTextPosition: (
     selectedImage: number,
     textId: string,
@@ -211,32 +229,14 @@ export interface SessionStore {
   ) => { caption?: string; fileExtension: string } | null;
   //#endregion
 
-  //#region HISTOGRAM
-  convertHistogram: (
-    canvasRef: React.RefObject<HTMLCanvasElement | null>,
-    imgSrc: string,
-  ) => any;
-  //#endregion
-
   //#region BORDER
   setBorderSize(id: number, borderSize: { x: number; y: number }): void;
   //#endregion
 
   //#region FILTERS
-  editFilters: (id: number, filterName: string, value: string | number) => any;
+  editFilters: (id: number, filterName: string, value: string | number) => void;
   getFilterValue: (id: number, filterName: string) => number | null;
-  getFilters: (id: number) => {
-    brightness: number;
-    contrast: number;
-    saturation: number;
-    gamma: number;
-    temperature: number;
-    noise: number;
-    highlights: number;
-    shadows: number;
-    whites: number;
-    blacks: number;
-  };
+  getFilters: (id: number) => FilterProps;
   //#endregion
 }
 //#endregion
@@ -260,12 +260,30 @@ export interface FunctionItem {
 export interface FunctionsState {
   functions: FunctionItem[];
   addFunction: (name: string, inputs: FunctionProp[]) => void;
-  editFunction: (
-    selectedImg: number,
-    functionName: string,
-    inputName: string,
-    value: any,
-  ) => void;
+  editFunction: (props: EditFunctionProps) => void;
+}
+//#endregion
+
+//#region SelectedScale
+export interface SelectedScale {
+  image: {
+    height: number;
+    width: number;
+  };
+  scale: number;
+  position: {
+    x: number;
+    y: number;
+  };
+}
+//#endregion
+
+//#region EditFunction Props
+export interface EditFunctionProps {
+  selectedImg: number;
+  functionName: string;
+  inputName: string;
+  value: any;
 }
 //#endregion
 
@@ -279,47 +297,15 @@ export interface WorkSessionContextProps {
   setSessionData: Dispatch<SetStateAction<CustomImage[]>>;
   functions: FunctionItem[];
   addFunction: (name: string, inputs: FunctionProp[]) => void;
-  editFunction: (
-    selectedImg: number,
-    functionName: string,
-    inputName: string,
-    value: any,
-  ) => void;
+  editFunction: (props: EditFunctionProps) => void;
   textElements: Record<string, HTMLElement>;
   setTextElements: Dispatch<SetStateAction<Record<UUID, HTMLElement>>>;
   copyrightImageRef: HTMLImageElement | null;
   setCopyrightImageRef: Dispatch<SetStateAction<HTMLImageElement | null>>;
   isLoading: boolean;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
-  selectedScale:
-    | {
-        image: {
-          height: number;
-          width: number;
-        };
-        scale: number;
-        position: {
-          x: number;
-          y: number;
-        };
-      }
-    | undefined;
-  setSelectedScale: Dispatch<
-    SetStateAction<
-      | {
-          image: {
-            height: number;
-            width: number;
-          };
-          scale: number;
-          position: {
-            x: number;
-            y: number;
-          };
-        }
-      | undefined
-    >
-  >;
+  selectedScale: SelectedScale | undefined;
+  setSelectedScale: Dispatch<SetStateAction<SelectedScale | undefined>>;
   spriteRef: RefObject<Sprite | null>;
   textureRef: RefObject<Texture<TextureSource<any>> | null>;
   workPlaceRef: RefObject<HTMLDivElement | null>;

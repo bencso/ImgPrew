@@ -51,10 +51,12 @@ export default function WebGlComponent() {
         textureGCCheckCountMax: 1200,
       });
 
+      // @ts-ignore
       window.__PIXI_DEVTOOLS__ = {
         app,
       };
 
+      // @ts-ignore
       globalThis.__PIXI_APP__ = app;
     }
 

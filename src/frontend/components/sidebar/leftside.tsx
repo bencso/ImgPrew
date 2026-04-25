@@ -1,21 +1,14 @@
-//TODO: Ezt a links tömböt ki lehetne tenni valami config fájl-ba
 "use client";
 
 import ColormodeSwitcher from "@/components/sidebar/colormodeSwitch";
 import LanguageSwitcher from "@/components/sidebar/languageSwitch";
 import { ProfileMenu } from "@/components/sidebar/profileMenu";
+import { links, LinkType } from "@/config";
 import { Avatar, Box, Flex, useSplitterContext } from "@chakra-ui/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
-import { LuGalleryThumbnails, LuHouse } from "react-icons/lu";
 import InfoPopover from "./infoPopover";
-
-interface Link {
-  name?: string;
-  link?: string;
-  icon?: ReactNode;
-}
 
 export const LeftSide = ({ isDesktop }: { isDesktop: ReactNode }) => {
   const pathname = usePathname();
@@ -23,21 +16,6 @@ export const LeftSide = ({ isDesktop }: { isDesktop: ReactNode }) => {
   let collapsed = splitter.isPanelCollapsed("a");
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true));
-
-  //#region Linkek
-  const links: Link[] = [
-    {
-      name: "Főoldal",
-      link: "/dashboard",
-      icon: <LuHouse size={22} />,
-    },
-    {
-      name: "Galéria",
-      link: "/dashboard/gallery",
-      icon: <LuGalleryThumbnails size={22} />,
-    },
-  ];
-  //#endregion
 
   return (
     <Flex
@@ -87,7 +65,7 @@ export const LeftSide = ({ isDesktop }: { isDesktop: ReactNode }) => {
           //#region LINKEK implementálása
         }
         {isDesktop &&
-          links.map((link, index) => {
+          links.map((link: LinkType, index: number) => {
             return (
               <Link href={link.link || "/"} key={index}>
                 <Box

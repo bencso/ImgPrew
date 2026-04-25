@@ -88,12 +88,12 @@ export default function ImageWorkPlace() {
 
   useEffect(() => {
     if (!copyrightImageRef) return;
-    const position = calculationReFixPosition(
-      selectedImg,
-      calculationTypeEnum.COPYRIGHT,
-      copyrightImageRef,
+    const position = calculationReFixPosition({
+      id: selectedImg,
+      type: calculationTypeEnum.COPYRIGHT,
+      elementRef: copyrightImageRef,
       textAndImagePlaceRef,
-    );
+    });
     setCpPosition({
       x: position.x,
       y: position.y,
@@ -108,13 +108,13 @@ export default function ImageWorkPlace() {
     texts.forEach((element) => {
       if (!textElements[element.id]) return;
 
-      const textPosition = calculationReFixPosition(
-        selectedImg,
-        calculationTypeEnum.TEXT,
-        textElements[element.id],
-        textAndImagePlaceRef,
-        element.id,
-      );
+      const textPosition = calculationReFixPosition({
+        id: selectedImg,
+        type: calculationTypeEnum.TEXT,
+        elementRef: textElements[element.id],
+        textAndImagePlaceRef: textAndImagePlaceRef,
+        textId: element.id,
+      });
 
       newPositions[element.id] = textPosition;
     });
@@ -205,8 +205,7 @@ export default function ImageWorkPlace() {
 
       setCropBox({
         id: selectedImg,
-        x: nextPosX,
-        y: nextPosY,
+        box: { x: nextPosX, y: nextPosY },
       });
     }
   }
@@ -380,14 +379,15 @@ export default function ImageWorkPlace() {
                     if (width < imageW && imageH > height)
                       setCropBox({
                         id: selectedImg,
-                        height: height,
-                        width: width,
+                        box: { height: height, width: width },
                       });
 
                     setCropBox({
                       id: selectedImg,
-                      x: nextPosX,
-                      y: nextPosY,
+                      box: {
+                        x: nextPosX,
+                        y: nextPosY,
+                      },
                     });
                   }
                 }}

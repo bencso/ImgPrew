@@ -1,13 +1,14 @@
 import { toaster } from "@/components/ui/toaster";
 import {
+  CalculationReFixPositionProps,
   calculationTypeEnum,
+  CropBox,
   CustomImage,
   DraggableImageEvent,
   SessionStore,
   XPositions,
   YPositions,
 } from "@/interfaces/interface";
-import { RefObject } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { immer } from "zustand/middleware/immer";
 import { createWithEqualityFn } from "zustand/traditional";
@@ -48,32 +49,29 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     //#endregion
 
     //#region Segédfüggvények
-
-    calculationReFixPosition: (
-      id: number,
-      type: calculationTypeEnum,
-      elementRef: HTMLElement | HTMLImageElement | HTMLDivElement,
-      textAndImagePlaceRef?: any,
-      textId?: string,
-    ) => {
-      const image = get().sessionData.find((s) => s.id === id);
+    calculationReFixPosition: (props: CalculationReFixPositionProps) => {
+      const image = get().sessionData.find((s) => s.id === props.id);
 
       let positions = null;
 
-      if (type === calculationTypeEnum.TEXT)
-        positions = image?.texts?.find((it) => it.id === textId)?.position;
-      if (type === calculationTypeEnum.COPYRIGHT)
+      if (props.type === calculationTypeEnum.TEXT)
+        positions = image?.texts?.find(
+          (it) => it.id === props.textId,
+        )?.position;
+      if (props.type === calculationTypeEnum.COPYRIGHT)
         positions = image?.copyrightImage?.position;
 
-      const height = textAndImagePlaceRef.current.offsetHeight;
-      const width = textAndImagePlaceRef.current.offsetWidth;
+      if (!props.textAndImagePlaceRef.current) return;
 
-      const imageHalf = width / 2 - elementRef.offsetWidth / 2;
+      const height = props.textAndImagePlaceRef.current.offsetHeight;
+      const width = props.textAndImagePlaceRef.current.offsetWidth;
 
-      const imageWCP = width - elementRef.offsetWidth;
-      const imageHCP = height - elementRef.offsetHeight;
+      const imageHalf = width / 2 - props.elementRef.offsetWidth / 2;
 
-      const defaultPosition = textId
+      const imageWCP = width - props.elementRef.offsetWidth;
+      const imageHCP = height - props.elementRef.offsetHeight;
+
+      const defaultPosition = props.textId
         ? ((positions as {
             x: number;
             y: number;
@@ -210,33 +208,21 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         ),
       })),
     //#region Frontend Crop Box
-    setCropBox: ({
-      id,
-      x,
-      y,
-      width,
-      height,
-    }: {
-      id: number;
-      x?: number | null;
-      y?: number | null;
-      width?: number | null;
-      height?: number | null;
-    }) => {
+    setCropBox: ({ id, box }: { id: number; box: CropBox }) => {
       set((state) => {
         const image = state.sessionData.find((img) => img.id === id);
 
         if (image && image.box) {
-          let newX = x ? x : image.box.x;
-          let newY = y ? y : image.box.y;
+          let newX = box.x ? box.x : image.box.x;
+          let newY = box.y ? box.y : image.box.y;
 
-          let newH = height
-            ? height
+          let newH = box.height
+            ? box.height
             : image.box.height
               ? image.box.height
               : (image.dimesions?.height ?? 0);
-          let newW = width
-            ? width
+          let newW = box.width
+            ? box.width
             : image.box.width
               ? image.box.width
               : (image.dimesions?.width ?? 0);
@@ -402,6 +388,42 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         const textIndex = image.texts.findIndex((text) => text.id === textId);
         if (textIndex === -1) return;
 
+        if (position && typeof position.x === "number" && position.x < 0) {
+          toaster.create({
+            type: "error",
+            title: "Hibás érték",
+            description: "Az X értéke nem lehet negatív szám",
+          });
+          let resetPosition = {
+            ...position,
+            x: 0,
+          };
+          image.texts = [
+            ...image.texts.slice(0, textIndex),
+            { ...image.texts[textIndex], position: resetPosition },
+            ...image.texts.slice(textIndex + 1),
+          ];
+          return;
+        }
+
+        if (position && typeof position.y === "number" && position.y < 0) {
+          toaster.create({
+            type: "error",
+            title: "Hibás érték",
+            description: "Az X értéke nem lehet negatív szám",
+          });
+          let resetPosition = {
+            ...position,
+            y: 0,
+          };
+          image.texts = [
+            ...image.texts.slice(0, textIndex),
+            { ...image.texts[textIndex], position: resetPosition },
+            ...image.texts.slice(textIndex + 1),
+          ];
+          return;
+        }
+
         image.texts = [
           ...image.texts.slice(0, textIndex),
           { ...image.texts[textIndex], position },
@@ -457,42 +479,6 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         };
       }
       return null;
-    },
-    //#endregion
-
-    //#region HISTOGRAM
-    convertHistogram: (
-      canvasRef: RefObject<HTMLCanvasElement | null>,
-      imgSrc: string,
-    ) => {
-      if (!canvasRef.current)
-        canvasRef.current = document.createElement("canvas");
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return [];
-
-      const size = 256;
-      canvas.width = size;
-      canvas.height = size;
-      ctx.imageSmoothingEnabled = false;
-
-      const image = new Image();
-      image.src = imgSrc;
-
-      return new Promise<number[]>((resolve) => {
-        image.onload = () => {
-          ctx.drawImage(image, 0, 0, size, size);
-          const data = ctx.getImageData(0, 0, size, size).data;
-          const histogram = new Array(256).fill(0);
-          for (let i = 0; i < data.length; i += 4) {
-            const lum = Math.round(
-              0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2],
-            );
-            histogram[lum]++;
-          }
-          resolve(histogram);
-        };
-      });
     },
     //#endregion
 

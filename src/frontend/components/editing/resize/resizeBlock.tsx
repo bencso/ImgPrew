@@ -155,19 +155,23 @@ export default function ResizeBlock() {
                 ) {
                   setCropBox({
                     id: selectedImg,
-                    width: imageSize.width,
-                    height: imageSize.height,
-                    x: appRef.current.canvas.width / 2,
-                    y: cropSizeRelative.height / 2,
+                    box: {
+                      width: imageSize.width,
+                      height: imageSize.height,
+                      x: appRef.current.canvas.width / 2,
+                      y: cropSizeRelative.height / 2,
+                    },
                   });
                 }
 
                 setCropBox({
                   id: selectedImg,
-                  width: cropSizeRelative.width,
-                  height: cropSizeRelative.height,
-                  x: appRef.current.canvas.width / 2,
-                  y: cropSizeRelative.height / 2,
+                  box: {
+                    width: cropSizeRelative.width,
+                    height: cropSizeRelative.height,
+                    x: appRef.current.canvas.width / 2,
+                    y: cropSizeRelative.height / 2,
+                  },
                 });
 
                 if (spriteRef.current) {
@@ -254,10 +258,12 @@ export default function ResizeBlock() {
               if (type === "crop") {
                 setCropBox({
                   id: selectedImg,
-                  width: cropSizeRelative.width,
-                  height: cropSizeRelative.height,
-                  x: box.x ?? appRef.current.canvas.width / 2,
-                  y: box.y ?? cropSizeRelative.height / 2,
+                  box: {
+                    width: cropSizeRelative.width,
+                    height: cropSizeRelative.height,
+                    x: box.x ?? appRef.current.canvas.width / 2,
+                    y: box.y ?? cropSizeRelative.height / 2,
+                  },
                 });
 
                 if (
@@ -269,10 +275,12 @@ export default function ResizeBlock() {
                 ) {
                   setCropBox({
                     id: selectedImg,
-                    width: cropSizeRelative.width,
-                    height: cropSizeRelative.height,
-                    x: box.x ?? appRef.current.canvas.width / 2,
-                    y: box.y ?? cropSizeRelative.height / 2,
+                    box: {
+                      width: cropSizeRelative.width,
+                      height: cropSizeRelative.height,
+                      x: box.x ?? appRef.current.canvas.width / 2,
+                      y: box.y ?? cropSizeRelative.height / 2,
+                    },
                   });
                 }
               }

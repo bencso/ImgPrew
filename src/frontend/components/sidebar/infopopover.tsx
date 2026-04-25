@@ -1,3 +1,4 @@
+import { appInfos } from "@/config";
 import {
   Box,
   Button,
@@ -7,18 +8,15 @@ import {
   Popover,
   Portal,
 } from "@chakra-ui/react";
-import { LuHistory, LuInfo, LuUser } from "react-icons/lu";
-
-//TODO: Ezt is ki lehetne tenni valami config fájlba
-const stats = [
-  { icon: <LuHistory />, label: "Verziószám", value: "0.01" },
-  { icon: <LuUser />, label: "UID:", value: "30032211411UI" },
-];
+import { LuInfo } from "react-icons/lu";
 
 export default function InfoPopover() {
   const clipBoardValue = [
     "Debug infók:",
-    ...stats.map(({ label, value }) => `${label} ${value}`),
+    ...appInfos.map(
+      ({ label, value }: { label: string; value: string }) =>
+        `${label} ${value}`,
+    ),
   ].join("\n");
 
   return (
@@ -37,7 +35,7 @@ export default function InfoPopover() {
                 Debug infók:
               </Popover.Title>
               <DataList.Root orientation="horizontal">
-                {stats.map((item) => (
+                {appInfos.map((item) => (
                   <DataList.Item key={item.label}>
                     <Box
                       color={"fg.muted"}

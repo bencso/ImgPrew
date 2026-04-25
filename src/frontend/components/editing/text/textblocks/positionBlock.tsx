@@ -1,0 +1,294 @@
+import {
+  DraggableImageEventPosition,
+  XPositions,
+  YPositions,
+} from "@/interfaces/interface";
+import { useWorkSession } from "@/providers/sessionprovider";
+import { useSessionStore } from "@/stores/sessionData";
+import {
+  Box,
+  Flex,
+  Grid,
+  HStack,
+  IconButton,
+  NumberInput,
+  Text,
+} from "@chakra-ui/react";
+import {
+  LuArrowDown,
+  LuArrowDownLeft,
+  LuArrowDownRight,
+  LuArrowLeft,
+  LuArrowRight,
+  LuArrowUp,
+  LuArrowUpLeft,
+  LuArrowUpRight,
+  LuDot,
+} from "react-icons/lu";
+import { shallow } from "zustand/shallow";
+
+interface TextBlockPositionProps {
+  id: string;
+  position: DraggableImageEventPosition;
+  textPosition: DraggableImageEventPosition | undefined;
+}
+
+function TextPositionInputs(props: TextBlockPositionProps) {
+  const { setTextPosition } = useSessionStore();
+  const { selectedImg } = useWorkSession();
+
+  return (
+    <Flex gap={4} width="full" alignItems="center">
+      <Box display={"flex"} flexDir={"row"} gap={2} alignItems={"center"}>
+        <Text w="fit">X:</Text>
+
+        <HStack flex="1">
+          <NumberInput.Root
+            value={
+              typeof props.position.x === "number"
+                ? isNaN(props.position.x)
+                  ? "0"
+                  : props.position.x.toString()
+                : "0"
+            }
+            min={0}
+            onValueChange={(e) =>
+              setTextPosition(selectedImg, props.id, {
+                x: Number(e.value),
+                y: props.position.y,
+              })
+            }
+          >
+            <NumberInput.Control />
+            <NumberInput.Input />
+          </NumberInput.Root>
+        </HStack>
+      </Box>
+      <Box display={"flex"} flexDir={"row"} gap={2} alignItems={"center"}>
+        <Text w="fit">Y:</Text>
+
+        <HStack flex="1">
+          <NumberInput.Root
+            value={
+              typeof props.position.y === "number"
+                ? isNaN(props.position.y)
+                  ? "0"
+                  : props.position.y.toString()
+                : "0"
+            }
+            min={0}
+            onValueChange={(e) =>
+              setTextPosition(selectedImg, props.id, {
+                x: props.position.x,
+                y: Number(e.value),
+              })
+            }
+          >
+            <NumberInput.Control />
+            <NumberInput.Input />
+          </NumberInput.Root>
+        </HStack>
+      </Box>
+    </Flex>
+  );
+}
+
+export function TextBlockPosition(props: TextBlockPositionProps) {
+  const { setTextPosition } = useSessionStore();
+  const { selectedImg } = useWorkSession();
+  const imageSize = useSessionStore(
+    (s) => s.sessionData.find((img) => img.id === selectedImg)?.dimesions,
+    shallow,
+  );
+
+  return (
+    <Flex gap={4} flexDir={"column"}>
+      <TextPositionInputs
+        id={props.id}
+        position={props.position}
+        textPosition={props.textPosition}
+      />
+      <Grid
+        display={"grid"}
+        templateRows={"repeat(3, 1fr)"}
+        templateColumns={"repeat(3,1fr)"}
+        gap={2}
+        w={"full"}
+      >
+        <IconButton
+          colorPalette={"teal"}
+          variant={"subtle"}
+          w={"full"}
+          h={"full"}
+          disabled={
+            props.textPosition &&
+            props.textPosition.x === XPositions.LEFT &&
+            props.textPosition.y === YPositions.TOP
+          }
+          onClick={() => {
+            setTextPosition(selectedImg, props.id, {
+              x: XPositions.LEFT,
+              y: YPositions.TOP,
+            });
+          }}
+        >
+          <LuArrowUpLeft />
+        </IconButton>
+        <IconButton
+          colorPalette={"teal"}
+          w={"full"}
+          variant={"subtle"}
+          disabled={
+            props.textPosition &&
+            props.textPosition.x === XPositions.CENTER &&
+            props.textPosition.y === YPositions.TOP
+          }
+          onClick={() => {
+            if (imageSize)
+              setTextPosition(selectedImg, props.id, {
+                x: XPositions.CENTER,
+                y: YPositions.TOP,
+              });
+          }}
+        >
+          <LuArrowUp />
+        </IconButton>
+        <IconButton
+          colorPalette={"teal"}
+          variant={"subtle"}
+          w={"full"}
+          disabled={
+            props.textPosition &&
+            props.textPosition.x === XPositions.RIGHT &&
+            props.textPosition.y === YPositions.TOP
+          }
+          onClick={() => {
+            if (imageSize)
+              setTextPosition(selectedImg, props.id, {
+                x: XPositions.RIGHT,
+                y: YPositions.TOP,
+              });
+          }}
+        >
+          <LuArrowUpRight />
+        </IconButton>
+
+        <IconButton
+          colorPalette={"teal"}
+          variant={"subtle"}
+          w={"full"}
+          disabled={
+            props.textPosition &&
+            props.textPosition.x === XPositions.LEFT &&
+            props.textPosition.y === YPositions.CENTER
+          }
+          onClick={() => {
+            if (imageSize)
+              setTextPosition(selectedImg, props.id, {
+                x: XPositions.LEFT,
+                y: YPositions.CENTER,
+              });
+          }}
+        >
+          <LuArrowLeft />
+        </IconButton>
+        <IconButton
+          colorPalette={"teal"}
+          variant={"subtle"}
+          w={"full"}
+          disabled={
+            props.textPosition &&
+            props.textPosition.x === XPositions.CENTER &&
+            props.textPosition.y === YPositions.CENTER
+          }
+          onClick={() => {
+            if (imageSize)
+              setTextPosition(selectedImg, props.id, {
+                x: XPositions.CENTER,
+                y: YPositions.CENTER,
+              });
+          }}
+        >
+          <LuDot />
+        </IconButton>
+        <IconButton
+          colorPalette={"teal"}
+          variant={"subtle"}
+          w={"full"}
+          disabled={
+            props.textPosition &&
+            props.textPosition.x === XPositions.RIGHT &&
+            props.textPosition.y === YPositions.CENTER
+          }
+          onClick={() => {
+            if (imageSize)
+              setTextPosition(selectedImg, props.id, {
+                x: XPositions.RIGHT,
+                y: YPositions.CENTER,
+              });
+          }}
+        >
+          <LuArrowRight />
+        </IconButton>
+
+        <IconButton
+          colorPalette={"teal"}
+          variant={"subtle"}
+          w={"full"}
+          disabled={
+            props.textPosition &&
+            props.textPosition.x === XPositions.LEFT &&
+            props.textPosition.y === YPositions.BOTTOM
+          }
+          onClick={() => {
+            if (imageSize)
+              setTextPosition(selectedImg, props.id, {
+                x: XPositions.LEFT,
+                y: YPositions.BOTTOM,
+              });
+          }}
+        >
+          <LuArrowDownLeft />
+        </IconButton>
+        <IconButton
+          colorPalette={"teal"}
+          variant={"subtle"}
+          w={"full"}
+          disabled={
+            props.textPosition &&
+            props.textPosition.x === XPositions.CENTER &&
+            props.textPosition.y === YPositions.BOTTOM
+          }
+          onClick={() => {
+            if (imageSize)
+              setTextPosition(selectedImg, props.id, {
+                x: XPositions.CENTER,
+                y: YPositions.BOTTOM,
+              });
+          }}
+        >
+          <LuArrowDown />
+        </IconButton>
+        <IconButton
+          colorPalette={"teal"}
+          variant={"subtle"}
+          w={"full"}
+          disabled={
+            props.textPosition &&
+            props.textPosition.x === XPositions.RIGHT &&
+            props.textPosition.y === YPositions.BOTTOM
+          }
+          onClick={() => {
+            if (imageSize)
+              setTextPosition(selectedImg, props.id, {
+                x: XPositions.RIGHT,
+                y: YPositions.BOTTOM,
+              });
+          }}
+        >
+          <LuArrowDownRight />
+        </IconButton>
+      </Grid>
+    </Flex>
+  );
+}

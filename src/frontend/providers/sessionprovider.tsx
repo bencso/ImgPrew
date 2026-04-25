@@ -2,6 +2,7 @@
 
 import {
   CustomImage,
+  SelectedScale,
   WorkSessionContextProps,
   WorkSessionProviderProps,
 } from "@/interfaces/interface";
@@ -16,17 +17,7 @@ export const WorkSessionContext = createContext<WorkSessionContextProps | null>(
 export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
   const [step, setStep] = useState<number>(0);
   const [selectedImg, setSelectedImg] = useState<number>(0);
-  const [selectedScale, setSelectedScale] = useState<{
-    image: {
-      height: number;
-      width: number;
-    };
-    scale: number;
-    position: {
-      x: number;
-      y: number;
-    };
-  }>();
+  const [selectedScale, setSelectedScale] = useState<SelectedScale>();
   const [sessionData, setSessionData] = useState<CustomImage[]>([]);
   const [textElements, setTextElements] = useState<Record<string, HTMLElement>>(
     {},

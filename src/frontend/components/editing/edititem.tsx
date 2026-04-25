@@ -111,7 +111,12 @@ const Item = ({ items }: { items: EditItemProp }) => {
   //#region contextek, és egyéb függőségek
   const { editFunction, selectedImg } = useWorkSession();
   const handleChange = (name: string, value: any) => {
-    editFunction(selectedImg, items.function, name, value);
+    editFunction({
+      selectedImg,
+      functionName: items.function,
+      inputName: name,
+      value,
+    });
   };
   //#endregion
 

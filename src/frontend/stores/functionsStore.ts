@@ -1,4 +1,5 @@
 import {
+  EditFunctionProps,
   FunctionProp,
   FunctionsInputs,
   FunctionsState,
@@ -40,21 +41,21 @@ export const useFunctionsStore = create<FunctionsState>()(
         });
       }),
 
-    editFunction: (selectedImg, functionName, inputName, value) =>
+    editFunction: (props: EditFunctionProps) =>
       set((state) => {
         const existingFunction = state.functions.find(
-          (fn) => fn.name === functionName,
+          (fn) => fn.name === props.functionName,
         );
         if (!existingFunction) return;
 
         const inputItem = existingFunction.inputs.find(
-          (inp) => inp.name === inputName,
+          (inp) => inp.name === props.inputName,
         );
         if (!inputItem) return;
 
         if (inputItem.input === "checkbox")
-          inputItem.value = { ...inputItem.value, ...value };
-        else inputItem.value = value;
+          inputItem.value = { ...inputItem.value, ...props.value };
+        else inputItem.value = props.value;
       }),
   })),
 );
