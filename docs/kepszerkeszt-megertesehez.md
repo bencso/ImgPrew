@@ -123,7 +123,7 @@ A telítettség értéke megmondja, hogy mennyi színmennyiséget kell hozzááa
 #### Value
 A **Saturation** fényerőt adja, a 0 érték teljes **fekete sötétség,** míg a 100 teljes **fényerőt** jelent, illetve ez függ a **telítettségtől**.
 
-##### Kódolás / Megoldás
+#### Kódolás / Megoldás
 
 ###### rgbToHsv
 
