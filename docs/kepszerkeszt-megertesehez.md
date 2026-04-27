@@ -1,3 +1,4 @@
+
 # LUT (Look Up Table)
 
 Milyen szín bemenethez -> milyen szín kimenet megy.
@@ -145,25 +146,31 @@ A **Saturation** fényerőt adja, a 0 érték teljes **fekete sötétség,** mí
 
 Elsősorban **RGB** -> **HSV**-t kell implementálni:
 
-* R' G' B'
-&#x20;	R / alpha
-&#x09;G / alpha
-&#x09;B / alpha
-Cmax = max(R',G',B')
-Cmin = min(R',G',B')
-Δ = Cmax-Cmin
+**R' G' B'**
+	-> R / alpha (0,255)
+	-> G / alpha (0,255)
+	-> B / alpha (0,255)
+**Cmax** = max(R',G',B')
+**Cmin** = min(R',G',B')
+**Δ** = Cmax-Cmin
 
 
 ###### Hue
 
 Három eset van, ha a Cmax az egyenlő **R'**-rel, vagyis az **R'** a legnagyobb akkor
-60deg \* ((G'-B')/Δ mod (%) 6)
+$$
+60^\circ \cdot \frac{(G'-B')}{Δ}  \bmod 6)
+$$
 
 Ha a **G**
-60deg \* ((B'-R')/Δ + 2)
+$$
+60^\circ \cdot  \frac{(B'-R')}{Δ}  + 2)
+$$
 
 Ha a **B**
-60deg \* ((R'-G')/Δ + 4)
+$$
+60^\circ \cdot  \frac{(R'-G')}{Δ} + 4)
+$$
 
 $$
 H =
@@ -178,15 +185,22 @@ $$
 
 Itt két esetünk van, ha a Cmax 0 vagy nem nulla
 
-Ha **0**, akkor a Saturation is 0
+Ha **0**, akkor a **Saturation is 0**
 Különben pedig:
-Δ/Cmax
+**Δ/Cmax**
 
 ###### Value
 
 **Value = Cmax**
 
 ###### **GSLS-ben**
+1. Esetlegesen: https://www.npmjs.com/package/glsl-hsl2rgb
+
+```glsl
+#pragma glslify: hsl2rgb = require(glsl-hsl2rgb)
+```
+
+2. Vagy az alábbi módon:
 
 ```glsl
 vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
@@ -240,20 +254,49 @@ d / (q.x + e)
 ---
 
 ```glsl
-vec3 rgb2hsv(vec3 c) {
-&#x20;   vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+vec3 rgbToHsv(vec3 c) {
+	vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
 
-&#x20;   vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
-&#x20;   vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+	vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+	vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
 
-&#x20;   float d = q.x - min(q.w, q.y);
-&#x20;   float e = 1.0e-10;
+	float d = q.x - min(q.w, q.y);
+	float e = 1.0e-10;
 
-&#x20;   return vec3(abs(q.z + (q.w - q.y) / (6.0 \* d + e)), d / (q.x + e), q.x);
-
+	return vec3(abs(q.z + (q.w - q.y) / (6.0 \* d + e)), d / (q.x + e), q.x);
 }
-
 ```
+
+és kell a hsvToRgb function is:
+
+Ami úgy hangzik, hogy: 
+H/S/V:
+- H: 0 <= H < 360
+- S: 0 <= S <= 1
+- V: 0 <= V <= 1
+
+C = V * S *(Színtelítettség mértéke)*
+$$
+X =  C * (1 - | \frac{H}{60^\circ} \mod 2 -1 |)
+$$
+m = V - C *(Fényerő korrekció)*
+
+majd a változók kiszámítása utána az árnyalat tartomány alapján meghatározzuk az **R'G'B'**-t
+
+| Tartomány | R'G'B' |
+|--|--|
+| 0 <= H < 60 |  (C,X,0) |
+| 60 <= H < 120|  (X,C,0) |
+| 120 <= H < 180 |  (0,C,X) |
+| 180 <= H < 240|  (0,X,C) |
+| 240 <= H < 300 |  (X,0,C) |
+| 300 <= H < 360 |  (C,0,X) |
+
+Majd az **RGB** kiszámítása:
+
+R = (R' + m) * 255
+G = (G' + m) * 255
+B = (B' + m) * 255
 
 ### Levels
 
@@ -265,4 +308,3 @@ vec3 rgb2hsv(vec3 c) {
 * [https://halado.fotokonyv.hu/color-grading/ ](https://halado.fotokonyv.hu/color-grading/)
 * [https://www.capcut.com/hu-hu/resource/color-grading-in-davinci-resolve](https://www.capcut.com/hu-hu/resource/color-grading-in-davinci-resolve)
 * [https://crewinmotion.com/what-you-need-to-know-about-color-grading-for-beginners/](https://crewinmotion.com/what-you-need-to-know-about-color-grading-for-beginners/)
-
