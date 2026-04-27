@@ -88,7 +88,7 @@ L -> ***Luminance*:** *szín sötétség*
 
 
 
-### Lift, Gamme, Gain -> ezt ki lesz hagyva …. (Ennek utoljára utánanézni, csak kíváncsiságból - ez too much már)
+### Lift, Gamma, Gain -> ezt ki lesz hagyva …. (Ennek utoljára utánanézni, csak kíváncsiságból - ez too much már)
 
 Lift, Gamma, Gain színkerekek, \*\*színkorrekciókra \*\*lettek kitalálva.
 
@@ -103,19 +103,6 @@ RGB görbe:
 - Jobb felső: fehér pontok  
 -> ***Függőleges***\*:\* színek fényereje  
 -> ***Vízszintes***\*: \*Színtónus szabályozásra
-
-
-
-### Funkciók és implementálása:
-
-* **Utánanézni:** Hogyan tudnám megvalósítani ezeket WebGL, és BE-n?
-
-**Amik *(a külön szekcióban)* lehetnének, mert talán megvalósítható utánajárás után, szerintem:**
-
-* **Exposure, Brightness, Contrast** *(ezek alapból vannak is, és lesznek is….annyi hogy lehet WebGL megoldással)*
-* **HSV (Hue, Saturation, Value), Vibrance** -> ehhez jön a **shadow tint** és a **highlight tint** -> [https://www.geeksforgeeks.org/computer-graphics/hsv-color-model-in-computer-graphics/](https://www.geeksforgeeks.org/computer-graphics/hsv-color-model-in-computer-graphics/)
-* **Levels (Shadows, Midtones, Highlights)** -> [https://lifeafterphotoshop.com/shadows-midtones-and-highlights-explained/](https://lifeafterphotoshop.com/shadows-midtones-and-highlights-explained/)
-* **Channel mixer** -> [https://www.tourboxtech.com/en/news/channel-mixer.html](https://www.tourboxtech.com/en/news/channel-mixer.html)
 
 
 ### HSV
@@ -340,6 +327,14 @@ FragColor = vec4(rgb, 1.0);
 Továbbiakban, késöbb jó lehet:
 * [Vignette ](https://stack.gl/packages/#TyLindberg/glsl-vignette)
 * [LUT](https://stack.gl/packages/#thibauts/parse-cube-lut)
+
+* **Utánanézni:** Hogyan tudnám megvalósítani ezeket WebGL, és BE-n?
+* 
+* **Exposure, Brightness, Contrast** *(ezek alapból vannak is, és lesznek is….annyi hogy lehet WebGL megoldással)*
+* ***~~HSV (Hue, Saturation, Value)~~*, Vibrance** -> ehhez jön majd még a **shadow tint** és a **highlight tint** -> [https://www.geeksforgeeks.org/computer-graphics/hsv-color-model-in-computer-graphics/](https://www.geeksforgeeks.org/computer-graphics/hsv-color-model-in-computer-graphics/)
+* **Levels (Shadows, Midtones, Highlights)** -> [https://lifeafterphotoshop.com/shadows-midtones-and-highlights-explained/](https://lifeafterphotoshop.com/shadows-midtones-and-highlights-explained/)
+* **Channel mixer** -> [https://www.tourboxtech.com/en/news/channel-mixer.html](https://www.tourboxtech.com/en/news/channel-mixer.html)
+
 
 ### Források:
 
