@@ -311,10 +311,6 @@ vec3 hsvToRgb(vec3 c) {
 	  
 return rgb;  
 }
-
-```glsl
-float value = color.z / 100.0;
-float saturation = color.y / 100.0;
 ```
 > Normalizálás, a GPU 0-1 tartományba számol ugye
 
