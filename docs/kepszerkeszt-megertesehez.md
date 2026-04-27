@@ -44,7 +44,6 @@ A Color grading *(vagyis fényelés)* esetén az alábbi kép tulajdonságokat �
 ### *Kerék (ez kihagyható -> helyette elég csak a HSL sliderek)*
 
 
-
 A kerékben egy kezelő van, a kezelő a **telítettséget** szabályozza
 
 * középpontól való távolság a telítettséget változtatja -> ha középen van telítettség **nulla *(nincs színárnyalat)*** -> ha a szélén van akkor **100**
@@ -119,7 +118,6 @@ RGB görbe:
 * **Channel mixer** -> [https://www.tourboxtech.com/en/news/channel-mixer.html](https://www.tourboxtech.com/en/news/channel-mixer.html)
 
 
-
 ### HSV
 
 * H -> Hue
@@ -143,6 +141,8 @@ A telítettség értéke megmondja, hogy mennyi színmennyiséget kell hozzááa
 A **Saturation** fényerőt adja, a 0 érték teljes **fekete sötétség,** míg a 100 teljes **fényerőt** jelent, illetve ez függ a **telítettségtől**.
 
 ##### Kódolás / Megoldás
+
+###### rgbToHsv
 
 Elsősorban **RGB** -> **HSV**-t kell implementálni:
 
@@ -194,7 +194,7 @@ Különben pedig:
 **Value = Cmax**
 
 ###### **GSLS-ben**
-1. Esetlegesen: https://www.npmjs.com/package/glsl-hsl2rgb
+1. Esetlegesen: https://www.npmjs.com/package/glsl-hsv2rgb
 
 ```glsl
 #pragma glslify: hsl2rgb = require(glsl-hsl2rgb)
@@ -250,7 +250,7 @@ saturation / (maxPR.x + e)
 > ha nincs különbség a komponensek között => 0 -> szürke
 > ha nagy különbség => élénk szín
 
-######  GLSL megvalósítás
+######  Kód implementálás (GPU barát)
 
 ```glsl
 vec3 rgbToHsv(vec3 color){
@@ -262,19 +262,21 @@ vec3 rgbToHsv(vec3 color){
 	float saturation = maxPR.x - min(maxPR.w, maxPR.y);
 	float e = 1.0e-10;
 
-	return vec3(abs(maxPR.z + (maxPR.w - maxPR.y) / (6.0 \* saturation + e)), saturation / (maxPR.x + e), maxPR.x);
+	return vec3(abs(maxPR.z + (maxPR.w - maxPR.y) / (6.0 * saturation + e)), saturation / (maxPR.x + e), maxPR.x);
 }
 ```
 
 ---
 
-és kell a hsvToRgb function is:
+###### hsvToRgb
 
 Ami úgy hangzik, hogy: 
 H/S/V:
-- H: 0 <= H < 360
+- H: 0 <= H < 360 (UI szinten)
 - S: 0 <= S <= 1
 - V: 0 <= V <= 1
+
+*UI-nál 360, de ezt majd a logikához osztani kell 360-val*
 
 C = V * S *(Színtelítettség mértéke)*
 $$
@@ -299,12 +301,45 @@ R = (R' + m) * 255
 G = (G' + m) * 255
 B = (B' + m) * 255
 
-Ezt 
+######  Kód implementálás (GPU barát)
+
+```glsl
+vec3 hsvToRgb(vec3 c) {  
+	vec4 K = vec4(1.0, 2.0/3.0, 1.0/3.0, 3.0);  
+	vec3 p = fract(c.xxx + K.xyz) * 6.0 - K.www;   
+	vec3 rgb = c.z * mix(vec3(1.0), clamp(p - 1.0, 0.0, 1.0), c.y);  
+	  
+return rgb;  
+}
+
+```glsl
+float value = color.z / 100.0;
+float saturation = color.y / 100.0;
+```
+> Normalizálás, a GPU 0-1 tartományba számol ugye
+
+
+```glsl
+vec3 rgb = v * mix(vec3(1.0), clamp(p - 1.0, 0.0, 1.0), s);
+```
+> **fehér alap** => vec3(1.0)
+> **színes** => clamp(p - 1, 0, 1)
+> clamp, hogy 0-1 között legyen; 0 = **fekete**, 1 = **színes**
+
+###### Ezek funkciók implementálása
+```glsl
+vec3 rgb = hsvToRgb();
+FragColor = vec4(rgb, 1.0);
+```
 
 ### Levels
 
 ### Channel Mixer
 
+### Lábjegyzet:
+Továbbiakban, késöbb jó lehet:
+* [Vignette ](https://stack.gl/packages/#TyLindberg/glsl-vignette)
+* [LUT](https://stack.gl/packages/#thibauts/parse-cube-lut)
 
 ### Források:
 
