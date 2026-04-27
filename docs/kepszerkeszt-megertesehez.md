@@ -129,7 +129,7 @@ Egy kúp, ahol *piros-kék spektruma* **balról jobbra**, **középről** <-> **
 Alulról felfelé, pedig a fényerő nő.
 Fehér a középső rétegben.
 
-[!image](https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/HSV\_color\_solid\_cone\_chroma\_gray.png/250px-HSV\_color\_solid\_cone\_chroma\_gray.png)
+![image](https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/HSV\_color\_solid\_cone\_chroma\_gray.png/250px-HSV\_color\_solid\_cone\_chroma\_gray.png)
 
 #### Hue
 Megmondja a szöget, a **színtér hengerén,** amely **meghatározza a színt**, **0-360** fok között változik
