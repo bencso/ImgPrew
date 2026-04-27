@@ -125,7 +125,7 @@ A **Saturation** fényerőt adja, a 0 érték teljes **fekete sötétség,** mí
 
 #### Kódolás / Megoldás
 
-###### rgbToHsv
+#### rgbToHsv
 
 Elsősorban **RGB** -> **HSV**-t kell implementálni:
 
@@ -251,7 +251,7 @@ vec3 rgbToHsv(vec3 color){
 
 ---
 
-###### hsvToRgb
+#### hsvToRgb
 
 Ami úgy hangzik, hogy: 
 H/S/V:
