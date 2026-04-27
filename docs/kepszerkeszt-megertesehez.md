@@ -105,7 +105,7 @@ RGB görbe:
 -> ***Vízszintes***\*: \*Színtónus szabályozásra
 
 
-### HSV
+# HSV
 
 * H -> Hue
 * S -> Telítettség / Saturation
