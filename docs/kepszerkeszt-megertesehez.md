@@ -209,20 +209,19 @@ vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
 > **-1/3** és a **2/3** eltolások a *color wheel* miatt kell
 
 ```glsl
-vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+vec4 maxBG = mix(vec4(color.bg, K.wz), vec4(color.gb, K.xy), step(color.b, color.g));
 ```
 
 > Összehasonlítja a **b** és **g** értékekekt, és rendezi az adatokat **(Maximum kiválasztás)**
 
 ```glsl
-vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+vec4 maxPR = mix(vec4(maxBG.xyw, color.r), vec4(color.r, maxBG.yzx), step(maxBG.x, color.r));
 ```
 
 > Összehasonlítja a \*\*p\*\* és \*\*r\*\* értékeket, és rendezi az adatokat \*\*(Maximum kiválasztás még egyszer)\*\* => *p* rendezés, majd *q* rendezés
 
 ```glsl
-float d = q.x - min(q.w, q.y);
-
+float saturation = maxPR.x - min(maxPR.w, maxPR.y);
 ```
 
 > legnagyobb és legkisebb különbség => ez lesz a **telítettség**
@@ -233,39 +232,41 @@ float e = 1.0e-10;
 
 > ne lehessen nullával osztani
 
-*Hue*
+*Hue:*
 
 ```glsl
-abs(q.z + (q.w - q.y) / (6.0 \* d + e))
+abs(maxPR.z + (maxPR.w - maxPR.y) / (6.0 \* saturation + e))
 ```
 
 > szín a színkörön hol van
 
-*Saturation*
+*Saturation:*
 
 ```glsl
-d / (q.x + e)
+saturation / (maxPR.x + e)
 ```
 
 
 > ha nincs különbség a komponensek között => 0 -> szürke
 > ha nagy különbség => élénk szín
 
----
+######  GLSL megvalósítás
 
 ```glsl
-vec3 rgbToHsv(vec3 c) {
+vec3 rgbToHsv(vec3 color){
 	vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
 
-	vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
-	vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+	vec4 maxBG = mix(vec4(color.bg, K.wz), vec4(color.gb, K.xy), step(color.b, color.g));
+	vec4 maxPR = mix(vec4(maxBG.xyw, color.r), vec4(color.r, maxBG.yzx), step(maxBG.x, color.r));
 
-	float d = q.x - min(q.w, q.y);
+	float saturation = maxPR.x - min(maxPR.w, maxPR.y);
 	float e = 1.0e-10;
 
-	return vec3(abs(q.z + (q.w - q.y) / (6.0 \* d + e)), d / (q.x + e), q.x);
+	return vec3(abs(maxPR.z + (maxPR.w - maxPR.y) / (6.0 \* saturation + e)), saturation / (maxPR.x + e), maxPR.x);
 }
 ```
+
+---
 
 és kell a hsvToRgb function is:
 
@@ -297,6 +298,8 @@ Majd az **RGB** kiszámítása:
 R = (R' + m) * 255
 G = (G' + m) * 255
 B = (B' + m) * 255
+
+Ezt 
 
 ### Levels
 
