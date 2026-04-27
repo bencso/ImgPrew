@@ -193,7 +193,7 @@ Különben pedig:
 
 **Value = Cmax**
 
-###### **GSLS-ben**
+###### **Megoldások, magyarázat**
 1. Esetlegesen: https://www.npmjs.com/package/glsl-hsv2rgb
 
 ```glsl
@@ -250,7 +250,7 @@ saturation / (maxPR.x + e)
 > ha nincs különbség a komponensek között => 0 -> szürke
 > ha nagy különbség => élénk szín
 
-######  Kód implementálás (GPU barát)
+######  Kód implementálás (GPU barát) - rgbToHsv
 
 ```glsl
 vec3 rgbToHsv(vec3 color){
@@ -301,7 +301,7 @@ R = (R' + m) * 255
 G = (G' + m) * 255
 B = (B' + m) * 255
 
-######  Kód implementálás (GPU barát)
+######  Kód implementálás (GPU barát) - hsvToRgb
 
 ```glsl
 vec3 hsvToRgb(vec3 c) {  
@@ -311,6 +311,10 @@ vec3 hsvToRgb(vec3 c) {
 	  
 return rgb;  
 }
+
+```glsl
+float value = color.z / 100.0;
+float saturation = color.y / 100.0;
 ```
 > Normalizálás, a GPU 0-1 tartományba számol ugye
 
@@ -322,7 +326,7 @@ vec3 rgb = v * mix(vec3(1.0), clamp(p - 1.0, 0.0, 1.0), s);
 > **színes** => clamp(p - 1, 0, 1)
 > clamp, hogy 0-1 között legyen; 0 = **fekete**, 1 = **színes**
 
-###### Ezek funkciók implementálása
+###### hsvToRgb alkalmazása
 ```glsl
 vec3 rgb = hsvToRgb();
 FragColor = vec4(rgb, 1.0);
