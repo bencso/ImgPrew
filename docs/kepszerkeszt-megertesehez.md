@@ -10,11 +10,7 @@ A legjobb, ha **LUT** készítéshez, LOG formátumú *(nyers)* fényképet hasz
 
 ### 
 
-### Beállítások
-
-### 
-
-### Színkorrekció
+# Színkorrekció
 
 A Color correction *(vagyis színkorrekció)* esetén állítjuk be az alábbiakat:
 
@@ -26,7 +22,7 @@ A kép "normális" kinézetének megalkotása
 
 ### 
 
-### Színosztályzás / Fényelés
+# Színosztályzás / Fényelés
 
 A Color grading *(vagyis fényelés)* esetén az alábbi kép tulajdonságokat állíthatjuk:
 
@@ -41,7 +37,7 @@ A Color grading *(vagyis fényelés)* esetén az alábbi kép tulajdonságokat �
 
 ### 
 
-### *Kerék (ez kihagyható -> helyette elég csak a HSL sliderek)*
+# *Kerék (ez kihagyható -> helyette elég csak a HSL sliderek)*
 
 
 A kerékben egy kezelő van, a kezelő a **telítettséget** szabályozza
@@ -52,7 +48,7 @@ A kerékben egy kezelő van, a kezelő a **telítettséget** szabályozza
 
 ### 
 
-### *Slider (HSL)*
+# *Slider (HSL)*
 
 A **színárnyalatot**, vagyis **HSL értékeket** lehet vele szabályozni:
 
@@ -66,7 +62,7 @@ L -> ***Luminance*:** *szín sötétség*
 
 ### 
 
-### *Blending, Balance*
+# *Blending, Balance*
 
 **Blending** felel a *színek közötti átfedéséért* (közép érték -> 0 - 50 - 100)
 
@@ -88,7 +84,7 @@ L -> ***Luminance*:** *szín sötétség*
 
 
 
-### Lift, Gamma, Gain -> ezt ki lesz hagyva …. (Ennek utoljára utánanézni, csak kíváncsiságból - ez too much már)
+# Lift, Gamma, Gain -> ezt ki lesz hagyva …. (Ennek utoljára utánanézni, csak kíváncsiságból - ez too much már)
 
 Lift, Gamma, Gain színkerekek, \*\*színkorrekciókra \*\*lettek kitalálva.
 
@@ -319,11 +315,11 @@ vec3 rgb = hsvToRgb();
 FragColor = vec4(rgb, 1.0);
 ```
 
-### Levels
+# Levels
 
-### Channel Mixer
+# Channel Mixer
 
-### Lábjegyzet:
+# Lábjegyzet:
 Továbbiakban, késöbb jó lehet:
 * [Vignette ](https://stack.gl/packages/#TyLindberg/glsl-vignette)
 * [LUT](https://stack.gl/packages/#thibauts/parse-cube-lut)
@@ -336,7 +332,7 @@ Továbbiakban, késöbb jó lehet:
 * **Channel mixer** -> [https://www.tourboxtech.com/en/news/channel-mixer.html](https://www.tourboxtech.com/en/news/channel-mixer.html)
 
 
-### Források:
+# Források:
 
 * [https://halado.fotokonyv.hu/color-grading/ ](https://halado.fotokonyv.hu/color-grading/)
 * [https://www.capcut.com/hu-hu/resource/color-grading-in-davinci-resolve](https://www.capcut.com/hu-hu/resource/color-grading-in-davinci-resolve)
