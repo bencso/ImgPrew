@@ -125,9 +125,11 @@ A **Saturation** fényerőt adja, a 0 érték teljes **fekete sötétség,** mí
 Elsősorban **RGB** -> **HSV**-t kell implementálni:
 
 **R' G' B'**
+
 	-> R / alpha (0,255)
 	-> G / alpha (0,255)
 	-> B / alpha (0,255)
+
 **Cmax** = max(R',G',B')
 **Cmin** = min(R',G',B')
 **Δ** = Cmax-Cmin
@@ -135,16 +137,19 @@ Elsősorban **RGB** -> **HSV**-t kell implementálni:
 ###### Hue
 
 Három eset van, ha a Cmax az egyenlő **R'**-rel, vagyis az **R'** a legnagyobb akkor
+
 $$
 60^\circ \cdot \frac{(G'-B')}{Δ}  \bmod 6)
 $$
 
 Ha a **G**
+
 $$
 60^\circ \cdot  \frac{(B'-R')}{Δ}  + 2)
 $$
 
 Ha a **B**
+
 $$
 60^\circ \cdot  \frac{(R'-G')}{Δ} + 4)
 $$
@@ -343,9 +348,9 @@ A slider mozgatásával, a közets tartományt tolja el világosabb vagy sötét
 
 **8 bites képen (0-255 tartomány)**
 
-**Bemeneti paraméterek:** Black, White, Gamma, OutBlack, OutWhite
+**Bemeneti paraméterek:** _Black, White, Gamma, OutBlack, OutWhite_
 
-OutBlack alapértelmezetten 0, az OutWhite 255
+OutBlack alapértelmezetten _0_, az OutWhite _255_
 
 > Ha a Blacket növeljük, azzal a histogram bal szélét toljuk be.
 
@@ -388,7 +393,7 @@ __5 sliderre lesz szükségünk:__
       
 Mivel minden pixelre megkéne a hatványozást csinálni ezért ez a matematikai megoldás nem a legjobb…
 
-Így LUT-tal lehet megoldani a legegyszerűbben a dolgot
+Így LUT-tal lehet megoldani a legegyszerűbben a dolgot _(python esetében ezt fogjuk nagyvalószínűséggel használni)_
 
 Ha _8 bit_-es képről beszélünk, akkor a max. érték 256 _($2^8$)_ lehet…
 
@@ -397,19 +402,32 @@ Ha _8 bit_-es képről beszélünk, akkor a max. érték 256 _($2^8$)_ lehet…
 3. A kép pixelein végigmegyünk és csak kiolvassuk az értéket a tömbböl (LUT)
 4. És ezt utána csak a kép pixelein végig menve az R/G/B-t változtatjuk (_LUT[px[i + n]]_-> itt _n>3_)
 
+#### PIXI.JS / WebGL implementáció
+A WebGL-es megoldáshoz, Shadert ajánlott, mert így nem kell mindig újragenerálni a LUT-ot, hanem egyszerűen az 5 paramétert megadjuk a **GPU** számára Shader segítségével, és a videókártya számol utána a képlet alapján..
+
+- Normalizálás _(clamp függvénnyel)_
+- Gamma korrekció
+- Output mappelése
+- Majd ezt a shadert egy _PIXI.Filter_-ként példányosítjuk
+
 # Channel Mixer
 # Lábjegyzet:
 Továbbiakban, késöbb jó lehet:
 * [Vignette ](https://stack.gl/packages/#TyLindberg/glsl-vignette)
 * [LUT](https://stack.gl/packages/#thibauts/parse-cube-lut)
 
-* **Utánanézni:** Hogyan tudnám megvalósítani ezeket WebGL, és BE-n?
-* **Exposure, Brightness, Contrast** *(ezek alapból vannak is, és lesznek is….annyi hogy lehet WebGL megoldással)*
-* ***~~HSV (Hue, Saturation, Value)~~*, Vibrance** -> ehhez jön majd még a **shadow tint** és a **highlight tint** -> [https://www.geeksforgeeks.org/computer-graphics/hsv-color-model-in-computer-graphics/](https://www.geeksforgeeks.org/computer-graphics/hsv-color-model-in-computer-graphics/)
-* **Levels (Shadows, Midtones, Highlights)** -> [https://lifeafterphotoshop.com/shadows-midtones-and-highlights-explained/](https://lifeafterphotoshop.com/shadows-midtones-and-highlights-explained/)
+**Utánanézni:** Hogyan tudnám megvalósítani ezeket WebGL, és BE-n?
+  
+* **Exposure, Brightness, Contrast**,
+* *~~HSV (Hue, Saturation, Value)~~*,
+* ~~Levels (Shadows, Midtones, Highlights)~~,
+* **Vibrance** -> ehhez jön majd még a **shadow tint** és a **highlight tint**,
 * **Channel mixer** -> [https://www.tourboxtech.com/en/news/channel-mixer.html](https://www.tourboxtech.com/en/news/channel-mixer.html)
 
-# Források:
+# Források, használt anyagok:
 * [https://halado.fotokonyv.hu/color-grading/ ](https://halado.fotokonyv.hu/color-grading/)
 * [https://www.capcut.com/hu-hu/resource/color-grading-in-davinci-resolve](https://www.capcut.com/hu-hu/resource/color-grading-in-davinci-resolve)
 * [https://crewinmotion.com/what-you-need-to-know-about-color-grading-for-beginners/](https://crewinmotion.com/what-you-need-to-know-about-color-grading-for-beginners/)
+* [https://lifeafterphotoshop.com/shadows-midtones-and-highlights-explained/](https://lifeafterphotoshop.com/shadows-midtones-and-highlights-explained/)
+---
+_Megjegyzés: Gemini AI-t használtam, a források megértéséhez, az elmélet megértéséhez és elmagyarázásához. A Gemini-t mentorként használtam, hogy megértsem hogy mit fogok csinálni, és értsem a funkciók mögötti logikát, mivel célom nem a kód generáltatása._
