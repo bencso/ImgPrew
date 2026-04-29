@@ -201,53 +201,35 @@ Különben pedig:
 **Value = Cmax**
 
 
-#### **Implementálás**
+#### Implementálás
 1. Esetlegesen: https://www.npmjs.com/package/glsl-hsv2rgb
-```c
-#pragma glslify: hsl2rgb = require(glsl-hsl2rgb)
-```
-
+```#pragma glslify: hsl2rgb = require(glsl-hsl2rgb)```
 2. Vagy az alábbi módon:
-
-```c
-vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
-```
+```vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);```
 > **-1/3** és a **2/3** eltolások a *color wheel* miatt kell
 
-```c
-vec4 maxBG = mix(vec4(color.bg, K.wz), vec4(color.gb, K.xy), step(color.b, color.g));
-```
+```vec4 maxBG = mix(vec4(color.bg, K.wz), vec4(color.gb, K.xy), step(color.b, color.g));```
 > Összehasonlítja a **b** és **g** értékekekt, és rendezi az adatokat **(Maximum kiválasztás)**
 
-```c
-vec4 maxPR = mix(vec4(maxBG.xyw, color.r), vec4(color.r, maxBG.yzx), step(maxBG.x, color.r));
-```
+```vec4 maxPR = mix(vec4(maxBG.xyw, color.r), vec4(color.r, maxBG.yzx), step(maxBG.x, color.r));```
 > Összehasonlítja a **p** és **r** értékeket, és rendezi az adatokat (Maximum kiválasztás még egyszer) => *p* rendezés, majd *q* rendezés
 
-```c
-float saturation = maxPR.x - min(maxPR.w, maxPR.y);
-```
+```float saturation = maxPR.x - min(maxPR.w, maxPR.y);```
 > legnagyobb és legkisebb különbség => ez lesz a **telítettség**
 
-```c
-float e = 1.0e-10;
-```
+```float e = 1.0e-10;```
 > ne lehessen nullával osztani
 
 *Hue:*
-```c
-abs(maxPR.z + (maxPR.w - maxPR.y) / (6.0  saturation + e))
-```
+```abs(maxPR.z + (maxPR.w - maxPR.y) / (6.0  saturation + e))```
 > szín a színkörön hol van
 
 *Saturation:*
-```c
-saturation / (maxPR.x + e)
-```
+```saturation / (maxPR.x + e)```
 > ha nincs különbség a komponensek között => 0 -> szürke
 > ha nagy különbség => élénk szín
 
-######  Kód (GPU barát) - rgbToHsv
+###### Kód (GPU barát) - rgbToHsv
 ```c
 vec3 rgbToHsv(vec3 color){
 	vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
@@ -261,9 +243,7 @@ vec3 rgbToHsv(vec3 color){
 	return vec3(abs(maxPR.z + (maxPR.w - maxPR.y) / (6.0 * saturation + e)), saturation / (maxPR.x + e), maxPR.x);
 }
 ```
-
 ---
-
 #### hsvToRgb
 
 Ami úgy hangzik, hogy: 
@@ -312,10 +292,7 @@ float saturation = color.y / 100.0;
 ```
 > Normalizálás, a GPU 0-1 tartományba számol ugye
 
-
-```c
-vec3 rgb = v * mix(vec3(1.0), clamp(p - 1.0, 0.0, 1.0), s);
-```
+```vec3 rgb = v * mix(vec3(1.0), clamp(p - 1.0, 0.0, 1.0), s);```
 > **fehér alap** => vec3(1.0)
 > **színes** => clamp(p - 1, 0, 1)
 > clamp, hogy 0-1 között legyen; 0 = **fekete**, 1 = **színes**
@@ -325,7 +302,6 @@ vec3 rgb = v * mix(vec3(1.0), clamp(p - 1.0, 0.0, 1.0), s);
 vec3 rgb = hsvToRgb();
 FragColor = vec4(rgb, 1.0);
 ```
-
 # Levels
 Histogram: Térkép, ami megmutatja hogy a fotón, *mennyi sötét, közepes és világos px* van
 
