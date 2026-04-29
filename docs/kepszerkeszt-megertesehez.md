@@ -200,8 +200,8 @@ Különben pedig:
 
 **Value = Cmax**
 
+#### Számítás (Matematikai, megértéshez)
 
-#### Implementálás
 1. Esetlegesen: https://www.npmjs.com/package/glsl-hsv2rgb
 ```#pragma glslify: hsl2rgb = require(glsl-hsl2rgb)```
 2. Vagy az alábbi módon:
@@ -229,7 +229,7 @@ Különben pedig:
 > ha nincs különbség a komponensek között => 0 -> szürke
 > ha nagy különbség => élénk szín
 
-###### Kód (GPU barát) - rgbToHsv
+#### Kód (GPU barát) - rgbToHsv
 ```c
 vec3 rgbToHsv(vec3 color){
 	vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
@@ -244,7 +244,7 @@ vec3 rgbToHsv(vec3 color){
 }
 ```
 ---
-#### hsvToRgb
+#### Számítás (Matematikai, megértéshez)
 
 Ami úgy hangzik, hogy: 
 H/S/V:
@@ -277,7 +277,7 @@ R = (R' + m) * 255
 G = (G' + m) * 255
 B = (B' + m) * 255
 
-######  Kód (GPU barát) - hsvToRgb
+####  Kód (GPU barát) - hsvToRgb
 ```c
 vec3 hsvToRgb(vec3 c) {  
 	vec4 K = vec4(1.0, 2.0/3.0, 1.0/3.0, 3.0);  
