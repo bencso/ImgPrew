@@ -19,7 +19,34 @@ A Color correction _(vagyis színkorrekció)_ esetén állítjuk be az alábbiak
 
 A kép "normális" kinézetének megalkotása
 
-### 
+# Exposure, Brightness, Contrast
+Ez a három elengedhetetlen egy képszerkesztőben…
+
+- **Exposure (Expozíció):** Ebben az esetben nem összeadunk, hanem _szorzunk_.
+    - **Úgy viselkedik, mint a kamera lencséje:** ha növekszik akkor minden pixel arányosan több fényt kap, ez az _Fényérték_ alapján számoljuk, ami _2-es alapú hatványozás ($2^{\text{exposure}}$)_.
+  - **Brightness (Fényerő):** Sima _összeadás/kivonás_. Minden pixelhez lineárisan hozzáadunk egy értéket.
+  - **Contrast (Kontraszt):** _Szorzás_ egy pont _(szürke)_ körül.
+      - Kivonunk _0.5_-öt ezáltal a _sötétek negatívak lesznek, a világosak pozítivak_, ezt megszorozzuk a kontraszt értékével, majd visszaadunk hozzá amit elvettünk _(0.5)_ => a _világos világosabb_ a _sötét sötétebb_ lesz
+   
+#### GLSL / WebGL 
+A GPU-nak ezek a számítások nem „drága", így ezt általában egy shaderbe, egy filterbe szokták tenni.
+
+3 sliderre van szükségünk:
+1. **Exposure:** _-3_ és _3_ közötti érték _(alapértelmezett 0)_
+2. **Brightness:** _-1_ és _1_ közötti érték  _(alapértelmezett 0)_
+3. **Contrast:** _0_ és _2_  (vagy több) közötti érték   _(alapértelmezett 1)_
+
+Elsősorban megállapítjuk a textura eredeti pixeleit
+`vec4 color = texture2D(uSampler, vTextureCoord); 
+vec3 rgb = color.rgb;`
+
+és ezek után a müveletek elvégezzük
+- **Exposure** esetén az _rgb_-t megszorozzuk a ($2^{\text{exposure}}$)-val (itt érdemes a beépített _pow_ fgv-t használni)
+- **Brightness** esetén _rgb_-hez hozzáadjuk a _brightness_-t
+- **Contrast** esetén pedig kivonjuk az _rgb_-ből a _0.5_-t, majd megszorozzuk a _contrast_-tal és visszaadjuk neki a _0.5_-t
+
+Ezek után pedig normalizáljuk _(clamp-pal 0 és 1 közötti értékre)_
+és átadjuk a _gl_FragColor_nak egy _4vect_ ként az erdeti alfával
 
 # Színosztályzás / Fényelés
 
@@ -50,11 +77,9 @@ középpontól való távolság a telítettséget változtatja -> ha középen v
 
 A **színárnyalatot**, vagyis **HSL értékeket** lehet vele szabályozni:
 
-H -> ***Hue*:** _színezettség_
-
-S -> ***Saturation*:** _szín telítettség_
-
-L -> ***Luminance*:** _szín sötétség_
+H -> **Hue**: _színezettség_
+S -> **Saturation**: _szín telítettség_
+L -> **Luminance**: _szín sötétség_
 
 * _**Tulajdonképpen a kerékkel ezeket állítjuk, "jobban látható kerékkel" hogy mi is történik, de ezeket az értékeket (H,S,L) változtatja ő is**_
 
@@ -90,11 +115,11 @@ Lift, Gamma, Gain színkerekek, \*\*színkorrekciókra \*\*lettek kitalálva.
 * **Offset (teljes kép)**
 
 RGB görbe:  
-*-> **Átlós tengely:***  
+-> **Átlós tengely:**  
 - Bal alsó: sötét pontok  
 - Jobb felső: fehér pontok  
--> ***Függőleges***\*:\* színek fényereje  
--> ***Vízszintes***\*: \*Színtónus szabályozásra
+-> **Függőleges**: színek fényereje  
+-> **Vízszintes**: Színtónus szabályozásra
 
 # HSV
 
@@ -178,52 +203,52 @@ Különben pedig:
 
 #### **Implementálás**
 1. Esetlegesen: https://www.npmjs.com/package/glsl-hsv2rgb
-```glsl
+```c
 #pragma glslify: hsl2rgb = require(glsl-hsl2rgb)
 ```
 
 2. Vagy az alábbi módon:
 
-```glsl
+```c
 vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
 ```
 > **-1/3** és a **2/3** eltolások a _color wheel_ miatt kell
 
-```glsl
+```c
 vec4 maxBG = mix(vec4(color.bg, K.wz), vec4(color.gb, K.xy), step(color.b, color.g));
 ```
 > Összehasonlítja a **b** és **g** értékekekt, és rendezi az adatokat **(Maximum kiválasztás)**
 
-```glsl
+```c
 vec4 maxPR = mix(vec4(maxBG.xyw, color.r), vec4(color.r, maxBG.yzx), step(maxBG.x, color.r));
 ```
 > Összehasonlítja a **p** és **r** értékeket, és rendezi az adatokat \*\*(Maximum kiválasztás még egyszer)\*\* => _p_ rendezés, majd _q_ rendezés
 
-```glsl
+```c
 float saturation = maxPR.x - min(maxPR.w, maxPR.y);
 ```
 > legnagyobb és legkisebb különbség => ez lesz a **telítettség**
 
-```glsl
+```c
 float e = 1.0e-10;
 ```
 > ne lehessen nullával osztani
 
 _Hue:_
-```glsl
+```c
 abs(maxPR.z + (maxPR.w - maxPR.y) / (6.0 \* saturation + e))
 ```
 > szín a színkörön hol van
 
 _Saturation:_
-```glsl
+```c
 saturation / (maxPR.x + e)
 ```
 > ha nincs különbség a komponensek között => 0 -> szürke
 > ha nagy különbség => élénk szín
 
 ######  Kód (GPU barát) - rgbToHsv
-```glsl
+```c
 vec3 rgbToHsv(vec3 color){
 	vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
 
@@ -247,13 +272,13 @@ H/S/V:
 - S: 0 <= S <= 1
 - V: 0 <= V <= 1
 
-*UI-nál 360, de ezt majd a logikához osztani kell 360-val*
+_UI-nál 360, de ezt majd a logikához osztani kell 360-val_
 
-C = V * S *(Színtelítettség mértéke)*
+C = V * S _(Színtelítettség mértéke)_
 $$
 X =  C * (1 - | \frac{H}{60^\circ} \mod 2 -1 |)
 $$
-m = V - C *(Fényerő korrekció)*
+m = V - C _(Fényerő korrekció)_
 
 majd a változók kiszámítása utána az árnyalat tartomány alapján meghatározzuk az **R'G'B'**-t
 
@@ -273,7 +298,7 @@ G = (G' + m) * 255
 B = (B' + m) * 255
 
 ######  Kód (GPU barát) - hsvToRgb
-```glsl
+```c
 vec3 hsvToRgb(vec3 c) {  
 	vec4 K = vec4(1.0, 2.0/3.0, 1.0/3.0, 3.0);  
 	vec3 p = fract(c.xxx + K.xyz) * 6.0 - K.www;   
@@ -282,14 +307,13 @@ vec3 hsvToRgb(vec3 c) {
 return rgb;  
 }
 
-```glsl
 float value = color.z / 100.0;
 float saturation = color.y / 100.0;
 ```
 > Normalizálás, a GPU 0-1 tartományba számol ugye
 
 
-```glsl
+```c
 vec3 rgb = v * mix(vec3(1.0), clamp(p - 1.0, 0.0, 1.0), s);
 ```
 > **fehér alap** => vec3(1.0)
@@ -297,7 +321,7 @@ vec3 rgb = v * mix(vec3(1.0), clamp(p - 1.0, 0.0, 1.0), s);
 > clamp, hogy 0-1 között legyen; 0 = **fekete**, 1 = **színes**
 
 ###### hsvToRgb alkalmazása
-```glsl
+```c
 vec3 rgb = hsvToRgb();
 FragColor = vec4(rgb, 1.0);
 ```
@@ -343,7 +367,6 @@ Az összes olyan színt és fényerőt állítja, ami nem az elöző két tartom
 
 A slider mozgatásával, a közets tartományt tolja el világosabb vagy sötétebb irányba _(a fehér és a fekete marad)_
 
-
 #### Számítás (Matematikai, megértéshez)
 
 **8 bites képen (0-255 tartomány)**
@@ -379,12 +402,12 @@ Példa kép:
 
 ![Kép by photoshopessentials ](https://pe-images.s3.amazonaws.com/photo-editing/cc/tone-and-color/levels/gradient-missing-shadows.gif "Kép by photoshopessentials ")
 
-__5 sliderre lesz szükségünk:__
+_5 sliderre lesz szükségünk:_
 - Bemeneti sliderek _(3)_
-      1. Fekete _(InputBlack)_ => 0 >= InputBlack < InputWhite
-      2. Szürke _(Gamma)_ => 0.01 > Gamma < 9.99
+      1. Fekete _(InputBlack)_ => 0 <= InputBlack < InputWhite
+      2. Szürke _(Gamma)_ => 0.01 <= Gamma <= 9.99
               _=> alapértelmezett: 1.0_
-      3. Fehér _(InputWhite)_ => InputBlack > InputWhite < 255
+      3. Fehér _(InputWhite)_ => InputBlack < InputWhite <= 255
   - Kimeneti sliderek _(2)_
         1.  Fekete
              _=> alapértelmezett: 0_
@@ -411,6 +434,47 @@ A WebGL-es megoldáshoz, Shadert ajánlott, mert így nem kell mindig újragener
 - Majd ezt a shadert egy _PIXI.Filter_-ként példányosítjuk
 
 # Channel Mixer
+A fotók esetében, mindegyik pixel egy sor RGB értéket tartalmaz. A változtatáskor lényegében a px-ek RGB értékeinek megváltoztatását foglalják magukba, ugyanígy a Channel Mixer esetében.
+
+A Channel Mixer a többi színkorrekciós eszközzel ellentétben nem hozzáaadnak, vagy elvesz egy adott színből, hanem az _eredeti pixelek színcsatornáit használja fel_ egy új channel kiszámításához.
+
+- **Kimeneti csatorna:** A kimeneti csatornába az _R/G/B_-t értékeket lehet választani, ezek kiválasztása esetén, azt választjuk ki hogy melyik csatornát szeretnénk módosítani, befolyásolni.
+
+  Tegyük fel a kék csatornát választjuk, akkor a kimeneti csatorna slidereinél a kiválasztott csatorna _100%_-on lesz a többi alapértelmezetten _0%_.
+
+> Ha változtatjuk tegyük fel a pirosat 50%-ra és az Output channel Green, akkor az RGB-nél  a G érték számítása így néz ki: _(R * R% + G * G% + B * B%)_
+
+#### Számítás (matematikai)
+A channel mixert a legegyszerűbb egy **mátrixszorzással** megoldani.
+
+Minden **px** esetén három input van: R, G, B -> _0-255 közötti érték (8 bit esetén)_, illetve **offset** szokott lenni, ami a _világosságot_ állítja
+$$ \begin{bmatrix} R' \\\ G' \\\ B' \end{bmatrix} = \begin{bmatrix} c\_{RR} & c\_{RG} & c\_{RB} \\\ c\_{GR} & c\_{GG} & c\_{GB} \\\ c\_{BR} & c\_{BG} & c\_{BB} \end{bmatrix} \begin{bmatrix} R \\\ G \\\ B \end{bmatrix} + \begin{bmatrix} K\_R \\\ K\_G \\\ K\_B \end{bmatrix} $$
+- Változók:
+    - $c\_{XY}$: A százalékos értékek tizedestört formátumban _(100% = 1.0)_. Az első a _kimeneti_, a második a _bemeneti_ csatorna. (Pl. $c\_{GR}$ a Green output csatorna és a Red slider értéke).
+    - $K\_R$: Az eltolás értéke _(-255 és 255 közötti értékek)_
+
+#### Implementálás
+Három fő színre R/G/B-re külön külön létre kellene hozni 4 slidert 
+R / G / B / Offset
+
+És a _mátrixszorzásokat_ elvégezzük  minden értékre, illetve az offsetet normalizáljuk _-255-255 _skáláról _-1.0-1.0_-ra
+
+Ezekből az értékekből készítünk egy 1D-s tömböt (3x3 mátrix), és egy 3 elemü tömböt az Offsetnek. Ezeket a GLSL-nek _uniform_ változóként adjuk, mert mindenegyes pixelre haználni kell majd. _(colorMatrix, offset)_
+
+#### WebGL / GLSL
+
+Az  eredeti színeket kiolvassuk a texturából _(texture2D segítségével)_
+    -> _vec4_ type-val: **R,G,B,A**: itt mindegyik érték _0.0_ és _1.0_ között
+Mátrixszorzást alkalmazzuk a GLSL segítségével, és meszorozzuk az eredeti _RGB_-t a saját _matrixunkkal_, majd hozzáadjuk az offsetet
+```c
+vec3 mixedColor = (u\_colorMatrix \* originalColor.rgb) + u\_offset;
+```
+Ezekután normalizálunk, hogy a százalékok miatt minden jó legyen ezt a _clamp()_-val tesszük _0.0_ és _1.0_ között tesszük meg
+
+Ezek után pedig csak visszaadjuk a kész pixelt
+```c
+gl_FragColor = vec4(mixedColor, originalColor.a);
+```
 # Lábjegyzet:
 Továbbiakban, késöbb jó lehet:
 * [Vignette ](https://stack.gl/packages/#TyLindberg/glsl-vignette)
@@ -419,10 +483,11 @@ Továbbiakban, késöbb jó lehet:
 **Utánanézni:** Hogyan tudnám megvalósítani ezeket WebGL, és BE-n?
   
 * **Exposure, Brightness, Contrast**,
-* *~~HSV (Hue, Saturation, Value)~~*,
+* ~~HSV (Hue, Saturation, Value)~~,
 * ~~Levels (Shadows, Midtones, Highlights)~~,
+* ~~Channel mixer~~
 * **Vibrance** -> ehhez jön majd még a **shadow tint** és a **highlight tint**,
-* **Channel mixer** -> [https://www.tourboxtech.com/en/news/channel-mixer.html](https://www.tourboxtech.com/en/news/channel-mixer.html)
+* **White Balance, Temperature, Tint**
 
 # Források, használt anyagok:
 * [https://halado.fotokonyv.hu/color-grading/ ](https://halado.fotokonyv.hu/color-grading/)
