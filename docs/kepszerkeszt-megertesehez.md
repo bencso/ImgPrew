@@ -543,7 +543,7 @@ Továbbiakban, késöbb jó lehet:
 * ~~HSV (Hue, Saturation, Value)~~,
 * ~~Levels (Shadows, Midtones, Highlights)~~,
 * ~~Channel mixer~~
-* **White Balance, Temperature, Tint**
+* ~~White Balance, Temperature, Tint~~,
 * **Vibrance** -> ehhez jön majd még a **shadow tint** és a **highlight tint**,
 
 # Források, használt anyagok:
