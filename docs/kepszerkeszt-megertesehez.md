@@ -504,12 +504,12 @@ Ezek után lekérjük a megszokott módon (`texture2d(uSampler, vTextureCoord)`)
 Eredeti fényerő mentésének kódja:
 `float originalLuminance = dot(texture2D(uSampler, vTextureCoord).rgb, vec3(0.299, 0.587, 0.114));`
 
-#### Észlelési súlyozás
+### Észlelési súlyozás
 `vec3(0.299, 0.587, 0.114)`
 
 - Az emberi szemben lévő receptorok zöld fényre érzékenyek, a pirosra közepesen, míg a kékre kevésbé. Szóval a zöldet érezzük nagyon világosnak, mig a tiszta kéket sötétnek. Ezek a számok ezt az arányt adják meg *(Ezeket az együtthatókat az ITU-R BT.601 szabvány határozza meg, amelyeket az analóg SDTV esetén alkalmaztva)*:
 
-![Kép by videohelp forum](https://forum.videohelp.com/attachment.php?attachmentid=44363 "Kép by videhelp forum” "Kép by videohelp forum")
+![Kép by videohelp forum](https://forum.videohelp.com/attachment.php?attachmentid=44363 "Kép by videhelp forum")
   
 - **Zöld** a világosságérzetünk 59 százalékának felel meg =>* 0.587*
 - **Piros** a 30 százalékának => *0.299*
