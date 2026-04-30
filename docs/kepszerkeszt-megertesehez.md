@@ -376,7 +376,7 @@ $$y = x{Gamma} \cdot (OutWhite - OutBlack) + OutBlack$$
 
 Példa kép:
 
-![Kép by photoshopessentials ](https://pe-images.s3.amazonaws.com/photo-editing/cc/tone-and-color/levels/gradient-missing-shadows.gif "Kép by photoshopessentials ")
+![Kép by photoshopessentials ](https://pe-images.s3.amazonaws.com/photo-editing/cc/tone-and-color/levels/gradient-missing-shadows.gif "Kép by photoshopessentials")
 
 *5 sliderre lesz szükségünk:*
 - Bemeneti sliderek *(3)*
@@ -447,6 +447,91 @@ Ezekután normalizálunk, hogy a százalékok miatt minden jó legyen ezt a *cla
 
 Ezek után pedig csak visszaadjuk a kész pixelt
 ```gl_FragColor = vec4(mixedColor, originalColor.a);```
+
+# White Balance, Temperature, Tint
+### Fehéregyensúly (White Balance)
+A fehéregyensúly célja, hogy a képen *amik a valóságban fehérek voltak, azok a fotón is* azok legyenek, *színeltolódás nélkül*.
+
+A fényeknek/fényforrásoknak saját színük van. A kamera és az ember máshogy rögzíti a színes fényt, ezt szeretnénk ellensúlyozni a *Temperature* és a *Tint* segítségével
+
+### Színhőmérséklet (Temperature)
+Ez *Kék* - *Narancssárga* tengelyen mozog, melynek a fizikai mértékegysége a Kelvin ($K$) 
+
+> A UI-nál a slider jobbra húzással *(értéknöveléssel)* tesszük melegebbé a képet, míg a fotózásban az *alacsonyabb Kelvin* érték a melegebb fényt jelzi.
+
+> **Balra húzva (Hideg):** Növeljük a kék színeket, és csökkentjük a piros, sárgát.
+> **Jobbra húzva (Meleg):** Növeljük a piros és zöldet *(ezzel adja a sárgát)*, és csökkentjük a kéket.
+ 
+![Kép by expertphotography.com](https://expertphotography.com/img/2018/07/White-Balance-Chart.jpg "Kép by expertphotography.com")
+### Árnyalat (Tint)
+Ez *Zöld* - *Magenta (Bíbor)* tengelyen mozog.
+
+> **Alkalmazása:** Olyan fényeknél, amik erős zöldes árnyalatot adnak a képnek, és nem lehet a *Színhőmérséklettel* javítani.
+
+> **Balra húzva (Zöld):** Zöldet ad a képhez, és elvesz a magentából.
+> **Jobbra húzva (Magenta):** Magentát ad a képhez *(piros + kék)*, és elvesz a zöldből.
+
+### Számítás (Matematikai, megértéshez)
+A GPU-s megjelnítés miatt, itt az „olcsóbb” megoldást alkalmazzuk, ami egy *RGB csatornás eltolás*, igazándiból.
+
+#### Temperature ($T$)
+Ha $T > 0$ *(Melegítés)*: Növeljük a *piros* csatornát és csökkentjük a *kék* csatornát.
+Ha $T < 0$ *(Hűtés)*: Csökkentjük a *piros*-t, és növeljük *kék*-et.
+$$R\_{new} = R + T \\
+B\_{new} = B - T
+$$
+#### Tint ($t$)
+Magenta a *piros* és a *kék*-ből jön létre, a *zöld* pedig ennek az ellentéte. Így a *Tint*-nél a *zöld* csatornát állítjuk.
+Ha $t > 0$ *(Magenta)*: Csökkentjük
+Ha $t < 0$ *(Zöld)*: Növeljük
+$$G\_{new} = G - t$$
+### Implementálás
+Két bemeneti érték:
+- **temperature** *(-1 és 1 között => normalizálva)*
+- **tint** *(-1 és 1 között => normalizálva)*
+
+Ezek után lekérjük a megszokott módon (`texture2d(uSampler, vTextureCoord)`) a színeket, és ezeknek az *r*/*g*/*b*-jét állítjuk megfelelően.
+
+- Temperature:
+    - r => `r + temperature`
+    - b =>` b - temperature`
+
+- Tint:
+    - g => `g - tint`
+ 
+  > Ajánlott a *Fényerő* megőrzése, amit lementünk és majd késöbb visszaszorozzuk, mert az RGB csatornák ilyen módbeli (direkt) módosítása, megváltoztathatja az általános fényerejét a képnek
+
+Eredeti fényerő mentésének kódja:
+`float originalLuminance = dot(texture2D(uSampler, vTextureCoord).rgb, vec3(0.299, 0.587, 0.114));`
+
+#### Észlelési súlyozás
+`vec3(0.299, 0.587, 0.114)`
+
+- Az emberi szemben lévő receptorok zöld fényre érzékenyek, a pirosra közepesen, míg a kékre kevésbé. Szóval a zöldet érezzük nagyon világosnak, mig a tiszta kéket sötétnek. Ezek a számok ezt az arányt adják meg *(Ezeket az együtthatókat az ITU-R BT.601 szabvány határozza meg, amelyeket az analóg SDTV esetén alkalmaztva)*:
+
+![Kép by videohelp forum](https://forum.videohelp.com/attachment.php?attachmentid=44363 "Kép by videhelp forum” "Kép by videohelp forum")
+  
+- **Zöld** a világosságérzetünk 59 százalékának felel meg =>* 0.587*
+- **Piros** a 30 százalékának => *0.299*
+- **Kék** mindössze a 11 százalékáért felel =>* 0.114*
+> 0.299 + 0.587 + 0.114 = 1.0
+
+A `dot` függvény a *GLSL beépített függvénye*, ez *két vektor azonos pozícióban levő elemeit szorozza össze* majd *összeadja az eredményeket*$Luminance = (R \cdot 0.299) + (G \cdot 0.587) + (B \cdot 0.114)$
+
+> Erre azért van szükségünk, mert alapvetően a px eltolásoknál a kép elsötétülhet érzékszerveink számára.
+
+Ezért kell **kimentenünk az alap fényerő állapotát** a képünknek, majd módosítás után *visszaszoroznunk az új RGB* értéket, úgy hogy az az **eredeti világosságával megegyezzen** Ezáltal **a színárnyalat változik, a fényerő nem**.
+```c
+float currentLuminance = dot(color, vec3(0.299, 0.587, 0.114));
+
+color = color \* (originalLuminance / max(currentLuminance, 0.0001));
+```
+
+_(Ennek az elmélet szemléltetéséhez, Gemini csinált nekem egy interaktív kis "bemutatót", aminek a képét csatolom)_
+
+![Kép amit a Gemini csinált](https://github.com/user-attachments/assets/223bd34f-c890-47b8-aeef-c6d5f8580665 "Kép amit a Gemini generált")
+
+
 # Lábjegyzet:
 Továbbiakban, késöbb jó lehet:
 * [Vignette ](https://stack.gl/packages/#TyLindberg/glsl-vignette)
@@ -458,8 +543,8 @@ Továbbiakban, késöbb jó lehet:
 * ~~HSV (Hue, Saturation, Value)~~,
 * ~~Levels (Shadows, Midtones, Highlights)~~,
 * ~~Channel mixer~~
-* **Vibrance** -> ehhez jön majd még a **shadow tint** és a **highlight tint**,
 * **White Balance, Temperature, Tint**
+* **Vibrance** -> ehhez jön majd még a **shadow tint** és a **highlight tint**,
 
 # Források, használt anyagok:
 * [https://halado.fotokonyv.hu/color-grading/ ](https://halado.fotokonyv.hu/color-grading/)
