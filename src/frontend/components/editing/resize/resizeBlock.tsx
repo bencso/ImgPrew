@@ -15,6 +15,8 @@ import {
   Tabs,
   useBreakpointValue,
 } from "@chakra-ui/react";
+import { Rectangle, Sprite, Texture } from "pixi.js";
+import { useEffect } from "react";
 import {
   LuBotOff,
   LuExpand,
@@ -116,6 +118,53 @@ export default function ResizeBlock() {
     (state) => state.sessionData.find((si) => si.id === selectedImg)?.cropSave,
     shallow,
   );
+
+  useEffect(() => {
+    if (cropSaved === false) {
+      console.log("mégsem");
+    } else {
+      if (
+        !textureRef.current ||
+        !appRef.current ||
+        !box ||
+        !box.height ||
+        !box.width ||
+        !box.x ||
+        !box.y ||
+        !workPlaceRef.current ||
+        !spriteRef.current ||
+        !imageSize ||
+        !selectedScale
+      )
+        return;
+
+      const scale = selectedScale.scale;
+
+      const boxLeft = box.x - box.width / 2;
+      const boxTop = box.y - box.height / 2;
+
+      const imageCenter = { x: 0, y: 0 };
+
+      //Image helyzete 0.5 0.5 anchorral x: 509.5 y:465
+      // alapból a 0,0: a bal felső sarokból nézi és nem is a közepéből
+
+      console.log(spriteRef.current.x);
+      console.log(spriteRef.current.y);
+
+      textureRef.current = new Texture({
+        source: textureRef.current.source,
+        frame: new Rectangle(
+          0,
+          0,
+          textureRef.current.height,
+          textureRef.current.width,
+        ),
+      });
+      const spriteCopy = new Sprite(textureRef.current);
+      spriteRef.current.removeChildren();
+      spriteRef.current.addChild(spriteCopy);
+    }
+  }, [cropSaved]);
 
   return (
     <Box>

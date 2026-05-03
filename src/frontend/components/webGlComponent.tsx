@@ -1,17 +1,19 @@
 //TODO: Refaktorálás
+import { allFiltersFragment } from "@/handlers/filters/allFiltersFragment";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { Box } from "@chakra-ui/react";
 import "pixi-filters";
-import { AdjustmentFilter } from "pixi-filters";
 import {
   Application,
-  ColorMatrixFilter,
   Container,
+  defaultFilterVert,
+  Filter,
+  GlProgram,
   ImageSource,
-  NoiseFilter,
   Sprite,
   Texture,
+  UniformGroup,
 } from "pixi.js";
 import { useEffect, useRef } from "react";
 import { shallow } from "zustand/shallow";
@@ -183,42 +185,25 @@ export default function WebGlComponent() {
   const applyFilters = () => {
     if (!spriteRef.current || !appRef.current) return;
 
-    const colorMatrix = new ColorMatrixFilter();
-    const adjustmentFilter = new AdjustmentFilter();
-    const noiseFilter = new NoiseFilter();
+    const filterUniforms = new UniformGroup({
+      exposure_input: { value: filters.exposure, type: "f32" },
+      brightness_input: { value: filters.brightness, type: "f32" },
+      contrast_input: { value: filters.contrast, type: "f32" },
+      temperature_input: { value: filters.temperature / 100.0, type: "f32" },
+      tint_input: { value: filters.tint / 100.0, type: "f32" },
+    });
 
-    colorMatrix.brightness(filters.brightness, true);
-    colorMatrix.saturate(filters.saturation, true);
-    colorMatrix.contrast(filters.contrast, true);
-    colorMatrix.hue(0, true);
+    const webgFilters = new Filter({
+      glProgram: new GlProgram({
+        fragment: allFiltersFragment,
+        vertex: defaultFilterVert,
+      }),
+      resources: {
+        filterUniforms: filterUniforms,
+      },
+    });
 
-    const gamma =
-      filters.gamma < 0 ? 1 + filters.gamma * 0.5 : 1 + filters.gamma * 1;
-
-    adjustmentFilter.gamma = gamma;
-
-    // TEMPERATURE
-    const t = filters.temperature;
-
-    adjustmentFilter.red = t;
-    adjustmentFilter.green = 1;
-    adjustmentFilter.blue = 2 - t;
-
-    noiseFilter.noise = filters.noise;
-
-    // const sharpenFilter = new ConvolutionFilter([
-    //   0,
-    //   -1,
-    //   0,
-    //   -1,
-    //   1 + sharpness * 4,
-    //   -1,
-    //   0,
-    //   -1,
-    //   0,
-    // ]);
-
-    spriteRef.current.filters = [noiseFilter, adjustmentFilter, colorMatrix];
+    spriteRef.current.filters = [webgFilters];
   };
 
   useEffect(() => {

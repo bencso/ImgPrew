@@ -122,14 +122,9 @@ export interface CalculationReFixPositionProps {
 export interface FilterProps {
   brightness: number;
   contrast: number;
-  saturation: number;
-  gamma: number;
+  exposure: number;
   temperature: number;
-  noise: number;
-  highlights: number;
-  shadows: number;
-  whites: number;
-  blacks: number;
+  tint: number;
 }
 //#endregion
 

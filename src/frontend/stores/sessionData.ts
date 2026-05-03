@@ -521,11 +521,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         ),
         contrast: getValue(
           img?.filters?.find((f) => f.name === "contrast")?.value,
-          0,
-        ),
-        saturation: getValue(
-          img?.filters?.find((f) => f.name === "saturation")?.value,
-          0,
+          1,
         ),
         exposure: getValue(
           img?.filters?.find((f) => f.name === "exposure")?.value,
@@ -533,32 +529,9 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         ),
         temperature: getValue(
           img?.filters?.find((f) => f.name === "temperature")?.value,
-          1,
-        ),
-        gamma: getValue(
-          img?.filters?.find((f) => f.name === "gamma")?.value,
           0,
         ),
-        noise: getValue(
-          img?.filters?.find((f) => f.name === "noise")?.value,
-          0,
-        ),
-        highlights: getValue(
-          img?.filters?.find((f) => f.name === "highlights")?.value,
-          0,
-        ),
-        blacks: getValue(
-          img?.filters?.find((f) => f.name === "blacks")?.value,
-          0,
-        ),
-        whites: getValue(
-          img?.filters?.find((f) => f.name === "whites")?.value,
-          0,
-        ),
-        shadows: getValue(
-          img?.filters?.find((f) => f.name === "shadows")?.value,
-          0,
-        ),
+        tint: getValue(img?.filters?.find((f) => f.name === "tint")?.value, 0),
       };
     },
     //#endregion

@@ -315,7 +315,7 @@ const Item = ({ items }: { items: EditItemProp }) => {
                           </IconButton>
                         )}
                       <Slider.ValueText color={"fg.muted"}>
-                        {Math.floor(Number(item.defaultValue) * 100)}
+                        {Number(item.defaultValue)}
                       </Slider.ValueText>
                     </Flex>
                   </Box>
