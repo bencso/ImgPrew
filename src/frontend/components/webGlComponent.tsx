@@ -191,6 +191,9 @@ export default function WebGlComponent() {
       contrast_input: { value: filters.contrast, type: "f32" },
       temperature_input: { value: filters.temperature / 100.0, type: "f32" },
       tint_input: { value: filters.tint / 100.0, type: "f32" },
+      saturation_input: { value: filters.saturation, type: "f32" },
+      hue_input: { value: filters.hue / 360.0, type: "f32" },
+      value_input: { value: filters.value, type: "f32" },
     });
 
     const webgFilters = new Filter({

@@ -83,9 +83,9 @@ const sidebarElements = (
         {
           name: "Fényerő",
           icon: <LuSun />,
-          min: -1,
-          max: 1,
-          step: 0.01,
+          min: -0.5,
+          max: 0.5,
+          step: 0.001,
           inputType: "slider",
           defaultValue: getFilterValue(selectedImg, "brightness") ?? 0,
           onChange: (e: SliderValueChangeDetails) => {
@@ -98,8 +98,8 @@ const sidebarElements = (
         {
           name: "Expozíció",
           icon: <LuBlend />,
-          min: -3,
-          max: 3,
+          min: -2,
+          max: 2,
           step: 0.01,
           inputType: "slider",
           defaultValue: getFilterValue(selectedImg, "exposure") ?? 0,
@@ -113,8 +113,8 @@ const sidebarElements = (
         {
           name: "Kontraszt",
           icon: <LuContrast />,
-          min: 0,
-          max: 2,
+          min: 0.5,
+          max: 1.5,
           step: 0.01,
           inputType: "slider",
           defaultValue: getFilterValue(selectedImg, "contrast") ?? 1,
@@ -147,12 +147,57 @@ const sidebarElements = (
           max: 100,
           step: 1,
           inputType: "slider",
-          defaultValue: getFilterValue(selectedImg, "tint") ?? 50,
+          defaultValue: getFilterValue(selectedImg, "tint") ?? 0,
           onChange: (e: SliderValueChangeDetails) => {
             editFilters(selectedImg, "tint", e.value[0]);
           },
           clearFunc: () => {
             editFilters(selectedImg, "tint", 0);
+          },
+        },
+        {
+          name: "Hue",
+          icon: <LuCloudMoonRain />,
+          min: -180,
+          max: 180,
+          step: 1,
+          inputType: "slider",
+          defaultValue: getFilterValue(selectedImg, "hue") ?? 0,
+          onChange: (e: SliderValueChangeDetails) => {
+            editFilters(selectedImg, "hue", e.value[0]);
+          },
+          clearFunc: () => {
+            editFilters(selectedImg, "hue", 0);
+          },
+        },
+        {
+          name: "Szaturáció",
+          icon: <LuCloudMoonRain />,
+          min: -1,
+          max: 1,
+          step: 0.01,
+          inputType: "slider",
+          defaultValue: getFilterValue(selectedImg, "saturation") ?? 0,
+          onChange: (e: SliderValueChangeDetails) => {
+            editFilters(selectedImg, "saturation", e.value[0]);
+          },
+          clearFunc: () => {
+            editFilters(selectedImg, "saturation", 0);
+          },
+        },
+        {
+          name: "Value",
+          icon: <LuCloudMoonRain />,
+          min: -1,
+          max: 1,
+          step: 0.001,
+          inputType: "slider",
+          defaultValue: getFilterValue(selectedImg, "value") ?? 0,
+          onChange: (e: SliderValueChangeDetails) => {
+            editFilters(selectedImg, "value", e.value[0]);
+          },
+          clearFunc: () => {
+            editFilters(selectedImg, "value", 0);
           },
         },
       ],

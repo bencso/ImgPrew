@@ -1,0 +1,18 @@
+export const hueFragment = `
+    if (abs(saturation_input) > 0.0001) {
+        rgb = mix(vec3(currentLuminance), rgb, 1.0 + saturation_input);
+    }
+
+    if (abs(hue_input) > 0.0001 || abs(value_input) > 0.0001) {
+        if (abs(hue_input) > 0.0001) {
+            vec3 hsv = rgbToHsv(rgb);
+            hsv.x = fract(hsv.x + hue_input);
+            rgb = hsvToRgb(hsv);
+        }
+
+
+         if (abs(value_input) > 0.0001) {
+            rgb = clamp(rgb * (1.0 + value_input), 0.0, 1.0);
+        }
+    }
+`;

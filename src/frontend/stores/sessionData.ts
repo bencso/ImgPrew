@@ -517,7 +517,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       return {
         brightness: getValue(
           img?.filters?.find((f) => f.name === "brightness")?.value,
-          1,
+          0,
         ),
         contrast: getValue(
           img?.filters?.find((f) => f.name === "contrast")?.value,
@@ -532,6 +532,15 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           0,
         ),
         tint: getValue(img?.filters?.find((f) => f.name === "tint")?.value, 0),
+        hue: getValue(img?.filters?.find((f) => f.name === "hue")?.value, 0),
+        saturation: getValue(
+          img?.filters?.find((f) => f.name === "saturation")?.value,
+          0,
+        ),
+        value: getValue(
+          img?.filters?.find((f) => f.name === "value")?.value,
+          0,
+        ),
       };
     },
     //#endregion

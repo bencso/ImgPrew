@@ -125,6 +125,9 @@ export interface FilterProps {
   exposure: number;
   temperature: number;
   tint: number;
+  saturation: number;
+  hue: number;
+  value: number;
 }
 //#endregion
 
