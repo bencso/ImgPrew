@@ -541,6 +541,26 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           img?.filters?.find((f) => f.name === "value")?.value,
           0,
         ),
+        black: getValue(
+          img?.filters?.find((f) => f.name === "black")?.value,
+          1,
+        ),
+        white: getValue(
+          img?.filters?.find((f) => f.name === "white")?.value,
+          255,
+        ),
+        gamma: getValue(
+          img?.filters?.find((f) => f.name === "gamma")?.value,
+          1,
+        ),
+        outblack: getValue(
+          img?.filters?.find((f) => f.name === "outblack")?.value,
+          0,
+        ),
+        outwhite: getValue(
+          img?.filters?.find((f) => f.name === "outwhite")?.value,
+          255,
+        ),
       };
     },
     //#endregion

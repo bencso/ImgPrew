@@ -1,5 +1,5 @@
 //TODO: Refaktorálni
-import { EditItemProp } from "@/interfaces/interface";
+import { EditItemProp, FilterProps } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import {
@@ -15,6 +15,7 @@ import {
   LuBetweenHorizontalEnd,
   LuBlend,
   LuCaptions,
+  LuClipboardCheck,
   LuCloudMoonRain,
   LuContrast,
   LuCopyright,
@@ -25,6 +26,7 @@ import {
   LuSun,
   LuType,
 } from "react-icons/lu";
+import { shallow } from "zustand/shallow";
 import CaptionBlock from "./caption/captionBlock";
 import CopyrightBlock from "./copyright/copyrightBlock";
 import { EditItem } from "./edititem";
@@ -63,6 +65,7 @@ const sidebarElements = (
   setExpandBackground: (id: number, rgba: string) => void,
   expandBackground: string,
   expandMode: string,
+  filters: FilterProps,
 ) => {
   return [
     {
@@ -198,6 +201,81 @@ const sidebarElements = (
           },
           clearFunc: () => {
             editFilters(selectedImg, "value", 0);
+          },
+        },
+        {
+          name: "Fekete",
+          icon: <LuClipboardCheck />,
+          min: 0,
+          max: filters.white ?? 0,
+          step: 0.001,
+          inputType: "slider",
+          defaultValue: getFilterValue(selectedImg, "black") ?? 0,
+          onChange: (e: SliderValueChangeDetails) => {
+            editFilters(selectedImg, "black", e.value[0]);
+          },
+          clearFunc: () => {
+            editFilters(selectedImg, "black", 0);
+          },
+        },
+        {
+          name: "Gamma",
+          icon: <LuClipboardCheck />,
+          min: 0.1,
+          max: 3,
+          step: 0.01,
+          inputType: "slider",
+          defaultValue: getFilterValue(selectedImg, "gamma") ?? 1,
+          onChange: (e: SliderValueChangeDetails) => {
+            editFilters(selectedImg, "gamma", e.value[0]);
+          },
+          clearFunc: () => {
+            editFilters(selectedImg, "gamma", 1);
+          },
+        },
+        {
+          name: "Fehér",
+          icon: <LuClipboardCheck />,
+          min: filters.black ?? 0,
+          max: 255,
+          step: 0.001,
+          inputType: "slider",
+          defaultValue: getFilterValue(selectedImg, "white") ?? 255,
+          onChange: (e: SliderValueChangeDetails) => {
+            editFilters(selectedImg, "white", e.value[0]);
+          },
+          clearFunc: () => {
+            editFilters(selectedImg, "white", 255);
+          },
+        },
+        {
+          name: "Kimeneti Fekete",
+          icon: <LuClipboardCheck />,
+          min: 0,
+          max: 255,
+          step: 0.001,
+          inputType: "slider",
+          defaultValue: getFilterValue(selectedImg, "outblack") ?? 0,
+          onChange: (e: SliderValueChangeDetails) => {
+            editFilters(selectedImg, "outblack", e.value[0]);
+          },
+          clearFunc: () => {
+            editFilters(selectedImg, "outblack", 0);
+          },
+        },
+        {
+          name: "Kimeneti Fehér",
+          icon: <LuClipboardCheck />,
+          min: 0,
+          max: 255,
+          step: 0.001,
+          inputType: "slider",
+          defaultValue: getFilterValue(selectedImg, "outwhite") ?? 255,
+          onChange: (e: SliderValueChangeDetails) => {
+            editFilters(selectedImg, "outwhite", e.value[0]);
+          },
+          clearFunc: () => {
+            editFilters(selectedImg, "outwhite", 255);
           },
         },
       ],
@@ -399,6 +477,8 @@ export default function SideBar() {
       (s) => s.sessionData.find((si) => si.id === selectedImg)?.expandMode,
     ) || "no";
 
+  const filters = useSessionStore((s) => s.getFilters(selectedImg), shallow);
+
   useMemo(() => {
     setEditItems(
       sidebarElements(
@@ -415,6 +495,7 @@ export default function SideBar() {
         setExpandBackground,
         expandBackground,
         expandMode,
+        filters,
       ),
     );
   }, [sessionData, selectedImg]);

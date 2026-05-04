@@ -128,6 +128,11 @@ export interface FilterProps {
   saturation: number;
   hue: number;
   value: number;
+  black: number;
+  white: number;
+  gamma: number;
+  outblack: number;
+  outwhite: number;
 }
 //#endregion
 

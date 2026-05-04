@@ -1,5 +1,6 @@
 import { brightnessExposureContrastFragment } from "./brightnessExposureContrastFragment";
 import { hueFragment } from "./hueFragment";
+import { levelsFragment } from "./levels";
 import { temperatureFragment } from "./temperatureFragment";
 
 /*
@@ -27,6 +28,12 @@ export const allFiltersFragment = `
     uniform float saturation_input;
     uniform float value_input;
 
+    uniform float black_input;
+    uniform float gamma_input;
+    uniform float white_input;
+    uniform float outblack_input;
+    uniform float outwhite_input;
+
     float originalLuminance;
     float currentLuminance;
 
@@ -53,6 +60,7 @@ export const allFiltersFragment = `
     ${temperatureFragment}
     ${brightnessExposureContrastFragment}
     ${hueFragment}
+    ${levelsFragment}
 
     gl_FragColor = vec4(clamp(rgb, 0.0, 1.0), color.a);
     }

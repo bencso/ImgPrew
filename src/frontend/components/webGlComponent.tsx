@@ -194,6 +194,11 @@ export default function WebGlComponent() {
       saturation_input: { value: filters.saturation, type: "f32" },
       hue_input: { value: filters.hue / 360.0, type: "f32" },
       value_input: { value: filters.value, type: "f32" },
+      black_input: { value: filters.black / 255.0, type: "f32" },
+      white_input: { value: filters.white / 255.0, type: "f32" },
+      outblack_input: { value: filters.outblack / 255.0, type: "f32" },
+      outwhite_input: { value: filters.outwhite / 255.0, type: "f32" },
+      gamma_input: { value: filters.gamma, type: "f32" },
     });
 
     const webgFilters = new Filter({

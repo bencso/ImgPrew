@@ -18,7 +18,6 @@ import {
   Select,
   Slider,
   Span,
-  Stack,
   Text,
   useBreakpointValue,
 } from "@chakra-ui/react";
@@ -93,7 +92,7 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
       </Popover.Trigger>
       <Portal>
         <Popover.Positioner>
-          <Popover.Content>
+          <Popover.Content maxWidth="500px" width="auto">
             <Popover.Arrow />
             <Popover.Body>
               <Item items={items} />
@@ -121,7 +120,7 @@ const Item = ({ items }: { items: EditItemProp }) => {
   //#endregion
 
   return (
-    <Stack gap="4">
+    <Flex wrap="wrap" gap={8} direction="row">
       {items.inputs &&
         items.inputs.map((item, index) => {
           const collection = createListCollection({
@@ -133,7 +132,7 @@ const Item = ({ items }: { items: EditItemProp }) => {
             //#region select type
             case InputTypes.select:
               return (
-                <Box key={index} display={"flex"} flexDirection={"column"}>
+                <Box key={index} minW="200px" flex="1">
                   {item.name.length > 0 && (
                     <Text marginBottom={4}>{item.name}</Text>
                   )}
@@ -166,7 +165,13 @@ const Item = ({ items }: { items: EditItemProp }) => {
             //#region customElement type
             case InputTypes.customElement:
               return (
-                <Box key={index} display={"flex"} flexDirection={"column"}>
+                <Box
+                  key={index}
+                  display={"flex"}
+                  flexDirection={"column"}
+                  minW="200px"
+                  flex="1"
+                >
                   {item.name.length > 0 && (
                     <Text marginBottom={4}>{item.name}</Text>
                   )}
@@ -182,6 +187,8 @@ const Item = ({ items }: { items: EditItemProp }) => {
                   key={index}
                   spinner={<BeatLoader size={12} color={"#004d40"} />}
                   onClick={item.onChange ? item.onChange : (e) => {}}
+                  minW="200px"
+                  flex="1"
                 >
                   {item.name}
                 </Button>
@@ -189,7 +196,13 @@ const Item = ({ items }: { items: EditItemProp }) => {
             //#region radio type
             case "radio":
               return (
-                <Box key={index} display={"flex"} flexDirection={"column"}>
+                <Box
+                  key={index}
+                  display={"flex"}
+                  flexDirection={"column"}
+                  minW="200px"
+                  flex="1"
+                >
                   <RadioCard.Root
                     orientation="vertical"
                     align="center"
@@ -245,6 +258,8 @@ const Item = ({ items }: { items: EditItemProp }) => {
                   onChange={item.onChange ? item.onChange : undefined}
                   gap="1"
                   maxWidth="100%"
+                  minW="200px"
+                  flex="1"
                 >
                   <FileUpload.HiddenInput />
                   <FileUpload.Label>{item.name}</FileUpload.Label>
@@ -292,6 +307,10 @@ const Item = ({ items }: { items: EditItemProp }) => {
                   min={item.min ?? 0}
                   max={item.max ?? 1}
                   step={item.step ?? 0.1}
+                  minW="200px"
+                  flex="1"
+                  px={2}
+                  boxSizing={"border-box"}
                 >
                   <Box
                     alignItems={"center"}
@@ -343,7 +362,7 @@ const Item = ({ items }: { items: EditItemProp }) => {
             //#region egyéb / minden nem egyedi type
             default:
               return (
-                <Field.Root key={index}>
+                <Field.Root key={index} minW="200px" flex="1">
                   {item.name.length > 0 && (
                     <Field.Label>{item.name}</Field.Label>
                   )}
@@ -359,6 +378,6 @@ const Item = ({ items }: { items: EditItemProp }) => {
               );
           }
         })}
-    </Stack>
+    </Flex>
   );
 };
