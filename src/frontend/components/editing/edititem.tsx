@@ -75,8 +75,7 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
           {...(open && activeStyle)}
           as={"button"}
         >
-          {items.icon && items.icon}
-          {!items.icon && items.function.substring(0, 3)}
+          {!isMd && items.icon}
           {isMd && (
             <Text
               rotate={isMd ? "90" : "0"}
@@ -85,6 +84,7 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
               textWrap={"wrap"}
               color={"fg.muted"}
             >
+
               {items.function}
             </Text>
           )}
@@ -92,7 +92,7 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
       </Popover.Trigger>
       <Portal>
         <Popover.Positioner>
-          <Popover.Content maxWidth="500px" width="auto">
+          <Popover.Content maxWidth="300px" width="auto">
             <Popover.Arrow />
             <Popover.Body>
               <Item items={items} />

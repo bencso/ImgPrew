@@ -21,8 +21,10 @@ import {
   LuCopyright,
   LuFilter,
   LuFrame,
+  LuHam,
   LuImageDown,
   LuImageUpscale,
+  LuRectangleVertical,
   LuSun,
   LuType,
 } from "react-icons/lu";
@@ -128,36 +130,93 @@ const sidebarElements = (
             editFilters(selectedImg, "contrast", 1);
           },
         },
+      ],
+    },
+    {
+      function: "Levels",
+      icon: <LuRectangleVertical />,
+      inputs: [
         {
-          name: "Színhőmérséklet",
-          icon: <LuBetweenHorizontalEnd />,
-          min: -100,
-          max: 100,
-          step: 1,
+          name: "Shadows",
+          icon: <LuClipboardCheck />,
+          min: 0,
+          max: filters.white ?? 0,
+          step: 0.001,
           inputType: "slider",
-          defaultValue: getFilterValue(selectedImg, "temperature") ?? 0,
+          defaultValue: getFilterValue(selectedImg, "black") ?? 0,
           onChange: (e: SliderValueChangeDetails) => {
-            editFilters(selectedImg, "temperature", e.value[0]);
+            editFilters(selectedImg, "black", e.value[0]);
           },
           clearFunc: () => {
-            editFilters(selectedImg, "temperature", 0);
+            editFilters(selectedImg, "black", 0);
           },
         },
         {
-          name: "Tint",
-          icon: <LuCloudMoonRain />,
-          min: -100,
-          max: 100,
-          step: 1,
+          name: "Midtones - Gamma",
+          icon: <LuClipboardCheck />,
+          min: 0.1,
+          max: 3,
+          step: 0.01,
           inputType: "slider",
-          defaultValue: getFilterValue(selectedImg, "tint") ?? 0,
+          defaultValue: getFilterValue(selectedImg, "gamma") ?? 1,
           onChange: (e: SliderValueChangeDetails) => {
-            editFilters(selectedImg, "tint", e.value[0]);
+            editFilters(selectedImg, "gamma", e.value[0]);
           },
           clearFunc: () => {
-            editFilters(selectedImg, "tint", 0);
+            editFilters(selectedImg, "gamma", 1);
           },
         },
+        {
+          name: "Highlights",
+          icon: <LuClipboardCheck />,
+          min: filters.black ?? 0,
+          max: 255,
+          step: 0.001,
+          inputType: "slider",
+          defaultValue: getFilterValue(selectedImg, "white") ?? 255,
+          onChange: (e: SliderValueChangeDetails) => {
+            editFilters(selectedImg, "white", e.value[0]);
+          },
+          clearFunc: () => {
+            editFilters(selectedImg, "white", 255);
+          },
+        },
+        {
+          name: "Output Fekete",
+          icon: <LuClipboardCheck />,
+          min: 0,
+          max: 255,
+          step: 0.001,
+          inputType: "slider",
+          defaultValue: getFilterValue(selectedImg, "outblack") ?? 0,
+          onChange: (e: SliderValueChangeDetails) => {
+            editFilters(selectedImg, "outblack", e.value[0]);
+          },
+          clearFunc: () => {
+            editFilters(selectedImg, "outblack", 0);
+          },
+        },
+        {
+          name: "Output Fehér",
+          icon: <LuClipboardCheck />,
+          min: 0,
+          max: 255,
+          step: 0.001,
+          inputType: "slider",
+          defaultValue: getFilterValue(selectedImg, "outwhite") ?? 255,
+          onChange: (e: SliderValueChangeDetails) => {
+            editFilters(selectedImg, "outwhite", e.value[0]);
+          },
+          clearFunc: () => {
+            editFilters(selectedImg, "outwhite", 255);
+          },
+        },
+      ],
+    },
+    {
+      function: "HSV",
+      icon: <LuHam />,
+      inputs: [
         {
           name: "Hue",
           icon: <LuCloudMoonRain />,
@@ -174,7 +233,7 @@ const sidebarElements = (
           },
         },
         {
-          name: "Szaturáció",
+          name: "Telítettség",
           icon: <LuCloudMoonRain />,
           min: -1,
           max: 1,
@@ -189,7 +248,7 @@ const sidebarElements = (
           },
         },
         {
-          name: "Value",
+          name: "Érték",
           icon: <LuCloudMoonRain />,
           min: -1,
           max: 1,
@@ -203,79 +262,45 @@ const sidebarElements = (
             editFilters(selectedImg, "value", 0);
           },
         },
+      ],
+    },
+    {
+      function: "Channel mixer",
+      icon: <LuRectangleVertical />,
+      inputs: [],
+    },
+    {
+      function: "Egyéb",
+      icon: <LuRectangleVertical />,
+      inputs: [
         {
-          name: "Fekete",
-          icon: <LuClipboardCheck />,
-          min: 0,
-          max: filters.white ?? 0,
-          step: 0.001,
+          name: "Színhőmérséklet",
+          icon: <LuBetweenHorizontalEnd />,
+          min: -100,
+          max: 100,
+          step: 1,
           inputType: "slider",
-          defaultValue: getFilterValue(selectedImg, "black") ?? 0,
+          defaultValue: getFilterValue(selectedImg, "temperature") ?? 0,
           onChange: (e: SliderValueChangeDetails) => {
-            editFilters(selectedImg, "black", e.value[0]);
+            editFilters(selectedImg, "temperature", e.value[0]);
           },
           clearFunc: () => {
-            editFilters(selectedImg, "black", 0);
+            editFilters(selectedImg, "temperature", 0);
           },
         },
         {
-          name: "Gamma",
-          icon: <LuClipboardCheck />,
-          min: 0.1,
-          max: 3,
-          step: 0.01,
+          name: "Árnyalat",
+          icon: <LuCloudMoonRain />,
+          min: -100,
+          max: 100,
+          step: 1,
           inputType: "slider",
-          defaultValue: getFilterValue(selectedImg, "gamma") ?? 1,
+          defaultValue: getFilterValue(selectedImg, "tint") ?? 0,
           onChange: (e: SliderValueChangeDetails) => {
-            editFilters(selectedImg, "gamma", e.value[0]);
+            editFilters(selectedImg, "tint", e.value[0]);
           },
           clearFunc: () => {
-            editFilters(selectedImg, "gamma", 1);
-          },
-        },
-        {
-          name: "Fehér",
-          icon: <LuClipboardCheck />,
-          min: filters.black ?? 0,
-          max: 255,
-          step: 0.001,
-          inputType: "slider",
-          defaultValue: getFilterValue(selectedImg, "white") ?? 255,
-          onChange: (e: SliderValueChangeDetails) => {
-            editFilters(selectedImg, "white", e.value[0]);
-          },
-          clearFunc: () => {
-            editFilters(selectedImg, "white", 255);
-          },
-        },
-        {
-          name: "Kimeneti Fekete",
-          icon: <LuClipboardCheck />,
-          min: 0,
-          max: 255,
-          step: 0.001,
-          inputType: "slider",
-          defaultValue: getFilterValue(selectedImg, "outblack") ?? 0,
-          onChange: (e: SliderValueChangeDetails) => {
-            editFilters(selectedImg, "outblack", e.value[0]);
-          },
-          clearFunc: () => {
-            editFilters(selectedImg, "outblack", 0);
-          },
-        },
-        {
-          name: "Kimeneti Fehér",
-          icon: <LuClipboardCheck />,
-          min: 0,
-          max: 255,
-          step: 0.001,
-          inputType: "slider",
-          defaultValue: getFilterValue(selectedImg, "outwhite") ?? 255,
-          onChange: (e: SliderValueChangeDetails) => {
-            editFilters(selectedImg, "outwhite", e.value[0]);
-          },
-          clearFunc: () => {
-            editFilters(selectedImg, "outwhite", 255);
+            editFilters(selectedImg, "tint", 0);
           },
         },
       ],
@@ -343,13 +368,10 @@ const sidebarElements = (
           inputType: "customElement",
           options: (
             <ColorPicker.Root
-              defaultValue={
-                expandBackground
-                  ? parseColor(expandBackground || "#ffff")
-                  : parseColor("#ffff")
-              }
-              onChange={(e: any) => {
-                let value = e.target.value;
+              value={parseColor(expandBackground)}
+              onValueChange={(e: any) => {
+                console.log(e);
+                let value = e.valueAsString;
                 if (value !== "") {
                   setExpandBackground(selectedImg, value);
                 }

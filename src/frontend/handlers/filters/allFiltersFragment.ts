@@ -34,6 +34,9 @@ export const allFiltersFragment = `
     uniform float outblack_input;
     uniform float outwhite_input;
 
+    uniform vec3 channel_offset_input;
+    uniform mat3 channel_colorMatrix_input;
+
     float originalLuminance;
     float currentLuminance;
 
@@ -61,6 +64,7 @@ export const allFiltersFragment = `
     ${brightnessExposureContrastFragment}
     ${hueFragment}
     ${levelsFragment}
+
 
     gl_FragColor = vec4(clamp(rgb, 0.0, 1.0), color.a);
     }
