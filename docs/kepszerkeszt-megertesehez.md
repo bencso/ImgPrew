@@ -255,9 +255,11 @@ H/S/V:
 *UI-nál 360, de ezt majd a logikához osztani kell 360-val*
 
 C = V * S *(Színtelítettség mértéke)*
+
 $$
 X =  C * (1 - | \frac{H}{60^\circ} \mod 2 -1 |)
 $$
+
 m = V - C *(Fényerő korrekció)*
 
 majd a változók kiszámítása utána az árnyalat tartomány alapján meghatározzuk az **R'G'B'**-t
@@ -359,7 +361,11 @@ OutBlack alapértelmezetten *0*, az OutWhite *255*
 
 **- Shadows és Highlights:**
 A bemeneti pixel-t normalizáljuk, 0-1 tartományban, a **Black** és **White** alapján.
-$$x{Norm} = \frac{x - InBlack}{InWhite - InBlack}$$
+
+$$
+x{Norm} = \frac{x - InBlack}{InWhite - InBlack}
+$$
+
 ha **x < Black** akkor xNorm = 0, ha **x > White** akkor xNorm = 1
 
 **- Gamma / Midtones:**
@@ -368,10 +374,18 @@ A középtónus slider nem lineárisan mozgatja az értékeket, hanem hatványf�
 Így, ha gamma 1 => nincs változás
 Ha gamma > 1 => kép világosodík
 Különben ha gamma < 1 => kép sötétedik
-$$x{Gamma} = (x{norm})^{1/\gamma}$$
+
+$$
+x{Gamma} = (x{norm})^{1/\gamma}
+$$
+
 **- Output levels**
 Kimeneti tartományba visszahelyezzük az eredményt:
-$$y = x{Gamma} \cdot (OutWhite - OutBlack) + OutBlack$$
+
+$$
+y = x{Gamma} \cdot (OutWhite - OutBlack) + OutBlack
+$$
+
 #### Implementáció
 
 Példa kép:
@@ -424,7 +438,11 @@ A Channel Mixer a többi színkorrekciós eszközzel ellentétben nem hozzáaadn
 A channel mixert a legegyszerűbb egy **mátrixszorzással** megoldani.
 
 Minden **px** esetén három input van: R, G, B -> *0-255 közötti érték (8 bit esetén)*, illetve **offset** szokott lenni, ami a *világosságot* állítja
-$$ \begin{bmatrix} R' \\\ G' \\\ B' \end{bmatrix} = \begin{bmatrix} c{RR} & c{RG} & c{RB} \\\ c{GR} & c{GG} & c{GB} \\\ c{BR} & c{BG} & c{BB} \end{bmatrix} \begin{bmatrix} R \\\ G \\\ B \end{bmatrix} + \begin{bmatrix} KR \\\ KG \\\ KB \end{bmatrix} $$
+
+$$ 
+\begin{bmatrix} R' \\\ G' \\\ B' \end{bmatrix} = \begin{bmatrix} c{RR} & c{RG} & c{RB} \\\ c{GR} & c{GG} & c{GB} \\\ c{BR} & c{BG} & c{BB} \end{bmatrix} \begin{bmatrix} R \\\ G \\\ B \end{bmatrix} + \begin{bmatrix} KR \\\ KG \\\ KB \end{bmatrix} 
+$$
+
 - Változók:
     - $c{XY}$: A százalékos értékek tizedestört formátumban *(100% = 1.0)*. Az első a *kimeneti*, a második a *bemeneti* csatorna. (Pl. $c{GR}$ a Green output csatorna és a Red slider értéke).
     - $KR$: Az eltolás értéke *(-255 és 255 közötti értékek)*
@@ -463,6 +481,7 @@ Ez *Kék* - *Narancssárga* tengelyen mozog, melynek a fizikai mértékegysége 
 > **Jobbra húzva (Meleg):** Növeljük a piros és zöldet *(ezzel adja a sárgát)*, és csökkentjük a kéket.
  
 ![Kép by expertphotography.com](https://expertphotography.com/img/2018/07/White-Balance-Chart.jpg "Kép by expertphotography.com")
+
 ### Árnyalat (Tint)
 Ez *Zöld* - *Magenta (Bíbor)* tengelyen mozog.
 
@@ -477,14 +496,21 @@ A GPU-s megjelnítés miatt, itt az „olcsóbb” megoldást alkalmazzuk, ami e
 #### Temperature ($T$)
 Ha $T > 0$ *(Melegítés)*: Növeljük a *piros* csatornát és csökkentjük a *kék* csatornát.
 Ha $T < 0$ *(Hűtés)*: Csökkentjük a *piros*-t, és növeljük *kék*-et.
-$$R\_{new} = R + T \\
+
+$$
+R\_{new} = R + T \\
 B\_{new} = B - T
 $$
+
 #### Tint ($t$)
 Magenta a *piros* és a *kék*-ből jön létre, a *zöld* pedig ennek az ellentéte. Így a *Tint*-nél a *zöld* csatornát állítjuk.
 Ha $t > 0$ *(Magenta)*: Csökkentjük
 Ha $t < 0$ *(Zöld)*: Növeljük
-$$G\_{new} = G - t$$
+
+$$
+G\_{new} = G - t
+$$
+
 ### Implementálás
 Két bemeneti érték:
 - **temperature** *(-1 és 1 között => normalizálva)*
