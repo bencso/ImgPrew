@@ -557,7 +557,66 @@ _(Ennek az elmélet szemléltetéséhez, Gemini csinált nekem egy interaktív k
 
 ![Kép amit a Gemini csinált](https://github.com/user-attachments/assets/223bd34f-c890-47b8-aeef-c6d5f8580665 "Kép amit a Gemini generált")
 
+# Vibrance
 
+A *Vibrance (élénkség)*, nem lineáris telítetségnövelő eszköz. A *Saturation (Telítettség)* ellentétben, a *Vibrance* szelekítven növeli a pixelek intenzitását. 
+
+**Vibrance a kevésbé telített színeket élínkíti, míg a már telített színeket hagyja, így kerülhető el a kiégés.**
+
+## Saturation és a Vibrance különbsége
+
+- Az emberi bőrt a *Saturation* narancssárgává teszi, a *Vibrance* megvédi ezeket a túlzott élénkítést.
+- Az ég kékje már élén, de a fű fakó, akkor a *Vibrance* a füvet zöldebbé teszi, az ég marad úgy.
+
+## Számítás (Matematikai, megértéshez)
+
+Meg kell vizsgálni valahogy, hogy a pixelek mennyire telítettek, hogy ugye elkerüljük, a kiégést, és ténylegesen működjön a *Vibrance* "különlegessége".
+
+A telítettséget úgy kaphatjuk meg, ha a pixel *legerősebb* és a *leggyengébb RGB* csatornájának különbségét nézzük.
+
+- Ha a *max* és a *min* egyenlő, akkor a különbség *0.0*, a pixel *szürke (nem telített)
+- Ha nagy a különbség, akkor a telítettség *1.0 (maximális)*
+
+Ezt az értéket nevezzük $S$ *Saturation*-nek *0.0* és *1.0* között
+
+A *Vibrance* esetében a Saturation képletébe egy fordított szorzót teszünk be, ami szerinte, minél nagyobb az $S$ *(minél telítettebb a szín)*, **annál kisebb hatással** leszünk számításkor rá.
+
+$$ SzorzóFaktor = 1.0 + (Vibrance \cdot (1.0 - S)) $$
+
+> **Példa:**
+> Ha egy szín fakó ($S$ = 0.1), akkor *(1.0 - 0.1) = 0.9*. A vibrance slider hat rá.
+
+## Implementáció
+
+- **Vibrance**: *-1.0* és *1.0* közötti érték *(alapértelmezett 0.0)*
+
+1. Kiszámoljuk az eredeti fényerőt az észlelési súlyozással (dot) *fgv.-vel*
+2. Megkerssük a legnagyobb és a legkisebb színcsatorna értékét *(max / min függvénnyel)*
+3. Kiszámoljuk az aktuális telítettséget *(max-min)*
+4. Kiszámoljuk a faktort *(vibrance_input * (1.0 - saturation))*
+5. Alkalmazzuk a változást *(mix függvénnyel)* a szürke *luminance (vec3)*, az *rgb* és a *1.0 + vibrance*
+
+## Hue mask / Bőrtónus védelem
+A *Vibrance* eleve védi a nagyon telített színeket, de az embeeri bőr többnyire közepesen telített, így valami védelem kell, hogy ne narancssárga legyen, ezt egy *Hue Mask (Színárnyalat maszkot* tudjuk kivédeni.
+
+### Számítás (Matematikai, megértéshez)
+
+1. Elsőnek a *színárnyalatot kell meghatároznunk*, minden pixelnél megnézzük a pontos árnyalatot *(Hue)*-t. Ez nagyjából  $0^\circ$ és $30^\circ$ közötti tartomány *(normalizálva *0.0* és *0.08* közötti érték)
+2. Megnézzük milyen messze van az aktuális pixel színe és a bőrtúnus középértékétől
+3. Létrehozunk egy maszkot *(szorzó)* *0.0* és *1.0* között,
+ - ha a szín bőrszínű akkor *0.0* lesz,
+ - ha a szn teljesen más akkor *1.0* lesz,
+ - ha a kettő között lágy átmenet lesz (ne legyenek foltok)
+
+### Implementáció
+
+- Megint alkalmazzuk az *rgbToHsv* függvényunket. lekérjük a Hue-t
+- Kiszámoljuk a távolságot a *tipikus bőrtónustól (0.05)*, alkalmazzuk a min() és az `1.0 - abs()`-t a színkőr miatt
+`float skin_distance = min(abs(hue - 0.05), 1.0 - abs(hue - 0.05));`
+- Létrehozzuk a `smoothstep` segítségével a maszkot: *távolság < 0.02* akkor *0.0*, különben ha *távolság > 0.08* akkor *1.0*
+- És a vibrance értéket felszorozzuk ezzel a maszkkal
+   
+   
 # Lábjegyzet:
 Továbbiakban, késöbb jó lehet:
 * [Vignette ](https://stack.gl/packages/#TyLindberg/glsl-vignette)
@@ -570,7 +629,7 @@ Továbbiakban, késöbb jó lehet:
 * ~~Levels (Shadows, Midtones, Highlights)~~,
 * ~~Channel mixer~~
 * ~~White Balance, Temperature, Tint~~,
-* **Vibrance** -> ehhez jön majd még a **shadow tint** és a **highlight tint**,
+* ~~Vibrance~~ -> ehhez jön majd még a **shadow tint** és a **highlight tint**,
 
 # Források, használt anyagok:
 * [https://halado.fotokonyv.hu/color-grading/ ](https://halado.fotokonyv.hu/color-grading/)
