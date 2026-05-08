@@ -11,15 +11,6 @@ services:
     networks:
       - wizpx_app
 
-  pgadmin:
-    image: dpage/pgadmin4:9.8
-    env_file:
-      - ./db/.env
-    ports:
-      - 5050:80
-    networks:
-      - wizpx_app
-
   frontend:
     build:
       context: ./frontend
