@@ -616,13 +616,21 @@ A *Vibrance* eleve védi a nagyon telített színeket, de az embeeri bőr többn
 - Létrehozzuk a `smoothstep` segítségével a maszkot: *távolság < 0.02* akkor *0.0*, különben ha *távolság > 0.08* akkor *1.0*
 - És a vibrance értéket felszorozzuk ezzel a maszkkal
    
+# LUT exportálás
+
+Hogy a pythonban ezeket a funkciókat ne kelljen újra megírni, ezért azt gondoltam, hogy egyszerűbb megoldás, ha ezeket kigeneráljuk png-be és ezt átadjuk az API-nak, ami generál belőle egy `.cube` fájlt, mivel a LUT használat már amúgyis megvan írva a backenden / API-ban.
+
+### Logikai menet
+
+1. Generálni kell egy üres LUT-ot, igazándiból ez egy kép, ahol minden pixel a saját kordinátájank a megfelelő színt tartalmazza (egy *512x512*-es rács)
+2. Lefuttatjuk ugyanazt a filtereket ezen a képen is
+3. Majd ezt egy `PNG`-be *(a legjobb az lenne ha 16 bites vagx EXR-be lehetne kimenteni)* kimentjük, és ez lesz az egyedi "LUT"-unk `PNG`-ben, ezt átadjuk a pythonnak
+4. A python pedig a képből generál egy `.cube` fájlt, amit használhatunk a kép exportálásakor
    
 # Lábjegyzet:
 Továbbiakban, késöbb jó lehet:
 * [Vignette ](https://stack.gl/packages/#TyLindberg/glsl-vignette)
 * [LUT](https://stack.gl/packages/#thibauts/parse-cube-lut)
-
-**Utánanézni:** Hogyan tudnám megvalósítani ezeket WebGL, és BE-n?
   
 * ~~Exposure, Brightness, Contrast~~,
 * ~~HSV (Hue, Saturation, Value)~~,
@@ -630,6 +638,7 @@ Továbbiakban, késöbb jó lehet:
 * ~~Channel mixer~~
 * ~~White Balance, Temperature, Tint~~,
 * ~~Vibrance~~ -> ehhez jön majd még a **shadow tint** és a **highlight tint**,
+* `PNG`-ből `.cube` LUT generálás Pythonban
 
 # Források, használt anyagok:
 * [https://halado.fotokonyv.hu/color-grading/ ](https://halado.fotokonyv.hu/color-grading/)
