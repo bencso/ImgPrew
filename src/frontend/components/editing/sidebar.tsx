@@ -34,6 +34,7 @@ import CopyrightBlock from "./copyright/copyrightBlock";
 import { EditItem } from "./edititem";
 import ResizeBlock from "./resize/resizeBlock";
 import TextBlock from "./text/textBlock";
+import ChannelMixerBlock from "./channelmixer/channelmixer";
 
 const sidebarElements = (
   exportAllDataForImage: any,
@@ -68,6 +69,7 @@ const sidebarElements = (
   expandBackground: string,
   expandMode: string,
   filters: FilterProps,
+  selectedChannel: string | undefined,
 ) => {
   return [
     {
@@ -267,7 +269,95 @@ const sidebarElements = (
     {
       function: "Channel mixer",
       icon: <LuRectangleVertical />,
-      inputs: [],
+      inputs: [
+        {
+          name: "",
+          inputType: "customElement",
+          options: <ChannelMixerBlock />,
+        },
+
+        {
+          name: `Piros`,
+          icon: <LuBetweenHorizontalEnd />,
+          min: -100,
+          max: 100,
+          step: 1,
+          inputType: "slider",
+          defaultValue:
+            getFilterValue(selectedImg, `${selectedChannel?.toLocaleLowerCase()}_red_channel`) ?? 0,
+          onChange: (e: SliderValueChangeDetails) => {
+            editFilters(
+              selectedImg,
+             `${selectedChannel?.toLocaleLowerCase()}_red_channel`,
+              e.value[0],
+            );
+          },
+          clearFunc: () => {
+            editFilters(selectedImg,`${selectedChannel?.toLocaleLowerCase()}_red_channel`, 0);
+          },
+        },
+        {
+          name: `Zöld`,
+          icon: <LuBetweenHorizontalEnd />,
+          min: -100,
+          max: 100,
+          step: 1,
+          inputType: "slider",
+          defaultValue:
+            getFilterValue(selectedImg, `${selectedChannel?.toLowerCase()}_green_channel`) ??
+            0,
+          onChange: (e: SliderValueChangeDetails) => {
+            editFilters(
+              selectedImg,
+             `${selectedChannel?.toLowerCase()}_green_channel`,
+              e.value[0],
+            );
+          },
+          clearFunc: () => {
+            editFilters(selectedImg, `${selectedChannel?.toLowerCase()}_green_channel`, 0);
+          },
+        },
+        {
+          name: `Kék`,
+          icon: <LuBetweenHorizontalEnd />,
+          min: -100,
+          max: 100,
+          step: 1,
+          inputType: "slider",
+          defaultValue:
+            getFilterValue(selectedImg, `${selectedChannel?.toLowerCase()}_blue_channel`) ?? 0,
+          onChange: (e: SliderValueChangeDetails) => {
+            editFilters(
+              selectedImg,
+              `${selectedChannel?.toLowerCase()}_blue_channel`,
+              e.value[0],
+            );
+          },
+          clearFunc: () => {
+            editFilters(selectedImg, `${selectedChannel?.toLowerCase()}_blue_channel`, 0);
+          },
+        },
+         {
+          name: `Offset`,
+          icon: <LuBetweenHorizontalEnd />,
+          min: -100,
+          max: 100,
+          step: 1,
+          inputType: "slider",
+          defaultValue:
+            getFilterValue(selectedImg, `${selectedChannel?.toLowerCase()}_channel_offset`) ?? 0,
+          onChange: (e: SliderValueChangeDetails) => {
+            editFilters(
+              selectedImg,
+             `${selectedChannel?.toLowerCase()}_channel_offset`,
+              e.value[0],
+            );
+          },
+          clearFunc: () => {
+            editFilters(selectedImg, `${selectedChannel?.toLowerCase()}_channel_offset`, 0);
+          },
+        },
+      ],
     },
     {
       function: "Egyéb",
@@ -458,8 +548,13 @@ export default function SideBar() {
   //#region contextek
   const [editItems, setEditItems] = useState<EditItemProp[]>([]);
 
-  const { spriteRef, selectedImg, addFunction, selectedScale } =
-    useWorkSession();
+  const {
+    spriteRef,
+    selectedImg,
+    addFunction,
+    selectedScale,
+    selectedChannel,
+  } = useWorkSession();
 
   const {
     sessionData,
@@ -518,9 +613,10 @@ export default function SideBar() {
         expandBackground,
         expandMode,
         filters,
+        selectedChannel,
       ),
     );
-  }, [sessionData, selectedImg]);
+  }, [sessionData, selectedImg, selectedChannel]);
   //#endregion
   return editItems.map((item, index) => {
     return <EditItem key={index} items={item} />;

@@ -182,8 +182,41 @@ export default function WebGlComponent() {
     setImageSize(selectedImg, imgW, imgH);
   };
 
+ function getChannelOffsets(params: any) {
+  const channels = new Float32Array([
+    (params.red_red_channel) / 100.0,   
+    (params.green_red_channel) / 100.0, 
+    (params.blue_red_channel) / 100.0,  
+
+    (params.red_green_channel ) / 100.0,   
+    (params.green_green_channel) / 100.0, 
+    (params.blue_green_channel ) / 100.0,  
+
+    (params.red_blue_channel ) / 100.0,   
+    (params.green_blue_channel ) / 100.0, 
+    (params.blue_blue_channel ) / 100.0,  
+  ]);
+
+  const offset = new Float32Array([
+
+    (params.red_channel_offset ?? 0) / 100.0,
+    (params.green_channel_offset ?? 0) / 100.0,
+    (params.blue_channel_offset ?? 0) / 100.0
+  ]);
+
+  return { channels, offset };
+}
+
+
   const applyFilters = () => {
     if (!spriteRef.current || !appRef.current) return;
+
+   const channelOffset = getChannelOffsets({
+   filters
+  });
+
+  console.log(filters)
+
 
     const filterUniforms = new UniformGroup({
       exposure_input: { value: filters.exposure, type: "f32" },
@@ -199,6 +232,14 @@ export default function WebGlComponent() {
       outblack_input: { value: filters.outblack / 255.0, type: "f32" },
       outwhite_input: { value: filters.outwhite / 255.0, type: "f32" },
       gamma_input: { value: filters.gamma, type: "f32" },
+      channel_colorMatrix_input: {
+        value: channelOffset.channels,
+        type: "mat3x3<f32>",
+      },
+      channel_offset_input: {
+        value: channelOffset.offset,
+        type: "vec3<f32>",
+      },
     });
 
     const webgFilters = new Filter({

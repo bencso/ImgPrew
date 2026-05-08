@@ -1,4 +1,5 @@
 import { brightnessExposureContrastFragment } from "./brightnessExposureContrastFragment";
+import { channelMixerFragment } from "./channelMixerFragment";
 import { hueFragment } from "./hueFragment";
 import { levelsFragment } from "./levels";
 import { temperatureFragment } from "./temperatureFragment";
@@ -34,11 +35,12 @@ export const allFiltersFragment = `
     uniform float outblack_input;
     uniform float outwhite_input;
 
-    uniform vec3 channel_offset_input;
     uniform mat3 channel_colorMatrix_input;
+    uniform vec3 channel_offset_input;
 
     float originalLuminance;
     float currentLuminance;
+    
 
     vec3 rgbToHsv(vec3 color) {
       vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
@@ -64,8 +66,8 @@ export const allFiltersFragment = `
     ${brightnessExposureContrastFragment}
     ${hueFragment}
     ${levelsFragment}
+    ${channelMixerFragment}
 
-
-    gl_FragColor = vec4(clamp(rgb, 0.0, 1.0), color.a);
+    gl_FragColor = vec4(mixedColor, color.a);
     }
 `;

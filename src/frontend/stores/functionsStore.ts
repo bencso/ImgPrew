@@ -44,12 +44,12 @@ export const useFunctionsStore = create<FunctionsState>()(
     editFunction: (props: EditFunctionProps) =>
       set((state) => {
         const existingFunction = state.functions.find(
-          (fn) => fn.name === props.functionName,
+          (fn:any) => fn.name === props.functionName,
         );
         if (!existingFunction) return;
 
         const inputItem = existingFunction.inputs.find(
-          (inp) => inp.name === props.inputName,
+          (inp:any) => inp.name === props.inputName,
         );
         if (!inputItem) return;
 

@@ -1,14 +1,14 @@
 "use client";
 
-import ColormodeSwitcher from "@/components/sidebar/colormodeSwitch";
-import LanguageSwitcher from "@/components/sidebar/languageSwitch";
-import { ProfileMenu } from "@/components/sidebar/profileMenu";
+import ColormodeSwitcher from "@/components/sidebar/colormodeswitch";
+import LanguageSwitcher from "@/components/sidebar/languageswitch";
+import { ProfileMenu } from "@/components/sidebar/profilemenu";
 import { links, LinkType } from "@/config";
 import { Avatar, Box, Flex, useSplitterContext } from "@chakra-ui/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
-import InfoPopover from "./infoPopover";
+import InfoPopover from "./infopopover";
 
 export const LeftSide = ({ isDesktop }: { isDesktop: ReactNode }) => {
   const pathname = usePathname();

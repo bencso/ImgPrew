@@ -133,6 +133,18 @@ export interface FilterProps {
   gamma: number;
   outblack: number;
   outwhite: number;
+  red_red_channel: number;
+  red_green_channel: number;
+  red_blue_channel: number;
+  green_red_channel: number;
+  green_green_channel: number;
+  green_blue_channel: number;
+  blue_red_channel: number;
+  blue_green_channel: number;
+  blue_blue_channel: number;
+  red_channel_offset: number;
+  green_channel_offset: number;
+  blue_channel_offset: number;
 }
 //#endregion
 
@@ -317,6 +329,8 @@ export interface WorkSessionContextProps {
   appRef: RefObject<Application<Renderer> | null>;
   canvasRef: RefObject<HTMLCanvasElement | null>;
   textAndImagePlaceRef: RefObject<HTMLDivElement | null>;
+  selectedChannel: string | undefined;
+  setSelectedChannel: Dispatch<SetStateAction<string | undefined>>;
 }
 //#endregion
 

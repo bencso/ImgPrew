@@ -3,7 +3,7 @@
 import { Splitter, useBreakpointValue } from "@chakra-ui/react";
 import { ReactNode, useEffect, useState } from "react";
 import Loader from "./loader";
-import { LeftSide } from "./sidebar/leftSide";
+import { LeftSide } from "./sidebar/leftside";
 
 const DEFAULT_SIZES = [20, 80];
 

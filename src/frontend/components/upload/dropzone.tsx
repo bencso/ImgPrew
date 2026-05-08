@@ -1,7 +1,7 @@
 "use client";
 
 import { toaster } from "@/components/ui/toaster";
-import { FileUploadList } from "@/components/upload/fileuploadList";
+import { FileUploadList } from "@/components/upload/fileuploadlist";
 import { uploadFile } from "@/handlers/fileUpload";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";

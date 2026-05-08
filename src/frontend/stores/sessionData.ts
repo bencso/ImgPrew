@@ -149,7 +149,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     //#region "Copyright" kép
     uploadCopyrightImage: (id: number, blob: ArrayBuffer) =>
       set((state) => {
-        const image = state.sessionData.find((img) => img.id === id);
+        const image = state.sessionData.find((img: any) => img.id === id);
         const blobConvert = new Blob([blob], { type: "image/png" });
         const url = URL.createObjectURL(blobConvert);
 
@@ -162,7 +162,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       }),
     clearCopyrightImage: (id: number) =>
       set((state) => {
-        const image = state.sessionData.find((img) => img.id === id);
+        const image = state.sessionData.find((img: any) => img.id === id);
 
         if (image) image.copyrightImage = {};
       }),
@@ -171,7 +171,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       position: { x: XPositions; y: YPositions },
     ) =>
       set((state) => {
-        const image = state.sessionData.find((img) => img.id === id);
+        const image = state.sessionData.find((img: any) => img.id === id);
         if (image)
           image.copyrightImage = {
             ...image.copyrightImage,
@@ -188,7 +188,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           });
           return;
         }
-        const image = state.sessionData.find((img) => img.id === id);
+        const image = state.sessionData.find((img: any) => img.id === id);
 
         if (image)
           image.copyrightImage = {
@@ -199,7 +199,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     //#region KÉP MÉRETEK
     setImageSize: (id, width, height) =>
       set((state) => ({
-        sessionData: state.sessionData.map((img) =>
+        sessionData: state.sessionData.map((img: any) =>
           img.id === id
             ? {
                 ...img,
@@ -211,7 +211,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     //#region Frontend Crop Box
     setCropBox: ({ id, box }: { id: number; box: CropBox }) => {
       set((state) => {
-        const image = state.sessionData.find((img) => img.id === id);
+        const image = state.sessionData.find((img: any) => img.id === id);
 
         if (image && image.box) {
           let newX = box.x ? box.x : image.box.x;
@@ -239,7 +239,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     },
     setCropSave: (id: number) => {
       set((state) => {
-        const image = state.sessionData.find((img) => img.id === id);
+        const image = state.sessionData.find((img: any) => img.id === id);
         if (image) image.cropSave = image.cropSave === true ? false : true;
       });
     },
@@ -248,7 +248,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     //#region EXIF ADATOK
     setExifDataForImage: (id: number, exif: string[]) =>
       set((state) => {
-        const image = state.sessionData.find((img) => img.id === id);
+        const image = state.sessionData.find((img: any) => img.id === id);
         if (image) image.exifDatas = exif;
       }),
     //#endregion
@@ -256,7 +256,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     //#region CAPTION SAMPLES
     setCaptionSamplesForImage: (id: number, captionSamples: string[]) =>
       set((state) => {
-        const image = state.sessionData.find((img) => img.id === id);
+        const image = state.sessionData.find((img: any) => img.id === id);
         if (image) image.captionSamples = captionSamples;
       }),
     //#endregion
@@ -267,7 +267,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     },
     setCaptionForImage: (id: number, caption: string) =>
       set((state) => {
-        const image = state.sessionData.find((img) => img.id === id);
+        const image = state.sessionData.find((img: any) => img.id === id);
         if (image) image.caption = caption;
       }),
     //#endregion
@@ -275,7 +275,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     //#region EXPORT FILE EXTENSION
     setExportFileExtension: (id: number, extension: string) =>
       set((state) => {
-        const image = state.sessionData.find((img) => img.id === id);
+        const image = state.sessionData.find((img: any) => img.id === id);
         if (image) image.exportFileExtension = extension;
       }),
     //#endregion
@@ -283,7 +283,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     //#region TEXT
     addTexts: (imageId: number, text: string) =>
       set((state) => {
-        const image = state.sessionData.find((img) => img.id === imageId);
+        const image = state.sessionData.find((img: any) => img.id === imageId);
         if (image) {
           if (!image.texts) image.texts = [];
 
@@ -305,19 +305,23 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       }),
     deleteText: (imageId: number, textId: string) => {
       set((state) => {
-        const image = state.sessionData.find((img) => img.id === imageId);
+        const image = state.sessionData.find((img: any) => img.id === imageId);
         if (!image?.texts) return;
 
-        const removedText = image.texts.filter((text) => text.id != textId);
+        const removedText = image.texts.filter(
+          (text: any) => text.id != textId,
+        );
         image.texts = removedText.length > 0 ? [...removedText] : [];
       });
     },
     editText: (imageId: number, textId: string, text: string) => {
       set((state) => {
-        const image = state.sessionData.find((img) => img.id === imageId);
+        const image = state.sessionData.find((img: any) => img.id === imageId);
         if (!image?.texts) return;
 
-        const textIndex = image.texts.findIndex((text) => text.id === textId);
+        const textIndex = image.texts.findIndex(
+          (text: any) => text.id === textId,
+        );
         if (textIndex === -1) return;
 
         image.texts = [
@@ -338,10 +342,12 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           return;
         }
 
-        const image = state.sessionData.find((img) => img.id === imageId);
+        const image = state.sessionData.find((img: any) => img.id === imageId);
         if (!image || !image.texts) return;
 
-        const textIndex = image.texts.findIndex((text) => text.id === textId);
+        const textIndex = image.texts.findIndex(
+          (text: any) => text.id === textId,
+        );
         if (textIndex === -1) return;
 
         image.texts = [
@@ -352,10 +358,12 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       }),
     setTextFontWeight: (imageId: number, textId: string, fontWeight: number) =>
       set((state) => {
-        const image = state.sessionData.find((img) => img.id === imageId);
+        const image = state.sessionData.find((img: any) => img.id === imageId);
         if (!image || !image.texts) return;
 
-        const textIndex = image.texts.findIndex((text) => text.id === textId);
+        const textIndex = image.texts.findIndex(
+          (text: any) => text.id === textId,
+        );
         if (textIndex === -1) return;
 
         image.texts = [
@@ -366,10 +374,12 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       }),
     setTextColor: (imageId: number, textId: string, color: string) =>
       set((state) => {
-        const image = state.sessionData.find((img) => img.id === imageId);
+        const image = state.sessionData.find((img: any) => img.id === imageId);
         if (!image || !image.texts) return;
 
-        const textIndex = image.texts.findIndex((text) => text.id === textId);
+        const textIndex = image.texts.findIndex(
+          (text: any) => text.id === textId,
+        );
         if (textIndex === -1) return;
 
         image.texts = [
@@ -389,10 +399,12 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       position: { x: number | XPositions; y: number | YPositions },
     ) =>
       set((state) => {
-        const image = state.sessionData.find((img) => img.id === imageId);
+        const image = state.sessionData.find((img: any) => img.id === imageId);
         if (!image || !image.texts || !image.dimesions) return;
 
-        const textIndex = image.texts.findIndex((text) => text.id === textId);
+        const textIndex = image.texts.findIndex(
+          (text: any) => text.id === textId,
+        );
         if (textIndex === -1) return;
 
         if (position && typeof position.x === "number" && position.x < 0) {
@@ -449,14 +461,14 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       )
         return;
       set((state) => ({
-        sessionData: state.sessionData.map((img) =>
+        sessionData: state.sessionData.map((img: any) =>
           img.id === id ? { ...img, expandMode: mode } : img,
         ),
       }));
     },
     setExpandSize: (id: number, size: { width: number; height: number }) => {
       set((state) => ({
-        sessionData: state.sessionData.map((img) =>
+        sessionData: state.sessionData.map((img: any) =>
           img.id === id ? { ...img, expandSize: size } : img,
         ),
       }));
@@ -469,7 +481,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         )
       )
         set((state) => ({
-          sessionData: state.sessionData.map((img) =>
+          sessionData: state.sessionData.map((img: any) =>
             img.id === id ? { ...img, expandBackground: rgba } : img,
           ),
         }));
@@ -492,10 +504,10 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     //#region FILTERS
     editFilters: (id: number, filterName: string, value: string | number) =>
       set((state) => {
-        const image = state.sessionData.find((img) => img.id === id);
+        const image = state.sessionData.find((img: any) => img.id === id);
         if (!image) return;
         if (!image.filters) image.filters = [];
-        const filter = image.filters.find((f) => f.name === filterName);
+        const filter = image.filters.find((f: any) => f.name === filterName);
         if (filter) filter.value = Number(value);
         else image.filters.push({ name: filterName, value: Number(value) });
       }),
@@ -561,6 +573,54 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           img?.filters?.find((f) => f.name === "outwhite")?.value,
           255,
         ),
+        red_red_channel: getValue(
+          img?.filters?.find((f) => f.name === "red_red_channel")?.value,
+          0,
+        ),
+        red_green_channel: getValue(
+          img?.filters?.find((f) => f.name === "red_green_channel")?.value,
+          0,
+        ),
+        red_blue_channel: getValue(
+          img?.filters?.find((f) => f.name === "red_blue_channel")?.value,
+          0,
+        ),
+        green_red_channel: getValue(
+          img?.filters?.find((f) => f.name === "green_red_channel")?.value,
+          0,
+        ),
+        green_green_channel: getValue(
+          img?.filters?.find((f) => f.name === "green_green_channel")?.value,
+          0,
+        ),
+        green_blue_channel: getValue(
+          img?.filters?.find((f) => f.name === "green_blue_channel")?.value,
+          0,
+        ),
+        blue_red_channel: getValue(
+          img?.filters?.find((f) => f.name === "blue_red_channel")?.value,
+          0,
+        ),
+        blue_green_channel: getValue(
+          img?.filters?.find((f) => f.name === "blue_green_channel")?.value,
+          0,
+        ),
+        blue_blue_channel: getValue(
+          img?.filters?.find((f) => f.name === "blue_blue_channel")?.value,
+          0,
+        ),
+        red_channel_offset: getValue(
+          img?.filters?.find((f) => f.name === "red_channel_offset")?.value,
+          0,
+        ),
+        green_channel_offset: getValue(
+          img?.filters?.find((f) => f.name === "green_channel_offset")?.value,
+          0,
+        ),
+        blue_channel_offset: getValue(
+          img?.filters?.find((f) => f.name === "blue_channel_offset")?.value,
+          0,
+        ),
       };
     },
     //#endregion
@@ -577,7 +637,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         });
       }
       set((state) => ({
-        sessionData: state.sessionData.map((img) =>
+        sessionData: state.sessionData.map((img: any) =>
           img.id === id ? { ...img, borderSize: borderSize } : img,
         ),
       }));

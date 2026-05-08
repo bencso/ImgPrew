@@ -31,6 +31,7 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
   const workPlaceRef = useRef<HTMLDivElement | null>(null);
   const textAndImagePlaceRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [selectedChannel, setSelectedChannel] = useState<string>();
   const { functions, addFunction, editFunction } = useFunctionsStore();
 
   const contextValue = useMemo<WorkSessionContextProps>(
@@ -58,6 +59,8 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       workPlaceRef,
       canvasRef,
       textAndImagePlaceRef,
+      selectedChannel,
+      setSelectedChannel,
     }),
     [
       step,
@@ -74,6 +77,7 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       appRef,
       canvasRef,
       textAndImagePlaceRef,
+      selectedChannel,
     ],
   );
 
