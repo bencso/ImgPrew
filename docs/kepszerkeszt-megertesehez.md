@@ -626,6 +626,17 @@ Hogy a pythonban ezeket a funkciókat ne kelljen újra megírni, ezért azt gond
 2. Lefuttatjuk ugyanazt a filtereket ezen a képen is
 3. Majd ezt egy `PNG`-be *(a legjobb az lenne ha 16 bites vagx EXR-be lehetne kimenteni)* kimentjük, és ez lesz az egyedi "LUT"-unk `PNG`-ben, ezt átadjuk a pythonnak
 4. A python pedig a képből generál egy `.cube` fájlt, amit használhatunk a kép exportálásakor
+
+### Implementálás
+
+Szükséges csomagok:
+- [numpy](https://numpy.org)
+- [imageio](https://imageio.readthedocs.io/en/stable/)
+
+- Beolvassuk a képet a imageio *(továbbiakban iio)* segítségével
+- Majd az alpha csatornákat el kell távolítani hogyha van, ugye 3D-s mátrixként vannak eltárolva a képek, R/G/B/A
+- A képet egy listává alakítjuk át (3 oszlopos)
+- És ezt a listát kiexportáljuk
    
 # Lábjegyzet:
 Továbbiakban, késöbb jó lehet:
