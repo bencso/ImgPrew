@@ -329,8 +329,8 @@ export interface WorkSessionContextProps {
   appRef: RefObject<Application<Renderer> | null>;
   canvasRef: RefObject<HTMLCanvasElement | null>;
   textAndImagePlaceRef: RefObject<HTMLDivElement | null>;
-  selectedChannel: string | undefined;
-  setSelectedChannel: Dispatch<SetStateAction<string | undefined>>;
+  selectedChannel: string ;
+  setSelectedChannel: Dispatch<SetStateAction<string>>;
 }
 //#endregion
 

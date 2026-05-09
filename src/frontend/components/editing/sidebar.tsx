@@ -284,16 +284,24 @@ const sidebarElements = (
           step: 1,
           inputType: "slider",
           defaultValue:
-            getFilterValue(selectedImg, `${selectedChannel?.toLocaleLowerCase()}_red_channel`) ?? 0,
+            getFilterValue(
+              selectedImg,
+              `${selectedChannel?.toLowerCase()}_red_channel`,
+            ) ?? (selectedChannel?.toLowerCase() === "red" ? 100 : 0),
           onChange: (e: SliderValueChangeDetails) => {
+            console.log(`${selectedChannel?.toLocaleLowerCase()}_red_channel`);
             editFilters(
               selectedImg,
-             `${selectedChannel?.toLocaleLowerCase()}_red_channel`,
+              `${selectedChannel?.toLocaleLowerCase()}_red_channel`,
               e.value[0],
             );
           },
           clearFunc: () => {
-            editFilters(selectedImg,`${selectedChannel?.toLocaleLowerCase()}_red_channel`, 0);
+            editFilters(
+              selectedImg,
+              `${selectedChannel?.toLowerCase()}_red_channel`,
+              selectedChannel?.toLowerCase() === "red" ? 100 : 0,
+            );
           },
         },
         {
@@ -304,17 +312,23 @@ const sidebarElements = (
           step: 1,
           inputType: "slider",
           defaultValue:
-            getFilterValue(selectedImg, `${selectedChannel?.toLowerCase()}_green_channel`) ??
-            0,
+            getFilterValue(
+              selectedImg,
+              `${selectedChannel?.toLowerCase()}_green_channel`,
+            ) ?? (selectedChannel?.toLowerCase() === "green" ? 100 : 0),
           onChange: (e: SliderValueChangeDetails) => {
             editFilters(
               selectedImg,
-             `${selectedChannel?.toLowerCase()}_green_channel`,
+              `${selectedChannel?.toLowerCase()}_green_channel`,
               e.value[0],
             );
           },
           clearFunc: () => {
-            editFilters(selectedImg, `${selectedChannel?.toLowerCase()}_green_channel`, 0);
+            editFilters(
+              selectedImg,
+              `${selectedChannel?.toLowerCase()}_green_channel`,
+              selectedChannel?.toLowerCase() === "green" ? 100 : 0,
+            );
           },
         },
         {
@@ -325,7 +339,10 @@ const sidebarElements = (
           step: 1,
           inputType: "slider",
           defaultValue:
-            getFilterValue(selectedImg, `${selectedChannel?.toLowerCase()}_blue_channel`) ?? 0,
+            getFilterValue(
+              selectedImg,
+              `${selectedChannel?.toLowerCase()}_blue_channel`,
+            ) ?? (selectedChannel?.toLowerCase() === "blue" ? 100 : 0),
           onChange: (e: SliderValueChangeDetails) => {
             editFilters(
               selectedImg,
@@ -334,10 +351,14 @@ const sidebarElements = (
             );
           },
           clearFunc: () => {
-            editFilters(selectedImg, `${selectedChannel?.toLowerCase()}_blue_channel`, 0);
+            editFilters(
+              selectedImg,
+              `${selectedChannel?.toLowerCase()}_blue_channel`,
+              selectedChannel?.toLowerCase() === "blue" ? 100 : 0,
+            );
           },
         },
-         {
+        {
           name: `Offset`,
           icon: <LuBetweenHorizontalEnd />,
           min: -100,
@@ -345,16 +366,23 @@ const sidebarElements = (
           step: 1,
           inputType: "slider",
           defaultValue:
-            getFilterValue(selectedImg, `${selectedChannel?.toLowerCase()}_channel_offset`) ?? 0,
+            getFilterValue(
+              selectedImg,
+              `${selectedChannel?.toLowerCase()}_channel_offset`,
+            ) ?? 0,
           onChange: (e: SliderValueChangeDetails) => {
             editFilters(
               selectedImg,
-             `${selectedChannel?.toLowerCase()}_channel_offset`,
+              `${selectedChannel?.toLowerCase()}_channel_offset`,
               e.value[0],
             );
           },
           clearFunc: () => {
-            editFilters(selectedImg, `${selectedChannel?.toLowerCase()}_channel_offset`, 0);
+            editFilters(
+              selectedImg,
+              `${selectedChannel?.toLowerCase()}_channel_offset`,
+              0,
+            );
           },
         },
       ],

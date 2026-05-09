@@ -31,7 +31,7 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
   const workPlaceRef = useRef<HTMLDivElement | null>(null);
   const textAndImagePlaceRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [selectedChannel, setSelectedChannel] = useState<string>();
+  const [selectedChannel, setSelectedChannel] = useState<string>("red");
   const { functions, addFunction, editFunction } = useFunctionsStore();
 
   const contextValue = useMemo<WorkSessionContextProps>(

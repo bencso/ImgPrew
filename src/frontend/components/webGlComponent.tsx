@@ -182,41 +182,38 @@ export default function WebGlComponent() {
     setImageSize(selectedImg, imgW, imgH);
   };
 
- function getChannelOffsets(params: any) {
-  const channels = new Float32Array([
-    (params.red_red_channel) / 100.0,   
-    (params.green_red_channel) / 100.0, 
-    (params.blue_red_channel) / 100.0,  
+  function getChannelOffsets(params: any) {
+   const channels = new Float32Array([
+    (params.red_red_channel ?? 100) / 100.0,   
+    (params.green_red_channel ?? 0) / 100.0, 
+    (params.blue_red_channel ?? 0) / 100.0,  
 
-    (params.red_green_channel ) / 100.0,   
-    (params.green_green_channel) / 100.0, 
-    (params.blue_green_channel ) / 100.0,  
+    (params.red_green_channel ?? 0) / 100.0,   
+    (params.green_green_channel ?? 100) / 100.0, 
+    (params.blue_green_channel ?? 0) / 100.0,  
 
-    (params.red_blue_channel ) / 100.0,   
-    (params.green_blue_channel ) / 100.0, 
-    (params.blue_blue_channel ) / 100.0,  
+    (params.red_blue_channel ?? 0) / 100.0,   
+    (params.green_blue_channel ?? 0) / 100.0, 
+    (params.blue_blue_channel ?? 100) / 100.0,  
   ]);
 
   const offset = new Float32Array([
-
     (params.red_channel_offset ?? 0) / 100.0,
     (params.green_channel_offset ?? 0) / 100.0,
     (params.blue_channel_offset ?? 0) / 100.0
   ]);
 
-  return { channels, offset };
-}
-
+    return { channels, offset };
+  }
 
   const applyFilters = () => {
     if (!spriteRef.current || !appRef.current) return;
 
-   const channelOffset = getChannelOffsets({
-   filters
-  });
+    const channelOffset = getChannelOffsets(
+      filters,
+    );
 
-  console.log(filters)
-
+    console.log(filters);
 
     const filterUniforms = new UniformGroup({
       exposure_input: { value: filters.exposure, type: "f32" },

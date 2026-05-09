@@ -575,7 +575,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         ),
         red_red_channel: getValue(
           img?.filters?.find((f) => f.name === "red_red_channel")?.value,
-          0,
+          100,
         ),
         red_green_channel: getValue(
           img?.filters?.find((f) => f.name === "red_green_channel")?.value,
@@ -591,7 +591,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         ),
         green_green_channel: getValue(
           img?.filters?.find((f) => f.name === "green_green_channel")?.value,
-          0,
+          100,
         ),
         green_blue_channel: getValue(
           img?.filters?.find((f) => f.name === "green_blue_channel")?.value,
@@ -607,7 +607,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         ),
         blue_blue_channel: getValue(
           img?.filters?.find((f) => f.name === "blue_blue_channel")?.value,
-          0,
+          100,
         ),
         red_channel_offset: getValue(
           img?.filters?.find((f) => f.name === "red_channel_offset")?.value,
