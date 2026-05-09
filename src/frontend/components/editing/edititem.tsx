@@ -47,9 +47,11 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
       open={open}
       onOpenChange={(e) => setOpen(e.open)}
       positioning={{ placement: isMd ? "left" : "top-start" }}
+      
     >
       <Popover.Trigger asChild>
         <Box
+        
           p="4"
           display={"flex"}
           borderBottomWidth={isMd ? "1px" : "0"}

@@ -41,7 +41,7 @@ export default function WebGlComponent() {
       const app = new Application();
       appRef.current = app;
       await appRef.current.init({
-        backgroundAlpha: 1,
+        backgroundAlpha: 0,
         webgl: {
           antialias: true,
         },

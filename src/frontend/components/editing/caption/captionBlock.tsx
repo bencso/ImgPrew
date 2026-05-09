@@ -110,7 +110,6 @@ export default function CaptionBlock() {
       const editor = editorRef.current;
       editor.textContent = "";
 
-      //! A tagekből csinálunk egy regex sorozatot ahol az összes taget megnézzük (or-ral)
       const escapedTags = [...tags]
         .sort((a, b) => b.localeCompare(a))
         .map((tag) => tag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));

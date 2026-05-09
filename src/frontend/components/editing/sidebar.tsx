@@ -70,9 +70,10 @@ const sidebarElements = (
   expandMode: string,
   filters: FilterProps,
   selectedChannel: string | undefined,
+  captionSamples: string[],
 ) => {
   return [
-    {
+    captionSamples.length > 0 && {
       function: "Kép szöveg",
       icon: <LuCaptions />,
       inputs: [
@@ -421,6 +422,21 @@ const sidebarElements = (
             editFilters(selectedImg, "tint", 0);
           },
         },
+        {
+          name: "Vibrance",
+          icon: <LuCloudMoonRain />,
+          min: -100,
+          max: 100,
+          step: 1,
+          inputType: "slider",
+          defaultValue: getFilterValue(selectedImg, "vibrance") ?? 0,
+          onChange: (e: SliderValueChangeDetails) => {
+            editFilters(selectedImg, "vibrance", e.value[0]);
+          },
+          clearFunc: () => {
+            editFilters(selectedImg, "vibrance", 0);
+          },
+        },
       ],
     },
     {
@@ -486,6 +502,7 @@ const sidebarElements = (
           inputType: "customElement",
           options: (
             <ColorPicker.Root
+              zIndex={1000}
               value={parseColor(expandBackground)}
               onValueChange={(e: any) => {
                 console.log(e);
@@ -502,7 +519,7 @@ const sidebarElements = (
               </ColorPicker.Control>
               <Portal>
                 <ColorPicker.Positioner zIndex={10000}>
-                  <ColorPicker.Content>
+                  <ColorPicker.Content zIndex={"max"}>
                     <ColorPicker.Area />
                     <HStack>
                       <ColorPicker.Sliders />
@@ -622,6 +639,11 @@ export default function SideBar() {
       (s) => s.sessionData.find((si) => si.id === selectedImg)?.expandMode,
     ) || "no";
 
+  const captionSamples =
+    useSessionStore(
+      (s) => s.sessionData.find((si) => si.id === selectedImg)?.captionSamples,
+    ) || [];
+
   const filters = useSessionStore((s) => s.getFilters(selectedImg), shallow);
 
   useMemo(() => {
@@ -642,6 +664,7 @@ export default function SideBar() {
         expandMode,
         filters,
         selectedChannel,
+        captionSamples,
       ),
     );
   }, [sessionData, selectedImg, selectedChannel]);

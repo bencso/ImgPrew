@@ -406,6 +406,7 @@ export default function ResizeBlock() {
         </Tabs.Content>
         <Tabs.Content value="expand">
           <ColorPicker.Root
+          
             value={parseColor(expandBackground)}
             onValueChange={(e: any) => {
               console.log(e);
@@ -422,7 +423,7 @@ export default function ResizeBlock() {
             </ColorPicker.Control>
             <Portal>
               <ColorPicker.Positioner zIndex={10000}>
-                <ColorPicker.Content>
+                <ColorPicker.Content zIndex={"max"}>
                   <ColorPicker.Area />
                   <HStack>
                     <ColorPicker.Sliders />
