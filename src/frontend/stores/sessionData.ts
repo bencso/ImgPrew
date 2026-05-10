@@ -533,7 +533,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         ),
         contrast: getValue(
           img?.filters?.find((f) => f.name === "contrast")?.value,
-          1,
+          0,
         ),
         exposure: getValue(
           img?.filters?.find((f) => f.name === "exposure")?.value,

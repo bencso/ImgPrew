@@ -3,6 +3,7 @@ import { channelMixerFragment } from "./channelMixerFragment";
 import { hueFragment } from "./hueFragment";
 import { levelsFragment } from "./levels";
 import { temperatureFragment } from "./temperatureFragment";
+import { vibranceFragment } from "./vibranceFragment";
 
 /*
 Temperature/Tint
@@ -38,6 +39,8 @@ export const allFiltersFragment = `
     uniform mat3 channel_colorMatrix_input;
     uniform vec3 channel_offset_input;
 
+    uniform float vibrance_input; 
+
     float originalLuminance;
     float currentLuminance;
     
@@ -66,8 +69,11 @@ export const allFiltersFragment = `
     ${brightnessExposureContrastFragment}
     ${hueFragment}
     ${levelsFragment}
+    ${vibranceFragment}
     ${channelMixerFragment}
 
-    gl_FragColor = vec4(mixedColor, color.a);
+    rgb = clamp(rgb, 0.0, 1.0);
+
+    gl_FragColor = vec4(rgb, color.a);
     }
 `;

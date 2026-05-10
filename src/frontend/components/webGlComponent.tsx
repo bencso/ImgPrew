@@ -42,15 +42,9 @@ export default function WebGlComponent() {
       appRef.current = app;
       await appRef.current.init({
         backgroundAlpha: 0,
-        webgl: {
-          antialias: true,
-        },
-        webgpu: {
-          antialias: false,
-        },
-        textureGCActive: true,
-        textureGCMaxIdle: 7200,
-        textureGCCheckCountMax: 1200,
+        resolution: window.devicePixelRatio || 1,
+        autoDensity: true,
+        antialias: true,
       });
 
       // @ts-ignore
@@ -96,7 +90,7 @@ export default function WebGlComponent() {
       }
 
       applyFilters();
-      resizeSprite();
+      updateLayout();
     };
 
     img.src = sessionData[selectedImg].blob;
@@ -163,8 +157,9 @@ export default function WebGlComponent() {
     }
 
     if (appRef.current) {
-      spriteRef.current.x = appRef.current.canvas.width / 2;
-      spriteRef.current.y = appRef.current.canvas.height / 2;
+      appRef.current.renderer.resize(width, height);
+      spriteRef.current.x = width / 2;
+      spriteRef.current.y = height / 2;
     }
 
     setSelectedScale({
@@ -174,8 +169,8 @@ export default function WebGlComponent() {
       },
       scale: scale,
       position: {
-        x: appRef.current.canvas.width / 2,
-        y: appRef.current.canvas.height / 2,
+        x: width / 2,
+        y: height / 2,
       },
     });
 
@@ -183,25 +178,25 @@ export default function WebGlComponent() {
   };
 
   function getChannelOffsets(params: any) {
-   const channels = new Float32Array([
-    (params.red_red_channel ?? 100) / 100.0,   
-    (params.green_red_channel ?? 0) / 100.0, 
-    (params.blue_red_channel ?? 0) / 100.0,  
+    const channels = new Float32Array([
+      params.red_red_channel / 100.0,
+      params.green_red_channel / 100.0,
+      params.blue_red_channel / 100.0,
 
-    (params.red_green_channel ?? 0) / 100.0,   
-    (params.green_green_channel ?? 100) / 100.0, 
-    (params.blue_green_channel ?? 0) / 100.0,  
+      params.red_green_channel / 100.0,
+      params.green_green_channel / 100.0,
+      params.blue_green_channel / 100.0,
 
-    (params.red_blue_channel ?? 0) / 100.0,   
-    (params.green_blue_channel ?? 0) / 100.0, 
-    (params.blue_blue_channel ?? 100) / 100.0,  
-  ]);
+      params.red_blue_channel / 100.0,
+      params.green_blue_channel / 100.0,
+      params.blue_blue_channel / 100.0,
+    ]);
 
-  const offset = new Float32Array([
-    (params.red_channel_offset ?? 0) / 100.0,
-    (params.green_channel_offset ?? 0) / 100.0,
-    (params.blue_channel_offset ?? 0) / 100.0
-  ]);
+    const offset = new Float32Array([
+      params.red_channel_offset / 100.0,
+      params.green_channel_offset / 100.0,
+      params.blue_channel_offset / 100.0,
+    ]);
 
     return { channels, offset };
   }
@@ -209,16 +204,15 @@ export default function WebGlComponent() {
   const applyFilters = () => {
     if (!spriteRef.current || !appRef.current) return;
 
-    const channelOffset = getChannelOffsets(
-      filters,
-    );
-
-    console.log(filters);
+    const channelOffset = getChannelOffsets(filters);
 
     const filterUniforms = new UniformGroup({
-      exposure_input: { value: filters.exposure, type: "f32" },
-      brightness_input: { value: filters.brightness, type: "f32" },
-      contrast_input: { value: filters.contrast, type: "f32" },
+      exposure_input: { value: filters.exposure / 5.0, type: "f32" },
+      brightness_input: { value: filters.brightness / 100.0, type: "f32" },
+      contrast_input: {
+        value: (filters.contrast / 100.0) * 0.5 + 1.0,
+        type: "f32",
+      },
       temperature_input: { value: filters.temperature / 100.0, type: "f32" },
       tint_input: { value: filters.tint / 100.0, type: "f32" },
       saturation_input: { value: filters.saturation, type: "f32" },
@@ -237,6 +231,7 @@ export default function WebGlComponent() {
         value: channelOffset.offset,
         type: "vec3<f32>",
       },
+      vibrance_input: { value: filters.vibrance / 100.0, type: "f32" },
     });
 
     const webgFilters = new Filter({
@@ -296,217 +291,125 @@ export default function WebGlComponent() {
     shallow,
   );
 
-  function calculateExpandMode() {
-    const type = expandMode;
-    if (
-      appRef.current &&
-      textureRef.current &&
-      spriteRef.current &&
-      workPlaceRef.current &&
-      imageSize
-    )
-      if (type !== "expand") {
-        const areaW = workPlaceRef.current.offsetWidth;
-        const areaH = workPlaceRef.current.offsetHeight;
-
-        const scale = Math.min(
-          areaH / imageSize.height,
-          areaW / imageSize.width,
-        );
-        appRef.current.renderer.resize(areaW, areaH);
-        appRef.current.renderer.background.color = "transparent";
-
-        spriteRef.current.width = imageSize.width * scale;
-        spriteRef.current.height = imageSize.height * scale;
-
-        if (textAndImagePlaceRef.current) {
-          if (type === "no")
-            textAndImagePlaceRef.current.style.height =
-              (canvasRef.current?.offsetHeight ?? areaH) + "px";
-          else textAndImagePlaceRef.current.style.height = "100%";
-          if (type === "no")
-            textAndImagePlaceRef.current.style.width =
-              imageSize.width * scale + "px";
-          else textAndImagePlaceRef.current.style.width = "100%";
-        }
-
-        if (expandMode === "crop") {
-          spriteRef.current.x = box?.x ?? appRef.current.canvas.width / 2;
-          spriteRef.current.y = box?.y ?? appRef.current.canvas.height / 2;
-        } else {
-          spriteRef.current.x = appRef.current.canvas.width / 2;
-          spriteRef.current.y = appRef.current.canvas.height / 2;
-        }
-      } else {
-        const workPlaceSize = workPlaceRef.current;
-        const areaW = workPlaceSize.offsetWidth;
-        const areaH = workPlaceSize.offsetHeight;
-        const h = expandSize?.height ?? imageSize.height;
-        const w = expandSize?.width ?? imageSize.width;
-
-        if (!areaW || !areaH || !w || !h || !textAndImagePlaceRef.current)
-          return;
-
-        const canvasScale = Math.min(areaW / w, areaH / h);
-
-        const canvasW = Math.round(w * canvasScale);
-        const canvasH = Math.round(h * canvasScale);
-
-        appRef.current.renderer.resize(canvasW, canvasH);
-        appRef.current.renderer.background.color = expandBackground;
-
-        const imgW = textureRef.current.width;
-        const imgH = textureRef.current.height;
-
-        const imageScale = Math.min(canvasW / imgW, canvasH / imgH);
-
-        let spW = Math.round(imgW * imageScale);
-        let spH = Math.round(imgH * imageScale);
-
-        spriteRef.current.width = spW;
-        spriteRef.current.height = spH;
-
-        textAndImagePlaceRef.current.style.height =
-          (appRef.current.renderer.height ?? spH) + "px";
-        textAndImagePlaceRef.current.style.width =
-          (appRef.current.renderer.width ?? spW) + "px";
-
-        spriteRef.current.x = appRef.current.canvas.width / 2;
-        spriteRef.current.y = appRef.current.canvas.height / 2;
-      }
-  }
-
-  function calculateExpandSize() {
+  const updateLayout = () => {
     if (
       !workPlaceRef.current ||
       !appRef.current ||
       !textureRef.current ||
-      !spriteRef.current ||
-      !imageSize
+      !spriteRef.current
     )
       return;
 
-    if (expandMode !== "expand") {
-      const areaW = workPlaceRef.current.offsetWidth;
-      const areaH = workPlaceRef.current.offsetHeight;
+    const imgW = textureRef.current.width;
+    const imgH = textureRef.current.height;
 
-      const scale = Math.min(areaH / imageSize.height, areaW / imageSize.width);
-      appRef.current.renderer.resize(areaW, areaH);
-      appRef.current.renderer.background.color = "transparent";
+    const areaW = workPlaceRef.current.offsetWidth;
+    const areaH = workPlaceRef.current.offsetHeight;
 
-      spriteRef.current.width = imageSize.width * scale;
-      spriteRef.current.height = imageSize.height * scale;
+    if (expandMode === "expand") {
+      const targetW = expandSize?.width ?? imgW;
+      const targetH = expandSize?.height ?? imgH;
+
+      const canvasScale = Math.min(areaW / targetW, areaH / targetH);
+      const canvasW = Math.round(targetW * canvasScale);
+      const canvasH = Math.round(targetH * canvasScale);
+
+      appRef.current.renderer.resize(canvasW, canvasH);
+      appRef.current.renderer.background.color = expandBackground;
+
+      const imageScale = Math.min(canvasW / imgW, canvasH / imgH);
+      spriteRef.current.width = imgW * imageScale;
+      spriteRef.current.height = imgH * imageScale;
+
+      spriteRef.current.x = canvasW / 2;
+      spriteRef.current.y = canvasH / 2;
 
       if (textAndImagePlaceRef.current) {
-        textAndImagePlaceRef.current.style.height =
-          imageSize.height * scale + "px";
-        textAndImagePlaceRef.current.style.width =
-          imageSize.width * scale + "px";
-      }
-      if (
-        (expandMode === "border" &&
-          borderSize &&
-          borderSize.x &&
-          borderSize.y) ||
-        (expandMode === "crop" &&
-          borderSize &&
-          borderSize.x &&
-          borderSize.y &&
-          cropSaved)
-      ) {
-        if (
-          expandMode === "crop" &&
-          box &&
-          box.height &&
-          box.width &&
-          box.x &&
-          box.y
-        ) {
-          //TODO: Tényleges croppolás kell itt mert különben nem jó, vagy valami overflow beállítás?
-          spriteRef.current.height = box.height - +borderSize.x;
-          spriteRef.current.width = box.width - +borderSize.y;
-          spriteRef.current.x = box.x / 2;
-          spriteRef.current.y = box.y / 2;
-        } else {
-          spriteRef.current.width = imageSize.width * scale - +borderSize.x;
-          spriteRef.current.height = imageSize.height * scale - +borderSize.y;
-        }
-        const areaW = spriteRef.current.width + borderSize.x;
-        const areaH = spriteRef.current.height + borderSize.y;
-        appRef.current.renderer.background.color = expandBackground;
-        appRef.current.renderer.resize(areaW, areaH);
+        textAndImagePlaceRef.current.style.width = canvasW + "px";
+        textAndImagePlaceRef.current.style.height = canvasH + "px";
       }
 
-      if (expandMode == "crop" && box && !cropSaved) {
+      setSelectedScale({
+        image: { height: imgH, width: imgW },
+        scale: canvasScale,
+        position: { x: canvasW / 2, y: canvasH / 2 },
+      });
+      return;
+    }
+
+    const scale = Math.min(areaH / imgH, areaW / imgW);
+    let canvasW = imgW * scale;
+    let canvasH = imgH * scale;
+
+    let spW = canvasW;
+    let spH = canvasH;
+    let spX = canvasW / 2;
+    let spY = canvasH / 2;
+
+    appRef.current.renderer.background.color = "transparent";
+
+    if (
+      (expandMode === "border" || (expandMode === "crop" && cropSaved)) &&
+      borderSize
+    ) {
+      spW = canvasW - (borderSize.x || 0);
+      spH = canvasH - (borderSize.y || 0);
+      appRef.current.renderer.background.color = expandBackground;
+    }
+
+    if (expandMode === "crop" && box && box.height &&  box.width && box.x && box.y && imageSize) {
+      if (!cropSaved) {
         const cropSizeRelative = {
           height: box.height ?? imageSize.height * (scale ?? 1),
           width: box.width ?? imageSize.width * (scale ?? 1),
         };
 
-        spriteRef.current.x = box.x ?? appRef.current.canvas.width / 2;
+          spriteRef.current.x = box.x ?? appRef.current.canvas.width / 2;
         spriteRef.current.y = box.y ?? cropSizeRelative.height / 2;
       } else {
-        spriteRef.current.x = appRef.current.canvas.width / 2;
-        spriteRef.current.y = appRef.current.canvas.height / 2;
+        spW = box.width ?? 0 - +(borderSize?.y || 0);
+        spH = box.height ?? 0 - +(borderSize?.x || 0);
+        spX = box.x ?? 0 / 2;
+        spY = box.y ?? 0 / 2;
       }
-    } else {
-      const workPlaceSize = workPlaceRef.current;
-      const areaW = workPlaceSize.offsetWidth;
-      const areaH = workPlaceSize.offsetHeight;
-
-      const h = expandSize?.height ?? imageSize.height;
-      const w = expandSize?.width ?? imageSize.width;
-
-      if (!areaW || !areaH || !w || !h || !textAndImagePlaceRef.current) return;
-
-      const canvasScale = Math.min(areaW / w, areaH / h);
-
-      const canvasW = Math.round(w * canvasScale);
-      const canvasH = Math.round(h * canvasScale);
-
-      appRef.current.renderer.resize(canvasW, canvasH);
-      appRef.current.renderer.background.color = expandBackground;
-
-      const imgW = textureRef.current.width;
-      const imgH = textureRef.current.height;
-
-      const imageScale = Math.min(canvasW / imgW, canvasH / imgH);
-
-      let spW = Math.round(imgW * imageScale);
-      let spH = Math.round(imgH * imageScale);
-
-      spriteRef.current.width = spW;
-      spriteRef.current.height = spH;
-
-      textAndImagePlaceRef.current.style.height =
-        (appRef.current.renderer.height ?? spH) + "px";
-      textAndImagePlaceRef.current.style.width =
-        (appRef.current.renderer.width ?? spW) + "px";
-
-      spriteRef.current.x = appRef.current.canvas.width / 2;
-      spriteRef.current.y = appRef.current.canvas.height / 2;
     }
-  }
+
+    appRef.current.renderer.resize(canvasW, canvasH);
+
+    spriteRef.current.width = spW;
+    spriteRef.current.height = spH;
+    spriteRef.current.x = spX;
+    spriteRef.current.y = spY;
+
+    if (textAndImagePlaceRef.current) {
+      textAndImagePlaceRef.current.style.width = canvasW + "px";
+      textAndImagePlaceRef.current.style.height = canvasH + "px";
+    }
+
+    setSelectedScale({
+      image: { height: imgH, width: imgW },
+      scale: scale,
+      position: { x: spX, y: spY },
+    });
+  };
 
   useEffect(() => {
-    calculateExpandMode();
-  }, [expandMode, imageSize, selectedImg]);
+    updateLayout();
+  }, [
+    expandSize,
+    expandMode,
+    expandBackground,
+    imageSize,
+    selectedImg,
+    borderSize,
+    cropSaved,
+    box,
+  ]);
 
   useEffect(() => {
-    calculateExpandSize();
-  }, [expandSize, expandBackground, imageSize, selectedImg, borderSize]);
-
-  useEffect(() => {
-    const handleResize = () => {
-      resizeSprite();
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, [selectedImg]);
+    window.addEventListener("resize", updateLayout);
+    return () => window.removeEventListener("resize", updateLayout);
+  }, []);
 
   return (
     <Box

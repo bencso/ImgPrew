@@ -10,7 +10,7 @@ import {
   SliderValueChangeDetails,
 } from "@chakra-ui/react";
 import { Sprite } from "pixi.js";
-import { RefObject, useMemo, useState } from "react";
+import { RefObject, useEffect, useMemo, useState } from "react";
 import {
   LuBetweenHorizontalEnd,
   LuBlend,
@@ -91,8 +91,8 @@ const sidebarElements = (
         {
           name: "Fényerő",
           icon: <LuSun />,
-          min: -0.5,
-          max: 0.5,
+          min: -100,
+          max: 100,
           step: 0.001,
           inputType: "slider",
           defaultValue: getFilterValue(selectedImg, "brightness") ?? 0,
@@ -106,8 +106,8 @@ const sidebarElements = (
         {
           name: "Expozíció",
           icon: <LuBlend />,
-          min: -2,
-          max: 2,
+          min: -5,
+          max: 5,
           step: 0.01,
           inputType: "slider",
           defaultValue: getFilterValue(selectedImg, "exposure") ?? 0,
@@ -121,16 +121,16 @@ const sidebarElements = (
         {
           name: "Kontraszt",
           icon: <LuContrast />,
-          min: 0.5,
-          max: 1.5,
+          min: -100,
+          max: 100,
           step: 0.01,
           inputType: "slider",
-          defaultValue: getFilterValue(selectedImg, "contrast") ?? 1,
+          defaultValue: getFilterValue(selectedImg, "contrast") ?? 0,
           onChange: (e: SliderValueChangeDetails) => {
             editFilters(selectedImg, "contrast", e.value[0]);
           },
           clearFunc: () => {
-            editFilters(selectedImg, "contrast", 1);
+            editFilters(selectedImg, "contrast", 0);
           },
         },
       ],
@@ -613,13 +613,13 @@ export default function SideBar() {
   } = useSessionStore();
   //#endregion
 
-  useMemo(() => {
+  useEffect(() => {
     editItems.map((item) => {
       if (item.inputs) {
         addFunction(item.function, item.inputs);
       }
     });
-  }, []);
+  }, [editItems, addFunction]);
 
   //#region sidebar funkciók
   const selectedExtension =

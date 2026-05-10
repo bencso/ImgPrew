@@ -1,4 +1,6 @@
 export const hueFragment = `
+    currentLuminance = dot(rgb, vec3(0.299, 0.587, 0.114));
+    
     if (abs(saturation_input) > 0.0001) {
         rgb = mix(vec3(currentLuminance), rgb, 1.0 + saturation_input);
     }
