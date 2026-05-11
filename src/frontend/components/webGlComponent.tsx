@@ -172,6 +172,8 @@ export default function WebGlComponent() {
         y: height / 2,
       },
     });
+
+    setImageSize(selectedImg, imgW,imgH)
   };
 
   function getChannelOffsets(params: any) {
@@ -302,6 +304,7 @@ export default function WebGlComponent() {
       !spriteRef.current
     )
       return;
+
 
     const imgW = textureRef.current.width;
     const imgH = textureRef.current.height;
