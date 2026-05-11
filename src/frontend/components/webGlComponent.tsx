@@ -173,7 +173,7 @@ export default function WebGlComponent() {
       },
     });
 
-    setImageSize(selectedImg, imgW,imgH)
+    setImageSize(selectedImg, imgW, imgH);
   };
 
   function getChannelOffsets(params: any) {
@@ -238,7 +238,7 @@ export default function WebGlComponent() {
       // @ts-ignore
       glProgram: new GlProgram({
         vertex: vertexFragment,
-        fragment: allFiltersFragment
+        fragment: allFiltersFragment,
       }),
       resources: {
         filterUniforms: filterUniforms,
@@ -256,9 +256,11 @@ export default function WebGlComponent() {
     resizeSprite();
   }, [selectedImg]);
 
+  /* 
   useEffect(() => {
-    applyFilters();
+     applyFilters();
   }, [filters]);
+   */
 
   const expandMode =
     useSessionStore(
@@ -304,7 +306,6 @@ export default function WebGlComponent() {
       !spriteRef.current
     )
       return;
-
 
     const imgW = textureRef.current.width;
     const imgH = textureRef.current.height;

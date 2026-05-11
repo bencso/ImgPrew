@@ -41,36 +41,26 @@ export const FileUploadList = () => {
           <Box
             display="flex"
             flexDirection={"column"}
-            alignItems="center"
+            alignItems="start"
             w={"100%"}
             justifyContent={"center"}
             gap={2}
           >
-            <FileUpload.ItemPreviewImage
-              userSelect="none"
-              draggable={false}
-              maxH={"100px"}
-              w={"100%"}
-              minH={"100px"}
-              borderRadius={"sm"}
-              h={"full"}
-              objectFit={"cover"}
-            />
             <FileUpload.ItemName fontSize={"xs"} maxW={"90%"} />
+            <FileUpload.ItemSizeText/>
           </Box>
 
-          <Float placement="bottom-center" offset={"55%"}>
+        
             <FileUpload.ItemDeleteTrigger
               minH={10}
               minW={10}
               borderRadius="full"
-              bg="teal.border/70"
-              color="bg.muted"
-              _hover={{ bg: "teal.500/90", color: "bg.muted" }}
+              color="fg.error"
+              _hover={{ color: "fg.error/50" }}
             >
               <LuTrash size={14} />
             </FileUpload.ItemDeleteTrigger>
-          </Float>
+        
         </FileUpload.Item>
       ))}
     </FileUpload.ItemGroup>

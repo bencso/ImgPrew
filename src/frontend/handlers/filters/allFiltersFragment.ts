@@ -13,10 +13,10 @@ Brightness
 Hue/Saturation/Value
 */
 
-export const allFiltersFragment = `
+export const allFiltersFragment = `#version 300 es
   precision highp float;
 
-    varying vec2 vTextureCoord;
+   in vec2 vTextureCoord; 
     uniform sampler2D uSampler;
 
     uniform float exposure_input;
@@ -44,6 +44,7 @@ export const allFiltersFragment = `
     float originalLuminance;
     float currentLuminance;
     
+    out vec4 finalColor;
 
     vec3 rgbToHsv(vec3 color) {
       vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
@@ -62,7 +63,7 @@ export const allFiltersFragment = `
     }
 
     void main() {
-    vec4 color = texture2D(uSampler, vTextureCoord);
+    vec4 color = texture(uSampler, vTextureCoord);
     vec3 rgb = color.rgb;
 
     ${temperatureFragment}
@@ -74,6 +75,6 @@ export const allFiltersFragment = `
 
     rgb = clamp(rgb, 0.0, 1.0);
 
-    gl_FragColor = vec4(rgb, color.a);
+    finalColor = vec4(rgb, color.a);
     }
 `;

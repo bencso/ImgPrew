@@ -621,7 +621,10 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           img?.filters?.find((f) => f.name === "blue_channel_offset")?.value,
           0,
         ),
-          vibrance: getValue(img?.filters?.find((f) => f.name === "vibrance")?.value, 0),
+        vibrance: getValue(
+          img?.filters?.find((f) => f.name === "vibrance")?.value,
+          0,
+        ),
       };
     },
     //#endregion
