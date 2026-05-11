@@ -338,11 +338,11 @@ export default function ImageWorkPlace() {
                 throttleDrag={1}
                 edge={false}
                 renderDirections={["w", "s", "e", "n"]}
-                onDrag={({ delta }) => {
+                onDrag={({ delta } : {delta: any}) => {
                   const [dx, dy] = delta;
                   grabCrop(dx, dy);
                 }}
-                onResize={({ width, height, direction, delta }) => {
+                onResize={({ width, height, direction, delta } : {width: any, height: any, direction: any, delta: any}) => {
                   if (!spriteRef.current || !borderMax) return;
 
                   const [dx, dy] = delta;
@@ -414,7 +414,7 @@ export default function ImageWorkPlace() {
         hideChildMoveableDefaultLines
         hideThrottleDragRotateLine
         origin={false}
-        onDrag={(e) => {
+        onDrag={(e:any) => {
           if (!draggableId) return;
           const [x, y] = e.beforeTranslate;
 
