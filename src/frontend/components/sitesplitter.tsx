@@ -70,7 +70,6 @@ export default function SiteSplitter({ children }: { children: ReactNode }) {
       <Splitter.Panel
         id="b"
         minH={isDesktop ? "100vh" : "full"}
-        textStyle="2xl"
       >
         {children}
       </Splitter.Panel>

@@ -16,8 +16,8 @@ Hue/Saturation/Value
 export const allFiltersFragment = `#version 300 es
   precision highp float;
 
-   in vec2 vTextureCoord; 
-    uniform sampler2D uSampler;
+    in vec2 vTextureCoord; 
+    uniform sampler2D uTexture;
 
     uniform float exposure_input;
     uniform float brightness_input;
@@ -63,7 +63,7 @@ export const allFiltersFragment = `#version 300 es
     }
 
     void main() {
-    vec4 color = texture(uSampler, vTextureCoord);
+    vec4 color = texture(uTexture, vTextureCoord);
     vec3 rgb = color.rgb;
 
     ${temperatureFragment}

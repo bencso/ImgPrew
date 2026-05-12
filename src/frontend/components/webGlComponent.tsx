@@ -1,17 +1,14 @@
 //TODO: Refaktorálás
 import { allFiltersFragment } from "@/handlers/filters/allFiltersFragment";
-import { vertexFragment } from "@/handlers/vertexFragment";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { Box } from "@chakra-ui/react";
-import { defaultFilterVertex } from "@pixi/core";
 import "pixi-filters";
 import {
   Application,
   Container,
   defaultFilterVert,
   Filter,
-  GlProgram,
   ImageSource,
   Sprite,
   Texture,
@@ -34,9 +31,46 @@ export default function WebGlComponent() {
 
   const canvasRef = useRef<HTMLElement | null>(null);
   const filtersRef = useRef<Container | null>(null);
+  const webglFilterRef = useRef<Filter | null>(null);
 
   //! shallow: nem generál le újra az objektumot hanem mintha cachelte volna mindig az adott objektumot irja felül / ÖSSZEHASONLÍT
   const filters = useSessionStore((s) => s.getFilters(selectedImg), shallow);
+
+  const expandMode =
+    useSessionStore(
+      (state) =>
+        state.sessionData.find((si) => si.id === selectedImg)?.expandMode,
+    ) ?? "no";
+
+  const expandSize = useSessionStore(
+    (state) =>
+      state.sessionData.find((si) => si.id === selectedImg)?.expandSize,
+  );
+
+  const borderSize = useSessionStore(
+    (state) =>
+      state.sessionData.find((si) => si.id === selectedImg)?.borderSize,
+  );
+
+  const expandBackground =
+    useSessionStore(
+      (state) =>
+        state.sessionData.find((si) => si.id === selectedImg)?.expandBackground,
+    ) ?? "#fffff";
+
+  const imageSize = useSessionStore(
+    (state) => state.sessionData.find((si) => si.id === selectedImg)?.dimesions,
+  );
+
+  const box = useSessionStore(
+    (state) => state.sessionData.find((si) => si.id === selectedImg)?.box,
+  );
+
+  const cropSaved = useSessionStore(
+    (state) =>
+      state.sessionData.find((si) => si.id === selectedImg)?.cropSave || false,
+    shallow,
+  );
 
   useEffect(() => {
     async function initApp() {
@@ -89,7 +123,8 @@ export default function WebGlComponent() {
         canvasRef.current.replaceChildren(appRef.current.canvas);
       }
 
-      resizeSprite();
+      updateLayout();
+      applyFilters();
     };
 
     img.src = sessionData[selectedImg].blob;
@@ -118,63 +153,6 @@ export default function WebGlComponent() {
       if (canvasRef.current) canvasRef.current.innerHTML = "";
     };
   }, [selectedImg]);
-
-  const resizeSprite = () => {
-    if (
-      !spriteRef.current ||
-      !textureRef.current ||
-      !canvasRef.current ||
-      !appRef.current ||
-      !workPlaceRef.current
-    )
-      return;
-
-    const imgW = textureRef.current.width;
-    const imgH = textureRef.current.height;
-
-    // Kiszámoljuk a képnél hogy melyik az ami belefér, majd kiválasszuk belőle a legkissebbet
-    const scale = Math.min(
-      workPlaceRef.current.offsetWidth / imgW,
-      workPlaceRef.current.offsetHeight / imgH,
-    );
-
-    const width = imgW * scale;
-    const height = imgH * scale;
-
-    spriteRef.current.width = width;
-    spriteRef.current.height = height;
-
-    if (appRef.current.renderer)
-      appRef.current.renderer.resize(
-        workPlaceRef.current.clientWidth,
-        workPlaceRef.current.clientHeight,
-      );
-
-    if (textAndImagePlaceRef.current) {
-      textAndImagePlaceRef.current.style.height = height + "px";
-      textAndImagePlaceRef.current.style.width = width + "px";
-    }
-
-    if (appRef.current) {
-      appRef.current.renderer.resize(width, height);
-      spriteRef.current.x = width / 2;
-      spriteRef.current.y = height / 2;
-    }
-
-    setSelectedScale({
-      image: {
-        height: imgH,
-        width: imgW,
-      },
-      scale: scale,
-      position: {
-        x: width / 2,
-        y: height / 2,
-      },
-    });
-
-    setImageSize(selectedImg, imgW, imgH);
-  };
 
   function getChannelOffsets(params: any) {
     const channels = new Float32Array([
@@ -205,98 +183,76 @@ export default function WebGlComponent() {
 
     const channelOffset = getChannelOffsets(filters);
 
-    const filterUniforms = new UniformGroup({
-      exposure_input: { value: filters.exposure / 5.0, type: "f32" },
-      brightness_input: { value: filters.brightness / 100.0, type: "f32" },
-      contrast_input: {
-        value: (filters.contrast / 100.0) * 0.5 + 1.0,
-        type: "f32",
-      },
-      temperature_input: { value: filters.temperature / 100.0, type: "f32" },
-      tint_input: { value: filters.tint / 100.0, type: "f32" },
-      saturation_input: { value: filters.saturation, type: "f32" },
-      hue_input: { value: filters.hue / 360.0, type: "f32" },
-      value_input: { value: filters.value, type: "f32" },
-      black_input: { value: filters.black / 255.0, type: "f32" },
-      white_input: { value: filters.white / 255.0, type: "f32" },
-      outblack_input: { value: filters.outblack / 255.0, type: "f32" },
-      outwhite_input: { value: filters.outwhite / 255.0, type: "f32" },
-      gamma_input: { value: filters.gamma, type: "f32" },
-      channel_colorMatrix_input: {
-        value: channelOffset.channels,
-        type: "mat3x3<f32>",
-      },
-      channel_offset_input: {
-        value: channelOffset.offset,
-        type: "vec3<f32>",
-      },
-      vibrance_input: { value: filters.vibrance / 100.0, type: "f32" },
-    });
+    if (!webglFilterRef.current) {
+      const filterUniforms = new UniformGroup({
+        exposure_input: { value: filters.exposure / 5.0, type: "f32" },
+        brightness_input: { value: filters.brightness / 100.0, type: "f32" },
+        contrast_input: {
+          value: (filters.contrast / 100.0) * 0.5 + 1.0,
+          type: "f32",
+        },
+        temperature_input: { value: filters.temperature / 100.0, type: "f32" },
+        tint_input: { value: filters.tint / 100.0, type: "f32" },
+        saturation_input: { value: filters.saturation, type: "f32" },
+        hue_input: { value: filters.hue / 360.0, type: "f32" },
+        value_input: { value: filters.value, type: "f32" },
+        black_input: { value: filters.black / 255.0, type: "f32" },
+        white_input: { value: filters.white / 255.0, type: "f32" },
+        outblack_input: { value: filters.outblack / 255.0, type: "f32" },
+        outwhite_input: { value: filters.outwhite / 255.0, type: "f32" },
+        gamma_input: { value: filters.gamma, type: "f32" },
+        channel_colorMatrix_input: {
+          value: channelOffset.channels,
+          type: "mat3x3<f32>",
+        },
+        channel_offset_input: {
+          value: channelOffset.offset,
+          type: "vec3<f32>",
+        },
+        vibrance_input: { value: filters.vibrance / 100.0, type: "f32" },
+      });
 
-    //TODO: A hiba megvan mégpedig itt a vertexxel
-    const webgFilters = new Filter({
-      // @ts-ignore
-      glProgram: new GlProgram({
-        vertex: vertexFragment,
-        fragment: allFiltersFragment,
-      }),
-      resources: {
-        filterUniforms: filterUniforms,
-      },
-    });
+      webglFilterRef.current = Filter.from({
+        gl: {
+          fragment: allFiltersFragment,
+          vertex: defaultFilterVert,
+        },
+        resources: {
+          filterUniforms: filterUniforms,
+        },
+      });
 
-    webgFilters.padding = 0;
-    webgFilters.resolution = appRef.current.renderer.resolution;
+      webglFilterRef.current.padding = 0;
 
-    spriteRef.current.roundPixels = false;
-    spriteRef.current.filters = [webgFilters];
+      spriteRef.current.roundPixels = false;
+      spriteRef.current.filters = [webglFilterRef.current];
+    } else {
+      const uniforms = webglFilterRef.current.resources.filterUniforms.uniforms;
+
+      uniforms.exposure_input = filters.exposure / 5.0;
+      uniforms.brightness_input = filters.brightness / 100.0;
+      uniforms.contrast_input = (filters.contrast / 100.0) * 0.5 + 1.0;
+      uniforms.temperature_input = filters.temperature / 100.0;
+      uniforms.tint_input = filters.tint / 100.0;
+      uniforms.saturation_input = filters.saturation;
+      uniforms.hue_input = filters.hue / 360.0;
+      uniforms.value_input = filters.value;
+      uniforms.black_input = filters.black / 255.0;
+      uniforms.white_input = filters.white / 255.0;
+      uniforms.outblack_input = filters.outblack / 255.0;
+      uniforms.outwhite_input = filters.outwhite / 255.0;
+      uniforms.gamma_input = filters.gamma;
+      uniforms.channel_colorMatrix_input = channelOffset.channels;
+      uniforms.channel_offset_input = channelOffset.offset;
+      uniforms.vibrance_input = filters.vibrance / 100.0;
+
+      spriteRef.current.filters = [webglFilterRef.current];
+    }
   };
 
   useEffect(() => {
-    resizeSprite();
-  }, [selectedImg]);
-
-  /* 
-  useEffect(() => {
-     applyFilters();
+    applyFilters();
   }, [filters]);
-   */
-
-  const expandMode =
-    useSessionStore(
-      (state) =>
-        state.sessionData.find((si) => si.id === selectedImg)?.expandMode,
-    ) ?? "no";
-
-  const expandSize = useSessionStore(
-    (state) =>
-      state.sessionData.find((si) => si.id === selectedImg)?.expandSize,
-  );
-
-  const borderSize = useSessionStore(
-    (state) =>
-      state.sessionData.find((si) => si.id === selectedImg)?.borderSize,
-  );
-
-  const expandBackground =
-    useSessionStore(
-      (state) =>
-        state.sessionData.find((si) => si.id === selectedImg)?.expandBackground,
-    ) ?? "#fffff";
-
-  const imageSize = useSessionStore(
-    (state) => state.sessionData.find((si) => si.id === selectedImg)?.dimesions,
-  );
-
-  const box = useSessionStore(
-    (state) => state.sessionData.find((si) => si.id === selectedImg)?.box,
-  );
-
-  const cropSaved = useSessionStore(
-    (state) =>
-      state.sessionData.find((si) => si.id === selectedImg)?.cropSave || false,
-    shallow,
-  );
 
   const updateLayout = () => {
     if (
@@ -309,6 +265,10 @@ export default function WebGlComponent() {
 
     const imgW = textureRef.current.width;
     const imgH = textureRef.current.height;
+
+    if (!imageSize) {
+      setImageSize(selectedImg, imgW, imgH);
+    }
 
     const areaW = workPlaceRef.current.offsetWidth;
     const areaH = workPlaceRef.current.offsetHeight;
@@ -438,8 +398,13 @@ export default function WebGlComponent() {
   ]);
 
   useEffect(() => {
-    window.addEventListener("resize", updateLayout);
-    return () => window.removeEventListener("resize", updateLayout);
+    window.addEventListener("resize", () => {
+      updateLayout();
+    });
+    return () =>
+      window.removeEventListener("resize", () => {
+        updateLayout();
+      });
   }, []);
 
   return (

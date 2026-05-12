@@ -94,7 +94,7 @@ export default function BottomBar() {
           //#endregion
         }
         {sessionData.length > 1 && (
-          <Flex gap={4} px={4} pb={4} overflowX="auto" overflowY="hidden">
+          <Flex gap={4} px={4} py={4} overflowX="auto" justifyContent={"center"} overflowY="hidden">
             {sessionData.map((img, index) => {
               const isActive = selectedImg === index;
               return (
