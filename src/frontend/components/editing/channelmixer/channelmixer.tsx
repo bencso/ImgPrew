@@ -24,7 +24,6 @@ export default function ChannelMixerBlock() {
 
   return (
     <>
-      {selectedChannel}
       <Select.Root
         collection={channels}
         size="sm"

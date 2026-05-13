@@ -7,7 +7,7 @@ import {
   WorkSessionProviderProps,
 } from "@/interfaces/interface";
 import { useFunctionsStore } from "@/stores/functionsStore";
-import { Application, Sprite, Texture } from "pixi.js";
+import { Application, Filter, Sprite, Texture } from "pixi.js";
 import { createContext, useContext, useMemo, useRef, useState } from "react";
 
 export const WorkSessionContext = createContext<WorkSessionContextProps | null>(
@@ -32,7 +32,8 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
   const textAndImagePlaceRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [selectedChannel, setSelectedChannel] = useState<string>("red");
-  const { functions, addFunction, editFunction } = useFunctionsStore();
+  const { functions, editFunction } = useFunctionsStore();
+  const webglFilterRef = useRef<Filter | null>(null);
 
   const contextValue = useMemo<WorkSessionContextProps>(
     () => ({
@@ -41,7 +42,6 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       selectedImg,
       setSelectedImg,
       functions,
-      addFunction,
       editFunction,
       sessionData,
       setSessionData,
@@ -61,6 +61,7 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       textAndImagePlaceRef,
       selectedChannel,
       setSelectedChannel,
+      webglFilterRef
     }),
     [
       step,
@@ -75,6 +76,7 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       textureRef,
       workPlaceRef,
       appRef,
+      webglFilterRef,
       canvasRef,
       textAndImagePlaceRef,
       selectedChannel,

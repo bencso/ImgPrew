@@ -512,11 +512,9 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         else image.filters.push({ name: filterName, value: Number(value) });
       }),
     getFilterValue: (id: number, filterName: string) => {
-      return (
-        get()
-          .sessionData.find((img) => img.id === id)
-          ?.filters?.find((f) => f.name === filterName)?.value ?? null
-      );
+      return get()
+        .sessionData.find((img) => img.id === id)
+        ?.filters?.find((f) => f.name === filterName)?.value;
     },
     getFilters: (id: number) => {
       const img = get().sessionData.find((img) => img.id === id);

@@ -9,8 +9,8 @@ import {
   Portal,
   SliderValueChangeDetails,
 } from "@chakra-ui/react";
-import { Sprite } from "pixi.js";
-import { RefObject, useEffect, useMemo, useState } from "react";
+import { Filter, Sprite } from "pixi.js";
+import { RefObject, useMemo } from "react";
 import {
   LuBetweenHorizontalEnd,
   LuBlend,
@@ -35,6 +35,9 @@ import { EditItem } from "./edititem";
 import ResizeBlock from "./resize/resizeBlock";
 import TextBlock from "./text/textBlock";
 import ChannelMixerBlock from "./channelmixer/channelmixer";
+import { getChannelOffsets } from "../webGlComponent";
+
+//TODO: getFilterValue(selectedImg, "redChannel")  ezek alkalmazása a channeleknél, kép váltásnál jó érték jöjjön be
 
 const sidebarElements = (
   exportAllDataForImage: any,
@@ -71,6 +74,8 @@ const sidebarElements = (
   filters: FilterProps,
   selectedChannel: string | undefined,
   captionSamples: string[],
+  webglFilterRef: RefObject<Filter | null>,
+  uniforms: any,
 ) => {
   return [
     captionSamples.length > 0 && {
@@ -96,11 +101,20 @@ const sidebarElements = (
           step: 0.001,
           inputType: "slider",
           defaultValue: getFilterValue(selectedImg, "brightness") ?? 0,
+          resetValue: 0,
+          onChangeEnd: (e: SliderValueChangeDetails) => {
+            editFilters(selectedImg, "brightness", e.value);
+          },
           onChange: (e: SliderValueChangeDetails) => {
-            editFilters(selectedImg, "brightness", e.value[0]);
+            if (webglFilterRef.current) {
+              uniforms.brightness_input = Number(e.value) / 100.0;
+            }
           },
           clearFunc: () => {
-            editFilters(selectedImg, "brightness", 0);
+            if (webglFilterRef.current) {
+              uniforms.brightness_input = 0;
+              editFilters(selectedImg, "brightness", 0);
+            }
           },
         },
         {
@@ -111,11 +125,20 @@ const sidebarElements = (
           step: 0.01,
           inputType: "slider",
           defaultValue: getFilterValue(selectedImg, "exposure") ?? 0,
+          resetValue: 0,
+          onChangeEnd: (e: SliderValueChangeDetails) => {
+            editFilters(selectedImg, "exposure", e.value);
+          },
           onChange: (e: SliderValueChangeDetails) => {
-            editFilters(selectedImg, "exposure", e.value[0]);
+            if (webglFilterRef.current) {
+              uniforms.exposure_input = Number(e.value) / 5.0;
+            }
           },
           clearFunc: () => {
-            editFilters(selectedImg, "exposure", 0);
+            if (webglFilterRef.current) {
+              uniforms.exposure_input = 0 / 5.0;
+              editFilters(selectedImg, "exposure", 0);
+            }
           },
         },
         {
@@ -126,11 +149,20 @@ const sidebarElements = (
           step: 0.01,
           inputType: "slider",
           defaultValue: getFilterValue(selectedImg, "contrast") ?? 0,
+          resetValue: 0,
+          onChangeEnd: (e: SliderValueChangeDetails) => {
+            editFilters(selectedImg, "contrast", e.value);
+          },
           onChange: (e: SliderValueChangeDetails) => {
-            editFilters(selectedImg, "contrast", e.value[0]);
+            if (webglFilterRef.current) {
+              uniforms.contrast_input = (Number(e.value) / 100.0) * 0.5 + 1.0;
+            }
           },
           clearFunc: () => {
-            editFilters(selectedImg, "contrast", 0);
+            if (webglFilterRef.current) {
+              uniforms.contrast_input = (0 / 100.0) * 0.5 + 1.0;
+              editFilters(selectedImg, "contrast", 0);
+            }
           },
         },
       ],
@@ -147,11 +179,20 @@ const sidebarElements = (
           step: 0.001,
           inputType: "slider",
           defaultValue: getFilterValue(selectedImg, "black") ?? 0,
+          resetValue: 0,
+          onChangeEnd: (e: SliderValueChangeDetails) => {
+            editFilters(selectedImg, "black", e.value);
+          },
           onChange: (e: SliderValueChangeDetails) => {
-            editFilters(selectedImg, "black", e.value[0]);
+            if (webglFilterRef.current) {
+              uniforms.black_input = Number(e.value) / 255.0;
+            }
           },
           clearFunc: () => {
-            editFilters(selectedImg, "black", 0);
+            if (webglFilterRef.current) {
+              uniforms.black_input = 0;
+              editFilters(selectedImg, "black", 0);
+            }
           },
         },
         {
@@ -161,12 +202,18 @@ const sidebarElements = (
           max: 3,
           step: 0.01,
           inputType: "slider",
+          resetValue: 1,
           defaultValue: getFilterValue(selectedImg, "gamma") ?? 1,
           onChange: (e: SliderValueChangeDetails) => {
-            editFilters(selectedImg, "gamma", e.value[0]);
+            if (webglFilterRef.current) {
+              uniforms.gamma_input = Number(e.value);
+            }
           },
           clearFunc: () => {
-            editFilters(selectedImg, "gamma", 1);
+            if (webglFilterRef.current) {
+              uniforms.gamma_input = 1;
+              editFilters(selectedImg, "gamma", 1);
+            }
           },
         },
         {
@@ -176,12 +223,18 @@ const sidebarElements = (
           max: 255,
           step: 0.001,
           inputType: "slider",
+          resetValue: 255,
           defaultValue: getFilterValue(selectedImg, "white") ?? 255,
           onChange: (e: SliderValueChangeDetails) => {
-            editFilters(selectedImg, "white", e.value[0]);
+            if (webglFilterRef.current) {
+              uniforms.white_input = Number(e.value) / 255.0;
+            }
           },
           clearFunc: () => {
-            editFilters(selectedImg, "white", 255);
+            if (webglFilterRef.current) {
+              uniforms.white_input = 1;
+              editFilters(selectedImg, "white", 255);
+            }
           },
         },
         {
@@ -190,13 +243,22 @@ const sidebarElements = (
           min: 0,
           max: 255,
           step: 0.001,
+          resetValue: 0,
           inputType: "slider",
           defaultValue: getFilterValue(selectedImg, "outblack") ?? 0,
+          onChangeEnd: (e: SliderValueChangeDetails) => {
+            editFilters(selectedImg, "outblack", e.value);
+          },
           onChange: (e: SliderValueChangeDetails) => {
-            editFilters(selectedImg, "outblack", e.value[0]);
+            if (webglFilterRef.current) {
+              uniforms.outblack_input = Number(e.value) / 255.0;
+            }
           },
           clearFunc: () => {
-            editFilters(selectedImg, "outblack", 0);
+            if (webglFilterRef.current) {
+              uniforms.outblack_input = 0;
+              editFilters(selectedImg, "outblack", 0);
+            }
           },
         },
         {
@@ -204,14 +266,23 @@ const sidebarElements = (
           icon: <LuClipboardCheck />,
           min: 0,
           max: 255,
+          resetValue: 255,
           step: 0.001,
           inputType: "slider",
-          defaultValue: getFilterValue(selectedImg, "outwhite") ?? 255,
+          defaultValue: getFilterValue(selectedImg, `outwhite`) ?? 255,
+          onChangeEnd: (e: SliderValueChangeDetails) => {
+            editFilters(selectedImg, "outwhite", e.value);
+          },
           onChange: (e: SliderValueChangeDetails) => {
-            editFilters(selectedImg, "outwhite", e.value[0]);
+            if (webglFilterRef.current) {
+              uniforms.outwhite_input = Number(e.value) / 255.0;
+            }
           },
           clearFunc: () => {
-            editFilters(selectedImg, "outwhite", 255);
+            if (webglFilterRef.current) {
+              uniforms.outwhite_input = 1;
+              editFilters(selectedImg, "outwhite", 255);
+            }
           },
         },
       ],
@@ -227,12 +298,20 @@ const sidebarElements = (
           max: 180,
           step: 1,
           inputType: "slider",
-          defaultValue: getFilterValue(selectedImg, "hue") ?? 0,
+          defaultValue: getFilterValue(selectedImg, `hue`),
+          onChangeEnd: (e: SliderValueChangeDetails) => {
+            editFilters(selectedImg, "hue", e.value);
+          },
           onChange: (e: SliderValueChangeDetails) => {
-            editFilters(selectedImg, "hue", e.value[0]);
+            if (webglFilterRef.current) {
+              uniforms.hue_input = Number(e.value) / 360.0;
+            }
           },
           clearFunc: () => {
-            editFilters(selectedImg, "hue", 0);
+            if (webglFilterRef.current) {
+              uniforms.hue_input = 0;
+              editFilters(selectedImg, "hue", 0);
+            }
           },
         },
         {
@@ -242,12 +321,20 @@ const sidebarElements = (
           max: 1,
           step: 0.01,
           inputType: "slider",
-          defaultValue: getFilterValue(selectedImg, "saturation") ?? 0,
+          defaultValue: getFilterValue(selectedImg, `saturation`),
+          onChangeEnd: (e: SliderValueChangeDetails) => {
+            editFilters(selectedImg, "saturation", e.value);
+          },
           onChange: (e: SliderValueChangeDetails) => {
-            editFilters(selectedImg, "saturation", e.value[0]);
+            if (webglFilterRef.current) {
+              uniforms.saturation_input = Number(e.value);
+            }
           },
           clearFunc: () => {
-            editFilters(selectedImg, "saturation", 0);
+            if (webglFilterRef.current) {
+              uniforms.saturation_input = 0;
+              editFilters(selectedImg, "saturation", 0);
+            }
           },
         },
         {
@@ -257,12 +344,20 @@ const sidebarElements = (
           max: 1,
           step: 0.001,
           inputType: "slider",
-          defaultValue: getFilterValue(selectedImg, "value") ?? 0,
+          defaultValue: getFilterValue(selectedImg, "value"),
+          onChangeEnd: (e: SliderValueChangeDetails) => {
+            editFilters(selectedImg, "value", e.value);
+          },
           onChange: (e: SliderValueChangeDetails) => {
-            editFilters(selectedImg, "value", e.value[0]);
+            if (webglFilterRef.current) {
+              uniforms.value_input = Number(e.value);
+            }
           },
           clearFunc: () => {
-            editFilters(selectedImg, "value", 0);
+            if (webglFilterRef.current) {
+              uniforms.value_input = 0;
+              editFilters(selectedImg, "value", 0);
+            }
           },
         },
       ],
@@ -283,26 +378,32 @@ const sidebarElements = (
           min: -100,
           max: 100,
           step: 1,
+          defaultValue: selectedChannel?.toLowerCase() === "red" ? 100 : 0,
+          resetValue: selectedChannel?.toLowerCase() === "red" ? 100 : 0,
           inputType: "slider",
-          defaultValue:
-            getFilterValue(
-              selectedImg,
-              `${selectedChannel?.toLowerCase()}_red_channel`,
-            ) ?? (selectedChannel?.toLowerCase() === "red" ? 100 : 0),
-          onChange: (e: SliderValueChangeDetails) => {
-            console.log(`${selectedChannel?.toLocaleLowerCase()}_red_channel`);
+          onChangeEnd: (e: SliderValueChangeDetails) => {
             editFilters(
               selectedImg,
-              `${selectedChannel?.toLocaleLowerCase()}_red_channel`,
-              e.value[0],
+              `${selectedChannel?.toLowerCase()}_red_channel`,
+              e.value,
             );
           },
+          onChange: (e: SliderValueChangeDetails) => {
+            const params = {
+              ...filters,
+              [`${selectedChannel?.toLowerCase()}_red_channel`]: e.value[0],
+            };
+            const channelOffset = getChannelOffsets(params);
+            uniforms.channel_colorMatrix_input = channelOffset.channels;
+          },
           clearFunc: () => {
-            editFilters(
-              selectedImg,
-              `${selectedChannel?.toLowerCase()}_red_channel`,
-              selectedChannel?.toLowerCase() === "red" ? 100 : 0,
-            );
+            if (webglFilterRef.current) {
+              editFilters(
+                selectedImg,
+                `${selectedChannel?.toLowerCase()}_red_channel`,
+                selectedChannel?.toLowerCase() === "red" ? 100 : 0,
+              );
+            }
           },
         },
         {
@@ -312,24 +413,31 @@ const sidebarElements = (
           max: 100,
           step: 1,
           inputType: "slider",
-          defaultValue:
-            getFilterValue(
-              selectedImg,
-              `${selectedChannel?.toLowerCase()}_green_channel`,
-            ) ?? (selectedChannel?.toLowerCase() === "green" ? 100 : 0),
-          onChange: (e: SliderValueChangeDetails) => {
+          defaultValue: selectedChannel?.toLowerCase() === "green" ? 100 : 0,
+          resetValue: selectedChannel?.toLowerCase() === "green" ? 100 : 0,
+          onChangeEnd: (e: SliderValueChangeDetails) => {
             editFilters(
               selectedImg,
               `${selectedChannel?.toLowerCase()}_green_channel`,
-              e.value[0],
+              e.value,
             );
           },
+          onChange: (e: SliderValueChangeDetails) => {
+            const params = {
+              ...filters,
+              [`${selectedChannel?.toLowerCase()}_green_channel`]: e.value[0],
+            };
+            const channelOffset = getChannelOffsets(params);
+            uniforms.channel_colorMatrix_input = channelOffset.channels;
+          },
           clearFunc: () => {
-            editFilters(
-              selectedImg,
-              `${selectedChannel?.toLowerCase()}_green_channel`,
-              selectedChannel?.toLowerCase() === "green" ? 100 : 0,
-            );
+            if (webglFilterRef.current) {
+              editFilters(
+                selectedImg,
+                `${selectedChannel?.toLowerCase()}_green_channel`,
+                selectedChannel?.toLowerCase() === "green" ? 100 : 0,
+              );
+            }
           },
         },
         {
@@ -338,25 +446,32 @@ const sidebarElements = (
           min: -100,
           max: 100,
           step: 1,
+          defaultValue: selectedChannel?.toLowerCase() === "blue" ? 100 : 0,
+          resetValue: selectedChannel?.toLowerCase() === "blue" ? 100 : 0,
           inputType: "slider",
-          defaultValue:
-            getFilterValue(
-              selectedImg,
-              `${selectedChannel?.toLowerCase()}_blue_channel`,
-            ) ?? (selectedChannel?.toLowerCase() === "blue" ? 100 : 0),
-          onChange: (e: SliderValueChangeDetails) => {
+          onChangeEnd: (e: SliderValueChangeDetails) => {
             editFilters(
               selectedImg,
               `${selectedChannel?.toLowerCase()}_blue_channel`,
-              e.value[0],
+              e.value,
             );
           },
+          onChange: (e: SliderValueChangeDetails) => {
+            const params = {
+              ...filters,
+              [`${selectedChannel?.toLowerCase()}_blue_channel`]: e.value[0],
+            };
+            const channelOffset = getChannelOffsets(params);
+            uniforms.channel_colorMatrix_input = channelOffset.channels;
+          },
           clearFunc: () => {
-            editFilters(
-              selectedImg,
-              `${selectedChannel?.toLowerCase()}_blue_channel`,
-              selectedChannel?.toLowerCase() === "blue" ? 100 : 0,
-            );
+            if (webglFilterRef.current) {
+              editFilters(
+                selectedImg,
+                `${selectedChannel?.toLowerCase()}_blue_channel`,
+                selectedChannel?.toLowerCase() === "blue" ? 100 : 0,
+              );
+            }
           },
         },
         {
@@ -365,25 +480,34 @@ const sidebarElements = (
           min: -100,
           max: 100,
           step: 1,
+          resetValue: 0,
           inputType: "slider",
-          defaultValue:
-            getFilterValue(
-              selectedImg,
-              `${selectedChannel?.toLowerCase()}_channel_offset`,
-            ) ?? 0,
-          onChange: (e: SliderValueChangeDetails) => {
+          defaultValue: getFilterValue(
+            selectedImg,
+            `${selectedChannel?.toLowerCase()}_channel_offset`,
+          ),
+          onChangeEnd: (e: SliderValueChangeDetails) => {
             editFilters(
               selectedImg,
               `${selectedChannel?.toLowerCase()}_channel_offset`,
-              e.value[0],
+              e.value,
             );
           },
+          onChange: (e: SliderValueChangeDetails) => {
+            if (webglFilterRef.current) {
+              uniforms[`${selectedChannel?.toLowerCase()}_channel_offset`] =
+                Number(e.value) / 100.0;
+            }
+          },
           clearFunc: () => {
-            editFilters(
-              selectedImg,
-              `${selectedChannel?.toLowerCase()}_channel_offset`,
-              0,
-            );
+            if (webglFilterRef.current) {
+              uniforms[`${selectedChannel?.toLowerCase()}_channel_offset`] = 0;
+              editFilters(
+                selectedImg,
+                `${selectedChannel?.toLowerCase()}_channel_offset`,
+                0,
+              );
+            }
           },
         },
       ],
@@ -398,13 +522,22 @@ const sidebarElements = (
           min: -100,
           max: 100,
           step: 1,
+          resetValue: 0,
           inputType: "slider",
-          defaultValue: getFilterValue(selectedImg, "temperature") ?? 0,
+          defaultValue: getFilterValue(selectedImg, "temperature"),
+          onChangeEnd: (e: SliderValueChangeDetails) => {
+            editFilters(selectedImg, "temperature", e.value);
+          },
           onChange: (e: SliderValueChangeDetails) => {
-            editFilters(selectedImg, "temperature", e.value[0]);
+            if (webglFilterRef.current) {
+              uniforms.temperature_input = Number(e.value) / 100.0;
+            }
           },
           clearFunc: () => {
-            editFilters(selectedImg, "temperature", 0);
+            if (webglFilterRef.current) {
+              uniforms.temperature_input = 0;
+              editFilters(selectedImg, "temperature", 0);
+            }
           },
         },
         {
@@ -413,13 +546,22 @@ const sidebarElements = (
           min: -100,
           max: 100,
           step: 1,
+          resetValue: 0,
           inputType: "slider",
-          defaultValue: getFilterValue(selectedImg, "tint") ?? 0,
+          defaultValue: getFilterValue(selectedImg, "tint"),
+          onChangeEnd: (e: SliderValueChangeDetails) => {
+            editFilters(selectedImg, "tint", e.value);
+          },
           onChange: (e: SliderValueChangeDetails) => {
-            editFilters(selectedImg, "tint", e.value[0]);
+            if (webglFilterRef.current) {
+              uniforms.tint_input = Number(e.value) / 100.0;
+            }
           },
           clearFunc: () => {
-            editFilters(selectedImg, "tint", 0);
+            if (webglFilterRef.current) {
+              uniforms.tint_input = 0;
+              editFilters(selectedImg, "tint", 0);
+            }
           },
         },
         {
@@ -428,13 +570,22 @@ const sidebarElements = (
           min: -100,
           max: 100,
           step: 1,
+          resetValue: 0,
           inputType: "slider",
-          defaultValue: getFilterValue(selectedImg, "vibrance") ?? 0,
+          defaultValue: getFilterValue(selectedImg, "vibrance"),
+          onChangeEnd: (e: SliderValueChangeDetails) => {
+            editFilters(selectedImg, "vibrance", e.value);
+          },
           onChange: (e: SliderValueChangeDetails) => {
-            editFilters(selectedImg, "vibrance", e.value[0]);
+            if (webglFilterRef.current) {
+              uniforms.vibrance_input = Number(e.value) / 100.0;
+            }
           },
           clearFunc: () => {
-            editFilters(selectedImg, "vibrance", 0);
+            if (webglFilterRef.current) {
+              uniforms.vibrance_input = 0;
+              editFilters(selectedImg, "vibrance", 0);
+            }
           },
         },
       ],
@@ -503,9 +654,12 @@ const sidebarElements = (
           options: (
             <ColorPicker.Root
               zIndex={1000}
-             
+              defaultValue={
+                expandBackground
+                  ? parseColor(expandBackground)
+                  : parseColor("#ffff")
+              }
               onValueChange={(e: any) => {
-                console.log(e);
                 let value = e.valueAsString;
                 if (value !== "") {
                   setExpandBackground(selectedImg, value);
@@ -543,24 +697,6 @@ const sidebarElements = (
         },
       ],
     },
-    // {
-    //     function: "lut_apply",
-    //     icon: <LuFileImage />,
-    //     inputs: [
-    //         {
-    //             name: "LUT fájl feltöltés",
-    //             inputType: "file",
-    //             onChange: (e: any) => {
-    //                 console.log(e);
-    //             },
-    //             options: [".cube"]
-    //         },
-    //         {
-    //             name: "LUT mentés",
-    //             inputType: "submit",
-    //         },
-    //     ],
-    // },
     {
       function: "Exportálás",
       icon: <LuImageDown />,
@@ -591,14 +727,13 @@ const sidebarElements = (
 
 export default function SideBar() {
   //#region contextek
-  const [editItems, setEditItems] = useState<EditItemProp[]>([]);
 
   const {
     spriteRef,
     selectedImg,
-    addFunction,
     selectedScale,
     selectedChannel,
+    webglFilterRef,
   } = useWorkSession();
 
   const {
@@ -612,14 +747,6 @@ export default function SideBar() {
     setExpandBackground,
   } = useSessionStore();
   //#endregion
-
-  useEffect(() => {
-    editItems.map((item) => {
-      if (item.inputs) {
-        addFunction(item.function, item.inputs);
-      }
-    });
-  }, [editItems, addFunction]);
 
   //#region sidebar funkciók
   const selectedExtension =
@@ -645,31 +772,49 @@ export default function SideBar() {
     ) || [];
 
   const filters = useSessionStore((s) => s.getFilters(selectedImg), shallow);
+  const uniforms = webglFilterRef.current
+    ? webglFilterRef.current.resources.filterUniforms.uniforms
+    : null;
 
-  useMemo(() => {
-    setEditItems(
-      sidebarElements(
-        exportAllDataForImage,
-        setExportFileExtension,
-        selectedImg,
-        selectedExtension,
-        editFilters,
-        getFilterValue,
-        spriteRef,
-        setExpandMode,
-        setBorderSize,
-        selectedScale,
-        setExpandBackground,
-        expandBackground,
-        expandMode,
-        filters,
-        selectedChannel,
-        captionSamples,
-      ),
+  const editItems = useMemo(() => {
+    return sidebarElements(
+      exportAllDataForImage,
+      setExportFileExtension,
+      selectedImg,
+      selectedExtension,
+      editFilters,
+      getFilterValue,
+      spriteRef,
+      setExpandMode,
+      setBorderSize,
+      selectedScale,
+      setExpandBackground,
+      expandBackground,
+      expandMode,
+      filters,
+      selectedChannel,
+      captionSamples,
+      webglFilterRef,
+      uniforms,
     );
-  }, [sessionData, selectedImg, selectedChannel]);
+  }, [
+    selectedImg,
+    selectedExtension,
+    expandBackground,
+    expandMode,
+    filters,
+    captionSamples,
+    webglFilterRef,
+    selectedChannel,
+    uniforms,
+  ]);
+
   //#endregion
-  return editItems.map((item, index) => {
-    return <EditItem key={index} items={item} />;
-  });
+  return (
+    <>
+      {editItems.map((item, index) => (
+        <EditItem key={index} items={item} />
+      ))}
+    </>
+  );
 }

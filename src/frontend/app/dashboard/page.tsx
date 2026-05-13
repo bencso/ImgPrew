@@ -1,12 +1,9 @@
 "use client";
 
 import keyboardShortcuts from "@/components/editing/keyboardShortCuts";
-import BottomBar from "@/components/editing/moreImagesBottomBar";
-import SideBar from "@/components/editing/sidebar";
 import { ImageDropZone } from "@/components/upload/dropzone";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
-import { Box, Flex, useBreakpointValue } from "@chakra-ui/react";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 

@@ -406,8 +406,11 @@ export default function ResizeBlock() {
         </Tabs.Content>
         <Tabs.Content value="expand">
           <ColorPicker.Root
-          
-            value={parseColor(expandBackground)}
+            defaultValue={
+              expandBackground
+                ? parseColor(expandBackground)
+                : parseColor("#ffff")
+            }
             onValueChange={(e: any) => {
               console.log(e);
               let value = e.valueAsString;

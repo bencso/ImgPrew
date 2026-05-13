@@ -17,6 +17,45 @@ import {
 import { useEffect, useRef } from "react";
 import { shallow } from "zustand/shallow";
 
+interface ParamProps {
+  red_red_channel: number;
+  green_red_channel: number;
+  blue_red_channel: number;
+  red_green_channel: number;
+  green_green_channel: number;
+  blue_green_channel: number;
+  red_blue_channel: number;
+  green_blue_channel: number;
+  blue_blue_channel: number;
+  red_channel_offset: number;
+  green_channel_offset: number;
+  blue_channel_offset: number;
+}
+
+export function getChannelOffsets(params: ParamProps) {
+  const channels = new Float32Array([
+    params.red_red_channel / 100.0,
+    params.green_red_channel / 100.0,
+    params.blue_red_channel / 100.0,
+
+    params.red_green_channel / 100.0,
+    params.green_green_channel / 100.0,
+    params.blue_green_channel / 100.0,
+
+    params.red_blue_channel / 100.0,
+    params.green_blue_channel / 100.0,
+    params.blue_blue_channel / 100.0,
+  ]);
+
+  const offset = new Float32Array([
+    params.red_channel_offset / 100.0,
+    params.green_channel_offset / 100.0,
+    params.blue_channel_offset / 100.0,
+  ]);
+
+  return { channels, offset };
+}
+
 export default function WebGlComponent() {
   const {
     selectedImg,
@@ -26,15 +65,14 @@ export default function WebGlComponent() {
     appRef,
     workPlaceRef,
     textAndImagePlaceRef,
+    webglFilterRef,
   } = useWorkSession();
   const { sessionData, setImageSize } = useSessionStore();
 
   const canvasRef = useRef<HTMLElement | null>(null);
   const filtersRef = useRef<Container | null>(null);
-  const webglFilterRef = useRef<Filter | null>(null);
 
   //! shallow: nem generál le újra az objektumot hanem mintha cachelte volna mindig az adott objektumot irja felül / ÖSSZEHASONLÍT
-  //TODO: Ezt refaktorálásnál majd kicserélni hogy ne mindent kérdezzünk újra, csak amit állítunk (performance-on segít)
   const filters = useSessionStore((s) => s.getFilters(selectedImg), shallow);
 
   const expandMode =
@@ -155,30 +193,6 @@ export default function WebGlComponent() {
     };
   }, [selectedImg]);
 
-  function getChannelOffsets(params: any) {
-    const channels = new Float32Array([
-      params.red_red_channel / 100.0,
-      params.green_red_channel / 100.0,
-      params.blue_red_channel / 100.0,
-
-      params.red_green_channel / 100.0,
-      params.green_green_channel / 100.0,
-      params.blue_green_channel / 100.0,
-
-      params.red_blue_channel / 100.0,
-      params.green_blue_channel / 100.0,
-      params.blue_blue_channel / 100.0,
-    ]);
-
-    const offset = new Float32Array([
-      params.red_channel_offset / 100.0,
-      params.green_channel_offset / 100.0,
-      params.blue_channel_offset / 100.0,
-    ]);
-
-    return { channels, offset };
-  }
-
   const applyFilters = () => {
     if (!spriteRef.current || !appRef.current) return;
 
@@ -229,7 +243,7 @@ export default function WebGlComponent() {
       spriteRef.current.filters = [webglFilterRef.current];
     } else {
       const uniforms = webglFilterRef.current.resources.filterUniforms.uniforms;
-
+      
       uniforms.exposure_input = filters.exposure / 5.0;
       uniforms.brightness_input = filters.brightness / 100.0;
       uniforms.contrast_input = (filters.contrast / 100.0) * 0.5 + 1.0;
@@ -250,10 +264,6 @@ export default function WebGlComponent() {
       spriteRef.current.filters = [webglFilterRef.current];
     }
   };
-
-  useEffect(() => {
-    applyFilters();
-  }, [filters]);
 
   const updateLayout = () => {
     if (

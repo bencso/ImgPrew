@@ -12,35 +12,7 @@ export const useFunctionsStore = create<FunctionsState>()(
   immer((set) => ({
     functions: [],
 
-    addFunction: (name, inputs: FunctionProp[]) =>
-      set((state) => {
-        const preparedInputs: FunctionsInputs[] = inputs.map((input) => {
-          let value: any;
-
-          switch (input.inputType) {
-            case InputTypes.select:
-              value = [];
-              break;
-            case "number":
-              value = 0;
-              break;
-            default:
-              value = "";
-          }
-
-          return {
-            name: input.name,
-            input: input.inputType,
-            value,
-          };
-        });
-
-        state.functions.push({
-          name,
-          inputs: preparedInputs,
-        });
-      }),
-
+ 
     editFunction: (props: EditFunctionProps) =>
       set((state) => {
         const existingFunction = state.functions.find(

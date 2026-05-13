@@ -21,7 +21,7 @@ import {
   Text,
   useBreakpointValue,
 } from "@chakra-ui/react";
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { LuFileUp, LuRotateCcw } from "react-icons/lu";
 import { BeatLoader } from "react-spinners";
 import ImageIcon from "../icons/imageIcon";
@@ -47,11 +47,9 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
       open={open}
       onOpenChange={(e) => setOpen(e.open)}
       positioning={{ placement: isMd ? "left" : "top-start" }}
-      
     >
       <Popover.Trigger asChild>
         <Box
-        
           p="4"
           display={"flex"}
           borderBottomWidth={isMd ? "1px" : "0"}
@@ -77,7 +75,7 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
           {...(open && activeStyle)}
           as={"button"}
         >
-          {!isMd && items.icon}
+          {!isMd && items.icon}
           {isMd && (
             <Text
               rotate={isMd ? "90" : "0"}
@@ -86,7 +84,6 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
               textWrap={"wrap"}
               color={"fg.muted"}
             >
-
               {items.function}
             </Text>
           )}
@@ -300,11 +297,25 @@ const Item = ({ items }: { items: EditItemProp }) => {
             //#endregion
             //#region slider
             case "slider":
+              const [liveValue, setLiveValue] = useState(
+                Number(item.defaultValue),
+              );
+
+              useEffect(() => {
+                setLiveValue(Number(item.defaultValue));
+              }, [item.defaultValue]);
+
               return (
                 <Slider.Root
-                  value={[Number(item.defaultValue)]}
-                  onValueChange={item.onChange ? item.onChange : undefined}
+                  onValueChange={(e) => {
+                    setLiveValue(e.value[0]);
+                    item.onChange && item.onChange(e);
+                  }}
+                  onValueChangeEnd={(e) => {
+                    item.onChangeEnd && item.onChangeEnd(e);
+                  }}
                   key={index}
+                  value={[liveValue]}
                   thumbAlignment="center"
                   min={item.min ?? 0}
                   max={item.max ?? 1}
@@ -328,15 +339,16 @@ const Item = ({ items }: { items: EditItemProp }) => {
                             size={"sm"}
                             variant={"ghost"}
                             colorScheme={"teal"}
-                            onClick={
-                              item.clearFunc ? item.clearFunc : undefined
-                            }
+                            onClick={() => {
+                              setLiveValue(Number(item.resetValue));
+                              item.clearFunc && item.clearFunc();
+                            }}
                           >
                             <LuRotateCcw />
                           </IconButton>
                         )}
                       <Slider.ValueText color={"fg.muted"}>
-                        {Number(item.defaultValue)}
+                        {Number(liveValue)}
                       </Slider.ValueText>
                     </Flex>
                   </Box>

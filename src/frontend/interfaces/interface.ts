@@ -1,5 +1,6 @@
+import { SliderValueChangeDetails } from "@chakra-ui/react";
 import { UUID } from "crypto";
-import { Application, Renderer, Sprite, Texture, TextureSource } from "pixi.js";
+import { Application, Filter, Renderer, Sprite, Texture, TextureSource } from "pixi.js";
 import {
   Dispatch,
   HTMLInputTypeAttribute,
@@ -253,7 +254,7 @@ export interface SessionStore {
 
   //#region FILTERS
   editFilters: (id: number, filterName: string, value: string | number) => void;
-  getFilterValue: (id: number, filterName: string) => number | null;
+  getFilterValue: (id: number, filterName: string) => number | undefined;
   getFilters: (id: number) => FilterProps;
   //#endregion
 }
@@ -277,7 +278,6 @@ export interface FunctionItem {
 //#region FunctionsState
 export interface FunctionsState {
   functions: FunctionItem[];
-  addFunction: (name: string, inputs: FunctionProp[]) => void;
   editFunction: (props: EditFunctionProps) => void;
 }
 //#endregion
@@ -314,7 +314,6 @@ export interface WorkSessionContextProps {
   sessionData: CustomImage[];
   setSessionData: Dispatch<SetStateAction<CustomImage[]>>;
   functions: FunctionItem[];
-  addFunction: (name: string, inputs: FunctionProp[]) => void;
   editFunction: (props: EditFunctionProps) => void;
   textElements: Record<string, HTMLElement>;
   setTextElements: Dispatch<SetStateAction<Record<UUID, HTMLElement>>>;
@@ -332,6 +331,7 @@ export interface WorkSessionContextProps {
   textAndImagePlaceRef: RefObject<HTMLDivElement | null>;
   selectedChannel: string ;
   setSelectedChannel: Dispatch<SetStateAction<string>>;
+   webglFilterRef: RefObject<Filter | null>
 }
 //#endregion
 
@@ -340,13 +340,15 @@ export interface FunctionProp {
   name: string;
   inputType: InputTypes | HTMLInputTypeAttribute;
   options?: any[] | HTMLElement | ReactNode | null;
-  onChange?: void | null;
+   onChange?: (e: SliderValueChangeDetails | any) => void;
+  onChangeEnd?: (e: SliderValueChangeDetails | any) => void;
   defaultValue?: string | null;
   min?: number | null;
   max?: number | null;
   step?: number;
   icon?: ReactNode | null;
-  clearFunc?: void;
+  clearFunc?: () => void;
+  resetValue?: number;
 }
 //#endregion
 
