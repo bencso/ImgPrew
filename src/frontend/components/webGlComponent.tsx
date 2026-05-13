@@ -34,6 +34,7 @@ export default function WebGlComponent() {
   const webglFilterRef = useRef<Filter | null>(null);
 
   //! shallow: nem generál le újra az objektumot hanem mintha cachelte volna mindig az adott objektumot irja felül / ÖSSZEHASONLÍT
+  //TODO: Ezt refaktorálásnál majd kicserélni hogy ne mindent kérdezzünk újra, csak amit állítunk (performance-on segít)
   const filters = useSessionStore((s) => s.getFilters(selectedImg), shallow);
 
   const expandMode =

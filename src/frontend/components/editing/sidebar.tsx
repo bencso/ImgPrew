@@ -503,7 +503,7 @@ const sidebarElements = (
           options: (
             <ColorPicker.Root
               zIndex={1000}
-              value={parseColor(expandBackground)}
+             
               onValueChange={(e: any) => {
                 console.log(e);
                 let value = e.valueAsString;

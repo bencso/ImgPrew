@@ -727,7 +727,7 @@ function SelectedItemCol({ selectedId }: { selectedId: number | null }) {
 
 export default function Gallery() {
   // const [images, setImages] = useState<ImageGroup[]>([]);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedId, setSelectedId] = useState<number>();
   const [loading, setLoading] = useState<boolean>(true);
   const [galleryView, setGalleryView] = useState<string>("default");
 
@@ -773,7 +773,7 @@ export default function Gallery() {
   return (
     <>
       <Grid
-        templateColumns={{ base: "1fr", lg: "4fr 1fr" }}
+        templateColumns={{ base: "1fr", lg: typeof selectedId !== "undefined" ?  "4fr 1fr" : "1fr" }}
         h="full"
         userSelect={"none"}
       >
@@ -789,7 +789,7 @@ export default function Gallery() {
 
                   <ImageGrid
                     imgs={group.imgs}
-                    selectedId={selectedId}
+                    selectedId={selectedId ?? null}
                     onSelect={setSelectedId}
                   />
                 </Box>
@@ -799,7 +799,7 @@ export default function Gallery() {
                   <DateHeader date={group.date} />
                   <ImageList
                     imgs={group.imgs}
-                    selectedId={selectedId}
+                    selectedId={selectedId ?? null}
                     onSelect={setSelectedId}
                   />
                 </Box>
@@ -807,9 +807,11 @@ export default function Gallery() {
           <BottomBar />
         </GridItem>
 
-        <GridItem>
-          <SelectedItemCol selectedId={selectedId} />
-        </GridItem>
+        { typeof selectedId !== "undefined" && (
+          <GridItem>
+            <SelectedItemCol selectedId={selectedId ?? null} />
+          </GridItem>
+        )}
       </Grid>
     </>
   );

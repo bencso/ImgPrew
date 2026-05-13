@@ -30,47 +30,10 @@ export default function Page() {
     step,
   });
 
-  //#region breakPoint beállíátoks (isMd)
-  const isMd = useBreakpointValue(
-    { base: false, sm: false, md: false, lg: true, xl: true },
-    { fallback: "md" },
-  );
-  //#endregion
-
   useEffect(() => {
     if (sessionData.length > 0) setSelectedImage(sessionData[selectedImg].blob);
   }, [selectedImg, sessionData]);
 
   if (step === 0) return <ImageDropZone />;
-  if (step === 1)
-    return (
-      <Flex
-        direction={!isMd ? "column" : "row"}
-        h="full"
-        w="full"
-        minW="0"
-        minH={"0"}
-        flex="1"
-      >
-        <Flex h="full" w="full" minW="0" minH={"0"} flex="1" direction="column">
-          <Box flex="1" minH="0" h={"full"} w={"full"} minW={0} p={4}>
-            {selectedImage && <ImageWorkPlace />}
-          </Box>
-          <BottomBar />
-        </Flex>
-
-        <Flex
-          w={isMd ? "fit" : "full"}
-          h={!isMd ? "fit" : "full"}
-          minH="0"
-          minW="0"
-          flexShrink={0}
-          direction={isMd ? "column" : "row"}
-          borderLeftWidth={isMd ? "1px" : 0}
-          borderColor="border.disabled"
-        >
-          <SideBar />
-        </Flex>
-      </Flex>
-    );
+  if (step === 1) return selectedImage && <ImageWorkPlace />;
 }
