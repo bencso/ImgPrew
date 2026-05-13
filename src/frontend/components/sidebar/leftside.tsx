@@ -52,7 +52,7 @@ export const LeftSide = () => {
           >
             <Flex gap={2} alignItems={"center"}>
               <Avatar.Root>
-                <Avatar.Fallback name="Shane Nelson" />
+                <Avatar.Fallback name="Bencso" />
               </Avatar.Root>
 
               <Box fontWeight="bold" textStyle="label" color="fg.default" hidden={isMd && collapsed}>

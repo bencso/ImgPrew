@@ -401,10 +401,12 @@ export default function WebGlComponent() {
   useEffect(() => {
     window.addEventListener("resize", () => {
       updateLayout();
+      applyFilters();
     });
     return () =>
       window.removeEventListener("resize", () => {
         updateLayout();
+        applyFilters();
       });
   }, []);
 
