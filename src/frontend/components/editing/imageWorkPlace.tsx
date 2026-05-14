@@ -1,9 +1,5 @@
 //TODO: Refaktorálni
-
-// Úgy kéne valahogy megcsinálni, hogy lenne egy olyan ami számolja külön a bal és fentről számított "távolságot" a cropnál mert nekünk azt kell majd megadni a
-// saved croppnál hogy jól levágjuk a képet, mert azt csak be kell talán szoroznunk egy scale faktorral és jó lesz
-
-// Vagy az a módszer, hogy a képet kizoomoltatjuk hogy lászódjon teljes egészében, és felette azon megjelenik maga a cropper, és ugy könnyebb kiszámolni is a dolgokat bal és fentről
+//TODO: A croppolásnál ha mentünk akkor
 
 import {
   calculationTypeEnum,
@@ -15,7 +11,7 @@ import { Box, Flex, Image, Span } from "@chakra-ui/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { shallow } from "zustand/shallow";
 import WebGlComponent from "../webGlComponent";
-import { Rnd } from "react-rnd";
+import { Rnd, RndDragEvent } from "react-rnd";
 
 export default function ImageWorkPlace() {
   const {
@@ -25,22 +21,13 @@ export default function ImageWorkPlace() {
     setCopyrightImageRef,
     copyrightImageRef,
     selectedScale,
-    spriteRef,
     workPlaceRef,
-    canvasRef,
-    appRef,
     textAndImagePlaceRef,
   } = useWorkSession();
-  const { setTextPosition, calculationReFixPosition, setCropBox } =
-    useSessionStore();
+  const { calculationReFixPosition } = useSessionStore();
 
   const box = useSessionStore(
     (state) => state.sessionData.find((si) => si.id === selectedImg)?.box,
-  );
-
-  const imageSize = useSessionStore(
-    (state) => state.sessionData.find((si) => si.id === selectedImg)?.dimesions,
-    shallow,
   );
 
   const expandMode = useSessionStore(
@@ -52,8 +39,6 @@ export default function ImageWorkPlace() {
     (state) =>
       state.sessionData.find((si) => si.id === selectedImg)?.expandSize,
   );
-
-  const cropRef = useRef<HTMLElement>(null);
 
   const copyrightImage = useSessionStore(
     (s) => s.sessionData.find((sD) => sD.id === selectedImg)?.copyrightImage,
@@ -86,12 +71,6 @@ export default function ImageWorkPlace() {
   const [textPositions, setTextPositions] = useState<
     Record<string, { x: number; y: number }>
   >({});
-  const [borderMax, setBorderMax] = useState<{
-    top: number;
-    bottom: number;
-    left: number;
-    right: number;
-  } | null>(null);
 
   const copyrightImageSize = useSessionStore((s) =>
     s.sessionData.find((sD) => sD.id === selectedImg),
@@ -155,19 +134,10 @@ export default function ImageWorkPlace() {
       className="workPlaceRef"
     >
       <Box
-        width={
-          expandMode === "crop" && box && box.width ? `${box.width}px` : "100%"
-        }
-        height={
-          expandMode === "crop" && box && box.height
-            ? `${box.height}px`
-            : "100%"
-        }
         alignContent={"center"}
         justifyContent={"center"}
         position={"relative"}
         display={"flex"}
-        overflow={"hidden"}
         className="manipulalhato"
       >
         <Box
@@ -178,6 +148,7 @@ export default function ImageWorkPlace() {
           top={"50%"}
           left={"50%"}
           className="3"
+          overflow={"hidden"}
         >
           {texts.map((element: DraggableImageEvent) => {
             return (
@@ -230,107 +201,124 @@ export default function ImageWorkPlace() {
               userSelect={"none"}
             />
           )}
-          <Rnd
-            minHeight={300}
-            minWidth={300}
-            enableResizing
-            style={{
-              zIndex: 1000,
-              boxShadow: "1px 1px 0px 100vh #00000070"
+          {expandMode === "crop" && !cropSaved && (
+            <Rnd
+              /*
+            size={{
+              width: expandSize?.width 
             }}
-            bounds={"parent"}
-            default={{
-              width: 300,
-              height: 300,
-              x: 0,
-              y: 0,
-            }}
-          >
-            <Box
-              h={"full"}
-              w={"full"}
-              position={"relative"}
-              border={"1px solid"}
-              borderColor={"teal.800"}
+            */
+              enableResizing
+              style={{
+                zIndex: 1000,
+              }}
+              bounds={"parent"}
+              default={{
+                width: 300,
+                height: 300,
+                x: 0,
+                y: 0,
+              }}
+              onDrag={(e: RndDragEvent) => {
+                if (!e.target) return;
+
+                const target = e.target as HTMLElement;
+                console.log(target.parentElement?.style.transform);
+              }}
+              onResize={(e) => {
+                if (!e.target) return;
+                const target = e.target as HTMLElement;
+                const targetParent = target.offsetParent as HTMLElement;
+                console.log(targetParent.style.transform);
+              }}
             >
               <Box
-                position="absolute"
-                top={0}
-                left={0}
-                w="20px"
-                h="20px"
-                borderTop="2px solid"
-                borderLeft="2px solid"
-                borderColor="teal"
-              />
-              <Box
-                position="absolute"
-                top={0}
-                right={0}
-                w="20px"
-                h="20px"
-                borderTop="2px solid"
-                borderRight="2px solid"
-                borderColor="teal"
-              />
-              <Box
-                position="absolute"
-                top={0}
-                left={"calc(50% - 15px)"}
-                translateX={"-50%"}
-                w="30px"
-                borderTop="2px solid"
-                borderColor="teal"
-              />
-              <Box
-                position="absolute"
-                bottom={0}
-                left={"calc(50% - 15px)"}
-                translateX={"-50%"}
-                w="30px"
-                borderTop="2px solid"
-                borderColor="teal"
-              />
+                h={"full"}
+                w={"full"}
+                position={"relative"}
+                border={"2px solid"}
+                borderColor={"white/50"}
+                boxShadow="1px 1px 0px 100vh #00000070"
+              >
                 <Box
-                position="absolute"
-                left={0}
-                top={"calc(50% - 15px)"}
-                translateY={"-50%"}
-                h="30px"
-                borderLeft="2px solid"
-                borderColor="teal"
-              /> 
-              <Box
-                position="absolute"
-                right={0}
-                top={"calc(50% - 15px)"}
-                translateY={"-50%"}
-                h="30px"
-                borderRight="2px solid"
-                borderColor="teal"
-              />
-              <Box
-                position="absolute"
-                bottom={0}
-                right={0}
-                w="20px"
-                h="20px"
-                borderBottom="2px solid"
-                borderRight="2px solid"
-                borderColor="teal"
-              />
-               <Box
-                position="absolute"
-                bottom={0}
-                left={0}
-                w="20px"
-                h="20px"
-                borderBottom="2px solid"
-                borderLeft="2px solid"
-                borderColor="teal"
-              />
-            </Box>
-          </Rnd>
+                  position="absolute"
+                  top={"-0.5"}
+                  left={"-0.5"}
+                  w="20px"
+                  h="20px"
+                  borderTop="2px solid"
+                  borderLeft="2px solid"
+                  borderColor="white"
+                />
+                <Box
+                  position="absolute"
+                  top={"-0.5"}
+                  right={"-0.5"}
+                  w="20px"
+                  h="20px"
+                  borderTop="2px solid"
+                  borderRight="2px solid"
+                  borderColor="white"
+                />
+                <Box
+                  position="absolute"
+                  top={"-0.5"}
+                  left={"calc(50% - 15px )"}
+                  translateX={"-50%"}
+                  w="30px"
+                  borderTop="2px solid"
+                  borderColor="white"
+                />
+                <Box
+                  position="absolute"
+                  bottom={"-0.5"}
+                  left={"calc(50% - 15px)"}
+                  translateX={"-50%"}
+                  w="30px"
+                  borderTop="2px solid"
+                  borderColor="white"
+                />
+                <Box
+                  position="absolute"
+                  left={"-0.5"}
+                  top={"calc(50% - 15px)"}
+                  translateY={"-50%"}
+                  h="30px"
+                  borderLeft="2px solid"
+                  borderColor="white"
+                />
+                <Box
+                  position="absolute"
+                  right={"-0.5"}
+                  top={"calc(50% - 15px)"}
+                  translateY={"-50%"}
+                  h="30px"
+                  borderRight="2px solid"
+                  borderColor="white"
+                />
+                <Box
+                  position="absolute"
+                  bottom={"-0.5"}
+                  right={"-0.5"}
+                  w="20px"
+                  h="20px"
+                  borderBottom="2px solid"
+                  borderRight="2px solid"
+                  borderColor="white"
+                />
+                <Box
+                  position="absolute"
+                  bottom={"-0.5"}
+                  left={"-0.5"}
+                  w="20px"
+                  h="20px"
+                  borderBottom="2px solid"
+                  borderLeft="2px solid"
+                  borderColor="white"
+                />
+              </Box>
+            </Rnd>
+          )}
         </Box>
         <WebGlComponent />
       </Box>

@@ -170,67 +170,7 @@ export default function ResizeBlock() {
             if (!width || !height) return;
             let w = Number(width);
             let h = Number(height);
-            if (expandMode === "crop" && selectedScale) {
-              const ratio = Math.min(
-                selectedScale?.image.height / h,
-                selectedScale?.image.width / w,
-              );
-
-              const imageH = selectedScale.image.height * selectedScale.scale;
-              const imageW = selectedScale.image.width * selectedScale.scale;
-
-              const imageHR = h * ratio;
-              const imageWR = w * ratio;
-
-              const cropSizeRelative = {
-                height:
-                  imageH > imageHR
-                    ? h * ratio
-                    : h * (selectedScale?.scale ?? 1),
-                width:
-                  imageW > imageWR
-                    ? w * ratio
-                    : w * (selectedScale?.scale ?? 1),
-              };
-
-              if (appRef.current && box && spriteRef.current) {
-                if (
-                  imageSize &&
-                  spriteRef.current &&
-                  box.height === cropSizeRelative.height &&
-                  box.width === cropSizeRelative.width &&
-                  appRef.current
-                ) {
-                  setCropBox({
-                    id: selectedImg,
-                    box: {
-                      width: imageSize.width,
-                      height: imageSize.height,
-                      x: appRef.current.canvas.width / 2,
-                      y: cropSizeRelative.height / 2,
-                    },
-                  });
-                }
-
-                setCropBox({
-                  id: selectedImg,
-                  box: {
-                    width: cropSizeRelative.width,
-                    height: cropSizeRelative.height,
-                    x: appRef.current.canvas.width / 2,
-                    y: cropSizeRelative.height / 2,
-                  },
-                });
-
-                if (spriteRef.current) {
-                  spriteRef.current.x = appRef.current.canvas.width / 2;
-                  spriteRef.current.y = cropSizeRelative.height / 2;
-                }
-              }
-            }
-
             if (
-              expandMode === "expand" &&
               workPlaceRef.current &&
               appRef.current &&
               textureRef.current &&
@@ -287,53 +227,6 @@ export default function ResizeBlock() {
         onValueChange={(e) => {
           const type = e.value;
           setExpandMode(selectedImg, type);
-
-          if (
-            appRef.current &&
-            textureRef.current &&
-            spriteRef.current &&
-            workPlaceRef.current &&
-            imageSize
-          )
-            if (box && appRef.current && spriteRef.current && imageSize) {
-              const cropSizeRelative = {
-                height:
-                  box.height ?? imageSize.height * (selectedScale?.scale ?? 1),
-                width:
-                  box.width ?? imageSize.width * (selectedScale?.scale ?? 1),
-              };
-
-              //TODO: Croppolás újráírása
-              if (type === "crop") {
-                setCropBox({
-                  id: selectedImg,
-                  box: {
-                    width: cropSizeRelative.width,
-                    height: cropSizeRelative.height,
-                    x: box.x ?? appRef.current.canvas.width / 2,
-                    y: box.y ?? cropSizeRelative.height / 2,
-                  },
-                });
-
-                if (
-                  appRef.current &&
-                  box &&
-                  box.y &&
-                  box.x &&
-                  spriteRef.current
-                ) {
-                  setCropBox({
-                    id: selectedImg,
-                    box: {
-                      width: cropSizeRelative.width,
-                      height: cropSizeRelative.height,
-                      x: box.x ?? appRef.current.canvas.width / 2,
-                      y: box.y ?? cropSizeRelative.height / 2,
-                    },
-                  });
-                }
-              }
-            }
         }}
       >
         <Tabs.List
