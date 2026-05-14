@@ -519,10 +519,12 @@ const sidebarElements = (
             );
           },
           onChange: (e: SliderValueChangeDetails) => {
-            if (webglFilterRef.current) {
-              uniforms[`${selectedChannel?.toLowerCase()}_channel_offset`] =
-                Number(e.value) / 100.0;
-            }
+            const params = {
+              ...filters,
+              [`${selectedChannel?.toLowerCase()}_channel_offset`]: e.value[0],
+            };
+            const channelOffset = getChannelOffsets(params);
+            uniforms.channel_offset_input = channelOffset.offset;
           },
           clearFunc: () => {
             if (webglFilterRef.current) {
