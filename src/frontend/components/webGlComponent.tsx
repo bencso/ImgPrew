@@ -243,7 +243,7 @@ export default function WebGlComponent() {
       spriteRef.current.filters = [webglFilterRef.current];
     } else {
       const uniforms = webglFilterRef.current.resources.filterUniforms.uniforms;
-      
+
       uniforms.exposure_input = filters.exposure / 5.0;
       uniforms.brightness_input = filters.brightness / 100.0;
       uniforms.contrast_input = (filters.contrast / 100.0) * 0.5 + 1.0;
@@ -365,8 +365,7 @@ export default function WebGlComponent() {
             width: box.width ?? imageSize.width * (scale ?? 1),
           };
 
-          spriteRef.current.x = box.x ?? appRef.current.canvas.width / 2;
-          spriteRef.current.y = box.y ?? cropSizeRelative.height / 2;
+          console.log("ITT VAGYUNK");
         } else {
           spW = box.width ?? 0 - +(borderSize?.y || 0);
           spH = box.height ?? 0 - +(borderSize?.x || 0);
@@ -375,12 +374,14 @@ export default function WebGlComponent() {
         }
       }
 
-      appRef.current.renderer.resize(canvasW, canvasH);
+      if (expandMode === "no") {
+        appRef.current.renderer.resize(canvasW, canvasH);
 
-      spriteRef.current.width = spW;
-      spriteRef.current.height = spH;
-      spriteRef.current.x = spX;
-      spriteRef.current.y = spY;
+        spriteRef.current.width = spW;
+        spriteRef.current.height = spH;
+        spriteRef.current.x = spX;
+        spriteRef.current.y = spY;
+      }
 
       if (textAndImagePlaceRef.current) {
         textAndImagePlaceRef.current.style.width = canvasW + "px";
@@ -408,9 +409,9 @@ export default function WebGlComponent() {
     box,
   ]);
 
-  useEffect(()=>{
-    applyFilters()
-  }, [selectedImg])
+  useEffect(() => {
+    applyFilters();
+  }, [selectedImg]);
 
   useEffect(() => {
     window.addEventListener("resize", () => {

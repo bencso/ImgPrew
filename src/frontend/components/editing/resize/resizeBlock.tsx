@@ -138,19 +138,6 @@ export default function ResizeBlock() {
       )
         return;
 
-      const scale = selectedScale.scale;
-
-      const boxLeft = box.x - box.width / 2;
-      const boxTop = box.y - box.height / 2;
-
-      const imageCenter = { x: 0, y: 0 };
-
-      //Image helyzete 0.5 0.5 anchorral x: 509.5 y:465
-      // alapból a 0,0: a bal felső sarokból nézi és nem is a közepéből
-
-      console.log(spriteRef.current.x);
-      console.log(spriteRef.current.y);
-
       textureRef.current = new Texture({
         source: textureRef.current.source,
         frame: new Rectangle(
@@ -316,6 +303,7 @@ export default function ResizeBlock() {
                   box.width ?? imageSize.width * (selectedScale?.scale ?? 1),
               };
 
+              //TODO: Croppolás újráírása
               if (type === "crop") {
                 setCropBox({
                   id: selectedImg,

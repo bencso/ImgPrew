@@ -1,4 +1,5 @@
 //TODO: Refaktorálni
+//TODO: Croppolás újráírása
 import {
   calculationTypeEnum,
   DraggableImageEvent,
@@ -174,13 +175,6 @@ export default function ImageWorkPlace() {
         (selectedScale.image.width * selectedScale.scale) / 2 +
         box.width / 2;
 
-      console.table({
-        top: borderMaxTop,
-        bottom: borderMaxBottom,
-        left: borderMaxLeft,
-        right: borderMaxRight,
-      });
-
       setBorderMax({
         top: borderMaxTop,
         bottom: borderMaxBottom,
@@ -192,20 +186,15 @@ export default function ImageWorkPlace() {
     }
   }
 
-  useEffect(() => {
-    calculationBorders();
-  }, [box?.height, box?.width, expandSize, expandMode, selectedScale]);
-
   function grabCrop(x: number, y: number) {
+    calculationBorders();
     if (spriteRef.current && selectedScale && box && y && x && borderMax) {
       const nextPosX = spriteRef.current.x + x;
       const nextPosY = spriteRef.current.y + y;
 
-      if (nextPosX < borderMax.right && nextPosX > borderMax.left)
-        spriteRef.current.x = nextPosX;
-
-      if (nextPosY < borderMax.top && nextPosY > borderMax.bottom)
-        spriteRef.current.y = nextPosY;
+      //TODO: Ellenörzést majd visszatenni
+      spriteRef.current.x = nextPosX;
+      spriteRef.current.y = nextPosY;
 
       setCropBox({
         id: selectedImg,
@@ -338,11 +327,22 @@ export default function ImageWorkPlace() {
                 throttleDrag={1}
                 edge={false}
                 renderDirections={["w", "s", "e", "n"]}
-                onDrag={({ delta } : {delta: any}) => {
+                onDrag={({ delta }: { delta: any }) => {
                   const [dx, dy] = delta;
                   grabCrop(dx, dy);
                 }}
-                onResize={({ width, height, direction, delta } : {width: any, height: any, direction: any, delta: any}) => {
+                onResize={({
+                  width,
+                  height,
+                  direction,
+                  delta,
+                }: {
+                  width: any;
+                  height: any;
+                  direction: any;
+                  delta: any;
+                }) => {
+                  calculationBorders();
                   if (!spriteRef.current || !borderMax) return;
 
                   const [dx, dy] = delta;
@@ -380,11 +380,10 @@ export default function ImageWorkPlace() {
                     const imageW =
                       selectedScale.image.width * selectedScale.scale;
 
-                    if (width < imageW && imageH > height)
-                      setCropBox({
-                        id: selectedImg,
-                        box: { height: height, width: width },
-                      });
+                    setCropBox({
+                      id: selectedImg,
+                      box: { height: height, width: width },
+                    });
 
                     setCropBox({
                       id: selectedImg,
@@ -414,7 +413,7 @@ export default function ImageWorkPlace() {
         hideChildMoveableDefaultLines
         hideThrottleDragRotateLine
         origin={false}
-        onDrag={(e:any) => {
+        onDrag={(e: any) => {
           if (!draggableId) return;
           const [x, y] = e.beforeTranslate;
 
