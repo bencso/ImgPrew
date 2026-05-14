@@ -1,9 +1,7 @@
 //TODO: Refaktorálni
 
-// TODO: React moveable lecsereléése: https://www.npmjs.com/package/react-rnd
 // Úgy kéne valahogy megcsinálni, hogy lenne egy olyan ami számolja külön a bal és fentről számított "távolságot" a cropnál mert nekünk azt kell majd megadni a
 // saved croppnál hogy jól levágjuk a képet, mert azt csak be kell talán szoroznunk egy scale faktorral és jó lesz
-
 
 // Vagy az a módszer, hogy a képet kizoomoltatjuk hogy lászódjon teljes egészében, és felette azon megjelenik maga a cropper, és ugy könnyebb kiszámolni is a dolgokat bal és fentről
 
@@ -15,9 +13,9 @@ import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { Box, Flex, Image, Span } from "@chakra-ui/react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import Moveable from "react-moveable";
 import { shallow } from "zustand/shallow";
 import WebGlComponent from "../webGlComponent";
+import { Rnd } from "react-rnd";
 
 export default function ImageWorkPlace() {
   const {
@@ -29,6 +27,7 @@ export default function ImageWorkPlace() {
     selectedScale,
     spriteRef,
     workPlaceRef,
+    canvasRef,
     appRef,
     textAndImagePlaceRef,
   } = useWorkSession();
@@ -143,72 +142,6 @@ export default function ImageWorkPlace() {
   ]);
   //#endregion
 
-  function calculationBorders() {
-    if (
-      selectedScale &&
-      box &&
-      box.height &&
-      box.width &&
-      appRef.current &&
-      imageSize
-    ) {
-      const cropSizeRelative = {
-        height: box.height ?? imageSize.height * (selectedScale?.scale ?? 1),
-        width: box.width ?? imageSize.width * (selectedScale?.scale ?? 1),
-      };
-
-      const center = {
-        x: appRef.current.canvas.width / 2,
-        y: cropSizeRelative.height / 2,
-      };
-
-      const borderMaxTop =
-        (center.y ?? 0) +
-        (selectedScale.image.height * selectedScale.scale) / 2 -
-        box.height / 2;
-
-      const borderMaxBottom =
-        (center.y ?? 0) -
-        (selectedScale.image.height * selectedScale.scale) / 2 +
-        box.height / 2;
-
-      const borderMaxRight =
-        (center.x ?? 0) +
-        (selectedScale.image.width * selectedScale.scale) / 2 -
-        box.width / 2;
-
-      const borderMaxLeft =
-        (center.x ?? 0) -
-        (selectedScale.image.width * selectedScale.scale) / 2 +
-        box.width / 2;
-
-      setBorderMax({
-        top: borderMaxTop,
-        bottom: borderMaxBottom,
-        left: borderMaxLeft,
-        right: borderMaxRight,
-      });
-    } else {
-      setBorderMax(null);
-    }
-  }
-
-  function grabCrop(x: number, y: number) {
-    calculationBorders();
-    if (spriteRef.current && selectedScale && box && y && x && borderMax) {
-      const nextPosX = spriteRef.current.x + x;
-      const nextPosY = spriteRef.current.y + y;
-
-      spriteRef.current.x = nextPosX;
-      spriteRef.current.y = nextPosY;
-
-      setCropBox({
-        id: selectedImg,
-        box: { x: nextPosX, y: nextPosY },
-      });
-    }
-  }
-
   return (
     <Flex
       ref={workPlaceRef}
@@ -282,10 +215,6 @@ export default function ImageWorkPlace() {
               </Span>
             );
           })}
-
-          {
-            //
-          }
           {copyrightImage && copyrightImage.blob && (
             <Image
               ref={(el) => {
@@ -301,114 +230,119 @@ export default function ImageWorkPlace() {
               userSelect={"none"}
             />
           )}
-          {
-            //
-          }
-          {box && box.width && box.height && (
-            <>
+          <Rnd
+            minHeight={300}
+            minWidth={300}
+            enableResizing
+            style={{
+              zIndex: 1000,
+              boxShadow: "1px 1px 0px 100vh #00000070"
+            }}
+            bounds={"parent"}
+            default={{
+              width: 300,
+              height: 300,
+              x: 0,
+              y: 0,
+            }}
+          >
+            <Box
+              h={"full"}
+              w={"full"}
+              position={"relative"}
+              border={"1px solid"}
+              borderColor={"teal.800"}
+            >
               <Box
-                ref={cropRef}
-                position={"absolute"}
-                transform="translate(-50%, -50%)"
-                top={"50%"}
-                left={"50%"}
-                width={box.width}
-                height={box.height}
-                backgroundColor="blackAlpha.300"
-                border="2px solid white"
-                hidden={expandMode !== "crop" || cropSaved === true}
+                position="absolute"
+                top={0}
+                left={0}
+                w="20px"
+                h="20px"
+                borderTop="2px solid"
+                borderLeft="2px solid"
+                borderColor="teal"
               />
-
-              <Moveable
-                target={cropRef.current}
-                edgeDraggable={false}
-                origin={false}
-                keepRatio={false}
-                draggable={expandMode === "crop" && cropSaved === false}
-                resizable={expandMode === "crop" && cropSaved === false}
-                hideDefaultLines
-                hideChildMoveableDefaultLines
-                hideThrottleDragRotateLine
-                throttleResize={1}
-                throttleDrag={1}
-                edge={false}
-                renderDirections={["w", "s", "e", "n"]}
-                onDrag={({ delta }: { delta: any }) => {
-                  const [dx, dy] = delta;
-                  grabCrop(dx, dy);
-                }}
-                onResize={({
-                  width,
-                  height,
-                  direction,
-                  delta,
-                }: {
-                  width: any;
-                  height: any;
-                  direction: any;
-                  delta: any;
-                }) => {
-                  calculationBorders();
-                  if (!spriteRef.current || !borderMax) return;
-
-                  const [dx, dy] = delta;
-
-                  let nextPosX = spriteRef.current.x;
-                  let nextPosY = spriteRef.current.y;
-
-                  if (direction[0] == 1 || direction[0] == -1) {
-                    if (dx > 0) {
-                      if (nextPosX > borderMax.right) {
-                        nextPosX = nextPosX - 1;
-                        spriteRef.current.x = nextPosX;
-                      } else if (nextPosX < borderMax.left) {
-                        nextPosX = nextPosX + 1;
-                        spriteRef.current.x = nextPosX;
-                      }
-                    }
-                  }
-
-                  if (direction[1] == 1 || direction[1] == -1) {
-                    if (dy > 0) {
-                      if (nextPosY > borderMax.bottom) {
-                        nextPosY = nextPosY - 2;
-                        spriteRef.current.y = nextPosY;
-                      } else if (nextPosY < borderMax.top) {
-                        nextPosY = nextPosY + 2;
-                        spriteRef.current.y = nextPosY;
-                      }
-                    }
-                  }
-
-                  setCropBox({
-                    id: selectedImg,
-                    box: { height: height, width: width },
-                  });
-
-                  setCropBox({
-                    id: selectedImg,
-                    box: {
-                      x: nextPosX,
-                      y: nextPosY,
-                    },
-                  });
-                }}
+              <Box
+                position="absolute"
+                top={0}
+                right={0}
+                w="20px"
+                h="20px"
+                borderTop="2px solid"
+                borderRight="2px solid"
+                borderColor="teal"
               />
-            </>
-          )}
+              <Box
+                position="absolute"
+                top={0}
+                left={"calc(50% - 15px)"}
+                translateX={"-50%"}
+                w="30px"
+                borderTop="2px solid"
+                borderColor="teal"
+              />
+              <Box
+                position="absolute"
+                bottom={0}
+                left={"calc(50% - 15px)"}
+                translateX={"-50%"}
+                w="30px"
+                borderTop="2px solid"
+                borderColor="teal"
+              />
+                <Box
+                position="absolute"
+                left={0}
+                top={"calc(50% - 15px)"}
+                translateY={"-50%"}
+                h="30px"
+                borderLeft="2px solid"
+                borderColor="teal"
+              /> 
+              <Box
+                position="absolute"
+                right={0}
+                top={"calc(50% - 15px)"}
+                translateY={"-50%"}
+                h="30px"
+                borderRight="2px solid"
+                borderColor="teal"
+              />
+              <Box
+                position="absolute"
+                bottom={0}
+                right={0}
+                w="20px"
+                h="20px"
+                borderBottom="2px solid"
+                borderRight="2px solid"
+                borderColor="teal"
+              />
+               <Box
+                position="absolute"
+                bottom={0}
+                left={0}
+                w="20px"
+                h="20px"
+                borderBottom="2px solid"
+                borderLeft="2px solid"
+                borderColor="teal"
+              />
+            </Box>
+          </Rnd>
         </Box>
-        {
-          //
-        }
         <WebGlComponent />
       </Box>
       {
         //
       }
-      <Moveable
+
+      {/* <Moveable
         target={draggableId ? textElements[draggableId] : null}
         draggable={true}
         hideDefaultLines
+        bounds={spriteRef.current}
         hideChildMoveableDefaultLines
         hideThrottleDragRotateLine
         origin={false}
@@ -421,7 +355,7 @@ export default function ImageWorkPlace() {
             y,
           });
         }}
-      />
+      /> */}
     </Flex>
   );
 }
