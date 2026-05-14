@@ -408,6 +408,10 @@ export default function WebGlComponent() {
     box,
   ]);
 
+  useEffect(()=>{
+    applyFilters()
+  }, [selectedImg])
+
   useEffect(() => {
     window.addEventListener("resize", () => {
       updateLayout();

@@ -37,8 +37,6 @@ import TextBlock from "./text/textBlock";
 import ChannelMixerBlock from "./channelmixer/channelmixer";
 import { getChannelOffsets } from "../webGlComponent";
 
-//TODO: getFilterValue(selectedImg, "redChannel")  ezek alkalmazása a channeleknél, kép váltásnál jó érték jöjjön be
-
 const sidebarElements = (
   exportAllDataForImage: any,
   setExportFileExtension: any,
@@ -378,7 +376,16 @@ const sidebarElements = (
           min: -100,
           max: 100,
           step: 1,
-          defaultValue: selectedChannel?.toLowerCase() === "red" ? 100 : 0,
+          defaultValue:
+            selectedChannel?.toLowerCase() === "red"
+              ? (getFilterValue(
+                  selectedImg,
+                  `${selectedChannel?.toLowerCase()}_red_channel`,
+                ) ?? 100)
+              : (getFilterValue(
+                  selectedImg,
+                  `${selectedChannel?.toLowerCase()}_red_channel`,
+                ) ?? 0),
           resetValue: selectedChannel?.toLowerCase() === "red" ? 100 : 0,
           inputType: "slider",
           onChangeEnd: (e: SliderValueChangeDetails) => {
@@ -413,7 +420,16 @@ const sidebarElements = (
           max: 100,
           step: 1,
           inputType: "slider",
-          defaultValue: selectedChannel?.toLowerCase() === "green" ? 100 : 0,
+          defaultValue:
+            selectedChannel?.toLowerCase() === "green"
+              ? (getFilterValue(
+                  selectedImg,
+                  `${selectedChannel?.toLowerCase()}_green_channel`,
+                ) ?? 100)
+              : (getFilterValue(
+                  selectedImg,
+                  `${selectedChannel?.toLowerCase()}_green_channel`,
+                ) ?? 0),
           resetValue: selectedChannel?.toLowerCase() === "green" ? 100 : 0,
           onChangeEnd: (e: SliderValueChangeDetails) => {
             editFilters(
@@ -446,7 +462,16 @@ const sidebarElements = (
           min: -100,
           max: 100,
           step: 1,
-          defaultValue: selectedChannel?.toLowerCase() === "blue" ? 100 : 0,
+          defaultValue:
+            selectedChannel?.toLowerCase() === "blue"
+              ? (getFilterValue(
+                  selectedImg,
+                  `${selectedChannel?.toLowerCase()}_blue_channel`,
+                ) ?? 100)
+              : (getFilterValue(
+                  selectedImg,
+                  `${selectedChannel?.toLowerCase()}_blue_channel`,
+                ) ?? 0),
           resetValue: selectedChannel?.toLowerCase() === "blue" ? 100 : 0,
           inputType: "slider",
           onChangeEnd: (e: SliderValueChangeDetails) => {
