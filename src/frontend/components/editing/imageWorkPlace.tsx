@@ -1,5 +1,12 @@
 //TODO: Refaktorálni
-//TODO: Croppolás újráírása
+
+// TODO: React moveable lecsereléése: https://www.npmjs.com/package/react-rnd
+// Úgy kéne valahogy megcsinálni, hogy lenne egy olyan ami számolja külön a bal és fentről számított "távolságot" a cropnál mert nekünk azt kell majd megadni a
+// saved croppnál hogy jól levágjuk a képet, mert azt csak be kell talán szoroznunk egy scale faktorral és jó lesz
+
+
+// Vagy az a módszer, hogy a képet kizoomoltatjuk hogy lászódjon teljes egészében, és felette azon megjelenik maga a cropper, és ugy könnyebb kiszámolni is a dolgokat bal és fentről
+
 import {
   calculationTypeEnum,
   DraggableImageEvent,
@@ -192,7 +199,6 @@ export default function ImageWorkPlace() {
       const nextPosX = spriteRef.current.x + x;
       const nextPosY = spriteRef.current.y + y;
 
-      //TODO: Ellenörzést majd visszatenni
       spriteRef.current.x = nextPosX;
       spriteRef.current.y = nextPosY;
 
@@ -353,10 +359,10 @@ export default function ImageWorkPlace() {
                   if (direction[0] == 1 || direction[0] == -1) {
                     if (dx > 0) {
                       if (nextPosX > borderMax.right) {
-                        nextPosX = nextPosX - 0.5;
+                        nextPosX = nextPosX - 1;
                         spriteRef.current.x = nextPosX;
                       } else if (nextPosX < borderMax.left) {
-                        nextPosX = nextPosX + 0.5;
+                        nextPosX = nextPosX + 1;
                         spriteRef.current.x = nextPosX;
                       }
                     }
@@ -365,34 +371,27 @@ export default function ImageWorkPlace() {
                   if (direction[1] == 1 || direction[1] == -1) {
                     if (dy > 0) {
                       if (nextPosY > borderMax.bottom) {
-                        nextPosY = nextPosY - 0.5;
+                        nextPosY = nextPosY - 2;
                         spriteRef.current.y = nextPosY;
                       } else if (nextPosY < borderMax.top) {
-                        nextPosY = nextPosY + 0.5;
+                        nextPosY = nextPosY + 2;
                         spriteRef.current.y = nextPosY;
                       }
                     }
                   }
 
-                  if (selectedScale) {
-                    const imageH =
-                      selectedScale.image.height * selectedScale.scale;
-                    const imageW =
-                      selectedScale.image.width * selectedScale.scale;
+                  setCropBox({
+                    id: selectedImg,
+                    box: { height: height, width: width },
+                  });
 
-                    setCropBox({
-                      id: selectedImg,
-                      box: { height: height, width: width },
-                    });
-
-                    setCropBox({
-                      id: selectedImg,
-                      box: {
-                        x: nextPosX,
-                        y: nextPosY,
-                      },
-                    });
-                  }
+                  setCropBox({
+                    id: selectedImg,
+                    box: {
+                      x: nextPosX,
+                      y: nextPosY,
+                    },
+                  });
                 }}
               />
             </>
