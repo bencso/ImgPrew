@@ -224,7 +224,6 @@ export default function ImageWorkPlace() {
                 zIndex: 1000,
               }}
               onDragStop={(e, d) => {
-                console.log(d);
                 setCropBox({
                   id: selectedImg,
                   box: {

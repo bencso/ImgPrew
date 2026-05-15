@@ -276,7 +276,7 @@ export default function WebGlComponent() {
         !box ||
         !spriteRef.current ||
         !selectedScale ||
-        !imageSize
+        !imageSize || !box.x || !box.y || !textAndImagePlaceRef.current
       )
         return;
 
@@ -292,27 +292,22 @@ export default function WebGlComponent() {
 
       const h = Number(box.height);
       const w = Number(box.width);
+      
+      const canvasScale = Math.min(areaW / w, areaH / h);
+      const defaultImageScale = Math.min(imageSize.height / textAndImagePlaceRef.current?.clientHeight, imageSize.width / textAndImagePlaceRef.current?.clientWidth);
+      const canvasW = Math.round(w * canvasScale);
+      const canvasH = Math.round(h * canvasScale);
 
+
+// TODO: Mostmár jó ha pl egy 1:1es box de custom méretnél még nem
       textureRef.current = new Texture({
         source: textureRef.current.source,
-        frame: new Rectangle(
-          Number(box.x) / (w / imageSize.width),
-          Number(box.y) / (h / imageSize.height),
-          h * selectedScale.scale,
-          w * selectedScale.scale,
-        ),
+        frame: new Rectangle(box.x * defaultImageScale , box.y * defaultImageScale , h * defaultImageScale, w * defaultImageScale),
       });
       const spriteCopy = new Sprite(textureRef.current);
       appRef.current.stage.removeChildren();
       appRef.current.stage.addChild(spriteCopy);
       spriteRef.current = spriteCopy;
-
-      if (!areaW || !areaH || !w || !h || !textAndImagePlaceRef.current) return;
-
-      const canvasScale = Math.min(areaW / w, areaH / h);
-
-      const canvasW = Math.round(w * canvasScale);
-      const canvasH = Math.round(h * canvasScale);
 
       appRef.current.renderer.resize(canvasW, canvasH);
       appRef.current.renderer.background.color = expandBackground;
@@ -416,27 +411,9 @@ export default function WebGlComponent() {
       }
 
       if (
-        expandMode === "crop" &&
-        box &&
-        box.height &&
-        box.width &&
-        box.x &&
-        box.y &&
-        imageSize
+        expandMode === "no" ||
+        (expandMode === "crop" && cropSaved === false)
       ) {
-        if (!cropSaved) {
-            
-
-          console.log("ITT VAGYUNK");
-        } else {
-          spW = box.width ?? 0 - +(borderSize?.y || 0);
-          spH = box.height ?? 0 - +(borderSize?.x || 0);
-          spX = box.x ?? 0 / 2;
-          spY = box.y ?? 0 / 2;
-        }
-      }
-
-      if (expandMode === "no") {
         appRef.current.renderer.resize(canvasW, canvasH);
 
         spriteRef.current.width = spW;
@@ -468,6 +445,7 @@ export default function WebGlComponent() {
     selectedImg,
     borderSize,
     box,
+    cropSaved,
   ]);
 
   useEffect(() => {
