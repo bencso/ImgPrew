@@ -11,7 +11,7 @@ import { Box, Flex, Image, Span } from "@chakra-ui/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { shallow } from "zustand/shallow";
 import WebGlComponent from "../webGlComponent";
-import { Rnd, RndDragEvent } from "react-rnd";
+import { Rnd } from "react-rnd";
 
 export default function ImageWorkPlace() {
   const {
@@ -24,10 +24,11 @@ export default function ImageWorkPlace() {
     workPlaceRef,
     textAndImagePlaceRef,
   } = useWorkSession();
-  const { calculationReFixPosition } = useSessionStore();
+  const { calculationReFixPosition, setCropBox } = useSessionStore();
 
   const box = useSessionStore(
     (state) => state.sessionData.find((si) => si.id === selectedImg)?.box,
+    shallow,
   );
 
   const expandMode = useSessionStore(
@@ -203,33 +204,47 @@ export default function ImageWorkPlace() {
           )}
           {expandMode === "crop" && !cropSaved && (
             <Rnd
-              /*
-            size={{
-              width: expandSize?.width 
-            }}
-            */
+              size={{
+                width:
+                  box?.width ??
+                  (expandSize?.width ?? 1080) * (selectedScale?.scale ?? 1),
+                height:
+                  box?.height ??
+                  (expandSize?.height ?? 1080) * (selectedScale?.scale ?? 1),
+              }}
+              position={{
+                x: box?.x ?? 0,
+                y: box?.y ?? 0,
+              }}
+              maxHeight={textAndImagePlaceRef.current?.clientHeight}
+              maxWidth={textAndImagePlaceRef.current?.clientWidth}
+              bounds={".manipulalhato"}
               enableResizing
               style={{
                 zIndex: 1000,
               }}
-              bounds={"parent"}
-              default={{
-                width: 300,
-                height: 300,
-                x: 0,
-                y: 0,
+              onDragStop={(e, d) => {
+                console.log(d);
+                setCropBox({
+                  id: selectedImg,
+                  box: {
+                    x: parseFloat(d.x.toString()),
+                    y: parseFloat(d.y.toString()),
+                    height: parseFloat(d.node.style.height) ?? 300,
+                    width: parseFloat(d.node.style.width) ?? 300,
+                  },
+                });
               }}
-              onDrag={(e: RndDragEvent) => {
-                if (!e.target) return;
-
-                const target = e.target as HTMLElement;
-                console.log(target.parentElement?.style.transform);
-              }}
-              onResize={(e) => {
-                if (!e.target) return;
-                const target = e.target as HTMLElement;
-                const targetParent = target.offsetParent as HTMLElement;
-                console.log(targetParent.style.transform);
+              onResizeStop={(e, direction, ref, delta, position) => {
+                setCropBox({
+                  id: selectedImg,
+                  box: {
+                    x: parseFloat(position.x.toString()),
+                    y: parseFloat(position.y.toString()),
+                    height: parseFloat(ref.style.height) ?? 300,
+                    width: parseFloat(ref.style.width) ?? 300,
+                  },
+                });
               }}
             >
               <Box

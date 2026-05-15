@@ -67,7 +67,6 @@ const sizesDatas = [
 
 export default function ResizeBlock() {
   const {
-    setCropBox,
     setExpandMode,
     setExpandBackground,
     setExpandSize,
@@ -79,7 +78,6 @@ export default function ResizeBlock() {
     textureRef,
     workPlaceRef,
     selectedImg,
-    selectedScale,
   } = useWorkSession();
 
   //#region breakPoint beállíátoks (isMd)
@@ -88,10 +86,6 @@ export default function ResizeBlock() {
     { fallback: "md" },
   );
   //#endregion
-
-  const imageSize = useSessionStore(
-    (state) => state.sessionData.find((si) => si.id === selectedImg)?.dimesions,
-  );
 
   const expandSize = useSessionStore(
     (state) =>
@@ -119,39 +113,6 @@ export default function ResizeBlock() {
     shallow,
   );
 
-  useEffect(() => {
-    if (cropSaved === false) {
-      console.log("mégsem");
-    } else {
-      if (
-        !textureRef.current ||
-        !appRef.current ||
-        !box ||
-        !box.height ||
-        !box.width ||
-        !box.x ||
-        !box.y ||
-        !workPlaceRef.current ||
-        !spriteRef.current ||
-        !imageSize ||
-        !selectedScale
-      )
-        return;
-
-      textureRef.current = new Texture({
-        source: textureRef.current.source,
-        frame: new Rectangle(
-          0,
-          0,
-          textureRef.current.height,
-          textureRef.current.width,
-        ),
-      });
-      const spriteCopy = new Sprite(textureRef.current);
-      spriteRef.current.removeChildren();
-      spriteRef.current.addChild(spriteCopy);
-    }
-  }, [cropSaved]);
 
   return (
     <Box>

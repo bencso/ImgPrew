@@ -9,6 +9,7 @@ import {
 import { useFunctionsStore } from "@/stores/functionsStore";
 import { Application, Filter, Sprite, Texture } from "pixi.js";
 import { createContext, useContext, useMemo, useRef, useState } from "react";
+import { Rnd } from "react-rnd";
 
 export const WorkSessionContext = createContext<WorkSessionContextProps | null>(
   null,
@@ -61,7 +62,7 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       textAndImagePlaceRef,
       selectedChannel,
       setSelectedChannel,
-      webglFilterRef
+      webglFilterRef,
     }),
     [
       step,

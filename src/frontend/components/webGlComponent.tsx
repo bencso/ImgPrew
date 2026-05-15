@@ -10,6 +10,7 @@ import {
   defaultFilterVert,
   Filter,
   ImageSource,
+  Rectangle,
   Sprite,
   Texture,
   UniformGroup,
@@ -66,6 +67,7 @@ export default function WebGlComponent() {
     workPlaceRef,
     textAndImagePlaceRef,
     webglFilterRef,
+    selectedScale,
   } = useWorkSession();
   const { sessionData, setImageSize } = useSessionStore();
 
@@ -265,6 +267,69 @@ export default function WebGlComponent() {
     }
   };
 
+  useEffect(() => {
+    if (cropSaved === true) {
+      if (
+        !textureRef.current ||
+        !workPlaceRef.current ||
+        !appRef.current ||
+        !box ||
+        !spriteRef.current ||
+        !selectedScale ||
+        !imageSize
+      )
+        return;
+
+      const imgW = textureRef.current.width;
+      const imgH = textureRef.current.height;
+
+      if (!imageSize) {
+        setImageSize(selectedImg, imgW, imgH);
+      }
+
+      const areaW = workPlaceRef.current.offsetWidth;
+      const areaH = workPlaceRef.current.offsetHeight;
+
+      const h = Number(box.height);
+      const w = Number(box.width);
+
+      textureRef.current = new Texture({
+        source: textureRef.current.source,
+        frame: new Rectangle(
+          Number(box.x) / (w / imageSize.width),
+          Number(box.y) / (h / imageSize.height),
+          h * selectedScale.scale,
+          w * selectedScale.scale,
+        ),
+      });
+      const spriteCopy = new Sprite(textureRef.current);
+      appRef.current.stage.removeChildren();
+      appRef.current.stage.addChild(spriteCopy);
+      spriteRef.current = spriteCopy;
+
+      if (!areaW || !areaH || !w || !h || !textAndImagePlaceRef.current) return;
+
+      const canvasScale = Math.min(areaW / w, areaH / h);
+
+      const canvasW = Math.round(w * canvasScale);
+      const canvasH = Math.round(h * canvasScale);
+
+      appRef.current.renderer.resize(canvasW, canvasH);
+      appRef.current.renderer.background.color = expandBackground;
+
+      spriteRef.current.width = canvasW;
+      spriteRef.current.height = canvasH;
+
+      textAndImagePlaceRef.current.style.height =
+        (appRef.current.renderer.height ?? canvasH) + "px";
+      textAndImagePlaceRef.current.style.width =
+        (appRef.current.renderer.width ?? canvasW) + "px";
+    } else {
+      if (appRef.current) appRef.current.stage.removeChildren();
+      loadImage();
+    }
+  }, [cropSaved]);
+
   const updateLayout = () => {
     if (
       !workPlaceRef.current ||
@@ -360,10 +425,7 @@ export default function WebGlComponent() {
         imageSize
       ) {
         if (!cropSaved) {
-          const cropSizeRelative = {
-            height: box.height ?? imageSize.height * (scale ?? 1),
-            width: box.width ?? imageSize.width * (scale ?? 1),
-          };
+            
 
           console.log("ITT VAGYUNK");
         } else {
@@ -405,7 +467,6 @@ export default function WebGlComponent() {
     imageSize,
     selectedImg,
     borderSize,
-    cropSaved,
     box,
   ]);
 

@@ -8,6 +8,7 @@ import {
   RefObject,
   SetStateAction,
 } from "react";
+import { Rnd } from "react-rnd";
 
 //#region InputTypes
 export enum InputTypes {
@@ -331,7 +332,7 @@ export interface WorkSessionContextProps {
   textAndImagePlaceRef: RefObject<HTMLDivElement | null>;
   selectedChannel: string ;
   setSelectedChannel: Dispatch<SetStateAction<string>>;
-   webglFilterRef: RefObject<Filter | null>
+   webglFilterRef: RefObject<Filter | null>;
 }
 //#endregion
 
