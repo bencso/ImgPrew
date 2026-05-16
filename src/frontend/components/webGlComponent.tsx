@@ -306,7 +306,6 @@ export default function WebGlComponent() {
       const canvasW = w * defaultImageScaleW;
       const canvasH = h * defaultImageScaleH;
 
-      // TODO: Mostmár jó ha pl egy 1:1es box de custom méretnél még nem
       textureRef.current = new Texture({
         source: textureRef.current.source,
         orig: textureRef.current.orig,
@@ -314,8 +313,8 @@ export default function WebGlComponent() {
         frame: new Rectangle(
           box.x * defaultImageScale,
           box.y * defaultImageScale,
-          canvasW ,
-          canvasH ,
+          canvasW,
+          canvasH,
         ),
       });
 
@@ -326,18 +325,20 @@ export default function WebGlComponent() {
 
       const scaleH = workPlaceRef.current.clientHeight / h;
       const scaleW = workPlaceRef.current.clientWidth / w;
-      const scale = Math.min(scaleH,scaleW);
+      const scale = Math.min(scaleH, scaleW);
 
       appRef.current.renderer.resize(w * scale, h * scale);
       appRef.current.renderer.background.color = expandBackground;
 
       spriteRef.current.height = h * scale;
       spriteRef.current.width = w * scale;
+      spriteRef.current.anchor = 0.5;
 
       textAndImagePlaceRef.current.style.height =
         (appRef.current.renderer.height ?? canvasH) + "px";
       textAndImagePlaceRef.current.style.width =
         (appRef.current.renderer.width ?? canvasW) + "px";
+        applyFilters();
     } else {
       if (appRef.current) appRef.current.stage.removeChildren();
       loadImage();
@@ -420,18 +421,34 @@ export default function WebGlComponent() {
 
       appRef.current.renderer.background.color = "transparent";
 
-      if (
-        (expandMode === "border" || (expandMode === "crop" && cropSaved)) &&
-        borderSize
-      ) {
-        spW = canvasW - (borderSize.x || 0);
-        spH = canvasH - (borderSize.y || 0);
-        appRef.current.renderer.background.color = expandBackground;
-      }
 
-      if (expandMode === "crop" && cropSaved) {
-        spriteRef.current.x = 0;
-        spriteRef.current.y = 0;
+      if (
+        (expandMode === "crop" && cropSaved) &&
+        borderSize &&
+        borderSize.x &&
+        borderSize.y &&
+        box &&
+        box.height &&
+        box.y
+      ) {
+        const h = box.height ?? 0;
+        const w = box.width ?? 0;
+
+        const scaleH = workPlaceRef.current.clientHeight / h;
+        const scaleW = workPlaceRef.current.clientWidth / w;
+        const scale = Math.min(scaleH, scaleW);
+
+        appRef.current.renderer.resize(w * scale, h * scale);
+        appRef.current.renderer.background.color = expandBackground;
+
+        spH = h * scale - borderSize.y;
+        spW = w * scale - borderSize.x;
+
+        spriteRef.current.width = spW;
+        spriteRef.current.height = spH;
+
+        spriteRef.current.x = appRef.current.canvas.width / 2;
+        spriteRef.current.y = appRef.current.canvas.height / 2;
       }
 
       if (
