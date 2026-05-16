@@ -276,7 +276,12 @@ export default function WebGlComponent() {
         !box ||
         !spriteRef.current ||
         !selectedScale ||
-        !imageSize || !box.x || !box.y || !textAndImagePlaceRef.current
+        !imageSize ||
+        !box.x ||
+        !box.y ||
+        !box.height ||
+        !box.width ||
+        !textAndImagePlaceRef.current
       )
         return;
 
@@ -287,33 +292,47 @@ export default function WebGlComponent() {
         setImageSize(selectedImg, imgW, imgH);
       }
 
-      const areaW = workPlaceRef.current.offsetWidth;
-      const areaH = workPlaceRef.current.offsetHeight;
+      const h = box.height;
+      const w = box.width;
 
-      const h = Number(box.height);
-      const w = Number(box.width);
-      
-      const canvasScale = Math.min(areaW / w, areaH / h);
-      const defaultImageScale = Math.min(imageSize.height / textAndImagePlaceRef.current?.clientHeight, imageSize.width / textAndImagePlaceRef.current?.clientWidth);
-      const canvasW = Math.round(w * canvasScale);
-      const canvasH = Math.round(h * canvasScale);
+      const defaultImageScaleH =
+        imageSize.height / textAndImagePlaceRef.current?.clientHeight;
+      const defaultImageScaleW =
+        imageSize.width / textAndImagePlaceRef.current?.clientWidth;
+      const defaultImageScale = Math.min(
+        defaultImageScaleH,
+        defaultImageScaleW,
+      );
+      const canvasW = w * defaultImageScaleW;
+      const canvasH = h * defaultImageScaleH;
 
-
-// TODO: Mostmár jó ha pl egy 1:1es box de custom méretnél még nem
+      // TODO: Mostmár jó ha pl egy 1:1es box de custom méretnél még nem
       textureRef.current = new Texture({
         source: textureRef.current.source,
-        frame: new Rectangle(box.x * defaultImageScale , box.y * defaultImageScale , h * defaultImageScale, w * defaultImageScale),
+        orig: textureRef.current.orig,
+        trim: textureRef.current.trim,
+        frame: new Rectangle(
+          box.x * defaultImageScale,
+          box.y * defaultImageScale,
+          canvasW ,
+          canvasH ,
+        ),
       });
+
       const spriteCopy = new Sprite(textureRef.current);
       appRef.current.stage.removeChildren();
       appRef.current.stage.addChild(spriteCopy);
       spriteRef.current = spriteCopy;
 
-      appRef.current.renderer.resize(canvasW, canvasH);
+      const scaleH = workPlaceRef.current.clientHeight / h;
+      const scaleW = workPlaceRef.current.clientWidth / w;
+      const scale = Math.min(scaleH,scaleW);
+
+      appRef.current.renderer.resize(w * scale, h * scale);
       appRef.current.renderer.background.color = expandBackground;
 
-      spriteRef.current.width = canvasW;
-      spriteRef.current.height = canvasH;
+      spriteRef.current.height = h * scale;
+      spriteRef.current.width = w * scale;
 
       textAndImagePlaceRef.current.style.height =
         (appRef.current.renderer.height ?? canvasH) + "px";
@@ -408,6 +427,11 @@ export default function WebGlComponent() {
         spW = canvasW - (borderSize.x || 0);
         spH = canvasH - (borderSize.y || 0);
         appRef.current.renderer.background.color = expandBackground;
+      }
+
+      if (expandMode === "crop" && cropSaved) {
+        spriteRef.current.x = 0;
+        spriteRef.current.y = 0;
       }
 
       if (
