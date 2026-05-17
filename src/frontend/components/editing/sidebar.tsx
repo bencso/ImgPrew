@@ -834,7 +834,15 @@ export default function SideBar() {
 
   //#endregion
   return (
-    <Flex maxH="80%" w={isMd? "fit": "full"} mb={isMd ? 0 : 2} direction={isMd ? "column" : "row"} gap={2} px={isMd ? 0 : 2}  justifyContent={"center"}>
+    <Flex
+      maxH="80%"
+      w={isMd ? "fit" : "full"}
+      mb={isMd ? 0 : 2}
+      direction={isMd ? "column" : "row"}
+      gap={2}
+      px={isMd ? 0 : 2}
+      justifyContent={"center"}
+    >
       <ScrollArea.Root maxH={isMd ? "80%" : "fit"} maxW={isMd ? "fit" : "100%"}>
         <ScrollArea.Viewport
           css={{
@@ -842,14 +850,26 @@ export default function SideBar() {
             maskImage: "linear-gradient(#000, #000)",
             "&[data-overflow-y]": {
               maskImage:
-                "linear-gradient(#000,#000,transparent 0,#000 var(--scroll-shadow-size),#000 calc(100% - var(--scroll-shadow-size)),transparent)",
+                "linear-gradient(to bottom, transparent, #000 var(--scroll-shadow-size), #000 calc(100% - var(--scroll-shadow-size)), transparent)",
               "&[data-at-top]": {
                 maskImage:
-                  "linear-gradient(180deg,#000 calc(100% - var(--scroll-shadow-size)),transparent)",
+                  "linear-gradient(180deg, #000 calc(100% - var(--scroll-shadow-size)), transparent)",
               },
               "&[data-at-bottom]": {
                 maskImage:
-                  "linear-gradient(0deg,#000 calc(100% - var(--scroll-shadow-size)),transparent)",
+                  "linear-gradient(0deg, #000 calc(100% - var(--scroll-shadow-size)), transparent)",
+              },
+            },
+            "&[data-overflow-x]": {
+              maskImage:
+                "linear-gradient(to right, transparent, #000 var(--scroll-shadow-size), #000 calc(100% - var(--scroll-shadow-size)), transparent)",
+              "&[data-at-left]": {
+                maskImage:
+                  "linear-gradient(90deg, #000 calc(100% - var(--scroll-shadow-size)), transparent)",
+              },
+              "&[data-at-right]": {
+                maskImage:
+                  "linear-gradient(-90deg, #000 calc(100% - var(--scroll-shadow-size)), transparent)",
               },
             },
           }}

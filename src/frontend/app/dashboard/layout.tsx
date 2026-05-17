@@ -11,26 +11,29 @@ import {
   Text,
   useBreakpointValue,
 } from "@chakra-ui/react";
-import { LeftSide } from "@/components/sidebar/leftside";
+
 import SideBar from "@/components/editing/sidebar";
 import BottomBar from "@/components/editing/moreImagesBottomBar";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { FaFileExport } from "react-icons/fa";
+import { PuffLoader } from "react-spinners";
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { selectedImg } = useWorkSession();
+  const { selectedImg, isLoading } = useWorkSession();
   const { sessionData } = useSessionStore();
   const [selectedImage, setSelectedImage] = useState<string>();
   const path = usePathname();
-  console.log(path);
   const isEditor = path === "/dashboard";
+
+  const LeftSide = dynamic(() => import("@/components/sidebar/leftside"), {
+    ssr: false,
+  });
 
   //#region breakPoint beállíátoks (isMd)
   const isMd = useBreakpointValue(
@@ -38,6 +41,20 @@ export default function RootLayout({
     { fallback: "md" },
   );
   //#endregion
+
+  if (isLoading) {
+    return (
+      <Box
+        h={"100vh"}
+        w={"100vw"}
+        position={"relative"}
+        zIndex={"max"}
+        bg={"white"}
+      >
+        <PuffLoader color="teal" />
+      </Box>
+    );
+  }
 
   useEffect(() => {
     if (sessionData.length > 0) setSelectedImage(sessionData[selectedImg].blob);
@@ -59,7 +76,7 @@ export default function RootLayout({
           <Box p={isMd ? 4 : 2} h={"full"} w={"full"}>
             {children}
           </Box>
-          {selectedImage && isEditor && <SideBar />}
+          {selectedImage && isEditor && !isLoading && <SideBar />}
         </Flex>
         <BottomBar />
       </Flex>

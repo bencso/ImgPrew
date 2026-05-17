@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import InfoPopover from "./infopopover";
 import { LuArrowLeftToLine, LuArrowRightToLine } from "react-icons/lu";
 
-export const LeftSide = () => {
+export default function LeftSide() {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true));
@@ -46,12 +46,11 @@ export const LeftSide = () => {
             borderColor="border.disabled"
             borderRadius={0}
             color="fg.disabled"
-            backgroundColor="bg.subtle"
+            backgroundColor="bg.emphasized"
             alignItems={"center"}
-            _hover={{ bg: "bg.muted" }}
           >
             <Flex gap={2} alignItems={"center"}>
-              <Avatar.Root>
+              <Avatar.Root color={"white"} bg={"teal"}>
                 <Avatar.Fallback name="Bencso" />
               </Avatar.Root>
 
@@ -87,11 +86,11 @@ export const LeftSide = () => {
                 borderRadius={0}
                 fontSize={12}
                 color="fg.muted"
-                _hover={{ bg: "bg.muted" }}
+                _hover={{ bg: "bg.emphasized" }}
                 _currentPage={{
                   borderLeftColor: "teal.fg",
-                  bg: "bg.emphasized",
-                  color: "fg.default",
+                  bg: "bg.muted",
+                  color: "teal.fg",
                   "& svg": { color: "teal.fg" },
                 }}
               >

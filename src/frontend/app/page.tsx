@@ -1,7 +1,9 @@
 "use client";
 
+import { useWorkSession } from "@/providers/sessionprovider";
 import {
   AbsoluteCenter,
+  Box,
   Button,
   Heading,
   Image,
@@ -11,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { FaGoogle } from "react-icons/fa";
-import { BeatLoader } from "react-spinners";
+import { BeatLoader, PuffLoader } from "react-spinners";
 
 export default function Page() {
   const [loading, setLoading] = useState(false);

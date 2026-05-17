@@ -5,11 +5,11 @@ import { useSessionStore } from "@/stores/sessionData";
 import { Box, Flex, Image, ScrollArea } from "@chakra-ui/react";
 
 export default function BottomBar() {
-  const { setSelectedImg, selectedImg } = useWorkSession();
+  const { setSelectedImg, selectedImg , isLoading} = useWorkSession();
   const { sessionData } = useSessionStore();
 
   return (
-    sessionData.length > 1 && (
+    sessionData.length > 1  && !isLoading && (
       <Flex
         borderTop={"1px solid"}
         bg={"bg.subtle"}
@@ -32,7 +32,7 @@ export default function BottomBar() {
         >
           <ScrollArea.Root width="full" size="xs">
             <ScrollArea.Viewport>
-              <ScrollArea.Content py="4">
+              <ScrollArea.Content>
                 <Flex gap="4" flexWrap="nowrap">
                   {Array.from(sessionData, (img, index) => (
                     <Box
