@@ -46,9 +46,19 @@ export default function RootLayout({
   return (
     <Flex h={"100vh"} direction={isMd ? "row" : "column"} w={"full"}>
       <LeftSide />
-      <Flex h="100vh" w="full" minW="0" minH={"0"} direction="column">
-        <Flex px={12} h={"full"} gap={7} w={"full"} direction={"row"} alignItems={"center"}>
-          {children}
+      <Flex flex={1} w="full" h={"100vh"} minH={"0"} direction="column">
+        <Flex
+          px={isMd ? 6 : 0}
+          h={"full"}
+          w={"full"}
+          flex={1}
+          direction={isMd ? "row" : "column"}
+          justifyContent={"center"}
+          alignItems={"center"}
+        >
+          <Box p={isMd ? 4 : 2} h={"full"} w={"full"}>
+            {children}
+          </Box>
           {selectedImage && isEditor && <SideBar />}
         </Flex>
         <BottomBar />

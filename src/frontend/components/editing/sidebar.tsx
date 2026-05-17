@@ -2,7 +2,12 @@
 import { EditItemProp, FilterProps } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
-import { TbAdjustments, TbGradienter, TbShadow, TbTemperature } from "react-icons/tb";
+import {
+  TbAdjustments,
+  TbGradienter,
+  TbShadow,
+  TbTemperature,
+} from "react-icons/tb";
 import {
   Box,
   Button,
@@ -829,8 +834,8 @@ export default function SideBar() {
 
   //#endregion
   return (
-    <Flex maxH="80%" w={"fit"} direction={isMd ? "column" : "row"} gap={2}>
-      <ScrollArea.Root maxH="60%"  w={"fit"}>
+    <Flex maxH="80%" w={isMd? "fit": "full"} mb={isMd ? 0 : 2} direction={isMd ? "column" : "row"} gap={2} px={isMd ? 0 : 2}  justifyContent={"center"}>
+      <ScrollArea.Root maxH={isMd ? "80%" : "fit"} maxW={isMd ? "fit" : "100%"}>
         <ScrollArea.Viewport
           css={{
             "--scroll-shadow-size": "4rem",
@@ -848,33 +853,34 @@ export default function SideBar() {
               },
             },
           }}
-        
         >
-          <ScrollArea.Content spaceY="2" p={2} boxSizing={"border-box"} w={"fit"}>
-            {editItems.map((item, index) => (
-              <EditItem key={index} items={item} />
-            ))}
+          <ScrollArea.Content p={2} boxSizing={"border-box"} w={"fit"}>
+            <Flex flexDir={isMd ? "column" : "row"} gap={2}>
+              {editItems.map((item, index) => (
+                <EditItem key={index} items={item} />
+              ))}
+            </Flex>
           </ScrollArea.Content>
         </ScrollArea.Viewport>
       </ScrollArea.Root>
-    <Box p={2}>
+      <Box p={2}>
         <Button
-        w="80px"
-        h="80px"
-        variant={"surface"}
-        rounded={"xl"}
-        display="flex"
-        flexDirection="column"
-        alignItems="center"
-        justifyContent="center"
-        colorPalette={"teal"}
-      >
-        <FaFileExport size={"16"} />
-        <Text fontSize="xx-small" textAlign={"center"} mt={0} w={"full"}>
-          Exportálás
-        </Text>
-      </Button>
-    </Box>
+          w="80px"
+          h="80px"
+          variant={"surface"}
+          rounded={"xl"}
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          colorPalette={"teal"}
+        >
+          <FaFileExport size={"16"} />
+          <Text fontSize="xx-small" textAlign={"center"} mt={0} w={"full"}>
+            Exportálás
+          </Text>
+        </Button>
+      </Box>
     </Flex>
   );
 }

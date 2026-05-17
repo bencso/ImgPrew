@@ -18,16 +18,17 @@ export default function BottomBar() {
         h={"fit"}
         justifyContent="center"
         alignItems={"center"}
-        gap={4}
+        gap={2}
         flexDir={"column"}
       >
         <Flex
-          gap={4}
-          px={4}
-          py={4}
+          gap={2}
+          px={3}
+          py={3}
+          boxSizing={"border-box"}
           overflowX="auto"
           justifyContent={"center"}
-          overflowY="hidden"
+          overflowY="hidden"          
         >
           <ScrollArea.Root width="full" size="xs">
             <ScrollArea.Viewport>

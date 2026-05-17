@@ -46,7 +46,7 @@ export const ImageDropZone = () => {
 
   return (
     <Stack
-      maxW={{ base: "md", sm: "xl", lgTo2xl: "2xl" }}
+      maxW={{ base: "lg", sm: "xl", lgTo2xl: "2xl" }}
       w={"full"}
       h={"full"}
       display={"flex"}
