@@ -17,6 +17,7 @@ import {
   parseColor,
   Portal,
   ScrollArea,
+  Slider,
   SliderValueChangeDetails,
   Text,
   useBreakpointValue,
@@ -30,14 +31,9 @@ import {
   LuClipboardCheck,
   LuCloudMoonRain,
   LuContrast,
-  LuCopyright,
-  LuFilter,
   LuFrame,
-  LuHam,
-  LuImageDown,
   LuImages,
   LuImageUpscale,
-  LuRectangleVertical,
   LuSun,
   LuType,
 } from "react-icons/lu";
@@ -251,52 +247,45 @@ const sidebarElements = (
           },
         },
         {
-          name: "Output Fekete",
-          icon: <LuClipboardCheck />,
-          min: 0,
-          max: 255,
-          step: 0.001,
-          resetValue: 0,
-          inputType: "slider",
-          defaultValue: getFilterValue(selectedImg, "outblack") ?? 0,
-          onChangeEnd: (e: SliderValueChangeDetails) => {
-            editFilters(selectedImg, "outblack", e.value);
-          },
-          onChange: (e: SliderValueChangeDetails) => {
-            if (webglFilterRef.current) {
-              uniforms.outblack_input = Number(e.value) / 255.0;
-            }
-          },
-          clearFunc: () => {
-            if (webglFilterRef.current) {
-              uniforms.outblack_input = 0;
-              editFilters(selectedImg, "outblack", 0);
-            }
-          },
-        },
-        {
-          name: "Output Fehér",
-          icon: <LuClipboardCheck />,
-          min: 0,
-          max: 255,
-          resetValue: 255,
-          step: 0.001,
-          inputType: "slider",
-          defaultValue: getFilterValue(selectedImg, `outwhite`) ?? 255,
-          onChangeEnd: (e: SliderValueChangeDetails) => {
-            editFilters(selectedImg, "outwhite", e.value);
-          },
-          onChange: (e: SliderValueChangeDetails) => {
-            if (webglFilterRef.current) {
-              uniforms.outwhite_input = Number(e.value) / 255.0;
-            }
-          },
-          clearFunc: () => {
-            if (webglFilterRef.current) {
-              uniforms.outwhite_input = 1;
-              editFilters(selectedImg, "outwhite", 255);
-            }
-          },
+          name: "Output",
+          inputType: "customElement",
+          options: (
+            <div>
+              <Slider.Root
+                maxW="md"
+                defaultValue={[
+                  getFilterValue(selectedImg, "outblack") ?? 0,
+                  getFilterValue(selectedImg, "outwhite") ?? 255,
+                ]}
+                max={255}
+                step={0.001}
+                min={0}
+                onValueChange={(e) => {
+                  const outBlackValue = e.value[0] ?? 0;
+                  const outWhiteValue = e.value[1] ?? 255;
+
+                  if (webglFilterRef.current) {
+                    uniforms.outblack_input = outBlackValue / 255.0;
+                    uniforms.outwhite_input = outWhiteValue / 255.0;
+                  }
+                }}
+                onValueChangeEnd={(e) => {
+                  const outBlackValue = e.value[0] ?? 0;
+                  const outWhiteValue = e.value[1] ?? 255;
+
+                  editFilters(selectedImg, "outblack", outBlackValue);
+                  editFilters(selectedImg, "outwhite", outWhiteValue);
+                }}
+              >
+                <Slider.Control>
+                  <Slider.Track>
+                    <Slider.Range />
+                  </Slider.Track>
+                  <Slider.Thumbs />
+                </Slider.Control>
+              </Slider.Root>
+            </div>
+          ),
         },
       ],
     },

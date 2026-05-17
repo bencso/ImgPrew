@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import InfoPopover from "./infopopover";
 import { LuArrowLeftToLine, LuArrowRightToLine } from "react-icons/lu";
 
-export default function LeftSide() {
+export const LeftSide = () => {
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true));

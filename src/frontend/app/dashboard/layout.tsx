@@ -1,14 +1,8 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import Loader from "@/components/loader";
 import {
   Box,
-  Button,
   Flex,
-  Icon,
-  IconButton,
-  Text,
   useBreakpointValue,
 } from "@chakra-ui/react";
 
@@ -18,7 +12,7 @@ import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import { PuffLoader } from "react-spinners";
+import { LeftSide} from "@/components/sidebar/leftside";
 
 export default function RootLayout({
   children,
@@ -31,30 +25,12 @@ export default function RootLayout({
   const path = usePathname();
   const isEditor = path === "/dashboard";
 
-  const LeftSide = dynamic(() => import("@/components/sidebar/leftside"), {
-    ssr: false,
-  });
-
   //#region breakPoint beállíátoks (isMd)
   const isMd = useBreakpointValue(
     { base: false, sm: false, md: false, lg: true, xl: true },
     { fallback: "md" },
   );
   //#endregion
-
-  if (isLoading) {
-    return (
-      <Box
-        h={"100vh"}
-        w={"100vw"}
-        position={"relative"}
-        zIndex={"max"}
-        bg={"white"}
-      >
-        <PuffLoader color="teal" />
-      </Box>
-    );
-  }
 
   useEffect(() => {
     if (sessionData.length > 0) setSelectedImage(sessionData[selectedImg].blob);
