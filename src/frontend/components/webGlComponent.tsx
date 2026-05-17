@@ -108,8 +108,7 @@ export default function WebGlComponent() {
   );
 
   const cropSaved = useSessionStore(
-    (state) =>
-      state.sessionData.find((si) => si.id === selectedImg)?.cropSave || false,
+    (state) => state.sessionData.find((si) => si.id === selectedImg)?.cropSave,
     shallow,
   );
 
@@ -195,6 +194,13 @@ export default function WebGlComponent() {
     };
   }, [selectedImg]);
 
+  useEffect(() => {
+    if (expandMode === "no" || (cropSaved === false && expandMode === "crop")) {
+      if (appRef.current) appRef.current.stage.removeChildren();
+      loadImage();
+    }
+  }, [expandMode, cropSaved]);
+
   const applyFilters = () => {
     if (!spriteRef.current || !appRef.current) return;
 
@@ -266,84 +272,6 @@ export default function WebGlComponent() {
       spriteRef.current.filters = [webglFilterRef.current];
     }
   };
-
-  useEffect(() => {
-    if (cropSaved === true) {
-      if (
-        !textureRef.current ||
-        !workPlaceRef.current ||
-        !appRef.current ||
-        !box ||
-        !spriteRef.current ||
-        !selectedScale ||
-        !imageSize ||
-        !box.x ||
-        !box.y ||
-        !box.height ||
-        !box.width ||
-        !textAndImagePlaceRef.current
-      )
-        return;
-
-      const imgW = textureRef.current.width;
-      const imgH = textureRef.current.height;
-
-      if (!imageSize) {
-        setImageSize(selectedImg, imgW, imgH);
-      }
-
-      const h = box.height;
-      const w = box.width;
-
-      const defaultImageScaleH =
-        imageSize.height / textAndImagePlaceRef.current?.clientHeight;
-      const defaultImageScaleW =
-        imageSize.width / textAndImagePlaceRef.current?.clientWidth;
-      const defaultImageScale = Math.min(
-        defaultImageScaleH,
-        defaultImageScaleW,
-      );
-      const canvasW = w * defaultImageScaleW;
-      const canvasH = h * defaultImageScaleH;
-
-      textureRef.current = new Texture({
-        source: textureRef.current.source,
-        orig: textureRef.current.orig,
-        trim: textureRef.current.trim,
-        frame: new Rectangle(
-          box.x * defaultImageScale,
-          box.y * defaultImageScale,
-          canvasW,
-          canvasH,
-        ),
-      });
-
-      const spriteCopy = new Sprite(textureRef.current);
-      appRef.current.stage.removeChildren();
-      appRef.current.stage.addChild(spriteCopy);
-      spriteRef.current = spriteCopy;
-
-      const scaleH = workPlaceRef.current.clientHeight / h;
-      const scaleW = workPlaceRef.current.clientWidth / w;
-      const scale = Math.min(scaleH, scaleW);
-
-      appRef.current.renderer.resize(w * scale, h * scale);
-      appRef.current.renderer.background.color = expandBackground;
-
-      spriteRef.current.height = h * scale;
-      spriteRef.current.width = w * scale;
-      spriteRef.current.anchor = 0.5;
-      spriteRef.current.x = appRef.current.canvas.width / 2;
-      spriteRef.current.y = appRef.current.canvas.height / 2;
-
-      textAndImagePlaceRef.current.style.height = h * scale + "px";
-      textAndImagePlaceRef.current.style.width = w * scale + "px";
-      applyFilters();
-    } else {
-      if (appRef.current) appRef.current.stage.removeChildren();
-      loadImage();
-    }
-  }, [cropSaved]);
 
   const updateLayout = () => {
     if (
@@ -421,24 +349,64 @@ export default function WebGlComponent() {
 
       appRef.current.renderer.background.color = "transparent";
 
-      setSelectedScale({
-        image: { height: canvasH, width: canvasW },
-        scale: scale,
-        position: { x: spX, y: spY },
-      });
-
-      console.log(borderSize?.x, borderSize?.y);
-
       if (
         expandMode === "crop" &&
-        cropSaved &&
-        box &&
-        textAndImagePlaceRef.current &&
-        borderSize?.x === 0 &&
-        borderSize.y === 0
+        cropSaved === true 
       ) {
-        const h = box.height ?? 0;
-        const w = box.width ?? 0;
+        if (
+          !textureRef.current ||
+          !workPlaceRef.current ||
+          !appRef.current ||
+          !box ||
+          !spriteRef.current ||
+          !selectedScale ||
+          !imageSize ||
+          !box.x ||
+          !box.y ||
+          !box.height ||
+          !box.width ||
+          !textAndImagePlaceRef.current
+        )
+          return;
+
+        const imgW = textureRef.current.width;
+        const imgH = textureRef.current.height;
+
+        if (!imageSize) {
+          setImageSize(selectedImg, imgW, imgH);
+        }
+
+        const h = box.height;
+        const w = box.width;
+
+        const defaultImageScaleH =
+          imageSize.height / textAndImagePlaceRef.current?.clientHeight;
+        const defaultImageScaleW =
+          imageSize.width / textAndImagePlaceRef.current?.clientWidth;
+        const defaultImageScale = Math.min(
+          defaultImageScaleH,
+          defaultImageScaleW,
+        );
+        const canvasW = w * defaultImageScaleW;
+        const canvasH = h * defaultImageScaleH;
+
+        textureRef.current = new Texture({
+          source: textureRef.current.source,
+          orig: textureRef.current.orig,
+          trim: textureRef.current.trim,
+          frame: new Rectangle(
+            box.x * defaultImageScale,
+            box.y * defaultImageScale,
+            canvasW,
+            canvasH,
+          ),
+        });
+
+        const spriteCopy = new Sprite(textureRef.current);
+        appRef.current.stage.removeChildren();
+        appRef.current.stage.addChild(spriteCopy);
+        spriteRef.current = spriteCopy;
+
         const scaleH = workPlaceRef.current.clientHeight / h;
         const scaleW = workPlaceRef.current.clientWidth / w;
         const scale = Math.min(scaleH, scaleW);
@@ -454,29 +422,34 @@ export default function WebGlComponent() {
 
         textAndImagePlaceRef.current.style.height = h * scale + "px";
         textAndImagePlaceRef.current.style.width = w * scale + "px";
-        setSelectedScale({
-          image: { height: canvasH, width: canvasW },
-          scale: scale,
-          position: { x: spX, y: spY },
-        });
-        return;
+        applyFilters();
       }
 
       if (
-        expandMode === "crop" &&
-        cropSaved &&
         borderSize &&
-        borderSize.x &&
+        textAndImagePlaceRef.current &&
         borderSize.y &&
+        borderSize.x &&
         borderSize.x > 0 &&
-        borderSize.y > 0 &&
-        box &&
-        box.height &&
-        box.y &&
-        textAndImagePlaceRef.current
+        borderSize.y > 0
       ) {
-        const h = box.height ?? 0;
-        const w = box.width ?? 0;
+        let h = imageSize?.height ?? 0;
+        let w = imageSize?.width ?? 0;
+        if (
+          expandMode === "crop" &&
+          cropSaved === true &&
+          borderSize &&
+          borderSize.x &&
+          borderSize.y &&
+          borderSize.x > 0 &&
+          borderSize.y > 0 &&
+          box &&
+          box.height &&
+          box.width
+        ) {
+          h = box.height;
+          w = box.width;
+        }
 
         const targetWidth = workPlaceRef.current.clientWidth - +borderSize.x;
         const targetHeight = workPlaceRef.current.clientHeight - +borderSize.y;
@@ -496,41 +469,6 @@ export default function WebGlComponent() {
 
         textAndImagePlaceRef.current.style.height = areaH + "px";
         textAndImagePlaceRef.current.style.width = areaW + "px";
-        setSelectedScale({
-          image: { height: canvasH, width: canvasW },
-          scale: scale,
-          position: { x: spX, y: spY },
-        });
-        return;
-      }
-
-      if(borderSize && textAndImagePlaceRef.current && borderSize.y && borderSize.x && borderSize.x > 0 && borderSize.y > 0){
-         const h = imageSize?.height ?? 0;
-        const w = imageSize?.width ?? 0;
-
-        const targetWidth = workPlaceRef.current.clientWidth - +borderSize.x;
-        const targetHeight = workPlaceRef.current.clientHeight - +borderSize.y;
-        const targetScale = Math.min(targetWidth / w, targetHeight / h);
-
-        spriteRef.current.height = h * targetScale;
-        spriteRef.current.width = w * targetScale;
-
-        const areaW = w * targetScale + +borderSize.x;
-        const areaH = h * targetScale + +borderSize.y;
-
-        appRef.current.renderer.background.color = expandBackground;
-        appRef.current.renderer.resize(areaW, areaH);
-
-        spriteRef.current.x = appRef.current.canvas.width / 2;
-        spriteRef.current.y = appRef.current.canvas.height / 2;
-
-        textAndImagePlaceRef.current.style.height = areaH + "px";
-        textAndImagePlaceRef.current.style.width = areaW + "px";
-        setSelectedScale({
-          image: { height: canvasH, width: canvasW },
-          scale: scale,
-          position: { x: spX, y: spY },
-        });
       }
 
       if (
@@ -570,10 +508,6 @@ export default function WebGlComponent() {
     box,
     cropSaved,
   ]);
-
-  useEffect(() => {
-    applyFilters();
-  }, [selectedImg]);
 
   useEffect(() => {
     window.addEventListener("resize", () => {
