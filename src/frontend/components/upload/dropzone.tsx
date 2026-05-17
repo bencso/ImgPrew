@@ -48,7 +48,7 @@ export const ImageDropZone = () => {
     <Stack
       maxW={{ base: "md", sm: "xl", lgTo2xl: "2xl" }}
       w={"full"}
-      h={"100vh"}
+      h={"full"}
       display={"flex"}
       flexDirection={"column"}
       justifyContent={"center"}
@@ -60,35 +60,26 @@ export const ImageDropZone = () => {
         <FileUpload.HiddenInput />
         <FileUpload.Dropzone
           w={"full"}
-          backgroundColor={"teal.subtle/30"}
+          backgroundColor={"teal.subtle"}
+          borderRadius={"l3"}
+          border={"1px solid"}
+          borderColor={"teal.muted"}
           transition={"all 0.2s ease-in-out"}
           cursor={"pointer"}
-          _hover={{ backgroundColor: "teal.subtle/40" }}
+          _hover={{ backgroundColor: "teal.muted" }}
         >
           <Icon size="2xl" color="teal.fg">
             <LuUpload />
           </Icon>
           <FileUpload.DropzoneContent>
             <Box>Húzza be a feltölteni kívánt fájlokat</Box>
-            <Box color="fg.muted">
+            <Box color="fg.muted" fontSize={"xs"} fontWeight={"light"}>
               {ACCEPTED_FILES.map((file) => {
                 return file.replaceAll("image/", "");
               }).join(", ")}
             </Box>
           </FileUpload.DropzoneContent>
         </FileUpload.Dropzone>
-        {fileUpload.acceptedFiles.length > 1 && (
-          <Button
-            as="div"
-            w={"full"}
-            gap={3}
-            onClick={() => fileUpload.clearFiles()}
-            colorPalette="red"
-            variant="surface"
-          >
-            Minden törlés
-          </Button>
-        )}
         <Box overflowY={"scroll"} scrollbar={"hidden"} maxH={350} w={"full"}>
           <FileUploadList />
         </Box>
@@ -109,9 +100,10 @@ export const ImageDropZone = () => {
               });
           }}
           colorPalette="teal"
+          borderRadius={"l3"}
           variant="surface"
           loading={isLoading}
-          mt={2}
+          mt={3}
           disabled={isLoading}
           spinner={<BeatLoader size={12} color={"#004d40"} />}
         >

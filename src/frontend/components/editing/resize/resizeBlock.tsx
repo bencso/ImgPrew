@@ -230,25 +230,26 @@ export default function ResizeBlock() {
             value="no"
             w={"full"}
             display={"flex"}
+            rounded="l3"
             justifyContent={"center"}
             disabled={expandMode === "no" || expandMode === "border"}
           >
-            <LuBotOff />
             No
           </Tabs.Trigger>
           <Tabs.Trigger
             value="crop"
             w={"full"}
+            rounded="l3"
             display={"flex"}
             justifyContent={"center"}
             disabled={expandMode === "crop" || expandMode === "border" || !isMd}
           >
-            <LuMaximize2 />
             Crop
           </Tabs.Trigger>
           <Tabs.Trigger
             value="expand"
             w={"full"}
+            rounded="l3"
             display={"flex"}
             justifyContent={"center"}
             disabled={
@@ -257,7 +258,6 @@ export default function ResizeBlock() {
               cropSaved === true
             }
           >
-            <LuExpand />
             Resize
           </Tabs.Trigger>
           <Tabs.Indicator rounded="l2" />

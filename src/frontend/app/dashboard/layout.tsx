@@ -2,7 +2,15 @@
 
 import dynamic from "next/dynamic";
 import Loader from "@/components/loader";
-import { Box, Flex, useBreakpointValue } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  Icon,
+  IconButton,
+  Text,
+  useBreakpointValue,
+} from "@chakra-ui/react";
 import { LeftSide } from "@/components/sidebar/leftside";
 import SideBar from "@/components/editing/sidebar";
 import BottomBar from "@/components/editing/moreImagesBottomBar";
@@ -10,6 +18,7 @@ import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { FaFileExport } from "react-icons/fa";
 
 export default function RootLayout({
   children,
@@ -37,27 +46,13 @@ export default function RootLayout({
   return (
     <Flex h={"100vh"} direction={isMd ? "row" : "column"} w={"full"}>
       <LeftSide />
-      <Flex h="full" w="full" minW="0" minH={"0"} flex="1" direction="column">
-        <Box p={4} h={"full"} w={"full"}>
+      <Flex h="100vh" w="full" minW="0" minH={"0"} direction="column">
+        <Flex px={12} h={"full"} gap={7} w={"full"} direction={"row"} alignItems={"center"}>
           {children}
-        </Box>
+          {selectedImage && isEditor && <SideBar />}
+        </Flex>
         <BottomBar />
       </Flex>
-      {(selectedImage &&
-        isEditor) && (
-          <Flex
-            w={isMd ? "fit" : "full"}
-            h={!isMd ? "fit" : "full"}
-            minH="0"
-            minW="0"
-            flexShrink={0}
-            direction={isMd ? "column" : "row"}
-            borderLeftWidth={isMd ? "1px" : 0}
-            borderColor="border.disabled"
-          >
-            <SideBar />
-          </Flex>
-        )}
     </Flex>
   );
 }

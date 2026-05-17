@@ -2,12 +2,19 @@
 import { EditItemProp, FilterProps } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
+import { TbAdjustments, TbGradienter, TbShadow, TbTemperature } from "react-icons/tb";
 import {
+  Box,
+  Button,
   ColorPicker,
+  Flex,
   HStack,
   parseColor,
   Portal,
+  ScrollArea,
   SliderValueChangeDetails,
+  Text,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import { Filter, Sprite } from "pixi.js";
 import { RefObject, useMemo } from "react";
@@ -23,6 +30,7 @@ import {
   LuFrame,
   LuHam,
   LuImageDown,
+  LuImages,
   LuImageUpscale,
   LuRectangleVertical,
   LuSun,
@@ -36,6 +44,8 @@ import ResizeBlock from "./resize/resizeBlock";
 import TextBlock from "./text/textBlock";
 import ChannelMixerBlock from "./channelmixer/channelmixer";
 import { getChannelOffsets } from "../webGlComponent";
+import { FaFileExport } from "react-icons/fa";
+import { HiAdjustments } from "react-icons/hi";
 
 const sidebarElements = (
   exportAllDataForImage: any,
@@ -89,7 +99,7 @@ const sidebarElements = (
     },
     {
       function: "Szűrők",
-      icon: <LuFilter />,
+      icon: <HiAdjustments />,
       inputs: [
         {
           name: "Fényerő",
@@ -167,7 +177,7 @@ const sidebarElements = (
     },
     {
       function: "Levels",
-      icon: <LuRectangleVertical />,
+      icon: <TbShadow />,
       inputs: [
         {
           name: "Shadows",
@@ -287,7 +297,7 @@ const sidebarElements = (
     },
     {
       function: "HSV",
-      icon: <LuHam />,
+      icon: <TbGradienter />,
       inputs: [
         {
           name: "Hue",
@@ -362,7 +372,7 @@ const sidebarElements = (
     },
     {
       function: "Channel mixer",
-      icon: <LuRectangleVertical />,
+      icon: <TbAdjustments />,
       inputs: [
         {
           name: "",
@@ -541,7 +551,7 @@ const sidebarElements = (
     },
     {
       function: "Egyéb",
-      icon: <LuRectangleVertical />,
+      icon: <TbTemperature />,
       inputs: [
         {
           name: "Színhőmérséklet",
@@ -630,7 +640,7 @@ const sidebarElements = (
     },
     {
       function: "Overlay kép",
-      icon: <LuCopyright />,
+      icon: <LuImages />,
       inputs: [
         {
           name: "",
@@ -724,31 +734,6 @@ const sidebarElements = (
         },
       ],
     },
-    {
-      function: "Exportálás",
-      icon: <LuImageDown />,
-      inputs: [
-        {
-          name: "Fájlkiterjesztés",
-          inputType: "radio",
-          onChange: (e: any) => {
-            setExportFileExtension(
-              selectedImg,
-              e.currentTarget.textContent.trim(),
-            );
-          },
-          defaultValue: selectedExtension,
-          options: ["jpg", "jpeg", "png", "webp", "avif", "tiff"],
-        },
-        {
-          name: "Kép exportálása",
-          inputType: "submit",
-          onChange: () => {
-            const data = exportAllDataForImage(selectedImg);
-          },
-        },
-      ],
-    },
   ].filter(Boolean) as EditItemProp[];
 };
 
@@ -764,7 +749,6 @@ export default function SideBar() {
   } = useWorkSession();
 
   const {
-    sessionData,
     setExportFileExtension,
     exportAllDataForImage,
     editFilters,
@@ -803,6 +787,13 @@ export default function SideBar() {
     ? webglFilterRef.current.resources.filterUniforms.uniforms
     : null;
 
+  //#region breakPoint beállíátoks (isMd)
+  const isMd = useBreakpointValue(
+    { base: false, sm: false, md: false, lg: true, xl: true },
+    { fallback: "md" },
+  );
+  //#endregion
+
   const editItems = useMemo(() => {
     return sidebarElements(
       exportAllDataForImage,
@@ -838,10 +829,52 @@ export default function SideBar() {
 
   //#endregion
   return (
-    <>
-      {editItems.map((item, index) => (
-        <EditItem key={index} items={item} />
-      ))}
-    </>
+    <Flex maxH="80%" w={"fit"} direction={isMd ? "column" : "row"} gap={2}>
+      <ScrollArea.Root maxH="60%"  w={"fit"}>
+        <ScrollArea.Viewport
+          css={{
+            "--scroll-shadow-size": "4rem",
+            maskImage: "linear-gradient(#000, #000)",
+            "&[data-overflow-y]": {
+              maskImage:
+                "linear-gradient(#000,#000,transparent 0,#000 var(--scroll-shadow-size),#000 calc(100% - var(--scroll-shadow-size)),transparent)",
+              "&[data-at-top]": {
+                maskImage:
+                  "linear-gradient(180deg,#000 calc(100% - var(--scroll-shadow-size)),transparent)",
+              },
+              "&[data-at-bottom]": {
+                maskImage:
+                  "linear-gradient(0deg,#000 calc(100% - var(--scroll-shadow-size)),transparent)",
+              },
+            },
+          }}
+        
+        >
+          <ScrollArea.Content spaceY="2" p={2} boxSizing={"border-box"} w={"fit"}>
+            {editItems.map((item, index) => (
+              <EditItem key={index} items={item} />
+            ))}
+          </ScrollArea.Content>
+        </ScrollArea.Viewport>
+      </ScrollArea.Root>
+    <Box p={2}>
+        <Button
+        w="80px"
+        h="80px"
+        variant={"surface"}
+        rounded={"xl"}
+        display="flex"
+        flexDirection="column"
+        alignItems="center"
+        justifyContent="center"
+        colorPalette={"teal"}
+      >
+        <FaFileExport size={"16"} />
+        <Text fontSize="xx-small" textAlign={"center"} mt={0} w={"full"}>
+          Exportálás
+        </Text>
+      </Button>
+    </Box>
+    </Flex>
   );
 }

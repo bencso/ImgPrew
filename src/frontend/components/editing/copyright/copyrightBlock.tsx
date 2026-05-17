@@ -82,17 +82,17 @@ export default function CopyrightBlock() {
           {!copyrightImage ? (
             <FileUpload.Dropzone
               w={"full"}
-              backgroundColor={"teal.subtle/30"}
+              backgroundColor={"teal.subtle"}
               transition={"all 0.2s ease-in-out"}
               cursor={"pointer"}
-              _hover={{ backgroundColor: "teal.subtle/40" }}
+              _hover={{ backgroundColor: "teal.subtle/30" }}
             >
               <Icon size="2xl" color="teal.fg">
                 <LuCopyright />
               </Icon>
               <FileUpload.DropzoneContent>
                 <Box>Húzza be a feltölteni kívánt fájlokat</Box>
-                <Box color="fg.muted">
+                <Box color="fg.muted" fontSize={"xs"} fontWeight={"light"}>
                   {ACCEPTED_FILES.map((file) => {
                     return file.replaceAll("image/", "");
                   }).join(", ")}
@@ -114,7 +114,6 @@ export default function CopyrightBlock() {
                         clearCopyrightImage(selectedImg);
                         setCopyrightImageRef(null);
                       }}
-                      color={"red.400"}
                     />
                   </FileUpload.Item>
                 )}

@@ -26,13 +26,6 @@ import { LuFileUp, LuRotateCcw } from "react-icons/lu";
 import { BeatLoader } from "react-spinners";
 import ImageIcon from "../icons/imageIcon";
 
-const activeStyle = {
-  borderLeftColor: "teal.fg",
-  bg: "bg.emphasized",
-  color: "fg.default",
-  "& svg": { color: "teal.fg" },
-};
-
 //#region SIDEBAR ITEM
 export const EditItem = ({ items }: { items: EditItemProp }) => {
   const isMd = useBreakpointValue(
@@ -48,46 +41,25 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
       onOpenChange={(e) => setOpen(e.open)}
       positioning={{ placement: isMd ? "left" : "top-start" }}
     >
-      <Popover.Trigger asChild>
-        <Box
-          p="4"
-          display={"flex"}
-          borderBottomWidth={isMd ? "1px" : "0"}
-          borderTopWidth={isMd ? "0" : "2px"}
-          borderColor="border.disabled"
-          textDecoration={"none"}
-          alignItems={"center"}
-          flexDirection={isMd ? "column" : "row"}
-          gap={4}
-          justifyContent={"center"}
-          h={"full"}
+      <Popover.Trigger asChild w="80px" h="80px">
+        <Button
           w={"full"}
-          minH={0}
-          px={0}
-          borderRightWidth="2px"
-          borderLeftColor={"border.disabled"}
-          borderRadius={0}
-          color="fg.muted"
-          _hover={{ bg: "bg.muted" }}
-          _focusVisible={activeStyle}
-          _active={activeStyle}
-          tabIndex={0}
-          {...(open && activeStyle)}
-          as={"button"}
+          h={"full"}
+          variant={"surface"}
+          rounded={"xl"}
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          p={2}
+          gap={1}
+          border={"0"}
         >
-          {!isMd && items.icon}
-          {isMd && (
-            <Text
-              rotate={isMd ? "90" : "0"}
-              fontSize={"xx-small"}
-              w="fit"
-              textWrap={"wrap"}
-              color={"fg.muted"}
-            >
-              {items.function}
-            </Text>
-          )}
-        </Box>
+          {isMd && items.icon}
+          <Text fontSize="xx-small" textWrap={"wrap"} textAlign={"center"} mt={0} w={"full"}>
+            {items.function}
+          </Text>
+        </Button>
       </Popover.Trigger>
       <Portal>
         <Popover.Positioner>

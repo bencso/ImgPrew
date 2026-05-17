@@ -22,7 +22,6 @@ export function ColorModeProvider(props: ColorModeProviderProps) {
       enableSystem
       defaultTheme="system"
       attribute="class"
-      disableTransitionOnChange
       {...props}
     />
   );

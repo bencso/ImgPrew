@@ -20,23 +20,26 @@ export const FileUploadList = () => {
       }}
       scrollbar={"hidden"}
       gridTemplateColumns={{
-        smDown: "repeat(2, minmax(0,1fr))",
-        smToXl: "repeat(2, minmax(0, 1fr))",
-        xl: "repeat(3, minmax(0, 1fr))",
+        smDown: "repeat(1, minmax(0,1fr))",
+        smToXl: "repeat(1, minmax(0, 1fr))",
+        xl: "repeat(2, minmax(0, 1fr))",
       }}
       gap={3}
     >
       {files.map((file, index) => (
         <FileUpload.Item
+          cursor={"default"}
           key={`${file.name}-${index}`}
           file={file}
-          p={3}
+          ps={3}
+          pe={0}
+          py={0}
           w={"full"}
           borderWidth="1px"
-          borderRadius="md"
+          borderRadius={"l3"}
           justifyContent={"center"}
           position="relative"
-          _hover={{ bg: "bg.muted" }}
+          overflow={"hidden"}
         >
           <Box
             display="flex"
@@ -45,22 +48,29 @@ export const FileUploadList = () => {
             w={"100%"}
             justifyContent={"center"}
             gap={2}
+            py={3}
           >
-            <FileUpload.ItemName fontSize={"xs"} maxW={"90%"} />
-            <FileUpload.ItemSizeText/>
+            <FileUpload.ItemName fontSize={"sm"} maxW={"90%"} />
+            <FileUpload.ItemSizeText color={"GrayText"} fontWeight={"light"} />
           </Box>
 
-        
-            <FileUpload.ItemDeleteTrigger
-              minH={10}
-              minW={10}
-              borderRadius="full"
-              color="fg.error"
-              _hover={{ color: "fg.error/50" }}
-            >
-              <LuTrash size={14} />
-            </FileUpload.ItemDeleteTrigger>
-        
+          <FileUpload.ItemDeleteTrigger
+            minH={10}
+            minW={10}
+            h={"full"}
+            bg={"red.subtle"}
+            borderLeft={"2px solid"}
+            borderColor={"red.muted"}
+            transition={"300ms all"}
+            color="red.border"
+            _hover={{
+              color: "red.border",
+              backgroundColor: "red.muted",
+              borderColor: "red.muted",
+            }}
+          >
+            <LuTrash size={14} />
+          </FileUpload.ItemDeleteTrigger>
         </FileUpload.Item>
       ))}
     </FileUpload.ItemGroup>
