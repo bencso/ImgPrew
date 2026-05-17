@@ -213,7 +213,7 @@ export default function ImageWorkPlace() {
                   (expandSize?.height ?? 1080) * (selectedScale?.scale ?? 1),
               }}
               position={{
-                x: box?.x ?? 0,
+                x: box?.x ?? 0 ,
                 y: box?.y ?? 0,
               }}
               maxHeight={textAndImagePlaceRef.current?.clientHeight}

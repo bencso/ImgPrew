@@ -1,6 +1,13 @@
 import { SliderValueChangeDetails } from "@chakra-ui/react";
 import { UUID } from "crypto";
-import { Application, Filter, Renderer, Sprite, Texture, TextureSource } from "pixi.js";
+import {
+  Application,
+  Filter,
+  Renderer,
+  Sprite,
+  Texture,
+  TextureSource,
+} from "pixi.js";
 import {
   Dispatch,
   HTMLInputTypeAttribute,
@@ -102,6 +109,7 @@ export interface CustomImage {
     width: number;
     height: number;
   };
+  expandSizePadding?: number | undefined;
   //CROP BOX
   box?: CropBox;
   cropSave?: boolean;
@@ -147,7 +155,7 @@ export interface FilterProps {
   red_channel_offset: number;
   green_channel_offset: number;
   blue_channel_offset: number;
-  vibrance: number
+  vibrance: number;
 }
 //#endregion
 
@@ -240,6 +248,7 @@ export interface SessionStore {
       width: number;
       height: number;
     },
+    padding?: number,
   ) => void;
   //#endregion
 
@@ -330,9 +339,9 @@ export interface WorkSessionContextProps {
   appRef: RefObject<Application<Renderer> | null>;
   canvasRef: RefObject<HTMLCanvasElement | null>;
   textAndImagePlaceRef: RefObject<HTMLDivElement | null>;
-  selectedChannel: string ;
+  selectedChannel: string;
   setSelectedChannel: Dispatch<SetStateAction<string>>;
-   webglFilterRef: RefObject<Filter | null>;
+  webglFilterRef: RefObject<Filter | null>;
 }
 //#endregion
 
@@ -341,7 +350,7 @@ export interface FunctionProp {
   name: string;
   inputType: InputTypes | HTMLInputTypeAttribute;
   options?: any[] | HTMLElement | ReactNode | null;
-   onChange?: (e: SliderValueChangeDetails | any) => void;
+  onChange?: (e: SliderValueChangeDetails | any) => void;
   onChangeEnd?: (e: SliderValueChangeDetails | any) => void;
   defaultValue?: string | null;
   min?: number | null;

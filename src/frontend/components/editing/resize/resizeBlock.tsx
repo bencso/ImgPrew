@@ -8,6 +8,9 @@ import {
   Flex,
   HStack,
   Icon,
+  Input,
+  InputGroup,
+  NumberInput,
   parseColor,
   Portal,
   RadioCard,
@@ -15,70 +18,90 @@ import {
   Tabs,
   useBreakpointValue,
 } from "@chakra-ui/react";
-import { Rectangle, Sprite, Texture } from "pixi.js";
-import { useEffect } from "react";
+import { FaPinterest } from "react-icons/fa";
 import {
   LuBotOff,
   LuExpand,
   LuFacebook,
   LuInstagram,
   LuMaximize2,
-  LuTwitter,
+  LuX,
 } from "react-icons/lu";
 import { shallow } from "zustand/shallow";
 
 const sizesDatas = [
   {
-    name: "Instagram",
+    name: "Story",
+    icon: <LuInstagram size={20} />,
+    sizes: { width: 1080, height: 1920 },
+  },
+  {
+    name: "Square",
     icon: <LuInstagram size={20} />,
     sizes: { width: 1080, height: 1080 },
   },
   {
-    name: "Instagram",
+    name: "Portrait",
     icon: <LuInstagram size={20} />,
     sizes: { width: 1080, height: 1350 },
   },
   {
-    name: "Instagram",
+    name: "Landscape",
     icon: <LuInstagram size={20} />,
     sizes: { width: 1080, height: 566 },
   },
   {
-    name: "Facebook",
+    name: "Post",
     icon: <LuFacebook size={20} />,
-    sizes: { width: 1200, height: 630 },
+    sizes: { width: 1200, height: 628 },
   },
   {
-    name: "Facebook",
+    name: "Feed Landscape",
     icon: <LuFacebook size={20} />,
-    sizes: { width: 1200, height: 1200 },
+    sizes: { width: 1280, height: 720 },
   },
   {
-    name: "Twitter",
-    icon: <LuTwitter size={20} />,
-    sizes: { width: 1200, height: 675 },
+    name: "Feed Portrait",
+    icon: <LuFacebook size={20} />,
+    sizes: { width: 720, height: 1280 },
   },
   {
-    name: "Twitter",
-    icon: <LuTwitter size={20} />,
+    name: "Post",
+    icon: <LuX size={20} />,
+    sizes: { width: 1200, height: 670 },
+  },
+  {
+    name: "Portrait",
+    icon: <LuX size={20} />,
+    sizes: { width: 720, height: 1280 },
+  },
+  {
+    name: "Pin",
+    icon: <FaPinterest size={20} />,
+    sizes: { width: 735, height: 1102 },
+  },
+  {
+    name: "Standard Pins",
+    icon: <FaPinterest size={20} />,
+    sizes: { width: 1080, height: 1620 },
+  },
+  {
+    name: "Pin Square",
+    icon: <FaPinterest size={20} />,
     sizes: { width: 1080, height: 1080 },
+  },
+  {
+    name: "Pin Vertical",
+    icon: <FaPinterest size={20} />,
+    sizes: { width: 1080, height: 1920 },
   },
 ];
 
 export default function ResizeBlock() {
-  const {
-    setExpandMode,
-    setExpandBackground,
-    setExpandSize,
-    setCropSave,
-  } = useSessionStore();
-  const {
-    appRef,
-    spriteRef,
-    textureRef,
-    workPlaceRef,
-    selectedImg,
-  } = useWorkSession();
+  const { setExpandMode, setExpandBackground, setExpandSize, setCropSave } =
+    useSessionStore();
+  const { appRef, spriteRef, textureRef, workPlaceRef, selectedImg } =
+    useWorkSession();
 
   //#region breakPoint beállíátoks (isMd)
   const isMd = useBreakpointValue(
@@ -113,6 +136,11 @@ export default function ResizeBlock() {
     shallow,
   );
 
+  const expandPadding = useSessionStore(
+    (state) =>
+      state.sessionData.find((si) => si.id === selectedImg)?.expandSizePadding,
+    shallow,
+  );
 
   return (
     <Box>
@@ -150,7 +178,7 @@ export default function ResizeBlock() {
                       key={
                         item.sizes.width + "-" + item.sizes.height + "-" + index
                       }
-                      value={item.sizes.width + "-" + item.sizes.height}
+                      value={item.sizes.width + "-" + item.sizes.height + "-"}
                     >
                       <RadioCard.ItemHiddenInput />
                       <RadioCard.ItemControl
@@ -162,8 +190,8 @@ export default function ResizeBlock() {
                         <Icon fontSize="lg" color="teal.100">
                           {item.icon}
                         </Icon>
-                        <RadioCard.ItemText>
-                          {item.sizes.width + "x" + item.sizes.height}
+                        <RadioCard.ItemText w={"fit"} lineClamp={"1"}>
+                          {item.name}
                         </RadioCard.ItemText>
                       </RadioCard.ItemControl>
                     </RadioCard.Item>
@@ -230,7 +258,7 @@ export default function ResizeBlock() {
             }
           >
             <LuExpand />
-            Expand
+            Resize
           </Tabs.Trigger>
           <Tabs.Indicator rounded="l2" />
         </Tabs.List>
@@ -247,6 +275,35 @@ export default function ResizeBlock() {
           </Button>
         </Tabs.Content>
         <Tabs.Content value="expand">
+          <NumberInput.Root
+            step={1}
+            mb={3}
+            allowMouseWheel
+            disabled={
+              expandMode === "expand" &&
+              !expandSize?.height &&
+              !expandSize?.width
+            }
+            max={200}
+            value={expandPadding ? String(expandPadding) : "0"}
+            onChange={(e: any) => {
+              let value = Number(e.target.value) ?? 0;
+              if (value > 200) value = 200;
+              if (expandSize) {
+                setExpandSize(
+                  selectedImg,
+                  { width: expandSize.width, height: expandSize.height },
+                  value,
+                );
+              }
+            }}
+          >
+            <NumberInput.Control />
+            <InputGroup startElement={"Padding"}>
+              <NumberInput.Input ps={"80px"} />
+            </InputGroup>
+          </NumberInput.Root>
+
           <ColorPicker.Root
             defaultValue={
               expandBackground

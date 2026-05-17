@@ -112,6 +112,12 @@ export default function WebGlComponent() {
     shallow,
   );
 
+  const expandPadding = useSessionStore(
+    (state) =>
+      state.sessionData.find((si) => si.id === selectedImg)?.expandSizePadding,
+    shallow,
+  );
+
   useEffect(() => {
     async function initApp() {
       const app = new Application();
@@ -296,37 +302,39 @@ export default function WebGlComponent() {
       if (!textAndImagePlaceRef.current || !textureRef.current || !imageSize)
         return;
 
-      const h = expandSize?.height ?? imageSize.height;
-      const w = expandSize?.width ?? imageSize.width;
+      const h = expandSize.height;
+      const w = expandSize.width;
 
-      if (!areaW || !areaH || !w || !h || !textAndImagePlaceRef.current) return;
+      const padding = expandPadding ?? 0;
+      const maxTargetWidth = workPlaceRef.current.clientWidth - padding;
+      const maxTargetHeight = workPlaceRef.current.clientHeight - padding;
+      const canvasScale = Math.min(maxTargetWidth / w, maxTargetHeight / h);
 
-      const canvasScale = Math.min(areaW / w, areaH / h);
+      const canvasW = w * canvasScale;
+      const canvasH = h * canvasScale;
 
-      const canvasW = Math.round(w * canvasScale);
-      const canvasH = Math.round(h * canvasScale);
+      const areaW = canvasW + padding;
+      const areaH = canvasH + padding;
 
-      appRef.current.renderer.resize(canvasW, canvasH);
       appRef.current.renderer.background.color = expandBackground;
+      appRef.current.renderer.resize(areaW, areaH);
 
       const imgW = textureRef.current.width;
       const imgH = textureRef.current.height;
-
       const imageScale = Math.min(canvasW / imgW, canvasH / imgH);
 
-      let spW = Math.round(imgW * imageScale);
-      let spH = Math.round(imgH * imageScale);
+      const spW = Math.round(imgW * imageScale);
+      const spH = Math.round(imgH * imageScale);
 
       spriteRef.current.width = spW;
       spriteRef.current.height = spH;
 
-      textAndImagePlaceRef.current.style.height =
-        (appRef.current.renderer.height ?? spH) + "px";
-      textAndImagePlaceRef.current.style.width =
-        (appRef.current.renderer.width ?? spW) + "px";
-
       spriteRef.current.x = appRef.current.canvas.width / 2;
       spriteRef.current.y = appRef.current.canvas.height / 2;
+      if (textAndImagePlaceRef.current) {
+        textAndImagePlaceRef.current.style.width = `${areaW}px`;
+        textAndImagePlaceRef.current.style.height = `${areaH}px`;
+      }
 
       setSelectedScale({
         image: { height: imgH, width: imgW },
@@ -349,10 +357,7 @@ export default function WebGlComponent() {
 
       appRef.current.renderer.background.color = "transparent";
 
-      if (
-        expandMode === "crop" &&
-        cropSaved === true 
-      ) {
+      if (expandMode === "crop" && cropSaved === true) {
         if (
           !textureRef.current ||
           !workPlaceRef.current ||

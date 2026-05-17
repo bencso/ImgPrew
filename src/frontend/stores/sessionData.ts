@@ -466,10 +466,10 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         ),
       }));
     },
-    setExpandSize: (id: number, size: { width: number; height: number }) => {
+    setExpandSize: (id: number, size: { width: number; height: number }, padding?: number) => {
       set((state) => ({
         sessionData: state.sessionData.map((img: any) =>
-          img.id === id ? { ...img, expandSize: size } : img,
+          img.id === id ? { ...img, expandSize: size, expandSizePadding: padding } : img,
         ),
       }));
     },
