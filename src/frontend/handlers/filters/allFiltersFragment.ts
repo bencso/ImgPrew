@@ -5,14 +5,6 @@ import { levelsFragment } from "./levels";
 import { temperatureFragment } from "./temperatureFragment";
 import { vibranceFragment } from "./vibranceFragment";
 
-/*
-Temperature/Tint
-Exposure
-Contrast
-Brightness
-Hue/Saturation/Value
-*/
-
 export const allFiltersFragment = `#version 300 es
   precision highp float;
 
@@ -67,11 +59,11 @@ export const allFiltersFragment = `#version 300 es
     vec3 rgb = color.rgb;
 
     ${temperatureFragment}
+    ${channelMixerFragment}
     ${brightnessExposureContrastFragment}
-    ${hueFragment}
     ${levelsFragment}
     ${vibranceFragment}
-    ${channelMixerFragment}
+    ${hueFragment}
 
     rgb = clamp(rgb, 0.0, 1.0);
 

@@ -234,7 +234,7 @@ export default function ResizeBlock() {
             justifyContent={"center"}
             disabled={expandMode === "no" || expandMode === "border"}
           >
-            No
+            Nincs
           </Tabs.Trigger>
           <Tabs.Trigger
             value="crop"
@@ -244,7 +244,7 @@ export default function ResizeBlock() {
             justifyContent={"center"}
             disabled={expandMode === "crop" || expandMode === "border" || !isMd}
           >
-            Crop
+            Kivágás
           </Tabs.Trigger>
           <Tabs.Trigger
             value="expand"
@@ -258,7 +258,7 @@ export default function ResizeBlock() {
               cropSaved === true
             }
           >
-            Resize
+            Átméretezés
           </Tabs.Trigger>
           <Tabs.Indicator rounded="l2" />
         </Tabs.List>

@@ -1,4 +1,4 @@
-import { SliderValueChangeDetails } from "@chakra-ui/react";
+import { HTMLChakraProps, JsxStyleProps, SliderValueChangeDetails, SystemStyleObject } from "@chakra-ui/react";
 import { UUID } from "crypto";
 import {
   Application,
@@ -359,6 +359,7 @@ export interface FunctionProp {
   icon?: ReactNode | null;
   clearFunc?: () => void;
   resetValue?: number;
+  style? : SystemStyleObject
 }
 //#endregion
 
@@ -367,6 +368,7 @@ export interface EditItemProp {
   function: string;
   icon?: ReactNode;
   inputs: FunctionProp[];
+  hide?: boolean;
 }
 //#endregion
 

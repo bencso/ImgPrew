@@ -87,8 +87,9 @@ const sidebarElements = (
   uniforms: any,
 ) => {
   return [
-    captionSamples.length > 0 && {
+    {
       function: "Kép szöveg",
+      hide: captionSamples.length <= 0,
       icon: <LuCaptions />,
       inputs: [
         {
@@ -104,7 +105,6 @@ const sidebarElements = (
       inputs: [
         {
           name: "Fényerő",
-          icon: <LuSun />,
           min: -100,
           max: 100,
           step: 0.001,
@@ -128,7 +128,6 @@ const sidebarElements = (
         },
         {
           name: "Expozíció",
-          icon: <LuBlend />,
           min: -5,
           max: 5,
           step: 0.01,
@@ -152,7 +151,6 @@ const sidebarElements = (
         },
         {
           name: "Kontraszt",
-          icon: <LuContrast />,
           min: -100,
           max: 100,
           step: 0.01,
@@ -182,7 +180,6 @@ const sidebarElements = (
       inputs: [
         {
           name: "Shadows",
-          icon: <LuClipboardCheck />,
           min: 0,
           max: filters.white ?? 0,
           step: 0.001,
@@ -206,7 +203,6 @@ const sidebarElements = (
         },
         {
           name: "Midtones - Gamma",
-          icon: <LuClipboardCheck />,
           min: 0.1,
           max: 3,
           step: 0.01,
@@ -227,7 +223,6 @@ const sidebarElements = (
         },
         {
           name: "Highlights",
-          icon: <LuClipboardCheck />,
           min: filters.black ?? 0,
           max: 255,
           step: 0.001,
@@ -279,9 +274,9 @@ const sidebarElements = (
               >
                 <Slider.Control>
                   <Slider.Track>
-                    <Slider.Range />
+                    <Slider.Range bg={"transparent"} />
                   </Slider.Track>
-                  <Slider.Thumbs />
+                  <Slider.Thumbs boxSize={6} borderColor="teal.500" />
                 </Slider.Control>
               </Slider.Root>
             </div>
@@ -295,10 +290,13 @@ const sidebarElements = (
       inputs: [
         {
           name: "Hue",
-          icon: <LuCloudMoonRain />,
           min: -180,
           max: 180,
           step: 1,
+          style: {
+            backgroundImage:
+              "linear-gradient(to right, var(--chakra-colors-red-400), var(--chakra-colors-orange-400), var(--chakra-colors-yellow-400), var(--chakra-colors-green-400), var(--chakra-colors-blue-400), var(--chakra-colors-purple-400))",
+          },
           inputType: "slider",
           defaultValue: getFilterValue(selectedImg, `hue`),
           onChangeEnd: (e: SliderValueChangeDetails) => {
@@ -318,7 +316,6 @@ const sidebarElements = (
         },
         {
           name: "Telítettség",
-          icon: <LuCloudMoonRain />,
           min: -1,
           max: 1,
           step: 0.01,
@@ -341,7 +338,6 @@ const sidebarElements = (
         },
         {
           name: "Érték",
-          icon: <LuCloudMoonRain />,
           min: -1,
           max: 1,
           step: 0.001,
@@ -376,7 +372,6 @@ const sidebarElements = (
 
         {
           name: `Piros`,
-          icon: <LuBetweenHorizontalEnd />,
           min: -100,
           max: 100,
           step: 1,
@@ -419,7 +414,6 @@ const sidebarElements = (
         },
         {
           name: `Zöld`,
-          icon: <LuBetweenHorizontalEnd />,
           min: -100,
           max: 100,
           step: 1,
@@ -462,7 +456,6 @@ const sidebarElements = (
         },
         {
           name: `Kék`,
-          icon: <LuBetweenHorizontalEnd />,
           min: -100,
           max: 100,
           step: 1,
@@ -505,7 +498,6 @@ const sidebarElements = (
         },
         {
           name: `Offset`,
-          icon: <LuBetweenHorizontalEnd />,
           min: -100,
           max: 100,
           step: 1,
@@ -549,7 +541,6 @@ const sidebarElements = (
       inputs: [
         {
           name: "Színhőmérséklet",
-          icon: <LuBetweenHorizontalEnd />,
           min: -100,
           max: 100,
           step: 1,
@@ -573,7 +564,6 @@ const sidebarElements = (
         },
         {
           name: "Árnyalat",
-          icon: <LuCloudMoonRain />,
           min: -100,
           max: 100,
           step: 1,
@@ -597,7 +587,6 @@ const sidebarElements = (
         },
         {
           name: "Vibrance",
-          icon: <LuCloudMoonRain />,
           min: -100,
           max: 100,
           step: 1,

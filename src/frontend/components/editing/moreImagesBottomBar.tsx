@@ -30,10 +30,10 @@ export default function BottomBar() {
           justifyContent={"center"}
           overflowY="hidden"          
         >
-          <ScrollArea.Root width="full" size="xs">
+          <ScrollArea.Root width="full" maxW={"80%"} size="xs">
             <ScrollArea.Viewport>
               <ScrollArea.Content>
-                <Flex gap="4" flexWrap="nowrap">
+                <Flex gap="4" flexWrap="nowrap" justifyContent={"center"}>
                   {Array.from(sessionData, (img, index) => (
                     <Box
                       key={index}
