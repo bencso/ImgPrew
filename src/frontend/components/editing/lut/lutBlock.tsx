@@ -36,12 +36,6 @@ export default function LutBlock() {
     >
       <FileUpload.RootProvider maxWidth={"300px"} gap="3" value={fileUpload}>
         <FileUpload.HiddenInput placeholder="Töltsd fel a lutot" />
-        <FileUpload.Label alignItems={"center"} justifyContent={"center"}>
-          LUT fájl{" "}
-          <Span fontSize={"xs"} color={"fg.muted"}>
-            (.cube)
-          </Span>
-        </FileUpload.Label>
         <InputGroup
           startElement={<LuFileUp />}
           endElement={
