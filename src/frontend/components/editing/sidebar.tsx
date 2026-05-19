@@ -291,7 +291,11 @@ const sidebarElements = (
                   <Slider.Track>
                     <Slider.Range bg={"transparent"} />
                   </Slider.Track>
-                  <Slider.Thumbs rounded={"l3"} boxSize={6} borderColor="teal.500" />
+                  <Slider.Thumbs
+                    rounded={"l3"}
+                    boxSize={6}
+                    borderColor="teal.500"
+                  />
                 </Slider.Control>
               </Slider.Root>
             </div>
@@ -492,9 +496,8 @@ const sidebarElements = (
           min: -100,
           max: 100,
           step: 1,
-            style: {
-            backgroundColor:
-              " var(--chakra-colors-blue-400)",
+          style: {
+            backgroundColor: " var(--chakra-colors-blue-400)",
           },
           defaultValue:
             selectedChannel?.toLowerCase() === "blue"

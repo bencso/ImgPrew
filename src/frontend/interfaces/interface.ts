@@ -156,6 +156,7 @@ export interface FilterProps {
   green_channel_offset: number;
   blue_channel_offset: number;
   vibrance: number;
+  lut: any;
 }
 //#endregion
 

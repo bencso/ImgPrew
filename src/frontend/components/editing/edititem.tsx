@@ -71,7 +71,7 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
         </Popover.Trigger>
         <Portal>
           <Popover.Positioner>
-            <Popover.Content maxWidth="300px" width="auto" rounded={"l3"} opacity={1}>
+            <Popover.Content maxWidth="300px" minW={"300px"} w={"300px"}  rounded={"l3"} opacity={1}>
               <Popover.Body>
                 <Item items={items} />
               </Popover.Body>

@@ -6,11 +6,11 @@ import { temperatureFragment } from "./temperatureFragment";
 import { vibranceFragment } from "./vibranceFragment";
 
 export const allFiltersFragment = `#version 300 es
-  precision highp float;
+    precision highp float;
 
     in vec2 vTextureCoord; 
     uniform sampler2D uTexture;
-
+    
     uniform float exposure_input;
     uniform float brightness_input;
     uniform float contrast_input;
@@ -38,6 +38,7 @@ export const allFiltersFragment = `#version 300 es
     
     out vec4 finalColor;
 
+
     vec3 rgbToHsv(vec3 color) {
       vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
       vec4 maxBG = mix(vec4(color.bg, K.wz), vec4(color.gb, K.xy), step(color.b, color.g));
@@ -55,7 +56,8 @@ export const allFiltersFragment = `#version 300 es
     }
 
     void main() {
-    vec4 color = texture(uTexture, vTextureCoord);
+    vec4 color = texture(uTexture, vTextureCoord);    
+
     vec3 rgb = color.rgb;
 
     ${temperatureFragment}
