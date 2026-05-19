@@ -22,7 +22,7 @@ export const FileUploadList = () => {
       gridTemplateColumns={{
         smDown: "repeat(1, minmax(0,1fr))",
         smToXl: "repeat(1, minmax(0, 1fr))",
-        xl: "repeat(2, minmax(0, 1fr))",
+        xl: `repeat(${files.length>=2 ? 2 : 1}, minmax(0, 1fr))`,
       }}
       gap={3}
     >

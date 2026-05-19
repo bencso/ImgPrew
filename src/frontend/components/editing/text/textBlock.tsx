@@ -5,12 +5,13 @@ import {
   Box,
   Button,
   Flex,
+  IconButton,
   Input,
   Span,
   Stack,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { LuPen, LuTrash } from "react-icons/lu";
+import { LuCheck, LuPen, LuPlus, LuTrash } from "react-icons/lu";
 import { shallow } from "zustand/shallow";
 import { TextBlockColor } from "./textblocks/colorBlock";
 import { TextBlockPosition } from "./textblocks/positionBlock";
@@ -51,9 +52,9 @@ export default function TextBlock() {
           onChange={(e) => setText(e.target.value)}
           variant="outline"
         />
-        <Button
-          variant="outline"
-          colorPalette="teal"
+        <IconButton
+          variant={"ghost"}
+          
           onClick={() => {
             if (!text) return;
             if (!editId) {
@@ -65,8 +66,8 @@ export default function TextBlock() {
             setText("");
           }}
         >
-          {!editId ? "Hozzáadás" : "Módosítás"}
-        </Button>
+          {!editId ? <LuPlus/> : <LuCheck/>}
+        </IconButton>
       </Flex>
 
       {texts.length > 0 && (

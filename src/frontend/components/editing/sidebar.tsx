@@ -4,6 +4,8 @@ import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import {
   TbAdjustments,
+  TbColorFilter,
+  TbColorSwatch,
   TbGradienter,
   TbShadow,
   TbTemperature,
@@ -35,6 +37,7 @@ import {
   LuImages,
   LuImageUpscale,
   LuSun,
+  LuTag,
   LuType,
 } from "react-icons/lu";
 import { shallow } from "zustand/shallow";
@@ -47,6 +50,7 @@ import ChannelMixerBlock from "./channelmixer/channelmixer";
 import { getChannelOffsets } from "../webGlComponent";
 import { FaFileExport } from "react-icons/fa";
 import { HiAdjustments } from "react-icons/hi";
+import LutBlock from "./lut/lutBlock";
 
 const sidebarElements = (
   exportAllDataForImage: any,
@@ -90,12 +94,23 @@ const sidebarElements = (
     {
       function: "Kép szöveg",
       hide: captionSamples.length <= 0,
-      icon: <LuCaptions />,
+      icon: <LuTag />,
       inputs: [
         {
           name: "",
           inputType: "customElement",
           options: <CaptionBlock />,
+        },
+      ],
+    },
+    {
+      function: "LUT",
+      icon: <TbColorSwatch />,
+      inputs: [
+        {
+          name: "",
+          inputType: "customElement",
+          options: <LutBlock/>
         },
       ],
     },
@@ -304,7 +319,7 @@ const sidebarElements = (
           },
           onChange: (e: SliderValueChangeDetails) => {
             if (webglFilterRef.current) {
-              uniforms.hue_input = Number(e.value) / 360.0;
+              uniforms.hue_input = Number(e.value) / 180.0;
             }
           },
           clearFunc: () => {
@@ -362,7 +377,7 @@ const sidebarElements = (
     },
     {
       function: "Channel mixer",
-      icon: <TbAdjustments />,
+      icon: <TbColorFilter />,
       inputs: [
         {
           name: "",

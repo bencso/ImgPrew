@@ -8,7 +8,6 @@ import {
   Flex,
   HStack,
   Icon,
-  Input,
   InputGroup,
   NumberInput,
   parseColor,
@@ -20,11 +19,8 @@ import {
 } from "@chakra-ui/react";
 import { FaPinterest } from "react-icons/fa";
 import {
-  LuBotOff,
-  LuExpand,
   LuFacebook,
   LuInstagram,
-  LuMaximize2,
   LuX,
 } from "react-icons/lu";
 import { shallow } from "zustand/shallow";

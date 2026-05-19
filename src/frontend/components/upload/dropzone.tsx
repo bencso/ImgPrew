@@ -56,7 +56,7 @@ export const ImageDropZone = () => {
       p={4}
       alignItems={"center"}
     >
-      <FileUpload.RootProvider value={fileUpload} w="full">
+      <FileUpload.RootProvider value={fileUpload} w="full" >
         <FileUpload.HiddenInput />
         <FileUpload.Dropzone
           w={"full"}

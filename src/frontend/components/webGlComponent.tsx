@@ -223,7 +223,7 @@ export default function WebGlComponent() {
         temperature_input: { value: filters.temperature / 100.0, type: "f32" },
         tint_input: { value: filters.tint / 100.0, type: "f32" },
         saturation_input: { value: filters.saturation, type: "f32" },
-        hue_input: { value: filters.hue / 360.0, type: "f32" },
+        hue_input: { value: filters.hue / 180.0, type: "f32" },
         value_input: { value: filters.value, type: "f32" },
         black_input: { value: filters.black / 255.0, type: "f32" },
         white_input: { value: filters.white / 255.0, type: "f32" },
@@ -264,7 +264,7 @@ export default function WebGlComponent() {
       uniforms.temperature_input = filters.temperature / 100.0;
       uniforms.tint_input = filters.tint / 100.0;
       uniforms.saturation_input = filters.saturation;
-      uniforms.hue_input = filters.hue / 360.0;
+      uniforms.hue_input = filters.hue / 180.0;
       uniforms.value_input = filters.value;
       uniforms.black_input = filters.black / 255.0;
       uniforms.white_input = filters.white / 255.0;
