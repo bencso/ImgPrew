@@ -53,7 +53,7 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
             alignItems="center"
             justifyContent="center"
             p={2}
-            gap={1}
+            gap={3}
             border={"0"}
           >
             {isMd && items.icon && items.icon}
@@ -63,6 +63,7 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
               textAlign={"center"}
               mt={0}
               w={"full"}
+              lineHeight={"1.2"}
             >
               {items.function && items.function}
             </Text>
@@ -70,8 +71,7 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
         </Popover.Trigger>
         <Portal>
           <Popover.Positioner>
-            <Popover.Content maxWidth="300px" width="auto">
-              <Popover.Arrow />
+            <Popover.Content maxWidth="300px" width="auto" rounded={"l3"} opacity={1}>
               <Popover.Body>
                 <Item items={items} />
               </Popover.Body>
@@ -343,6 +343,7 @@ const Item = ({ items }: { items: EditItemProp }) => {
                         index={0}
                         boxSize={6}
                         borderColor="teal.500"
+                        rounded={"l3"}
                       >
                         {item.icon  && (
                           <Box

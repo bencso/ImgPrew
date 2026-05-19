@@ -18,11 +18,7 @@ import {
   useBreakpointValue,
 } from "@chakra-ui/react";
 import { FaPinterest } from "react-icons/fa";
-import {
-  LuFacebook,
-  LuInstagram,
-  LuX,
-} from "react-icons/lu";
+import { LuFacebook, LuInstagram, LuX } from "react-icons/lu";
 import { shallow } from "zustand/shallow";
 
 const sizesDatas = [
@@ -139,7 +135,7 @@ export default function ResizeBlock() {
   );
 
   return (
-    <Box>
+    <Box w={"full"} maxW={"300px"} minW={0}>
       {expandMode !== "no" && expandMode !== "border" && !cropSaved && (
         <RadioCard.Root
           orientation="horizontal"
@@ -147,6 +143,8 @@ export default function ResizeBlock() {
           w={"full"}
           value={box ? box && box.width + "-" + box.height : ""}
           colorPalette={"teal"}
+          variant={"surface"}
+          rounded={"l3"}
           defaultValue={expandSize?.width + "-" + expandSize?.height}
           onValueChange={(details) => {
             const value = details.value;
@@ -165,12 +163,13 @@ export default function ResizeBlock() {
             }
           }}
         >
-          <ScrollArea.Root width="full" size="xs" overflow={"hidden"}>
+          <ScrollArea.Root width="full"  size="xs" overflow={"hidden"}>
             <ScrollArea.Viewport>
               <ScrollArea.Content py="4">
                 <Flex gap={3}>
                   {sizesDatas.map((item, index) => (
                     <RadioCard.Item
+                    rounded={"l3"}
                       key={
                         item.sizes.width + "-" + item.sizes.height + "-" + index
                       }
@@ -183,7 +182,7 @@ export default function ResizeBlock() {
                         justifyContent={"center"}
                         alignContent={"center"}
                       >
-                        <Icon fontSize="lg" color="teal.100">
+                        <Icon fontSize="lg">
                           {item.icon}
                         </Icon>
                         <RadioCard.ItemText w={"fit"} lineClamp={"1"}>
@@ -208,19 +207,25 @@ export default function ResizeBlock() {
               : "no"
         }
         defaultValue="no"
-        variant="plain"
+                  colorPalette={"teal"}
+          variant={"subtle"}
+          rounded={"l3"}
+        orientation="horizontal"
+        w={"full"}
+        minW={"0"}
         onValueChange={(e) => {
           const type = e.value;
           setExpandMode(selectedImg, type);
         }}
       >
         <Tabs.List
-          bg="bg.muted"
           rounded="l3"
           p="1"
           w={"full"}
           display={"flex"}
-          flexDir={"row"}
+          flexDir={"column"}
+          border={"1px solid"}
+          borderColor={"gray.muted"}
         >
           <Tabs.Trigger
             value="no"
@@ -228,6 +233,7 @@ export default function ResizeBlock() {
             display={"flex"}
             rounded="l3"
             justifyContent={"center"}
+            opacity={1}
             disabled={expandMode === "no" || expandMode === "border"}
           >
             Nincs
@@ -238,6 +244,7 @@ export default function ResizeBlock() {
             rounded="l3"
             display={"flex"}
             justifyContent={"center"}
+            opacity={1}
             disabled={expandMode === "crop" || expandMode === "border" || !isMd}
           >
             Kivágás
@@ -248,6 +255,7 @@ export default function ResizeBlock() {
             rounded="l3"
             display={"flex"}
             justifyContent={"center"}
+            opacity={1}
             disabled={
               expandMode === "expand" ||
               expandMode === "border" ||
@@ -256,7 +264,6 @@ export default function ResizeBlock() {
           >
             Átméretezés
           </Tabs.Trigger>
-          <Tabs.Indicator rounded="l2" />
         </Tabs.List>
         <Tabs.Content value="crop">
           <Button

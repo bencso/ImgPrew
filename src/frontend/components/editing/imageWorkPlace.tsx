@@ -7,7 +7,7 @@ import {
 } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
-import { Box, Flex, Image, Span } from "@chakra-ui/react";
+import { Box, Flex, Grid, GridItem, Image, Span } from "@chakra-ui/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { shallow } from "zustand/shallow";
 import WebGlComponent from "../webGlComponent";
@@ -213,7 +213,7 @@ export default function ImageWorkPlace() {
                   (expandSize?.height ?? 1080) * (selectedScale?.scale ?? 1),
               }}
               position={{
-                x: box?.x ?? 0 ,
+                x: box?.x ?? 0,
                 y: box?.y ?? 0,
               }}
               maxHeight={textAndImagePlaceRef.current?.clientHeight}
@@ -246,91 +246,108 @@ export default function ImageWorkPlace() {
                 });
               }}
             >
-              <Box
-                h={"full"}
-                w={"full"}
-                position={"relative"}
-                border={"2px solid"}
-                borderColor={"white/50"}
-                boxShadow="1px 1px 0px 100vh #00000070"
+              <Grid
+                position="absolute"
+                top="0"
+                left="0"
+                w="100%"
+                h="100%"
+                templateColumns="repeat(3, 1fr)"
+                templateRows="repeat(3, 1fr)"
+                pointerEvents="none"
+                border="2px solid white"
+                borderCollapse={"collapse"}
               >
+                {Array.from({ length: 9 }).map((_, i) => (
+                  <GridItem
+                    key={i}
+                    border="1px dashed rgba(255, 255, 255, 0.5)"
+                  />
+                ))}
                 <Box
-                  position="absolute"
-                  top={"-0.5"}
-                  left={"-0.5"}
-                  w="20px"
-                  h="20px"
-                  borderTop="2px solid"
-                  borderLeft="2px solid"
-                  borderColor="white"
-                />
-                <Box
-                  position="absolute"
-                  top={"-0.5"}
-                  right={"-0.5"}
-                  w="20px"
-                  h="20px"
-                  borderTop="2px solid"
-                  borderRight="2px solid"
-                  borderColor="white"
-                />
-                <Box
-                  position="absolute"
-                  top={"-0.5"}
-                  left={"calc(50% - 15px )"}
-                  translateX={"-50%"}
-                  w="30px"
-                  borderTop="2px solid"
-                  borderColor="white"
-                />
-                <Box
-                  position="absolute"
-                  bottom={"-0.5"}
-                  left={"calc(50% - 15px)"}
-                  translateX={"-50%"}
-                  w="30px"
-                  borderTop="2px solid"
-                  borderColor="white"
-                />
-                <Box
-                  position="absolute"
-                  left={"-0.5"}
-                  top={"calc(50% - 15px)"}
-                  translateY={"-50%"}
-                  h="30px"
-                  borderLeft="2px solid"
-                  borderColor="white"
-                />
-                <Box
-                  position="absolute"
-                  right={"-0.5"}
-                  top={"calc(50% - 15px)"}
-                  translateY={"-50%"}
-                  h="30px"
-                  borderRight="2px solid"
-                  borderColor="white"
-                />
-                <Box
-                  position="absolute"
-                  bottom={"-0.5"}
-                  right={"-0.5"}
-                  w="20px"
-                  h="20px"
-                  borderBottom="2px solid"
-                  borderRight="2px solid"
-                  borderColor="white"
-                />
-                <Box
-                  position="absolute"
-                  bottom={"-0.5"}
-                  left={"-0.5"}
-                  w="20px"
-                  h="20px"
-                  borderBottom="2px solid"
-                  borderLeft="2px solid"
-                  borderColor="white"
-                />
-              </Box>
+                  h={"full"}
+                  w={"full"}
+                  position={"absolute"}
+                  boxShadow="1px 1px 0px 100vh #00000047"
+                >
+                  <Box
+                    position="absolute"
+                    top={"-0.5"}
+                    left={"-0.5"}
+                    w="20px"
+                    h="20px"
+                    borderTop="2px solid"
+                    borderLeft="2px solid"
+                    borderColor="white"
+                  />
+                  <Box
+                    position="absolute"
+                    top={"-0.5"}
+                    right={"-0.5"}
+                    w="20px"
+                    h="20px"
+                    borderTop="2px solid"
+                    borderRight="2px solid"
+                    borderColor="white"
+                  />
+                  <Box
+                    position="absolute"
+                    top={"-0.5"}
+                    left={"calc(50% - 15px )"}
+                    translateX={"-50%"}
+                    w="30px"
+                    borderTop="2px solid"
+                    borderColor="white"
+                  />
+                  <Box
+                    position="absolute"
+                    bottom={"-0.5"}
+                    left={"calc(50% - 15px)"}
+                    translateX={"-50%"}
+                    w="30px"
+                    borderTop="2px solid"
+                    borderColor="white"
+                  />
+                  <Box
+                    position="absolute"
+                    left={"-0.5"}
+                    top={"calc(50% - 15px)"}
+                    translateY={"-50%"}
+                    h="30px"
+                    borderLeft="2px solid"
+                    borderColor="white"
+                  />
+                  <Box
+                    position="absolute"
+                    right={"-0.5"}
+                    top={"calc(50% - 15px)"}
+                    translateY={"-50%"}
+                    h="30px"
+                    borderRight="2px solid"
+                    borderColor="white"
+                  />
+                  <Box
+                    position="absolute"
+                    bottom={"-0.5"}
+                    right={"-0.5"}
+                    w="20px"
+                    h="20px"
+                    borderBottom="2px solid"
+                    borderRight="2px solid"
+                    borderColor="white"
+                  />
+                  <Box
+                    position="absolute"
+                    bottom={"-0.5"}
+                    left={"-0.5"}
+                    w="20px"
+                    h="20px"
+                    borderBottom="2px solid"
+                    borderLeft="2px solid"
+                    borderColor="white"
+                  />
+                </Box>
+              </Grid>
             </Rnd>
           )}
         </Box>

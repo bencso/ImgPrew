@@ -110,7 +110,7 @@ const sidebarElements = (
         {
           name: "",
           inputType: "customElement",
-          options: <LutBlock/>
+          options: <LutBlock />,
         },
       ],
     },
@@ -291,7 +291,7 @@ const sidebarElements = (
                   <Slider.Track>
                     <Slider.Range bg={"transparent"} />
                   </Slider.Track>
-                  <Slider.Thumbs boxSize={6} borderColor="teal.500" />
+                  <Slider.Thumbs rounded={"l3"} boxSize={6} borderColor="teal.500" />
                 </Slider.Control>
               </Slider.Root>
             </div>
@@ -390,6 +390,9 @@ const sidebarElements = (
           min: -100,
           max: 100,
           step: 1,
+          style: {
+            backgroundColor: " var(--chakra-colors-red-400)",
+          },
           defaultValue:
             selectedChannel?.toLowerCase() === "red"
               ? (getFilterValue(
@@ -418,13 +421,19 @@ const sidebarElements = (
             uniforms.channel_colorMatrix_input = channelOffset.channels;
           },
           clearFunc: () => {
-            if (webglFilterRef.current) {
-              editFilters(
-                selectedImg,
-                `${selectedChannel?.toLowerCase()}_red_channel`,
+            const params = {
+              ...filters,
+              [`${selectedChannel?.toLowerCase()}_red_channel`]:
                 selectedChannel?.toLowerCase() === "red" ? 100 : 0,
-              );
-            }
+            };
+            const channelOffset = getChannelOffsets(params);
+            uniforms.channel_colorMatrix_input = channelOffset.channels;
+
+            editFilters(
+              selectedImg,
+              `${selectedChannel?.toLowerCase()}_red_channel`,
+              selectedChannel?.toLowerCase() === "red" ? 100 : 0,
+            );
           },
         },
         {
@@ -433,6 +442,9 @@ const sidebarElements = (
           max: 100,
           step: 1,
           inputType: "slider",
+          style: {
+            backgroundColor: " var(--chakra-colors-green-400)",
+          },
           defaultValue:
             selectedChannel?.toLowerCase() === "green"
               ? (getFilterValue(
@@ -460,13 +472,19 @@ const sidebarElements = (
             uniforms.channel_colorMatrix_input = channelOffset.channels;
           },
           clearFunc: () => {
-            if (webglFilterRef.current) {
-              editFilters(
-                selectedImg,
-                `${selectedChannel?.toLowerCase()}_green_channel`,
+            const params = {
+              ...filters,
+              [`${selectedChannel?.toLowerCase()}_green_channel`]:
                 selectedChannel?.toLowerCase() === "green" ? 100 : 0,
-              );
-            }
+            };
+            const channelOffset = getChannelOffsets(params);
+            uniforms.channel_colorMatrix_input = channelOffset.channels;
+
+            editFilters(
+              selectedImg,
+              `${selectedChannel?.toLowerCase()}_green_channel`,
+              selectedChannel?.toLowerCase() === "green" ? 100 : 0,
+            );
           },
         },
         {
@@ -474,6 +492,10 @@ const sidebarElements = (
           min: -100,
           max: 100,
           step: 1,
+            style: {
+            backgroundColor:
+              " var(--chakra-colors-blue-400)",
+          },
           defaultValue:
             selectedChannel?.toLowerCase() === "blue"
               ? (getFilterValue(
@@ -502,13 +524,19 @@ const sidebarElements = (
             uniforms.channel_colorMatrix_input = channelOffset.channels;
           },
           clearFunc: () => {
-            if (webglFilterRef.current) {
-              editFilters(
-                selectedImg,
-                `${selectedChannel?.toLowerCase()}_blue_channel`,
+            const params = {
+              ...filters,
+              [`${selectedChannel?.toLowerCase()}_blue_channel`]:
                 selectedChannel?.toLowerCase() === "blue" ? 100 : 0,
-              );
-            }
+            };
+            const channelOffset = getChannelOffsets(params);
+            uniforms.channel_colorMatrix_input = channelOffset.channels;
+
+            editFilters(
+              selectedImg,
+              `${selectedChannel?.toLowerCase()}_blue_channel`,
+              selectedChannel?.toLowerCase() === "blue" ? 100 : 0,
+            );
           },
         },
         {
@@ -538,14 +566,17 @@ const sidebarElements = (
             uniforms.channel_offset_input = channelOffset.offset;
           },
           clearFunc: () => {
-            if (webglFilterRef.current) {
-              uniforms[`${selectedChannel?.toLowerCase()}_channel_offset`] = 0;
-              editFilters(
-                selectedImg,
-                `${selectedChannel?.toLowerCase()}_channel_offset`,
-                0,
-              );
-            }
+            const params = {
+              ...filters,
+              [`${selectedChannel?.toLowerCase()}_channel_offset`]: 0,
+            };
+            const channelOffset = getChannelOffsets(params);
+            uniforms.channel_offset_input = channelOffset.offset;
+            editFilters(
+              selectedImg,
+              `${selectedChannel?.toLowerCase()}_channel_offset`,
+              0,
+            );
           },
         },
       ],
@@ -562,6 +593,10 @@ const sidebarElements = (
           resetValue: 0,
           inputType: "slider",
           defaultValue: getFilterValue(selectedImg, "temperature"),
+          style: {
+            backgroundImage:
+              "linear-gradient(to right, var(--chakra-colors-blue-400), var(--chakra-colors-transparent), var(--chakra-colors-orange-400))",
+          },
           onChangeEnd: (e: SliderValueChangeDetails) => {
             editFilters(selectedImg, "temperature", e.value);
           },
@@ -584,6 +619,10 @@ const sidebarElements = (
           step: 1,
           resetValue: 0,
           inputType: "slider",
+          style: {
+            backgroundImage:
+              "linear-gradient(to right, var(--chakra-colors-green-400), var(--chakra-colors-transparent), var(--chakra-colors-purple-400))",
+          },
           defaultValue: getFilterValue(selectedImg, "tint"),
           onChangeEnd: (e: SliderValueChangeDetails) => {
             editFilters(selectedImg, "tint", e.value);
@@ -684,7 +723,7 @@ const sidebarElements = (
           },
         },
         {
-          name: "Szín",
+          name: "",
           inputType: "customElement",
           options: (
             <ColorPicker.Root
