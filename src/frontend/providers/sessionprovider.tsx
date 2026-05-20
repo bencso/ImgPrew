@@ -7,6 +7,7 @@ import {
   WorkSessionProviderProps,
 } from "@/interfaces/interface";
 import { useFunctionsStore } from "@/stores/functionsStore";
+import { ColorMapFilter } from "pixi-filters";
 import { Application, Filter, Sprite, Texture } from "pixi.js";
 import { createContext, useContext, useMemo, useRef, useState } from "react";
 import { Rnd } from "react-rnd";
@@ -35,6 +36,7 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
   const [selectedChannel, setSelectedChannel] = useState<string>("red");
   const { functions, editFunction } = useFunctionsStore();
   const webglFilterRef = useRef<Filter | null>(null);
+  const lutFilterRef = useRef<ColorMapFilter | null>(null);
 
   const contextValue = useMemo<WorkSessionContextProps>(
     () => ({
@@ -63,6 +65,7 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       selectedChannel,
       setSelectedChannel,
       webglFilterRef,
+      lutFilterRef
     }),
     [
       step,
@@ -81,6 +84,7 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       canvasRef,
       textAndImagePlaceRef,
       selectedChannel,
+      lutFilterRef
     ],
   );
 

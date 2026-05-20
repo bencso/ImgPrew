@@ -69,6 +69,7 @@ export default function WebGlComponent() {
     textAndImagePlaceRef,
     webglFilterRef,
     selectedScale,
+    lutFilterRef,
   } = useWorkSession();
   const { sessionData, setImageSize } = useSessionStore();
 
@@ -213,25 +214,6 @@ export default function WebGlComponent() {
 
     const channelOffset = getChannelOffsets(filters);
 
-    const hasLut = Array.isArray(filters.lut) && filters.lut.length > 0;
-    let lutTexture = Texture.EMPTY;
-
-    if (hasLut) {
-      const flatData = new Float32Array(
-        filters.lut.flatMap((rgb: any) => [...rgb, 1.0]),
-      );
-
-      const source = new BufferImageSource({
-        resource: flatData,
-        width: 512,
-        height: 512,
-        format: "rgba32float",
-        alphaMode: "no-premultiply-alpha",
-      });
-
-      lutTexture = new Texture({ source });
-    }
-
     if (!webglFilterRef.current) {
       const filterUniforms = new UniformGroup({
         exposure_input: { value: filters.exposure / 5.0, type: "f32" },
@@ -259,11 +241,6 @@ export default function WebGlComponent() {
           type: "vec3<f32>",
         },
         vibrance_input: { value: filters.vibrance / 100.0, type: "f32" },
-        lut_input: {
-          value: lutTexture,
-          type: "vec4<f32>",
-        },
-        has_input_lut: { value: hasLut ? 1.0 : 0.0, type: "f32" },
       });
 
       webglFilterRef.current = Filter.from({
@@ -279,7 +256,12 @@ export default function WebGlComponent() {
       webglFilterRef.current.padding = 0;
 
       spriteRef.current.roundPixels = false;
-      spriteRef.current.filters = [webglFilterRef.current];
+      if (lutFilterRef.current)
+        spriteRef.current.filters = [
+          lutFilterRef.current,
+          webglFilterRef.current,
+        ];
+      else spriteRef.current.filters = [webglFilterRef.current];
     } else {
       const uniforms = webglFilterRef.current.resources.filterUniforms.uniforms;
 
@@ -299,10 +281,13 @@ export default function WebGlComponent() {
       uniforms.channel_colorMatrix_input = channelOffset.channels;
       uniforms.channel_offset_input = channelOffset.offset;
       uniforms.vibrance_input = filters.vibrance / 100.0;
-      uniforms.lut_input = lutTexture;
-      uniforms.has_input_lut = hasLut ? 1.0 : 0.0;
 
-      spriteRef.current.filters = [webglFilterRef.current];
+      if (lutFilterRef.current)
+        spriteRef.current.filters = [
+          lutFilterRef.current,
+          webglFilterRef.current,
+        ];
+      else spriteRef.current.filters = [webglFilterRef.current];
     }
   };
 

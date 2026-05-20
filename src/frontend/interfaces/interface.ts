@@ -1,5 +1,6 @@
 import { HTMLChakraProps, JsxStyleProps, SliderValueChangeDetails, SystemStyleObject } from "@chakra-ui/react";
 import { UUID } from "crypto";
+import { ColorMapFilter } from "pixi-filters";
 import {
   Application,
   Filter,
@@ -343,6 +344,7 @@ export interface WorkSessionContextProps {
   selectedChannel: string;
   setSelectedChannel: Dispatch<SetStateAction<string>>;
   webglFilterRef: RefObject<Filter | null>;
+  lutFilterRef: RefObject<ColorMapFilter | null>;
 }
 //#endregion
 
