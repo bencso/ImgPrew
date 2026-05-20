@@ -157,7 +157,6 @@ export interface FilterProps {
   green_channel_offset: number;
   blue_channel_offset: number;
   vibrance: number;
-  lut: any;
 }
 //#endregion
 
@@ -226,6 +225,7 @@ export interface SessionStore {
     textId: string,
     fontWeight: number,
   ) => void;
+  setTextFontFamily: (imageId: number, textId: string, fontFamily: string) => void
   getTextPosition: (
     selectedImage: number,
     textId: string,

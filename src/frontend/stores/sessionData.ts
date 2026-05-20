@@ -295,7 +295,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
             position: { x: XPositions.LEFT, y: YPositions.TOP },
             enabled: true,
             fontSize: 20,
-            fontFamily: "Inter",
+            fontFamily: "Roboto",
             fontWeight: 500,
             color: "#ffff",
           };
@@ -333,15 +333,6 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     },
     setTextFontSize: (imageId: number, textId: string, fontSize: number) =>
       set((state) => {
-        if (fontSize <= 0) {
-          toaster.create({
-            type: "error",
-            title: "Hibás érték",
-            description: "A betűméret nem lehet kisebb vagy egyenlő, mint 0",
-          });
-          return;
-        }
-
         const image = state.sessionData.find((img: any) => img.id === imageId);
         if (!image || !image.texts) return;
 
@@ -353,6 +344,22 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         image.texts = [
           ...image.texts.slice(0, textIndex),
           { ...image.texts[textIndex], fontSize },
+          ...image.texts.slice(textIndex + 1),
+        ];
+      }),
+    setTextFontFamily: (imageId: number, textId: string, fontFamily: string) =>
+      set((state) => {
+        const image = state.sessionData.find((img: any) => img.id === imageId);
+        if (!image || !image.texts) return;
+
+        const textIndex = image.texts.findIndex(
+          (text: any) => text.id === textId,
+        );
+        if (textIndex === -1) return;
+
+        image.texts = [
+          ...image.texts.slice(0, textIndex),
+          { ...image.texts[textIndex], fontFamily },
           ...image.texts.slice(textIndex + 1),
         ];
       }),
@@ -466,10 +473,16 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         ),
       }));
     },
-    setExpandSize: (id: number, size: { width: number; height: number }, padding?: number) => {
+    setExpandSize: (
+      id: number,
+      size: { width: number; height: number },
+      padding?: number,
+    ) => {
       set((state) => ({
         sessionData: state.sessionData.map((img: any) =>
-          img.id === id ? { ...img, expandSize: size, expandSizePadding: padding } : img,
+          img.id === id
+            ? { ...img, expandSize: size, expandSizePadding: padding }
+            : img,
         ),
       }));
     },

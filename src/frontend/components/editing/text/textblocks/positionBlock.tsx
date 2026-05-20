@@ -1,3 +1,4 @@
+import { minMaxValidation } from "@/helper/errorHelper";
 import {
   DraggableImageEventPosition,
   XPositions,
@@ -45,18 +46,17 @@ function TextPositionInputs(props: TextBlockPositionProps) {
         <HStack flex="1">
           <NumberInput.Root
             value={
-              typeof props.position.x === "number"
-                ? isNaN(props.position.x)
-                  ? "0"
-                  : props.position.x.toString()
-                : "0"
+              props.position.x.toString() ?? "0"
             }
             min={0}
             onValueChange={(e) =>
+            {
+              if(e.value === "-") return;
               setTextPosition(selectedImg, props.id, {
-                x: Number(e.value),
+                x: minMaxValidation(Number(e.value), 0),
                 y: props.position.y,
               })
+            }
             }
           >
             <NumberInput.Control />
@@ -70,18 +70,17 @@ function TextPositionInputs(props: TextBlockPositionProps) {
         <HStack flex="1">
           <NumberInput.Root
             value={
-              typeof props.position.y === "number"
-                ? isNaN(props.position.y)
-                  ? "0"
-                  : props.position.y.toString()
-                : "0"
+                props.position.y.toString() ?? "0"
             }
             min={0}
             onValueChange={(e) =>
+            {
+              if(e.value === "-") return;
               setTextPosition(selectedImg, props.id, {
                 x: props.position.x,
-                y: Number(e.value),
+                y: minMaxValidation(Number(e.value), 0),
               })
+            }
             }
           >
             <NumberInput.Control />

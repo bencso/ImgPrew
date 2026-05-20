@@ -12,6 +12,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { shallow } from "zustand/shallow";
 import WebGlComponent from "../webGlComponent";
 import { Rnd } from "react-rnd";
+import { minMaxValidation } from "@/helper/errorHelper";
 
 export default function ImageWorkPlace() {
   const {
@@ -153,6 +154,7 @@ export default function ImageWorkPlace() {
           {texts.map((element: DraggableImageEvent) => {
             return (
               <Rnd
+                key={element.id}
                 bounds={".manipulalhato"}
                 enableResizing={false}
                 minWidth={"fit"}
@@ -173,16 +175,15 @@ export default function ImageWorkPlace() {
                 }}
               >
                 <Span
-                  key={element.id}
-                  ref={setTextRef(element.id)}
                   id={element.id}
                   w={"fit"}
                   h={"fit"}
+                   ref={setTextRef(element.id)}
                   cursor={"pointer"}
                   textWrap={"balance"}
                   style={{
                     fontSize: element.fontSize || 20,
-                    fontFamily: element.fontFamily || "Inter",
+                    fontFamily: element.fontFamily || "Roboto",
                     fontWeight: element.fontWeight || 500,
                     color: element.color || "#ffff",
                   }}
@@ -245,8 +246,14 @@ export default function ImageWorkPlace() {
                   box: {
                     x: parseFloat(position.x.toString()),
                     y: parseFloat(position.y.toString()),
-                    height: parseFloat(ref.style.height) ?? 300,
-                    width: parseFloat(ref.style.width) ?? 300,
+                    height: minMaxValidation(
+                      parseFloat(ref.style.height) ?? 300,
+                      300,
+                    ),
+                    width: minMaxValidation(
+                      parseFloat(ref.style.width) ?? 300,
+                      300,
+                    ),
                   },
                 });
               }}

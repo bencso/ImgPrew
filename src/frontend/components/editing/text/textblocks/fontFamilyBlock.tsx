@@ -1,6 +1,7 @@
 import { appFonts } from "@/app/layout";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
+import { useMemo } from "react";
 import {
   createListCollection,
   Flex,
@@ -9,44 +10,40 @@ import {
   Text,
 } from "@chakra-ui/react";
 
-//#region Szöveg vastagság box
-
-interface TextBlockWeightProps {
+interface TextBlockFamilyProps {
   id: string;
-  fontWeight: number;
   fontFamily: string;
 }
 
-export function TextBlockWeight(props: TextBlockWeightProps) {
+export function TextBlockFamily(props: TextBlockFamilyProps) {
   const { selectedImg } = useWorkSession();
-  const { setTextFontWeight } = useSessionStore();
-  const activeFamilyWeights = 
-    appFonts
-      .find((item) => item.id.toLowerCase() === (props.fontFamily ?? "roboto").toLowerCase())
-      ?.weights as any[]
-  ;
+  const { setTextFontFamily } = useSessionStore();
 
-  const fontWeightCollection = createListCollection({
-    items: activeFamilyWeights
-  });
+  const fontFamilyCollection = useMemo(() => {
+    return createListCollection({
+      items: appFonts,
+      itemToValue: (item) => item.id,
+      itemToString: (item) => item.name,
+    });
+  }, []);
 
   return (
     <Flex gap={4} width="full" alignItems="center">
-      <Text w="fit">Vastagság</Text>
+      <Text w="fit">Betűtípus</Text>
 
       <Select.Root
         flex="1"
-        collection={fontWeightCollection}
-        value={[props.fontWeight?.toString() ?? "400"]}
-        onValueChange={(e) =>
-          setTextFontWeight(selectedImg, props.id, Number(e.value[0]))
-        }
+        collection={fontFamilyCollection}
+        value={[props.fontFamily?.toString().toLowerCase() ?? "roboto"]}
+        onValueChange={(e) => {
+          setTextFontFamily(selectedImg, props.id, e.value[0]);
+        }}
       >
         <Select.HiddenSelect />
 
         <Select.Control>
           <Select.Trigger>
-            <Select.ValueText placeholder="Válasszon" />
+            <Select.ValueText placeholder="Válasszon betűtípust" />
           </Select.Trigger>
 
           <Select.IndicatorGroup>
@@ -57,9 +54,9 @@ export function TextBlockWeight(props: TextBlockWeightProps) {
         <Portal>
           <Select.Positioner>
             <Select.Content>
-              {fontWeightCollection.items.map((item, index) => (
-                <Select.Item key={index} item={item}>
-                  {item}
+              {fontFamilyCollection.items.map((item) => (
+                <Select.Item key={item.id} item={item}>
+                  {item.name}
                   <Select.ItemIndicator />
                 </Select.Item>
               ))}
@@ -70,5 +67,3 @@ export function TextBlockWeight(props: TextBlockWeightProps) {
     </Flex>
   );
 }
-
-//#endregion

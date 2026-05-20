@@ -1,4 +1,6 @@
 //TODO: Számítási logikák kitevése
+import { toaster } from "@/components/ui/toaster";
+import { minMaxValidation } from "@/helper/errorHelper";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import {
@@ -163,13 +165,13 @@ export default function ResizeBlock() {
             }
           }}
         >
-          <ScrollArea.Root width="full"  size="xs" overflow={"hidden"}>
+          <ScrollArea.Root width="full" size="xs" overflow={"hidden"}>
             <ScrollArea.Viewport>
               <ScrollArea.Content py="4">
                 <Flex gap={3}>
                   {sizesDatas.map((item, index) => (
                     <RadioCard.Item
-                    rounded={"l3"}
+                      rounded={"l3"}
                       key={
                         item.sizes.width + "-" + item.sizes.height + "-" + index
                       }
@@ -182,9 +184,7 @@ export default function ResizeBlock() {
                         justifyContent={"center"}
                         alignContent={"center"}
                       >
-                        <Icon fontSize="lg">
-                          {item.icon}
-                        </Icon>
+                        <Icon fontSize="lg">{item.icon}</Icon>
                         <RadioCard.ItemText w={"fit"} lineClamp={"1"}>
                           {item.name}
                         </RadioCard.ItemText>
@@ -207,9 +207,9 @@ export default function ResizeBlock() {
               : "no"
         }
         defaultValue="no"
-                  colorPalette={"teal"}
-          variant={"subtle"}
-          rounded={"l3"}
+        colorPalette={"teal"}
+        variant={"subtle"}
+        rounded={"l3"}
         orientation="horizontal"
         w={"full"}
         minW={"0"}
@@ -288,10 +288,11 @@ export default function ResizeBlock() {
               !expandSize?.width
             }
             max={200}
+            min={0}
             value={expandPadding ? String(expandPadding) : "0"}
             onChange={(e: any) => {
-              let value = Number(e.target.value) ?? 0;
-              if (value > 200) value = 200;
+              let value = minMaxValidation(Number(e.target.value) ?? 0, 0, 200);
+
               if (expandSize) {
                 setExpandSize(
                   selectedImg,
@@ -314,7 +315,6 @@ export default function ResizeBlock() {
                 : parseColor("#ffff")
             }
             onValueChange={(e: any) => {
-              console.log(e);
               let value = e.valueAsString;
               if (value !== "") {
                 setExpandBackground(selectedImg, value);

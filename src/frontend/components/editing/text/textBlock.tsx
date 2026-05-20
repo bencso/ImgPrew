@@ -17,6 +17,7 @@ import { TextBlockColor } from "./textblocks/colorBlock";
 import { TextBlockPosition } from "./textblocks/positionBlock";
 import { TextBlockSize } from "./textblocks/sizeBlock";
 import { TextBlockWeight } from "./textblocks/weightBlock";
+import { TextBlockFamily } from "./textblocks/fontFamilyBlock";
 
 export default function TextBlock() {
   const { selectedImg, textElements } = useWorkSession();
@@ -54,7 +55,6 @@ export default function TextBlock() {
         />
         <IconButton
           variant={"ghost"}
-          
           onClick={() => {
             if (!text) return;
             if (!editId) {
@@ -66,7 +66,7 @@ export default function TextBlock() {
             setText("");
           }}
         >
-          {!editId ? <LuPlus/> : <LuCheck/>}
+          {!editId ? <LuPlus /> : <LuCheck />}
         </IconButton>
       </Flex>
 
@@ -130,9 +130,14 @@ export default function TextBlock() {
                   <Accordion.ItemContent>
                     <Accordion.ItemBody gap={4} display="flex" flexDir="column">
                       <TextBlockSize id={text.id} fontSize={text.fontSize} />
+                      <TextBlockFamily
+                        id={text.id}
+                        fontFamily={text.fontFamily}
+                      />
                       <TextBlockWeight
                         id={text.id}
                         fontWeight={text.fontWeight}
+                        fontFamily={text.fontFamily}
                       />
                       <TextBlockColor id={text.id} color={text.color} />
                       <TextBlockPosition

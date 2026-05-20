@@ -1,3 +1,4 @@
+import { minMaxValidation } from "@/helper/errorHelper";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { Flex, HStack, NumberInput, Text } from "@chakra-ui/react";
@@ -18,10 +19,15 @@ export function TextBlockSize(props: TextBlockSizeProps) {
 
       <HStack flex="1">
         <NumberInput.Root
-          value={(props.fontSize || 20).toString()}
+          value={(minMaxValidation(props.fontSize, 0, 180) || 20).toString()}
           min={0}
+          max={180}
           onValueChange={(e) =>
-            setTextFontSize(selectedImg, props.id, e.valueAsNumber)
+            setTextFontSize(
+              selectedImg,
+              props.id,
+              minMaxValidation(e.valueAsNumber, 0, 180),
+            )
           }
         >
           <NumberInput.Control />
