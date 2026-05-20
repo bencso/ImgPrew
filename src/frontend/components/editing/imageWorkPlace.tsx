@@ -24,7 +24,8 @@ export default function ImageWorkPlace() {
     workPlaceRef,
     textAndImagePlaceRef,
   } = useWorkSession();
-  const { calculationReFixPosition, setCropBox } = useSessionStore();
+  const { calculationReFixPosition, setCropBox, setTextPosition } =
+    useSessionStore();
 
   const box = useSessionStore(
     (state) => state.sessionData.find((si) => si.id === selectedImg)?.box,
@@ -91,14 +92,11 @@ export default function ImageWorkPlace() {
     });
   }, [selectedImg, copyrightImageRef, copyrightImageSize]);
 
-  const [draggableId, setDraggableId] = useState<string | null>(null);
-
   useEffect(() => {
     const newPositions: Record<string, { x: number; y: number }> = {};
 
     texts.forEach((element) => {
       if (!textElements[element.id]) return;
-
       const textPosition = calculationReFixPosition({
         id: selectedImg,
         type: calculationTypeEnum.TEXT,
@@ -109,7 +107,8 @@ export default function ImageWorkPlace() {
 
       newPositions[element.id] = textPosition;
     });
-
+    console.log("newPositions");
+    console.log(newPositions);
     setTextPositions(newPositions);
   }, [
     selectedImg,
@@ -153,38 +152,44 @@ export default function ImageWorkPlace() {
         >
           {texts.map((element: DraggableImageEvent) => {
             return (
-              <Span
-                key={element.id}
-                ref={setTextRef(element.id)}
-                onMouseEnter={() => {
-                  setDraggableId(element.id);
+              <Rnd
+                bounds={".manipulalhato"}
+                enableResizing={false}
+                minWidth={"fit"}
+                minHeight={"fit"}
+                onDragStop={(e, d) => {
+                  setTextPosition(selectedImg, element.id, {
+                    x: parseFloat(d.x.toString()),
+                    y: parseFloat(d.y.toString()),
+                  });
                 }}
-                id={element.id}
-                w={"fit"}
-                h={"fit"}
-                position={"absolute"}
-                cursor={"pointer"}
-                textWrap={"balance"}
-                left={
-                  textPositions[element.id]
-                    ? `${textPositions[element.id].x}px`
-                    : "20px"
-                }
-                top={
-                  textPositions[element.id]
-                    ? `${textPositions[element.id].y}px`
-                    : "20px"
-                }
-                style={{
-                  fontSize: element.fontSize || 20,
-                  fontFamily: element.fontFamily || "Inter",
-                  fontWeight: element.fontWeight || 500,
-                  color: element.color || "#ffff",
-                  lineHeight: 1,
+                position={{
+                  x: textPositions[element.id]
+                    ? (textPositions[element.id].x ?? 0)
+                    : 0,
+                  y: textPositions[element.id]
+                    ? (textPositions[element.id].y ?? 0)
+                    : 0,
                 }}
               >
-                {element.text}
-              </Span>
+                <Span
+                  key={element.id}
+                  ref={setTextRef(element.id)}
+                  id={element.id}
+                  w={"fit"}
+                  h={"fit"}
+                  cursor={"pointer"}
+                  textWrap={"balance"}
+                  style={{
+                    fontSize: element.fontSize || 20,
+                    fontFamily: element.fontFamily || "Inter",
+                    fontWeight: element.fontWeight || 500,
+                    color: element.color || "#ffff",
+                  }}
+                >
+                  {element.text}
+                </Span>
+              </Rnd>
             );
           })}
           {copyrightImage && copyrightImage.blob && (
@@ -353,28 +358,6 @@ export default function ImageWorkPlace() {
         </Box>
         <WebGlComponent />
       </Box>
-      {
-        //
-      }
-
-      {/* <Moveable
-        target={draggableId ? textElements[draggableId] : null}
-        draggable={true}
-        hideDefaultLines
-        bounds={spriteRef.current}
-        hideChildMoveableDefaultLines
-        hideThrottleDragRotateLine
-        origin={false}
-        onDrag={(e: any) => {
-          if (!draggableId) return;
-          const [x, y] = e.beforeTranslate;
-
-          setTextPosition(selectedImg, draggableId, {
-            x,
-            y,
-          });
-        }}
-      /> */}
     </Flex>
   );
 }
