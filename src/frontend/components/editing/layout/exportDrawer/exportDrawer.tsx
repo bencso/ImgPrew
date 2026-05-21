@@ -14,6 +14,7 @@ import { ExportExifBlock } from "./exportExifBlock";
 import { ExportImageBlock } from "./exportImageSelect";
 import { useState } from "react";
 import { useWorkSession } from "@/providers/sessionprovider";
+import { ExportFileExtension } from "./exportFileExtension";
 
 export default function ExportDrawer() {
   const { selectedImg } = useWorkSession();
@@ -60,9 +61,10 @@ export default function ExportDrawer() {
             {
               //#region Drawer Body
             }
-            <Drawer.Body w={"full"}>
+            <Drawer.Body w={"full"} gap={12} display={"flex"} flexDir={"column"}>
               <ExportImageBlock selected={selected} setSelected={setSelected} />
               <ExportExifBlock selected={selected} setSelected={setSelected} />
+              <ExportFileExtension/>
             </Drawer.Body>
             {
               //#region Drawer Footer

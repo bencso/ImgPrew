@@ -1,7 +1,6 @@
-import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { RadioCard, HStack } from "@chakra-ui/react";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction } from "react";
 
 interface ExportImageBlockProp {
   selected: number;
@@ -14,7 +13,6 @@ export const ExportImageBlock = (props: ExportImageBlockProp) => {
     <RadioCard.Root
       value={props.selected?.toString() ?? "0"}
       onValueChange={(e) => props.setSelected(Number(e.value))}
-      mb={6}
       colorPalette={"teal"}
       variant={"outline"}
     >
@@ -24,7 +22,7 @@ export const ExportImageBlock = (props: ExportImageBlockProp) => {
             colorPalette={"white"}
             key={item.id}
             value={item.id.toString()}
-            backgroundImage={`linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${item.blob})`}
+            backgroundImage={`${props.selected === item.id ? "linear-gradient(rgba(0, 0, 0, 0.0), rgba(0,0,0,0.0))" : "linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4))"}, url(${item.blob})`}
             bgSize="cover"
             bgPos="center"
             borderRadius="md"
@@ -32,7 +30,7 @@ export const ExportImageBlock = (props: ExportImageBlockProp) => {
             h="120px"
           >
             <RadioCard.ItemHiddenInput />
-            <RadioCard.ItemControl></RadioCard.ItemControl>
+            <RadioCard.ItemControl/>
           </RadioCard.Item>
         ))}
       </HStack>

@@ -34,8 +34,10 @@ export const ExportExifBlock = (props: ExportExifBlockProp) => {
     ) ?? [];
 
   useEffect(() => {
+    const uniqueTags = Array.from(new Set(exifTags));
+
     setValues(
-      exifTags.map((tag) => ({
+      uniqueTags.map((tag) => ({
         label: tag,
         checked: false,
       })),
@@ -61,7 +63,8 @@ export const ExportExifBlock = (props: ExportExifBlockProp) => {
   const allFilteredChecked =
     filteredItems.length > 0 && filteredItems.every((value) => value.checked);
   const indeterminate =
-    filteredItems.some((value) => value.checked) && !allFilteredChecked;
+    filteredItems.values().some((value) => value.checked) &&
+    !allFilteredChecked;
 
   const handleToggleAllFiltered = (isChecked: boolean) => {
     setValues((current) =>
@@ -76,7 +79,11 @@ export const ExportExifBlock = (props: ExportExifBlockProp) => {
   };
 
   return (
-    <Stack gap={4} align="stretch" w="full">
+    <Stack align="stretch" w="full">
+      <Text textTransform={"uppercase"} fontSize={"xs"} fontWeight={"bold"}>
+        Exif adatok
+      </Text>
+
       <Input
         placeholder="EXIF adat keresése (pl. ISO, GPS)..."
         value={searchQuery}
@@ -87,6 +94,7 @@ export const ExportExifBlock = (props: ExportExifBlockProp) => {
 
       <Box borderBottomWidth="1px" pb={3} borderColor="border.muted">
         <Checkbox.Root
+        mt={3}
           colorPalette="teal"
           checked={indeterminate ? "indeterminate" : allFilteredChecked}
           onCheckedChange={(e) => handleToggleAllFiltered(!!e.checked)}
