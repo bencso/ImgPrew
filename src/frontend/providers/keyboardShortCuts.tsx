@@ -1,4 +1,5 @@
 import { useKeyboardShortcut } from "@/providers/keyboardShortcut";
+import { useSessionStore } from "@/stores/sessionData";
 
 export default function keyboardShortcuts({
   setSelectedImg,
@@ -15,6 +16,7 @@ export default function keyboardShortcuts({
   setSelectedImage: any;
   setStep: any;
 }) {
+  const {clearSessionData} = useSessionStore();
   //#region SHORTCUTS
   useKeyboardShortcut({
     key: "ArrowLeft",
@@ -45,6 +47,7 @@ export default function keyboardShortcuts({
         setSelectedImage(undefined);
         setSelectedImg(0);
         setStep(0);
+        clearSessionData();
       }
     },
   });

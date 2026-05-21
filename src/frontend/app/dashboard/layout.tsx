@@ -18,7 +18,6 @@ export default function RootLayout({
 }) {
   const { selectedImg, isLoading } = useWorkSession();
   const { sessionData } = useSessionStore();
-  const [selectedImage, setSelectedImage] = useState<string>();
   const path = usePathname();
   const isEditor = path === "/dashboard";
 
@@ -28,10 +27,6 @@ export default function RootLayout({
     { fallback: "md" },
   );
   //#endregion
-
-  useEffect(() => {
-    if (sessionData.length > 0) setSelectedImage(sessionData[selectedImg].blob);
-  }, [selectedImg, sessionData]);
 
   return (
     <Flex h={"100vh"} direction={isMd ? "row" : "column"} w={"full"}>
@@ -48,14 +43,12 @@ export default function RootLayout({
           alignItems={"center"}
         >
           {sessionData.length > 0 &&
-            selectedImage &&
             isEditor &&
             !isLoading && <ImagesSide />}
           <Box p={isMd ? 4 : 2} h={"full"} w={"full"}>
             {children}
           </Box>
           {sessionData.length > 0 &&
-            selectedImage &&
             isEditor &&
             !isLoading && <SideBar />}
         </Flex>
