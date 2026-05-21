@@ -109,9 +109,9 @@ flowchart LR
 | Caption generálás | ✅ Kész |
 | Vízjel | ✅ Kész |
 | Cropolás / Expandolás | ✅ Kész |
+| Képkeret funkció | ✅ Kész |
 | Szerkesztés | 🟡 Folyamatban |
-| Képkeret funkció | 🟡 Folyamatban (cropoláshoz is használható legyen) |
-| LUT használata / készítése | ⬜ Tervezés alatt |
+| LUT használata / készítése | 🟡 Folyamatban |
 
 <p align="right"><a href="#top">Vissza a tetejére</a></p>
 
@@ -162,9 +162,9 @@ flowchart LR
 ## Screenshot
 
 > [!WARNING]
-> **BÉTA verzió (2026.03.21)** – hibák előfordulhatnak!
+> **BÉTA verzió (2026.05.21)** – hibák előfordulhatnak!
 
-<img width="1566" height="990" max-width="100%" alt="Képernyőfotó 2026-03-21 - 7 58 08" src="https://github.com/user-attachments/assets/1644ff23-6e30-4ac8-ab52-2614138f68b7" />
+<img width="1566" height="990" max-width="100%" alt="Képernyőfotó" src="https://github.com/user-attachments/assets/371d819d-5ec4-4a6e-919b-b9ebd607273c" />
 
 </br>
 <p align="right"><a href="#top">Vissza a tetejére</a></p>
