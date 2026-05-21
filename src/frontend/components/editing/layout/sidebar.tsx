@@ -10,32 +10,23 @@ import {
   TbTemperature,
 } from "react-icons/tb";
 import {
-  Box,
-  Button,
-  CheckboxGroup,
   ColorPicker,
-  Drawer,
-  Fieldset,
   Flex,
-  For,
   HStack,
   parseColor,
   Portal,
   ScrollArea,
   Slider,
   SliderValueChangeDetails,
-  Text,
   useBreakpointValue} from "@chakra-ui/react";
 import { Filter, Sprite } from "pixi.js";
 import { RefObject, useMemo } from "react";
 import {
-  LuFileBox,
   LuFrame,
   LuImages,
   LuImageUpscale,
   LuTag,
   LuType,
-  LuX,
 } from "react-icons/lu";
 import { shallow } from "zustand/shallow";
 import CaptionBlock from "../caption/captionBlock";
@@ -45,10 +36,10 @@ import ResizeBlock from "../resize/resizeBlock";
 import TextBlock from "../text/textBlock";
 import ChannelMixerBlock from "../channelmixer/channelmixer";
 import { getChannelOffsets } from "../../webGlComponent";
-import { FaFileExport, FaFileImage } from "react-icons/fa";
 import { HiAdjustments } from "react-icons/hi";
 import LutBlock from "../lut/lutBlock";
 import { ExportExifBlock } from "./exportDrawer/exportExifBlock";
+import ExportDrawer from "./exportDrawer/exportDrawer";
 
 const sidebarElements = (
   exportAllDataForImage: any,
@@ -916,59 +907,7 @@ export default function SideBar() {
           </ScrollArea.Content>
         </ScrollArea.Viewport>
       </ScrollArea.Root>
-      <Drawer.Root size={"lg"}>
-        <Box p={2}>
-          <Drawer.Trigger asChild>
-            <Button
-              w="80px"
-              h="80px"
-              variant={"surface"}
-              rounded={"xl"}
-              display="flex"
-              flexDirection="column"
-              alignItems="center"
-              justifyContent="center"
-              colorPalette={"teal"}
-            >
-              <FaFileExport size={"16"} />
-              <Text fontSize="xx-small" textAlign={"center"} mt={0} w={"full"}>
-                Exportálás
-              </Text>
-            </Button>
-          </Drawer.Trigger>
-        </Box>
-        <Portal>
-          <Drawer.Backdrop />
-          <Drawer.Positioner>
-            <Drawer.Content>
-              <Drawer.Header>
-                <Drawer.Title>Exportálás</Drawer.Title>
-              </Drawer.Header>
-              <Drawer.Body w={"full"} >
-                {
-                  // Exif tag adatok
-                }
-               <ExportExifBlock/>
-              </Drawer.Body>
-              <Drawer.CloseTrigger p={3}>
-                <LuX size={24} />
-              </Drawer.CloseTrigger>
-              <Drawer.Footer >
-               <Flex flexDirection={"row"} w={"full"} gap={4}>
-                 <Button colorPalette={"teal"} variant={"subtle"} w={"full"} flex={1}>
-                   <FaFileImage size={"12"} />
-                  Kép exportálása
-                </Button>
-                 <Button colorPalette={"teal"} w={"full"} flex={1}>
-                   <LuFileBox size={"12"} />
-                  Összes exportálása
-                </Button>
-               </Flex>
-              </Drawer.Footer>
-            </Drawer.Content>
-          </Drawer.Positioner>
-        </Portal>
-      </Drawer.Root>
+          <ExportDrawer/>
     </Flex>
   );
 }
