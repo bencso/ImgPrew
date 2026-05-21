@@ -108,8 +108,7 @@ export default function ImageWorkPlace() {
 
       newPositions[element.id] = textPosition;
     });
-    console.log("newPositions");
-    console.log(newPositions);
+
     setTextPositions(newPositions);
   }, [
     selectedImg,
@@ -133,6 +132,7 @@ export default function ImageWorkPlace() {
       alignItems={"center"}
       mx={"auto"}
       className="workPlaceRef"
+      
     >
       <Box
         alignContent={"center"}
@@ -140,6 +140,7 @@ export default function ImageWorkPlace() {
         position={"relative"}
         display={"flex"}
         className="manipulalhato"
+         
       >
         <Box
           zIndex={100}
@@ -148,8 +149,11 @@ export default function ImageWorkPlace() {
           transform="translate(-50%, -50%)"
           top={"50%"}
           left={"50%"}
+          h={"full"}
+          w={"full"}
           className="3"
           overflow={"hidden"}
+          
         >
           {texts.map((element: DraggableImageEvent) => {
             return (
@@ -222,6 +226,8 @@ export default function ImageWorkPlace() {
                 x: box?.x ?? 0,
                 y: box?.y ?? 0,
               }}
+              minHeight={300}
+              minWidth={300}
               maxHeight={textAndImagePlaceRef.current?.clientHeight}
               maxWidth={textAndImagePlaceRef.current?.clientWidth}
               bounds={".manipulalhato"}

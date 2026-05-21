@@ -1,6 +1,6 @@
 "use client";
 
-import keyboardShortcuts from "@/components/editing/keyboardShortCuts";
+import keyboardShortcuts from "@/providers/keyboardShortCuts";
 import { ImageDropZone } from "@/components/upload/dropzone";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";

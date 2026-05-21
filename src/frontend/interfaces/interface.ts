@@ -387,3 +387,20 @@ export interface WorkSessionProviderProps {
   children: ReactNode;
 }
 //#endregion
+
+//#region ParamProps
+export interface ParamProps {
+  red_red_channel: number;
+  green_red_channel: number;
+  blue_red_channel: number;
+  red_green_channel: number;
+  green_green_channel: number;
+  blue_green_channel: number;
+  red_blue_channel: number;
+  green_blue_channel: number;
+  blue_blue_channel: number;
+  red_channel_offset: number;
+  green_channel_offset: number;
+  blue_channel_offset: number;
+}
+//#endregion

@@ -10,12 +10,12 @@ import {
   Text,
   useFileUpload,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
 import { LuFileUp } from "react-icons/lu";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { convertCubeToFilter } from "@/helper/lutHelper";
 import { ColorMapFilter } from "pixi-filters";
+//@ts-ignore
 import parseCubeLUT from "parse-cube-lut";
 
 export default function LutBlock() {

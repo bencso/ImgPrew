@@ -24,7 +24,7 @@ import {
 import React, { Fragment, useEffect, useState } from "react";
 import { LuFileUp, LuRotateCcw } from "react-icons/lu";
 import { BeatLoader } from "react-spinners";
-import ImageIcon from "../icons/imageIcon";
+import ImageIcon from "../../icons/imageIcon";
 
 //#region SIDEBAR ITEM
 export const EditItem = ({ items }: { items: EditItemProp }) => {
@@ -55,6 +55,10 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
             p={2}
             gap={3}
             border={"0"}
+            bg={"bg"}
+            _hover={{
+              bg: "bg.muted"
+            }}
           >
             {isMd && items.icon && items.icon}
             <Text

@@ -41,16 +41,16 @@ import {
   LuType,
 } from "react-icons/lu";
 import { shallow } from "zustand/shallow";
-import CaptionBlock from "./caption/captionBlock";
-import CopyrightBlock from "./copyright/copyrightBlock";
+import CaptionBlock from "../caption/captionBlock";
+import CopyrightBlock from "../copyright/copyrightBlock";
 import { EditItem } from "./edititem";
-import ResizeBlock from "./resize/resizeBlock";
-import TextBlock from "./text/textBlock";
-import ChannelMixerBlock from "./channelmixer/channelmixer";
-import { getChannelOffsets } from "../webGlComponent";
+import ResizeBlock from "../resize/resizeBlock";
+import TextBlock from "../text/textBlock";
+import ChannelMixerBlock from "../channelmixer/channelmixer";
+import { getChannelOffsets } from "../../webGlComponent";
 import { FaFileExport } from "react-icons/fa";
 import { HiAdjustments } from "react-icons/hi";
-import LutBlock from "./lut/lutBlock";
+import LutBlock from "../lut/lutBlock";
 
 const sidebarElements = (
   exportAllDataForImage: any,

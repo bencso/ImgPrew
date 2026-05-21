@@ -1,6 +1,7 @@
 //TODO: Refaktorálás
 import { allFiltersFragment } from "@/handlers/filters/allFiltersFragment";
 import { convertCubeToFilter } from "@/helper/lutHelper";
+import { ParamProps } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { Box } from "@chakra-ui/react";
@@ -19,21 +20,6 @@ import {
 } from "pixi.js";
 import { useEffect, useRef } from "react";
 import { shallow } from "zustand/shallow";
-
-interface ParamProps {
-  red_red_channel: number;
-  green_red_channel: number;
-  blue_red_channel: number;
-  red_green_channel: number;
-  green_green_channel: number;
-  blue_green_channel: number;
-  red_blue_channel: number;
-  green_blue_channel: number;
-  blue_blue_channel: number;
-  red_channel_offset: number;
-  green_channel_offset: number;
-  blue_channel_offset: number;
-}
 
 export function getChannelOffsets(params: ParamProps) {
   const channels = new Float32Array([
@@ -261,7 +247,7 @@ export default function WebGlComponent() {
       webglFilterRef.current.padding = 0;
 
       spriteRef.current.roundPixels = false;
-     
+
       if (lutFilter) {
         spriteRef.current.filters = [lutFilter, webglFilterRef.current];
       } else spriteRef.current.filters = [webglFilterRef.current];
@@ -505,6 +491,8 @@ export default function WebGlComponent() {
         textAndImagePlaceRef.current.style.height = canvasH + "px";
       }
 
+      applyFilters();
+
       setSelectedScale({
         image: { height: canvasH, width: canvasW },
         scale: scale,
@@ -528,19 +516,15 @@ export default function WebGlComponent() {
   ]);
 
   useEffect(() => {
-    applyFilters();
-  }, [lutFilter]);
-
-  useEffect(() => {
-    window.addEventListener("resize", () => {
+    const handleResize = () => {
       updateLayout();
-      applyFilters();
-    });
-    return () =>
-      window.removeEventListener("resize", () => {
-        updateLayout();
-        applyFilters();
-      });
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   return (
@@ -549,6 +533,7 @@ export default function WebGlComponent() {
       justifyContent={expandMode !== "crop" ? "center" : undefined}
       display={expandMode !== "crop" ? "flex" : undefined}
       ref={canvasRef}
+      shadow={"2xl"}
     />
   );
 }
