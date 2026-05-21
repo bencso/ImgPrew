@@ -1,4 +1,5 @@
 import { toaster } from "@/components/ui/toaster";
+import { minMaxValidation } from "@/helper/errorHelper";
 import {
   CalculationReFixPositionProps,
   calculationTypeEnum,
@@ -9,6 +10,7 @@ import {
   XPositions,
   YPositions,
 } from "@/interfaces/interface";
+import { ColorMapFilter } from "pixi-filters";
 import { v4 as uuidv4 } from "uuid";
 import { immer } from "zustand/middleware/immer";
 import { createWithEqualityFn } from "zustand/traditional";
@@ -41,6 +43,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
             width: null,
           },
           cropSave: false,
+          lut: null,
         } as CustomImage;
 
         if (exifData) sessionData.exifDatas = exifData;
@@ -642,22 +645,30 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
 
     //#region BORDER SIZE
     setBorderSize: (id: number, borderSize: { x: number; y: number }) => {
-      if (borderSize.y < 0 && borderSize.x < 0) {
-        borderSize.x = 0;
-        borderSize.y = 0;
-        //TODO: Hiba üzeneteket különszedni, egységesíteni
-        toaster.create({
-          title: "A border mérete nem lehet negatív",
-          type: "error",
-        });
-      }
+      borderSize.x = minMaxValidation(borderSize.x, 0);
+      borderSize.y = minMaxValidation(borderSize.y, 0);
+
       set((state) => ({
         sessionData: state.sessionData.map((img: any) =>
           img.id === id ? { ...img, borderSize: borderSize } : img,
         ),
       }));
     },
-
+    //#endregion
+    //#region LUT
+    setLut: (
+      id: number,
+      lutFilter: ColorMapFilter | null,
+      lutFile: File | null,
+    ) => {
+      set((state) => ({
+        sessionData: state.sessionData.map((img: any) =>
+          img.id === id
+            ? { ...img, lutFilter: lutFilter, lutFile: lutFile }
+            : img,
+        ),
+      }));
+    },
     //#endregion
   })),
 );

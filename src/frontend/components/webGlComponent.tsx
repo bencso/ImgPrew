@@ -1,5 +1,6 @@
 //TODO: Refaktorálás
 import { allFiltersFragment } from "@/handlers/filters/allFiltersFragment";
+import { convertCubeToFilter } from "@/helper/lutHelper";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { Box } from "@chakra-ui/react";
@@ -69,12 +70,16 @@ export default function WebGlComponent() {
     textAndImagePlaceRef,
     webglFilterRef,
     selectedScale,
-    lutFilterRef,
   } = useWorkSession();
   const { sessionData, setImageSize } = useSessionStore();
 
   const canvasRef = useRef<HTMLElement | null>(null);
   const filtersRef = useRef<Container | null>(null);
+
+  const lutFilter = useSessionStore(
+    (state) =>
+      state.sessionData.find((img) => img.id === selectedImg)?.lutFilter,
+  );
 
   //! shallow: nem generál le újra az objektumot hanem mintha cachelte volna mindig az adott objektumot irja felül / ÖSSZEHASONLÍT
   const filters = useSessionStore((s) => s.getFilters(selectedImg), shallow);
@@ -209,7 +214,7 @@ export default function WebGlComponent() {
     }
   }, [expandMode, cropSaved]);
 
-  const applyFilters = () => {
+  function applyFilters() {
     if (!spriteRef.current || !appRef.current) return;
 
     const channelOffset = getChannelOffsets(filters);
@@ -256,12 +261,10 @@ export default function WebGlComponent() {
       webglFilterRef.current.padding = 0;
 
       spriteRef.current.roundPixels = false;
-      if (lutFilterRef.current)
-        spriteRef.current.filters = [
-          lutFilterRef.current,
-          webglFilterRef.current,
-        ];
-      else spriteRef.current.filters = [webglFilterRef.current];
+     
+      if (lutFilter) {
+        spriteRef.current.filters = [lutFilter, webglFilterRef.current];
+      } else spriteRef.current.filters = [webglFilterRef.current];
     } else {
       const uniforms = webglFilterRef.current.resources.filterUniforms.uniforms;
 
@@ -282,14 +285,11 @@ export default function WebGlComponent() {
       uniforms.channel_offset_input = channelOffset.offset;
       uniforms.vibrance_input = filters.vibrance / 100.0;
 
-      if (lutFilterRef.current)
-        spriteRef.current.filters = [
-          lutFilterRef.current,
-          webglFilterRef.current,
-        ];
-      else spriteRef.current.filters = [webglFilterRef.current];
+      if (lutFilter) {
+        spriteRef.current.filters = [lutFilter, webglFilterRef.current];
+      } else spriteRef.current.filters = [webglFilterRef.current];
     }
-  };
+  }
 
   const updateLayout = () => {
     if (
@@ -524,7 +524,12 @@ export default function WebGlComponent() {
     borderSize,
     box,
     cropSaved,
+    lutFilter,
   ]);
+
+  useEffect(() => {
+    applyFilters();
+  }, [lutFilter]);
 
   useEffect(() => {
     window.addEventListener("resize", () => {

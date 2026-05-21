@@ -1,4 +1,4 @@
-import { appFonts } from "@/app/layout";
+import { appFonts } from "@/helper/appFonts";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { useMemo } from "react";

@@ -16,7 +16,6 @@ import {
   RefObject,
   SetStateAction,
 } from "react";
-import { Rnd } from "react-rnd";
 
 //#region InputTypes
 export enum InputTypes {
@@ -117,6 +116,9 @@ export interface CustomImage {
   cropSize?: { width: number | null; height: number | null };
   //BORDER
   borderSize?: { x: number | null; y: number | null };
+  //LUT
+  lutFilter?: ColorMapFilter | null;
+  lutFile?: File | null;
 }
 
 //#region CalculationReFixPositionProps
@@ -269,6 +271,12 @@ export interface SessionStore {
   getFilterValue: (id: number, filterName: string) => number | undefined;
   getFilters: (id: number) => FilterProps;
   //#endregion
+
+  //#region LUT
+   setLut: ( id: number,
+      lutFilter: ColorMapFilter | null,
+      lutFile: File | null,) => void
+   //#endregion
 }
 //#endregion
 
@@ -344,7 +352,6 @@ export interface WorkSessionContextProps {
   selectedChannel: string;
   setSelectedChannel: Dispatch<SetStateAction<string>>;
   webglFilterRef: RefObject<Filter | null>;
-  lutFilterRef: RefObject<ColorMapFilter | null>;
 }
 //#endregion
 
