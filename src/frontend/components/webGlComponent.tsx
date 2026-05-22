@@ -107,7 +107,7 @@ export default function WebGlComponent() {
 
   const expandPadding = useSessionStore(
     (state) =>
-      state.sessionData.find((si) => si.id === selectedImg)?.expandSizePadding,
+      state.sessionData.find((si) => si.id === selectedImg)?.expandSize?.padding,
     shallow,
   );
 

@@ -478,7 +478,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       set((state) => ({
         sessionData: state.sessionData.map((img: any) =>
           img.id === id
-            ? { ...img, expandSize: size, expandSizePadding: padding }
+            ? { ...img, expandSize: { ...size, padding: padding ?? 0 } }
             : img,
         ),
       }));
@@ -575,7 +575,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
               background: image.expandBackground,
             };
           if (image.borderSize) returnData.borderSize = image.borderSize;
-          returnDatas.push(returnData)
+          returnDatas.push(returnData);
         }
       });
 

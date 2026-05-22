@@ -10,17 +10,19 @@ interface ExportImageBlockProp {
 interface ImageRadioProp {
   id: number;
   blob?: string;
-  title: string;
+  title?: string;
 }
 
 export const ExportImageBlock = (props: ExportImageBlockProp) => {
-  const images = [
-    {
-      id: -1,
-      title: "Összes kép",
-    },
+  let images = [
     ...useSessionStore((state) => state.sessionData),
   ] as ImageRadioProp[];
+
+  if (images.length > 1)
+    images.push({
+      id: -1,
+      title: "Összes kép",
+    });
 
   return (
     <RadioCard.Root
@@ -30,7 +32,7 @@ export const ExportImageBlock = (props: ExportImageBlockProp) => {
       variant={"outline"}
     >
       <HStack wrap="wrap" gap={4}>
-        {images.map((item: ImageRadioProp) => (
+        {images.sort((i)=> i.id).map((item: ImageRadioProp) => (
           <RadioCard.Item
             colorPalette={"white"}
             key={item.id}
