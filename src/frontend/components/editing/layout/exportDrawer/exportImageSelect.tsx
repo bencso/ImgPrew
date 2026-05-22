@@ -1,36 +1,69 @@
 import { useSessionStore } from "@/stores/sessionData";
 import { RadioCard, HStack } from "@chakra-ui/react";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 
 interface ExportImageBlockProp {
   selected: number;
   setSelected: Dispatch<SetStateAction<number>>;
 }
+
+interface ImageRadioProp {
+  id: number;
+  blob?: string;
+  title: string;
+}
+
 export const ExportImageBlock = (props: ExportImageBlockProp) => {
-  const images = useSessionStore((state) => state.sessionData);
+  const images = [
+    {
+      id: -1,
+      title: "Összes kép",
+    },
+    ...useSessionStore((state) => state.sessionData),
+  ] as ImageRadioProp[];
 
   return (
     <RadioCard.Root
-      value={props.selected?.toString() ?? "0"}
+      value={props.selected?.toString() ?? "-1"}
       onValueChange={(e) => props.setSelected(Number(e.value))}
       colorPalette={"teal"}
       variant={"outline"}
     >
       <HStack wrap="wrap" gap={4}>
-        {images.map((item) => (
+        {images.map((item: ImageRadioProp) => (
           <RadioCard.Item
             colorPalette={"white"}
             key={item.id}
             value={item.id.toString()}
-            backgroundImage={`${props.selected === item.id ? "linear-gradient(rgba(0, 0, 0, 0.0), rgba(0,0,0,0.0))" : "linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4))"}, url(${item.blob})`}
+            backgroundImage={
+              item.blob
+                ? props.selected === item.id
+                  ? `linear-gradient(rgba(0, 0, 0, 0.0), rgba(0,0,0,0.0)), url(${item.blob})`
+                  : `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${item.blob})`
+                : ""
+            }
             bgSize="cover"
             bgPos="center"
+            display={"flex"}
+            flexDir={"row"}
+            justifyContent={"center"}
+            alignItems={"center"}
             borderRadius="md"
             w="120px"
             h="120px"
           >
             <RadioCard.ItemHiddenInput />
-            <RadioCard.ItemControl/>
+
+            {item.title && (
+              <RadioCard.ItemText
+                fontSize={"sm"}
+                opacity={0.7}
+                textAlign={"center"}
+                w={"full"}
+              >
+                {item.title}
+              </RadioCard.ItemText>
+            )}
           </RadioCard.Item>
         ))}
       </HStack>

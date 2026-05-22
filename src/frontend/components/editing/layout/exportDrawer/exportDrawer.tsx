@@ -1,24 +1,15 @@
-import {
-  Drawer,
-  Box,
-  Button,
-  Portal,
-  RadioCard,
-  HStack,
-  Flex,
-  Text,
-} from "@chakra-ui/react";
+import { Drawer, Box, Button, Portal, Flex, Text } from "@chakra-ui/react";
 import { FaFileExport, FaFileImage } from "react-icons/fa";
-import { LuX, LuFileBox } from "react-icons/lu";
+import { LuFileBox } from "react-icons/lu";
 import { ExportExifBlock } from "./exportExifBlock";
 import { ExportImageBlock } from "./exportImageSelect";
 import { useState } from "react";
-import { useWorkSession } from "@/providers/sessionprovider";
 import { ExportFileExtension } from "./exportFileExtension";
+import { useSessionStore } from "@/stores/sessionData";
 
 export default function ExportDrawer() {
-  const { selectedImg } = useWorkSession();
-  const [selected, setSelected] = useState<number>(selectedImg);
+  const [selected, setSelected] = useState<number>(-1);
+  const { exportImageSettings, exportAllImageSettings } = useSessionStore();
 
   return (
     <Drawer.Root size={"lg"}>
@@ -61,29 +52,50 @@ export default function ExportDrawer() {
             {
               //#region Drawer Body
             }
-            <Drawer.Body w={"full"} gap={12} display={"flex"} flexDir={"column"}>
+            <Drawer.Body
+              w={"full"}
+              gap={12}
+              display={"flex"}
+              flexDir={"column"}
+            >
               <ExportImageBlock selected={selected} setSelected={setSelected} />
-              <ExportExifBlock selected={selected} setSelected={setSelected} />
-              <ExportFileExtension/>
+              {selected !== -1 && (
+                <ExportExifBlock
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+              )}
+              <ExportFileExtension
+                selected={selected}
+                setSelected={setSelected}
+              />
             </Drawer.Body>
             {
               //#region Drawer Footer
             }
             <Drawer.Footer>
               <Flex flexDirection={"row"} w={"full"} gap={4}>
-                <Button
-                  colorPalette={"teal"}
-                  variant={"subtle"}
-                  w={"full"}
-                  flex={1}
-                >
-                  <FaFileImage size={"12"} />
-                  Kép exportálása
-                </Button>
-                <Button colorPalette={"teal"} w={"full"} flex={1}>
-                  <LuFileBox size={"12"} />
-                  Összes exportálása
-                </Button>
+                {selected !== -1 && (
+                  <Button
+                    colorPalette={"teal"}
+                    w={"full"}
+                    flex={1}
+                    onClick={() => {
+                      console.log(exportImageSettings(selected));
+                    }}
+                  >
+                    <FaFileImage size={"12"} />
+                    Kép exportálása
+                  </Button>
+                )}
+                {selected === -1 && (
+                  <Button colorPalette={"teal"} w={"full"} flex={1}  onClick={() => {
+                      console.log(exportAllImageSettings());
+                    }}>
+                    <LuFileBox size={"12"} />
+                    Összes exportálása
+                  </Button>
+                )}
               </Flex>
             </Drawer.Footer>
           </Drawer.Content>

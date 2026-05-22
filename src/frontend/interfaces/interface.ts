@@ -1,4 +1,9 @@
-import { HTMLChakraProps, JsxStyleProps, SliderValueChangeDetails, SystemStyleObject } from "@chakra-ui/react";
+import {
+  HTMLChakraProps,
+  JsxStyleProps,
+  SliderValueChangeDetails,
+  SystemStyleObject,
+} from "@chakra-ui/react";
 import { UUID } from "crypto";
 import { ColorMapFilter } from "pixi-filters";
 import {
@@ -86,12 +91,18 @@ export interface CropBox {
 }
 //#endregion
 
+//#region ExportSettings
+export interface ExportSettings {
+  fileExtension?: string;
+  exifDatas?: string[];
+}
+//#endregion
+
 //#region CustomImage
 export interface CustomImage {
   //DEFAULT IMAGE SETTINGS
   id: number;
   blob: string;
-  exportFileExtension: string;
   filters?: { name: string; value: number }[];
   dimesions?: { width: number; height: number };
   //EXIF, CAPTION
@@ -108,8 +119,8 @@ export interface CustomImage {
   expandSize?: {
     width: number;
     height: number;
+    padding?: number;
   };
-  expandSizePadding?: number | undefined;
   //CROP BOX
   box?: CropBox;
   cropSave?: boolean;
@@ -119,6 +130,8 @@ export interface CustomImage {
   //LUT
   lutFilter?: ColorMapFilter | null;
   lutFile?: File | null;
+  // Export settings
+  exportSettings?: ExportSettings;
 }
 
 //#region CalculationReFixPositionProps
@@ -213,8 +226,12 @@ export interface SessionStore {
   setCaptionForImage: (id: number, caption: string) => void;
   //#endregion
 
-  //#region EXPORT FILE EXTENSION
+  //#region EXPORT
   setExportFileExtension: (id: number, extension: string) => void;
+  setExportAllFileExtension: (extension: string) => void;
+  setExportExifs: (id: number, exifs: string[]) => void;
+  exportImageSettings: (id: number) => any;
+  exportAllImageSettings: () => any[];
   //#endregion
 
   //#region TEXT
@@ -227,7 +244,11 @@ export interface SessionStore {
     textId: string,
     fontWeight: number,
   ) => void;
-  setTextFontFamily: (imageId: number, textId: string, fontFamily: string) => void
+  setTextFontFamily: (
+    imageId: number,
+    textId: string,
+    fontFamily: string,
+  ) => void;
   getTextPosition: (
     selectedImage: number,
     textId: string,
@@ -256,12 +277,6 @@ export interface SessionStore {
   ) => void;
   //#endregion
 
-  //#region EXPORT
-  exportAllDataForImage: (
-    id: number,
-  ) => { caption?: string; fileExtension: string } | null;
-  //#endregion
-
   //#region BORDER
   setBorderSize(id: number, borderSize: { x: number; y: number }): void;
   //#endregion
@@ -273,10 +288,12 @@ export interface SessionStore {
   //#endregion
 
   //#region LUT
-   setLut: ( id: number,
-      lutFilter: ColorMapFilter | null,
-      lutFile: File | null,) => void
-   //#endregion
+  setLut: (
+    id: number,
+    lutFilter: ColorMapFilter | null,
+    lutFile: File | null,
+  ) => void;
+  //#endregion
 }
 //#endregion
 
@@ -369,7 +386,7 @@ export interface FunctionProp {
   icon?: ReactNode | null;
   clearFunc?: () => void;
   resetValue?: number;
-  style? : SystemStyleObject
+  style?: SystemStyleObject;
 }
 //#endregion
 

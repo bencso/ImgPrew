@@ -34,7 +34,6 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           id: nextId,
           blob: blob,
           expandMode: "no",
-          exportFileExtension: "jpg",
           expandBackground: "rgba(255, 255, 255,1)",
           box: {
             x: null,
@@ -44,6 +43,9 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           },
           cropSave: false,
           lut: null,
+          exportSettings: {
+            fileExtension: "jpg",
+          },
         } as CustomImage;
 
         if (exifData) sessionData.exifDatas = exifData;
@@ -275,14 +277,6 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       }),
     //#endregion
 
-    //#region EXPORT FILE EXTENSION
-    setExportFileExtension: (id: number, extension: string) =>
-      set((state) => {
-        const image = state.sessionData.find((img: any) => img.id === id);
-        if (image) image.exportFileExtension = extension;
-      }),
-    //#endregion
-
     //#region TEXT
     addTexts: (imageId: number, text: string) =>
       set((state) => {
@@ -505,15 +499,87 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     //#endregion
 
     //#region EXPORT
-    exportAllDataForImage: (id: number) => {
+    setExportFileExtension: (id: number, extension: string) => {
+      set((state) => ({
+        sessionData: state.sessionData.map((img: any) =>
+          img.id === id
+            ? {
+                ...img,
+                exportSettings: {
+                  ...img.exportSettings,
+                  fileExtension: extension,
+                },
+              }
+            : img,
+        ),
+      }));
+    },
+    setExportAllFileExtension: (extension: string) => {
+      set((state) => ({
+        sessionData: state.sessionData.map((img: any) => {
+          return {
+            ...img,
+            exportSettings: {
+              ...img.exportSettings,
+              fileExtension: extension,
+            },
+          };
+        }),
+      }));
+    },
+    setExportExifs: (id: number, exifs: string[]) => {
+      set((state) => ({
+        sessionData: state.sessionData.map((img: any) =>
+          img.id === id
+            ? {
+                ...img,
+                exportSettings: {
+                  ...img.exportSettings,
+                  exifDatas: exifs,
+                },
+              }
+            : img,
+        ),
+      }));
+    },
+    exportImageSettings: (id: number) => {
       const image = get().sessionData.find((img) => img.id === id);
       if (image) {
-        return {
-          caption: image.caption,
-          fileExtension: image.exportFileExtension,
-        };
+        let returnData = {} as any;
+
+        if (image.exportSettings)
+          returnData.exportSettings = image.exportSettings;
+        if (image.box) returnData.cropBox = image.box;
+        if (image.expandSize)
+          returnData.expand = {
+            size: image.expandSize,
+            background: image.expandBackground,
+          };
+        if (image.borderSize) returnData.borderSize = image.borderSize;
+
+        return returnData;
       }
-      return null;
+    },
+    exportAllImageSettings: () => {
+      let returnDatas = [] as any[];
+      get().sessionData.map((image) => {
+        let returnData = {} as any;
+        if (image) {
+          returnData.id = image.id;
+          if (image.exportSettings)
+            returnData.exportSettings = image.exportSettings;
+          if (image.box) returnData.cropBox = image.box;
+          if (image.expandSize)
+            returnData.expand = {
+              size: image.expandSize,
+              background: image.expandBackground,
+            };
+          if (image.borderSize) returnData.borderSize = image.borderSize;
+          returnDatas.push(returnData)
+        }
+      });
+
+      return returnDatas;
     },
     //#endregion
 
