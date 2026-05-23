@@ -51,6 +51,8 @@ scipy
 piexif
 pillow
 pillow_heif
+pyparsing
+ImageIO
 
 # ==========================================
 # CLI Tools & Terminal Output
