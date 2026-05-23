@@ -2,6 +2,8 @@ import re
 from PIL import ImageFilter, Image
 from dependencies import LUT_SIZE_REGEX, LUT_DATA_REGEX
 import io
+import imageio.v3 as iio
+import numpy as np
 
 class Lut:
     def __init__(self, lut_path: str, image=Image.Image):
@@ -15,6 +17,24 @@ class Lut:
         self.buffer = io.BytesIO()
         self.image.save(self.buffer, format="PNG")
         self.buffer.seek(0)
+    
+    def png_to_lut(self):
+        img_datas = iio.imread(self.lut_path)
+        
+        lut_size = len(img_datas)
+        lut_table = []
+        
+        
+        for b in range(lut_size):
+            for g in range(lut_size):
+                for r in range(lut_size):
+                    x = b*lut_size+r
+                    y = g                    
+                    colors = np.array(img_datas[y][x][:3])
+                    lut_row = tuple(colors/255)
+                    lut_table.append(lut_row)
+        lut = ImageFilter.Color3DLUT(lut_size, lut_table)
+        return self.image.filter(lut)    
 
     def apply(self):
         with open(self.lut_path) as f:

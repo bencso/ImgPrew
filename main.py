@@ -35,13 +35,13 @@ image_error = []
 
 user_requests = [
     {
-        "image_path": "imgs/image-mesh-gradient.png",
+        "image_path": "src/IMG_0817.jpeg",
         #############################################
-        "get_exif": True,
-        "resize_img": True,
-        "watermark": True,
-        "border": True,
-        "caption_generate": True,
+        "get_exif": False,
+        "resize_img": False,
+        "watermark": False,
+        "border": False,
+        "caption_generate": False,
         "lut": True,
         #############################################
         "custom_caption": None,
@@ -62,8 +62,7 @@ user_requests = [
         "border_size": 14,
         "border_color": "FFFFF",
         #############################################
-        "lut_path": "luts/PictureFX-Acros-100-II-RedFilter.cube",
-        # "lut_path": None,
+        "lut_path": "src/lut.png",
         #############################################
         "allowed_infos": [],
         "get_exif_datas": [
@@ -185,7 +184,7 @@ def main():
                                 image=image,
                                 lut_path=user_request["lut_path"],
                             ) as lut:
-                                image = lut.apply()
+                                image = lut.png_to_lut()
 
                         # Kép átméretezés
                         if item.resize_img is True:
