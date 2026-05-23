@@ -1,6 +1,6 @@
 import { toaster } from "@/components/ui/toaster";
 import { minMaxValidation } from "@/helper/errorHelper";
-import { generateHald } from "@/helper/lutHelper";
+import { generateHald } from "@/handlers/lutFunctions";
 import {
   CalculationReFixPositionProps,
   calculationTypeEnum,
@@ -12,8 +12,8 @@ import {
   YPositions,
 } from "@/interfaces/interface";
 import { ColorMapFilter } from "pixi-filters";
-import { Sprite, Texture } from "pixi.js";
-import { useRef } from "react";
+import { Application, Renderer, Sprite, Texture } from "pixi.js";
+import { RefObject, useRef } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { immer } from "zustand/middleware/immer";
 import { createWithEqualityFn } from "zustand/traditional";
@@ -553,11 +553,24 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         ),
       }));
     },
-    exportImageSettings: (id: number) => {
+    exportImageSettings: async (
+      id: number,
+      appRef: RefObject<Application<Renderer> | null>,
+    ) => {
       const image = get().sessionData.find((img) => img.id === id);
-      if (image) {
+      if (image && appRef.current) {
         let returnData = {} as any;
+        let haldImage;
 
+        if (image && appRef.current) {
+          haldImage = await appRef.current.renderer.extract.image({
+            target: image.haldSprite,
+            format: "png",
+            resolution: 2,
+          });
+        }
+
+        if (image.haldSprite) returnData.hald = haldImage?.src;
         if (image.exportSettings)
           returnData.exportSettings = image.exportSettings;
         if (image.box) returnData.cropBox = image.box;
@@ -571,11 +584,23 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         return returnData;
       }
     },
-    exportAllImageSettings: () => {
-      let returnDatas = [] as any[];
-      get().sessionData.map((image) => {
-        let returnData = {} as any;
-        if (image) {
+    exportAllImageSettings: async (
+      appRef: RefObject<Application<Renderer> | null>,
+    ) => {
+      const returnDatas = await Promise.all(
+        get().sessionData.map(async (image) => {
+          let returnData = {} as any;
+          let haldImage;
+
+          if (image && appRef.current) {
+            haldImage = await appRef.current.renderer.extract.image({
+              target: image.haldSprite,
+              format: "png",
+              resolution: 2,
+            });
+            returnData.hald = haldImage?.src;
+          }
+
           returnData.id = image.id;
           if (image.exportSettings)
             returnData.exportSettings = image.exportSettings;
@@ -586,10 +611,9 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
               background: image.expandBackground,
             };
           if (image.borderSize) returnData.borderSize = image.borderSize;
-          returnDatas.push(returnData);
-        }
-      });
-
+          return returnData;
+        }),
+      );
       return returnDatas;
     },
     //#endregion

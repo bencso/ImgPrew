@@ -231,8 +231,8 @@ export interface SessionStore {
   setExportFileExtension: (id: number, extension: string) => void;
   setExportAllFileExtension: (extension: string) => void;
   setExportExifs: (id: number, exifs: string[]) => void;
-  exportImageSettings: (id: number) => any;
-  exportAllImageSettings: () => any[];
+  exportImageSettings: (id: number, appRef: RefObject<Application<Renderer> | null>) => Promise<any>
+  exportAllImageSettings: (appRef: RefObject<any>) => Promise<any[]>;
   //#endregion
 
   //#region TEXT

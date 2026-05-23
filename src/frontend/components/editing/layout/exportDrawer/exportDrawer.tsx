@@ -9,12 +9,10 @@ import { useSessionStore } from "@/stores/sessionData";
 import { useWorkSession } from "@/providers/sessionprovider";
 
 export default function ExportDrawer() {
-  const [selected, setSelected] = useState<number>(-1);
+  const images = useSessionStore((s) => s.sessionData);
+  const [selected, setSelected] = useState<number>(images.length > 1 ? -1 : 0);
   const { exportImageSettings, exportAllImageSettings } = useSessionStore();
   const { appRef } = useWorkSession();
-  const haldSprite = useSessionStore((s) =>
-    s.sessionData.find((i) => i.id === selected),
-  )?.haldSprite;
 
   return (
     <Drawer.Root size={"lg"}>
@@ -85,15 +83,8 @@ export default function ExportDrawer() {
                     colorPalette={"teal"}
                     w={"full"}
                     flex={1}
-                    onClick={() => {
-                      console.log(exportImageSettings(selected));
-
-                      if (!appRef.current || !haldSprite) return;
-
-                      appRef.current.renderer.extract.download({
-                        target: haldSprite,
-                        filename: "haldLUT.png",
-                      });
+                    onClick={async () => {
+                      console.log(await exportImageSettings(selected, appRef));
                     }}
                   >
                     <FaFileImage size={"12"} />
@@ -105,8 +96,8 @@ export default function ExportDrawer() {
                     colorPalette={"teal"}
                     w={"full"}
                     flex={1}
-                    onClick={() => {
-                      console.log(exportAllImageSettings());
+                    onClick={async () => {
+                      console.log(await exportAllImageSettings(appRef));
                     }}
                   >
                     <LuFileBox size={"12"} />

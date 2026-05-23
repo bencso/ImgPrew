@@ -1,6 +1,5 @@
 //TODO: Refaktorálás
 import { allFiltersFragment } from "@/handlers/filters/allFiltersFragment";
-import { convertCubeToFilter, generateHald } from "@/helper/lutHelper";
 import { ParamProps } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
@@ -256,11 +255,12 @@ export default function WebGlComponent() {
       spriteRef.current.roundPixels = false;
 
       if (lutFilter) {
-        spriteRef.current.filters = [lutFilter, webglFilterRef.current];
-        haldSprite.filters = [lutFilter, webglFilterRef.current];
+        if(spriteRef.current) spriteRef.current.filters = [lutFilter, webglFilterRef.current];
+        if (haldSprite)
+          haldSprite.filters = [lutFilter, webglFilterRef.current];
       } else {
-        spriteRef.current.filters = [webglFilterRef.current];
-        haldSprite.filters = [webglFilterRef.current];
+        if(spriteRef.current) spriteRef.current.filters = [webglFilterRef.current];
+        if (haldSprite) haldSprite.filters = [webglFilterRef.current];
       }
     } else {
       const uniforms = webglFilterRef.current.resources.filterUniforms.uniforms;
@@ -283,11 +283,11 @@ export default function WebGlComponent() {
       uniforms.vibrance_input = filters.vibrance / 100.0;
 
       if (lutFilter) {
-        spriteRef.current.filters = [lutFilter, webglFilterRef.current];
-        haldSprite.filters = [lutFilter, webglFilterRef.current];
+       if(spriteRef.current) spriteRef.current.filters = [lutFilter, webglFilterRef.current];
+       if(haldSprite)  haldSprite.filters = [lutFilter, webglFilterRef.current];
       } else {
-        spriteRef.current.filters = [webglFilterRef.current];
-        haldSprite.filters = [webglFilterRef.current];
+        if(spriteRef.current) spriteRef.current.filters = [webglFilterRef.current];
+        if(haldSprite)  haldSprite.filters = [webglFilterRef.current];
       }
     }
   }
