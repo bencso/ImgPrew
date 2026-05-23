@@ -357,6 +357,8 @@ export default function WebGlComponent() {
           y: canvasH / 2,
         },
       });
+      
+      applyFilters();
       return;
     } else {
       const scale = Math.min(areaH / imgH, areaW / imgW);
@@ -440,7 +442,6 @@ export default function WebGlComponent() {
 
         textAndImagePlaceRef.current.style.height = h * scale + "px";
         textAndImagePlaceRef.current.style.width = w * scale + "px";
-        applyFilters();
       }
 
       if (

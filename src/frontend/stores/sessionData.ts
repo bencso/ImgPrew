@@ -569,7 +569,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
             resolution: 2,
           });
         }
-
+        
         if (image.haldSprite) returnData.hald = haldImage?.src;
         if (image.exportSettings)
           returnData.exportSettings = image.exportSettings;
@@ -599,6 +599,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
               resolution: 2,
             });
             returnData.hald = haldImage?.src;
+
           }
 
           returnData.id = image.id;
