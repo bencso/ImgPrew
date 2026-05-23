@@ -1,5 +1,6 @@
 import { toaster } from "@/components/ui/toaster";
 import { minMaxValidation } from "@/helper/errorHelper";
+import { generateHald } from "@/helper/lutHelper";
 import {
   CalculationReFixPositionProps,
   calculationTypeEnum,
@@ -11,6 +12,8 @@ import {
   YPositions,
 } from "@/interfaces/interface";
 import { ColorMapFilter } from "pixi-filters";
+import { Sprite, Texture } from "pixi.js";
+import { useRef } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { immer } from "zustand/middleware/immer";
 import { createWithEqualityFn } from "zustand/traditional";
@@ -30,6 +33,13 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     addImage: (blob: string, exifData?: string[], captionSamples?: string[]) =>
       set((state) => {
         const nextId = state.sessionData.length;
+
+        const hald = generateHald(32);
+
+        if (hald instanceof HTMLCanvasElement !== true) return null;
+        const haldTexture = Texture.from(hald);
+        const haldSprite = new Sprite(haldTexture);
+
         const sessionData = {
           id: nextId,
           blob: blob,
@@ -46,6 +56,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           exportSettings: {
             fileExtension: "jpg",
           },
+          haldSprite: haldSprite,
         } as CustomImage;
 
         if (exifData) sessionData.exifDatas = exifData;

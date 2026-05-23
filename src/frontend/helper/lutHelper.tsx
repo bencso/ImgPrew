@@ -6,7 +6,6 @@ import { Texture } from "pixi.js";
 // 2. Mivel a LUT egy 3D-s kocka, ezért ki kell terítenünk lapokra
 // (A PixiJS ColorMapFilter-e egyetlen hosszú vízszintes lapot vár)
 
-
 export const convertCubeToFilter = (lut: any): ColorMapFilter | null => {
   const flatData = lut.data.flat();
   const size = lut.size || 32;
@@ -54,4 +53,32 @@ export const convertCubeToFilter = (lut: any): ColorMapFilter | null => {
   });
   colorMapFilter.updateColorMap();
   return colorMapFilter;
-}
+};
+
+export const generateHald = (haldSize?: number): HTMLCanvasElement | null => {
+  const size = haldSize || 32;
+
+  const hald = document.createElement("canvas");
+  hald.width = Math.pow(size, 2);
+  hald.height = size;
+  const ctx = hald.getContext("2d")!;
+  const imageData = ctx.createImageData(hald.width, hald.height);
+
+  for (let blue = 0; blue < size; blue++) {
+    for (let green = 0; green < size; green++) {
+      for (let red = 0; red < size; red++) {
+        const xCoord = blue * size + red;
+        const yCoord = green;
+        const index = (yCoord * hald.width + xCoord) * 4;
+
+        imageData.data[index] = Math.round((red / (size - 1)) * 255);
+        imageData.data[index + 1] = Math.round((green / (size - 1)) * 255);
+        imageData.data[index + 2] = Math.round((blue / (size - 1)) * 255);
+        imageData.data[index + 3] = 255;
+      }
+    }
+  }
+
+  ctx.putImageData(imageData, 0, 0);
+  return hald;
+};

@@ -132,6 +132,7 @@ export interface CustomImage {
   lutFile?: File | null;
   // Export settings
   exportSettings?: ExportSettings;
+  haldSprite: Sprite | any
 }
 
 //#region CalculationReFixPositionProps

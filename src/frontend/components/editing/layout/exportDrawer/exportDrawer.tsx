@@ -6,10 +6,15 @@ import { ExportImageBlock } from "./exportImageSelect";
 import { useState } from "react";
 import { ExportFileExtension } from "./exportFileExtension";
 import { useSessionStore } from "@/stores/sessionData";
+import { useWorkSession } from "@/providers/sessionprovider";
 
 export default function ExportDrawer() {
   const [selected, setSelected] = useState<number>(-1);
   const { exportImageSettings, exportAllImageSettings } = useSessionStore();
+  const { appRef } = useWorkSession();
+  const haldSprite = useSessionStore((s) =>
+    s.sessionData.find((i) => i.id === selected),
+  )?.haldSprite;
 
   return (
     <Drawer.Root size={"lg"}>
@@ -82,6 +87,13 @@ export default function ExportDrawer() {
                     flex={1}
                     onClick={() => {
                       console.log(exportImageSettings(selected));
+
+                      if (!appRef.current || !haldSprite) return;
+
+                      appRef.current.renderer.extract.download({
+                        target: haldSprite,
+                        filename: "haldLUT.png",
+                      });
                     }}
                   >
                     <FaFileImage size={"12"} />
@@ -89,9 +101,14 @@ export default function ExportDrawer() {
                   </Button>
                 )}
                 {selected === -1 && (
-                  <Button colorPalette={"teal"} w={"full"} flex={1}  onClick={() => {
+                  <Button
+                    colorPalette={"teal"}
+                    w={"full"}
+                    flex={1}
+                    onClick={() => {
                       console.log(exportAllImageSettings());
-                    }}>
+                    }}
+                  >
                     <LuFileBox size={"12"} />
                     Összes exportálása
                   </Button>

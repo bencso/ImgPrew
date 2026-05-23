@@ -16,6 +16,7 @@ class ResizeImg:
         width: Optional[int] = None,
         expand: Optional[bool] = None,
         expand_bg: Optional[str] = None,
+        position: Optional[tuple[int, int]] = None
     ):
         size_config = SOCIAL_IMAGES_SIZES.get(sample_size_id)
         if size_config is not None:
@@ -52,7 +53,7 @@ class ResizeImg:
                     self.img,
                     SIZE,
                     method=Image.Resampling.LANCZOS,
-                    centering=(0.5, 0.5),
+                    centering=(self.position[0] / self.img.width if self.position else 0.5, self.position[1] / self.img.height  if self.position else 0.5),
                 )
                 return resized_img
             else:
