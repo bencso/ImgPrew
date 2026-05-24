@@ -579,14 +579,15 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         let haldImage;
 
         if (image && appRef.current) {
-          haldImage = await appRef.current.renderer.extract.image({
+          haldImage = await appRef.current.renderer.extract.base64({
             target: image.haldSprite,
             format: "png",
             resolution: 2,
-          });
+          })
+
         }
 
-        if (image.haldSprite) returnData.hald = haldImage?.src;
+        if (image.haldSprite) returnData.hald = haldImage;
         if (image.exportSettings)
           returnData.exportSettings = image.exportSettings;
         if (image.box) returnData.cropBox = image.box;

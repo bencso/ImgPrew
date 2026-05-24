@@ -450,10 +450,7 @@ export default function WebGlComponent() {
         spriteRef.current.y = spY;
       }
 
-      if (
-        expandMode === "border" ||
-      expandMode === "crop" 
-      ) {
+      if (expandMode === "border" || expandMode === "crop") {
         const targetH = canvasH + (borderSize?.x ?? 0);
         const targetW = canvasW + (borderSize?.x ?? 0);
 

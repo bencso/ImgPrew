@@ -1,13 +1,13 @@
 import json
 
-from fastapi import UploadFile, APIRouter
+from fastapi import UploadFile, APIRouter, Form
 from fastapi.responses import JSONResponse
 from functions.caption_generator import CaptionGenerator
 from classes.uploadedimage import UploadedImage
 from dependencies import IMAGE_EXTENSIONS
+from models.exportimage import ExportImage
 
 router = APIRouter(prefix="/images", tags=["images"])
-
 
 # TODO: Itt azt kell csinálni majd, hogy az adatbázisba fel küldjük rögtön a sessionok közé (amit elkezdtünk képeket szerkeszteni ott fogjuk tárolni "automatikus mentés dologgal")
 @router.post("/upload")
@@ -39,6 +39,29 @@ async def uploadImage(file: UploadFile):
                 "data": data,
             },
         )
+    except Exception as ex:
+        return JSONResponse(
+            status_code=400,
+            content={
+                "message": f"{ex}",
+            },
+        )
+
+@router.post("/export")
+async def exportImages(image: UploadFile, lut: UploadFile = None, data: ExportImage = None):
+    try:
+        file_bytes = await image.read()
+        lut_file_bytes = await lut.read()
+        uploaded_image = UploadedImage(file_bytes)
+        lut_image = UploadedImage(lut_file_bytes)
+        lut_image = lut_image.get_img()
+        
+        return JSONResponse(
+            status_code=200,
+            content={
+                "message": f"Sikeres exportálás",
+            },
+            )
     except Exception as ex:
         return JSONResponse(
             status_code=400,

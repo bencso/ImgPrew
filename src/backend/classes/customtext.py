@@ -3,7 +3,6 @@ from functions.valid_colors import validColors
 from dependencies import FONT_SIZES, FONT_WEIGHTS
 from PIL import ImageDraw, Image, ImageFont, ImageStat, ImageColor
 
-
 class Text:
     def __init__(
         self,

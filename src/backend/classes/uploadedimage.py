@@ -2,7 +2,6 @@ import base64
 from PIL import Image
 import io
 
-
 class UploadedImage:
     def __init__(self, image: str):
         self.original_image = image

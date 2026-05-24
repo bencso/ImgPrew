@@ -84,7 +84,45 @@ export default function ExportDrawer() {
                     w={"full"}
                     flex={1}
                     onClick={async () => {
-                      console.log(await exportImageSettings(selected, appRef));
+                      const exportData = await exportImageSettings(
+                        selected,
+                        appRef,
+                      );
+
+                      const selectedImage = images.find(
+                        (i) => i.id === selected,
+                      );
+
+                      if (!selectedImage) return;
+
+                      const blob = await fetch(selectedImage.blob).then((res) =>
+                        res.blob(),
+                      );
+                      const haldBlob = await fetch(exportData.hald).then(
+                        (res) => res.blob(),
+                      );
+
+                      const imageBlobFile = new File(
+                        [blob],
+                        `image_${selectedImage.id}`,
+                      );
+
+                      const haldFile = new File(
+                        [haldBlob],
+                        `hald_${selectedImage.id}`,
+                      );
+
+                      const formData = new FormData();
+                      formData.append("image", imageBlobFile);
+                      formData.append("lut", haldFile);
+                      formData.append("extension", "jpeg");
+
+                      const res = await fetch("/api/images/export", {
+                        method: "POST",
+                        body: formData,
+                      }).catch(() => null);
+
+                      console.log(res);
                     }}
                   >
                     <FaFileImage size={"12"} />
