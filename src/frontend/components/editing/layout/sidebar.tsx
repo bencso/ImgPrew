@@ -18,7 +18,8 @@ import {
   ScrollArea,
   Slider,
   SliderValueChangeDetails,
-  useBreakpointValue} from "@chakra-ui/react";
+  useBreakpointValue,
+} from "@chakra-ui/react";
 import { Filter, Sprite } from "pixi.js";
 import { RefObject, useMemo } from "react";
 import {
@@ -711,6 +712,14 @@ const sidebarElements = (
                   y: 0,
                 });
               }
+            } else {
+              if (expandMode !== "crop") {
+                setExpandMode(selectedImg, "no");
+              }
+              setBorderSize(selectedImg, {
+                x: 0,
+                y: 0,
+              });
             }
           },
         },
@@ -779,7 +788,7 @@ export default function SideBar() {
 
   const {
     setExportFileExtension,
-    exportAllDataForImage,
+    exportAllImageSettings,
     editFilters,
     getFilterValue,
     setExpandMode,
@@ -792,7 +801,8 @@ export default function SideBar() {
   const selectedExtension =
     useSessionStore(
       (s) =>
-        s.sessionData.find((si) => si.id === selectedImg)?.exportFileExtension,
+        s.sessionData.find((si) => si.id === selectedImg)?.exportSettings
+          ?.fileExtension,
     ) || "";
 
   const expandBackground =
@@ -825,7 +835,7 @@ export default function SideBar() {
 
   const editItems = useMemo(() => {
     return sidebarElements(
-      exportAllDataForImage,
+      exportAllImageSettings,
       setExportFileExtension,
       selectedImg,
       selectedExtension,
@@ -907,7 +917,7 @@ export default function SideBar() {
           </ScrollArea.Content>
         </ScrollArea.Viewport>
       </ScrollArea.Root>
-          <ExportDrawer/>
+      <ExportDrawer />
     </Flex>
   );
 }

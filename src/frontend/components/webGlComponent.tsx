@@ -19,6 +19,7 @@ import {
 } from "pixi.js";
 import { useEffect, useRef } from "react";
 import { shallow } from "zustand/shallow";
+import ImagesSide from "./editing/layout/imagesSide";
 
 export function getChannelOffsets(params: ParamProps) {
   const channels = new Float32Array([
@@ -172,7 +173,8 @@ export default function WebGlComponent() {
       applyFilters();
     };
 
-    img.src = sessionData[selectedImg].blob;
+    if (sessionData.length > 0 && sessionData[selectedImg].blob)
+      img.src = sessionData[selectedImg].blob;
   }
 
   useEffect(() => {
@@ -255,11 +257,13 @@ export default function WebGlComponent() {
       spriteRef.current.roundPixels = false;
 
       if (lutFilter) {
-        if(spriteRef.current) spriteRef.current.filters = [lutFilter, webglFilterRef.current];
+        if (spriteRef.current)
+          spriteRef.current.filters = [lutFilter, webglFilterRef.current];
         if (haldSprite)
           haldSprite.filters = [lutFilter, webglFilterRef.current];
       } else {
-        if(spriteRef.current) spriteRef.current.filters = [webglFilterRef.current];
+        if (spriteRef.current)
+          spriteRef.current.filters = [webglFilterRef.current];
         if (haldSprite) haldSprite.filters = [webglFilterRef.current];
       }
     } else {
@@ -283,11 +287,14 @@ export default function WebGlComponent() {
       uniforms.vibrance_input = filters.vibrance / 100.0;
 
       if (lutFilter) {
-       if(spriteRef.current) spriteRef.current.filters = [lutFilter, webglFilterRef.current];
-       if(haldSprite)  haldSprite.filters = [lutFilter, webglFilterRef.current];
+        if (spriteRef.current)
+          spriteRef.current.filters = [lutFilter, webglFilterRef.current];
+        if (haldSprite)
+          haldSprite.filters = [lutFilter, webglFilterRef.current];
       } else {
-        if(spriteRef.current) spriteRef.current.filters = [webglFilterRef.current];
-        if(haldSprite)  haldSprite.filters = [webglFilterRef.current];
+        if (spriteRef.current)
+          spriteRef.current.filters = [webglFilterRef.current];
+        if (haldSprite) haldSprite.filters = [webglFilterRef.current];
       }
     }
   }
@@ -344,10 +351,6 @@ export default function WebGlComponent() {
 
       spriteRef.current.x = appRef.current.canvas.width / 2;
       spriteRef.current.y = appRef.current.canvas.height / 2;
-      if (textAndImagePlaceRef.current) {
-        textAndImagePlaceRef.current.style.width = `${areaW}px`;
-        textAndImagePlaceRef.current.style.height = `${areaH}px`;
-      }
 
       setSelectedScale({
         image: { height: imgH, width: imgW },
@@ -357,7 +360,7 @@ export default function WebGlComponent() {
           y: canvasH / 2,
         },
       });
-      
+
       applyFilters();
       return;
     } else {
@@ -396,8 +399,15 @@ export default function WebGlComponent() {
           setImageSize(selectedImg, imgW, imgH);
         }
 
-        const h = box.height;
-        const w = box.width;
+        const scaleX = box?.currentWidth
+          ? (textAndImagePlaceRef.current?.clientWidth ?? 0) / imageSize.width
+          : 1;
+        const scaleY = box?.currentHeight
+          ? (textAndImagePlaceRef.current?.clientHeight ?? 0) / imageSize.height
+          : 1;
+
+        const h = box.height * scaleY;
+        const w = box.width * scaleX;
 
         const defaultImageScaleH =
           imageSize.height / textAndImagePlaceRef.current?.clientHeight;
@@ -415,8 +425,8 @@ export default function WebGlComponent() {
           orig: textureRef.current.orig,
           trim: textureRef.current.trim,
           frame: new Rectangle(
-            box.x * defaultImageScale,
-            box.y * defaultImageScale,
+            box.x * scaleX * defaultImageScale,
+            box.y * scaleY * defaultImageScale,
             canvasW,
             canvasH,
           ),
@@ -426,68 +436,6 @@ export default function WebGlComponent() {
         appRef.current.stage.removeChildren();
         appRef.current.stage.addChild(spriteCopy);
         spriteRef.current = spriteCopy;
-
-        const scaleH = workPlaceRef.current.clientHeight / h;
-        const scaleW = workPlaceRef.current.clientWidth / w;
-        const scale = Math.min(scaleH, scaleW);
-
-        appRef.current.renderer.resize(w * scale, h * scale);
-        appRef.current.renderer.background.color = expandBackground;
-
-        spriteRef.current.height = h * scale;
-        spriteRef.current.width = w * scale;
-        spriteRef.current.anchor = 0.5;
-        spriteRef.current.x = appRef.current.canvas.width / 2;
-        spriteRef.current.y = appRef.current.canvas.height / 2;
-
-        textAndImagePlaceRef.current.style.height = h * scale + "px";
-        textAndImagePlaceRef.current.style.width = w * scale + "px";
-      }
-
-      if (
-        borderSize &&
-        textAndImagePlaceRef.current &&
-        borderSize.y &&
-        borderSize.x &&
-        borderSize.x > 0 &&
-        borderSize.y > 0
-      ) {
-        let h = imageSize?.height ?? 0;
-        let w = imageSize?.width ?? 0;
-        if (
-          expandMode === "crop" &&
-          cropSaved === true &&
-          borderSize &&
-          borderSize.x &&
-          borderSize.y &&
-          borderSize.x > 0 &&
-          borderSize.y > 0 &&
-          box &&
-          box.height &&
-          box.width
-        ) {
-          h = box.height;
-          w = box.width;
-        }
-
-        const targetWidth = workPlaceRef.current.clientWidth - +borderSize.x;
-        const targetHeight = workPlaceRef.current.clientHeight - +borderSize.y;
-        const targetScale = Math.min(targetWidth / w, targetHeight / h);
-
-        spriteRef.current.height = h * targetScale;
-        spriteRef.current.width = w * targetScale;
-
-        const areaW = w * targetScale + +borderSize.x;
-        const areaH = h * targetScale + +borderSize.y;
-
-        appRef.current.renderer.background.color = expandBackground;
-        appRef.current.renderer.resize(areaW, areaH);
-
-        spriteRef.current.x = appRef.current.canvas.width / 2;
-        spriteRef.current.y = appRef.current.canvas.height / 2;
-
-        textAndImagePlaceRef.current.style.height = areaH + "px";
-        textAndImagePlaceRef.current.style.width = areaW + "px";
       }
 
       if (
@@ -502,9 +450,28 @@ export default function WebGlComponent() {
         spriteRef.current.y = spY;
       }
 
-      if (textAndImagePlaceRef.current) {
-        textAndImagePlaceRef.current.style.width = canvasW + "px";
-        textAndImagePlaceRef.current.style.height = canvasH + "px";
+      if (
+        expandMode === "border" ||
+      expandMode === "crop" 
+      ) {
+        const targetH = canvasH + (borderSize?.x ?? 0);
+        const targetW = canvasW + (borderSize?.x ?? 0);
+
+        const finalScaleH = workPlaceRef.current.clientHeight / targetH;
+        const finalScaleW = workPlaceRef.current.clientWidth / targetW;
+        const finalScale = Math.min(finalScaleH, finalScaleW);
+
+        appRef.current.renderer.resize(
+          targetW * finalScale,
+          targetH * finalScale,
+        );
+        appRef.current.renderer.background.color = expandBackground;
+
+        spriteRef.current.height = canvasH * finalScale - (borderSize?.x ?? 0);
+        spriteRef.current.width = canvasW * finalScale - (borderSize?.x ?? 0);
+        spriteRef.current.anchor = 0.5;
+        spriteRef.current.x = appRef.current.canvas.width / 2;
+        spriteRef.current.y = appRef.current.canvas.height / 2;
       }
 
       applyFilters();
@@ -525,10 +492,10 @@ export default function WebGlComponent() {
     expandBackground,
     imageSize,
     selectedImg,
-    borderSize,
     box,
     cropSaved,
     lutFilter,
+    borderSize,
   ]);
 
   useEffect(() => {

@@ -88,15 +88,21 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       const imageWCP = width - props.elementRef.offsetWidth;
       const imageHCP = height - props.elementRef.offsetHeight;
 
+      const bX = image?.borderSize?.x ? Number(image.borderSize.x) : 20;
+      const bY = image?.borderSize?.y ? Number(image.borderSize.y) : 20;
+
       const defaultPosition = props.textId
         ? ((positions as {
             x: number;
             y: number;
           }) ?? {
-            x: 20,
-            y: 20,
+            x: typeof positions?.x === "number" ? positions?.x : bX,
+            y: typeof positions?.y === "number" ? positions?.y : bY,
           })
-        : { x: 20, y: 20 };
+        : {
+            x: typeof positions?.x === "number" ? positions?.x : bX,
+            y: typeof positions?.y === "number" ? positions?.y : bY,
+          };
 
       if (positions && positions.x && positions.y) {
         let x, y;
@@ -118,41 +124,42 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
               typeof y === "number"
                 ? y
                 : y === "top"
-                  ? 20
+                  ? bY
                   : y === "center"
                     ? imageHCP / 2
-                    : imageHCP - 20,
+                    : imageHCP - bY,
           };
         }
+
         if (typeof y === "number") {
           return {
             x:
               typeof x === "number"
                 ? x
                 : x === "left"
-                  ? 20
+                  ? bX
                   : x === "center"
                     ? imageHalf
-                    : imageHCP - 20,
+                    : imageWCP - bX,
             y: y,
           };
         }
 
         const map: any = {
-          ["left"]: {
-            ["top"]: { x: 20, y: 20 },
-            ["center"]: { x: 20, y: imageHCP / 2 },
-            ["bottom"]: { x: 20, y: imageHCP - 20 },
+          left: {
+            top: { x: bX, y: bY },
+            center: { x: bX, y: imageHCP / 2 },
+            bottom: { x: bX, y: imageHCP - bY },
           },
-          ["center"]: {
-            ["top"]: { x: imageHalf, y: 20 },
-            ["center"]: { x: imageHalf, y: imageHCP / 2 },
-            ["bottom"]: { x: imageHalf, y: imageHCP - 20 },
+          center: {
+            top: { x: imageHalf, y: bY },
+            center: { x: imageHalf, y: imageHCP / 2 },
+            bottom: { x: imageHalf, y: imageHCP - bY },
           },
-          ["right"]: {
-            ["top"]: { x: imageWCP - 20, y: 20 },
-            ["center"]: { x: imageWCP - 20, y: imageHCP / 2 },
-            ["bottom"]: { x: imageWCP - 20, y: imageHCP - 20 },
+          right: {
+            top: { x: imageWCP - bX, y: bY },
+            center: { x: imageWCP - bX, y: imageHCP / 2 },
+            bottom: { x: imageWCP - bX, y: imageHCP - bY },
           },
         };
 
@@ -174,6 +181,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
             ...image.copyrightImage,
             blob: url,
             size: 150,
+            opacity: 100,
           };
       }),
     clearCopyrightImage: (id: number) =>
@@ -184,7 +192,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       }),
     setCopyrightImagePosition: (
       id: number,
-      position: { x: XPositions; y: YPositions },
+      position: { x: XPositions | number; y: YPositions | number },
     ) =>
       set((state) => {
         const image = state.sessionData.find((img: any) => img.id === id);
@@ -194,16 +202,18 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
             position: position,
           };
       }),
+    setCopyrightImageOpacity: (id: number, opacity: number) =>
+      set((state) => {
+        const image = state.sessionData.find((img: any) => img.id === id);
+
+        if (image)
+          image.copyrightImage = {
+            ...image.copyrightImage,
+            opacity: opacity,
+          };
+      }),
     setCopyrightImageSize: (id: number, size: number) =>
       set((state) => {
-        if (size <= 0) {
-          toaster.create({
-            type: "error",
-            title: "Hibás érték",
-            description: "A méret nem lehet kisebb vagy egyenlő, mint 0",
-          });
-          return;
-        }
         const image = state.sessionData.find((img: any) => img.id === id);
 
         if (image)
@@ -230,25 +240,31 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         const image = state.sessionData.find((img: any) => img.id === id);
 
         if (image && image.box) {
-          let newX = box.x ? box.x : image.box.x;
-          let newY = box.y ? box.y : image.box.y;
+          const scaleX = box.currentWidth
+            ? box.currentWidth / (image.dimesions?.width ?? 1)
+            : 1;
+          const scaleY = box.currentHeight
+            ? box.currentHeight / (image.dimesions?.height ?? 1)
+            : 1;
 
-          let newH = box.height
-            ? box.height
-            : image.box.height
-              ? image.box.height
-              : (image.dimesions?.height ?? 0);
-          let newW = box.width
-            ? box.width
-            : image.box.width
-              ? image.box.width
-              : (image.dimesions?.width ?? 0);
+          if (!box.x || !box.y || !box.width || !box.height) return;
+
+          let finalX = box.x !== undefined ? box.x / scaleX : image.box.x;
+          let finalY = box.y !== undefined ? box.y / scaleY : image.box.y;
+
+          let finalW =
+            box.width !== undefined ? box.width / scaleX : image.box.width;
+          let finalH =
+            box.height !== undefined ? box.height / scaleY : image.box.height;
+
           image.box = {
             ...image.box,
-            x: newX,
-            y: newY,
-            height: newH,
-            width: newW,
+            x: finalX,
+            y: finalY,
+            width: finalW,
+            height: finalH,
+            currentHeight: box.currentHeight,
+            currentWidth: box.currentWidth,
           };
         }
       });
@@ -569,7 +585,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
             resolution: 2,
           });
         }
-        
+
         if (image.haldSprite) returnData.hald = haldImage?.src;
         if (image.exportSettings)
           returnData.exportSettings = image.exportSettings;
@@ -599,7 +615,6 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
               resolution: 2,
             });
             returnData.hald = haldImage?.src;
-
           }
 
           returnData.id = image.id;

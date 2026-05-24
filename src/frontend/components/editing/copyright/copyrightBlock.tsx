@@ -1,5 +1,6 @@
 import { toaster } from "@/components/ui/toaster";
 import { ACCEPTED_FILES } from "@/components/upload/dropzone";
+import { minMaxValidation } from "@/helper/errorHelper";
 import { XPositions, YPositions } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
@@ -9,10 +10,13 @@ import {
   FileUpload,
   Flex,
   Grid,
+  HStack,
   Icon,
   IconButton,
   Input,
+  NumberInput,
   Stack,
+  Text,
   useFileUpload,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
@@ -130,8 +134,9 @@ export default function CopyrightBlock() {
 }
 
 const ImageManipulationBlock = () => {
-  const { selectedImg, copyrightImageRef } = useWorkSession();
-  const { setCopyrightImageSize, setCopyrightImagePosition } =
+  const { selectedImg, copyrightImageRef, textAndImagePlaceRef } =
+    useWorkSession();
+  const { setCopyrightImageSize, setCopyrightImagePosition, setCopyrightImageOpacity } =
     useSessionStore();
 
   const imageSize = useSessionStore(
@@ -146,9 +151,9 @@ const ImageManipulationBlock = () => {
     shallow,
   );
 
-  const copyrightImageSize = useSessionStore((s) =>
+  const copyrightImage = useSessionStore((s) =>
     s.sessionData.find((sD) => sD.id === selectedImg),
-  );
+  )?.copyrightImage;
 
   if (copyrightImageRef) {
     return (
@@ -157,9 +162,7 @@ const ImageManipulationBlock = () => {
           <Field.Label>Méret</Field.Label>
           <Input
             placeholder="Méret"
-            value={
-              copyrightImageSize ? copyrightImageSize.copyrightImage?.size : 20
-            }
+            value={copyrightImage ? copyrightImage?.size : 20}
             onChange={(e) => {
               setCopyrightImageSize(selectedImg, Number(e.target.value));
             }}
@@ -167,6 +170,80 @@ const ImageManipulationBlock = () => {
             type="number"
           />
         </Field.Root>
+                  <Box display={"flex"} flexDir={"row"} gap={2} alignItems={"center"}>
+            <Text w="fit">Áttettszőség:</Text>
+
+            <HStack flex="1">
+              <NumberInput.Root
+                value={copyrightImage?.opacity?.toString() ?? "0"}
+                min={0}
+                max={100}
+                w={"full"}
+                onValueChange={(e) => {
+                  setCopyrightImageOpacity(selectedImg, 
+                      minMaxValidation(Number(e.value),
+                      0,
+                     100)
+                  )}}
+              >
+                <NumberInput.Control />
+                <NumberInput.Input />
+              </NumberInput.Root>
+              <Text>%</Text>
+            </HStack>
+          </Box>
+        <Flex gap={4} width="full" alignItems="center">
+          <Box display={"flex"} flexDir={"row"} gap={2} alignItems={"center"}>
+            <Text w="fit">X:</Text>
+
+            <HStack flex="1">
+              <NumberInput.Root
+                value={imagePosition?.x.toString() ?? "0"}
+                min={0}
+                onValueChange={(e) => {
+                  if (e.value === "-") return;
+                  setCopyrightImagePosition(selectedImg, {
+                    x: minMaxValidation(
+                      Number(e.value),
+                      0,
+                      (textAndImagePlaceRef.current?.clientWidth ?? 0) -
+                        (copyrightImageRef.clientWidth ?? 0) ,
+                    ),
+                    y: imagePosition?.y ?? 0,
+                  });
+                }}
+              >
+                <NumberInput.Control />
+                <NumberInput.Input />
+              </NumberInput.Root>
+            </HStack>
+          </Box>
+          <Box display={"flex"} flexDir={"row"} gap={2} alignItems={"center"}>
+            <Text w="fit">Y:</Text>
+
+            <HStack flex="1">
+              <NumberInput.Root
+                value={imagePosition?.y.toString() ?? "0"}
+                min={0}
+                onValueChange={(e) => {
+                  if (e.value === "-") return;
+                  setCopyrightImagePosition(selectedImg, {
+                    x: imagePosition?.x ?? 0,
+                    y: minMaxValidation(
+                      Number(e.value),
+                      0,
+                      (textAndImagePlaceRef.current?.clientHeight ?? 0) -
+                        (copyrightImageRef.height ?? 0) ,
+                    ),
+                  });
+                }}
+              >
+                <NumberInput.Control />
+                <NumberInput.Input />
+              </NumberInput.Root>
+            </HStack>
+          </Box>
+        </Flex>
         <Grid
           display={"grid"}
           templateRows={"repeat(3, 1fr)"}

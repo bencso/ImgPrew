@@ -38,6 +38,10 @@ export default function ImageWorkPlace() {
       state.sessionData.find((si) => si.id === selectedImg)?.expandMode,
   );
 
+  const image = useSessionStore((state) =>
+    state.sessionData.find((si) => si.id === selectedImg),
+  );
+
   const expandSize = useSessionStore(
     (state) =>
       state.sessionData.find((si) => si.id === selectedImg)?.expandSize,
@@ -88,8 +92,8 @@ export default function ImageWorkPlace() {
       textAndImagePlaceRef,
     });
     setCpPosition({
-      x: position.x,
-      y: position.y,
+      x: Number(position.x),
+      y: Number(position.y),
     });
   }, [selectedImg, copyrightImageRef, copyrightImageSize]);
 
@@ -121,6 +125,15 @@ export default function ImageWorkPlace() {
   ]);
   //#endregion
 
+  const scaleX = box?.currentHeight
+    ? (textAndImagePlaceRef.current?.clientHeight ?? 0) /
+      (image?.dimesions?.height ?? 0)
+    : 1;
+  const scaleY = box?.currentWidth
+    ? (textAndImagePlaceRef.current?.clientWidth ?? 0) /
+      (image?.dimesions?.width ?? 0)
+    : 1;
+
   return (
     <Flex
       ref={workPlaceRef}
@@ -132,7 +145,6 @@ export default function ImageWorkPlace() {
       alignItems={"center"}
       mx={"auto"}
       className="workPlaceRef"
-      
     >
       <Box
         alignContent={"center"}
@@ -140,7 +152,6 @@ export default function ImageWorkPlace() {
         position={"relative"}
         display={"flex"}
         className="manipulalhato"
-         
       >
         <Box
           zIndex={100}
@@ -153,7 +164,6 @@ export default function ImageWorkPlace() {
           w={"full"}
           className="3"
           overflow={"hidden"}
-          
         >
           {texts.map((element: DraggableImageEvent) => {
             return (
@@ -182,7 +192,7 @@ export default function ImageWorkPlace() {
                   id={element.id}
                   w={"fit"}
                   h={"fit"}
-                   ref={setTextRef(element.id)}
+                  ref={setTextRef(element.id)}
                   cursor={"pointer"}
                   textWrap={"balance"}
                   style={{
@@ -206,8 +216,9 @@ export default function ImageWorkPlace() {
               alt="copyright"
               height={copyrightImage.size + "px"}
               position={"relative"}
-              left={cpPosition.x + "px"}
-              top={cpPosition.y + "px"}
+              left={Number(cpPosition.x) + "px"}
+              top={Number(cpPosition.y) + "px"}
+              opacity={Number(copyrightImage.opacity) / 100}
               draggable={false}
               userSelect={"none"}
             />
@@ -215,16 +226,12 @@ export default function ImageWorkPlace() {
           {expandMode === "crop" && !cropSaved && (
             <Rnd
               size={{
-                width:
-                  box?.width ??
-                  (expandSize?.width ?? 1080) * (selectedScale?.scale ?? 1),
-                height:
-                  box?.height ??
-                  (expandSize?.height ?? 1080) * (selectedScale?.scale ?? 1),
+              width: (box?.width ?? 1080) * (scaleX ?? 1),
+  height: (box?.height ?? 1080) * (scaleY ?? 1),
               }}
               position={{
-                x: box?.x ?? 0,
-                y: box?.y ?? 0,
+                x: (box?.x ?? 0) * (scaleX ?? 1),
+                y: (box?.y ?? 0) * (scaleY ?? 1),
               }}
               minHeight={300}
               minWidth={300}
@@ -243,6 +250,8 @@ export default function ImageWorkPlace() {
                     y: parseFloat(d.y.toString()),
                     height: parseFloat(d.node.style.height) ?? 300,
                     width: parseFloat(d.node.style.width) ?? 300,
+                    currentHeight: textAndImagePlaceRef.current?.clientHeight,
+                    currentWidth: textAndImagePlaceRef.current?.clientWidth,
                   },
                 });
               }}
@@ -260,6 +269,8 @@ export default function ImageWorkPlace() {
                       parseFloat(ref.style.width) ?? 300,
                       300,
                     ),
+                    currentHeight: textAndImagePlaceRef.current?.clientHeight,
+                    currentWidth: textAndImagePlaceRef.current?.clientWidth,
                   },
                 });
               }}

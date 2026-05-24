@@ -75,10 +75,11 @@ export interface DraggableImageEvent {
 export interface CopyrightImage {
   blob?: string;
   position?: {
-    x: XPositions;
-    y: YPositions;
+    x: XPositions | number;
+    y: YPositions | number;
   };
   size?: number;
+  opacity?: number;
 }
 //#endregion
 
@@ -88,6 +89,8 @@ export interface CropBox {
   y?: number | null;
   width?: number | null;
   height?: number | null;
+  currentHeight?:number | null;
+  currentWidth?:number | null;
 }
 //#endregion
 
@@ -207,10 +210,11 @@ export interface SessionStore {
   setCopyrightImagePosition: (
     id: number,
     position: {
-      x: XPositions;
-      y: YPositions;
+      x: XPositions | number;
+      y: YPositions | number;
     },
   ) => void;
+  setCopyrightImageOpacity: (id: number,  opacity: number) => void;
   setCopyrightImageSize: (id: number, size: number) => void;
   //#endregion
 
