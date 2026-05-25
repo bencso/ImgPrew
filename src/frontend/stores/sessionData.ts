@@ -34,7 +34,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       set((state) => {
         const nextId = state.sessionData.length;
 
-        const hald = generateHald(32);
+        const hald = generateHald(64);
 
         if (hald instanceof HTMLCanvasElement !== true) return null;
         const haldTexture = Texture.from(hald);
@@ -582,7 +582,6 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           haldImage = await appRef.current.renderer.extract.base64({
             target: image.haldSprite,
             format: "png",
-            resolution: 2,
           })
 
         }

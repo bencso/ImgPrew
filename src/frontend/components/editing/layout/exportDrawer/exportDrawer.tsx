@@ -113,8 +113,8 @@ export default function ExportDrawer() {
                       );
 
                       const formData = new FormData();
-                      formData.append("image", imageBlobFile);
-                      formData.append("lut", haldFile);
+                      formData.append("file", imageBlobFile);
+                      formData.append("lut", haldFile, "hald.png");
                       formData.append("extension", "jpeg");
 
                       const res = await fetch("/api/images/export", {

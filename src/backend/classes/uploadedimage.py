@@ -11,11 +11,11 @@ class UploadedImage:
         self.edited_image = self.encode_bytes()
 
     def encode_bytes(self):
-        return base64.b64encode(self.edited_image).decode("ascii")
+        return base64.b64encode(self.edited_image).decode("utf-8")
 
     def get_img(self):
         return Image.open(io.BytesIO(self.edited_image))
 
     def __exit__(self, **args):
-        part = base64.b64encode(self.edited_image).decode("ascii")
+        part = base64.b64encode(self.edited_image).decode("utf-8")
         return part

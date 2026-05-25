@@ -1,36 +1,31 @@
+from pathlib import Path
 from PIL import Image
 import os
-from dependencies import EXIF_TAG_NAMES_LIST, IMAGE_EXTENSIONS
+from dependencies import EXIF_TAG_NAMES_LIST
 import piexif
 import logging
 import io
+from typing import Optional
+import uuid
 
 
-class ConvertExtensionImage:
+class Export:
     def __init__(
         self,
-        image_path: str,
         image: Image.Image,
-        output_extension: IMAGE_EXTENSIONS,  # pyright: ignore[reportInvalidTypeForm]
-        exif_data: any,
-        allowed_infos: list[
+        output_extension: str,  # pyright: ignore[reportInvalidTypeForm]
+        exif_data: Optional[any] ,
+        allowed_infos: Optional[list[
             EXIF_TAG_NAMES_LIST  # pyright: ignore[reportInvalidTypeForm]
-        ],
+        ]],
     ) -> str:
-        f_name, f_ext = os.path.splitext(image_path)
-
         self.image = image
-        self.image_path = image_path
         self.allowed_info = (
             allowed_infos
             if allowed_infos and len(allowed_infos.count) > 0
             else EXIF_TAG_NAMES_LIST
         )
-
-        self.f_name = f_name
-        self.f_ext = f_ext
-
-        self.output_extension = f_ext if output_extension is None else output_extension
+        self.output_extension = output_extension
         self.exif_data = exif_data
     
     def __enter__(self):
@@ -40,7 +35,6 @@ class ConvertExtensionImage:
         self.buffer = io.BytesIO()
         self.image.save(self.buffer, format="PNG")
         self.buffer.seek(0)
-
 
     def apply(self) -> dict | None:
         try:
@@ -67,12 +61,16 @@ class ConvertExtensionImage:
 
             ext = self.output_extension or self.f_ext
             ext = ext.lstrip(".")
-
-            return {
-                "img": self.image,
-                "filename": f"{self.f_name}.{ext}",
-                "exif": exif_bytes,
-            }
+            
+            BASE_DIR = Path(__file__).resolve().parent.parent
+            UPLOAD_DIR = BASE_DIR / "images"
+            os.mkdir(UPLOAD_DIR)
+            
+            file_name = f"{uuid.uuid4().hex}.{ext}"
+            exif = exif_bytes
+            
+            self.image.save(UPLOAD_DIR/file_name, exif=exif)
+            return True
         except Exception as e:
             logging.error(f"HIBA: {e}")
             return None

@@ -5,11 +5,11 @@ import io
 import imageio.v3 as iio
 import numpy as np
 
-
 class Lut:
-    def __init__(self, lut_path: str, image=Image.Image):
-        self.lut_path = lut_path
+    def __init__(self, hald: Image.Image = None, image=Image.Image, cube: str = None):
+        self.hald = hald
         self.image = image
+        self.cube = cube
 
     def __enter__(self):
         return self
@@ -19,26 +19,19 @@ class Lut:
         self.image.save(self.buffer, format="PNG")
         self.buffer.seek(0)
         
-    def png_to_lut(self):
-        img_datas = iio.imread(self.lut_path)
-        
+    def apply_hald(self):
+        img_datas = np.array(self.hald.convert('RGB'))
         lut_size = len(img_datas)
-        lut_table = []
         
+        lut_table = img_datas.reshape((lut_size, lut_size, lut_size, 3))
+        lut_table = lut_table.transpose((1, 0,2, 3)).reshape(-1, 3) / 255.0
+        lut_table = list(map(tuple, lut_table))
         
-        for b in range(lut_size):
-            for g in range(lut_size):
-                for r in range(lut_size):
-                    x = b*lut_size+r
-                    y = g                    
-                    colors = np.array(img_datas[y][x][:3])
-                    lut_row = tuple(colors/255)
-                    lut_table.append(lut_row)
         lut = ImageFilter.Color3DLUT(lut_size, lut_table)
-        return self.image.filter(lut)    
+        return self.image.convert('RGB').filter(lut)
 
     def apply(self):
-        with open(self.lut_path) as f:
+        with open(self.cube) as f:
             native_lut = f.read()
 
             lut_size_match = re.search(LUT_SIZE_REGEX, native_lut, re.MULTILINE)
