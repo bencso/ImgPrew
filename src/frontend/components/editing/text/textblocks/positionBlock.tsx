@@ -36,7 +36,18 @@ interface TextBlockPositionProps {
 
 function TextPositionInputs(props: TextBlockPositionProps) {
   const { setTextPosition } = useSessionStore();
-  const { selectedImg } = useWorkSession();
+  const { selectedImg, textAndImagePlaceRef } = useWorkSession();
+
+  const image = useSessionStore((state) =>
+    state.sessionData.find((si) => si.id === selectedImg),
+  );
+
+  const imageScale = Math.min(
+    (textAndImagePlaceRef.current?.clientHeight ?? 0) /
+      (image?.dimesions?.height ?? 0),
+    (textAndImagePlaceRef.current?.clientWidth ?? 0) /
+      (image?.dimesions?.width ?? 0),
+  );
 
   return (
     <Flex gap={4} width="full" alignItems="center">
@@ -45,19 +56,26 @@ function TextPositionInputs(props: TextBlockPositionProps) {
 
         <HStack flex="1">
           <NumberInput.Root
-            value={
-              props.position.x.toString() ?? "0"
-            }
+            value={(
+              Number(
+                typeof props.position.x === "number"
+                  ? (props.position.x ?? 0)
+                  : 0,
+              ) * imageScale
+            ).toString()}
             min={0}
-            onValueChange={(e) =>
-            {
-              if(e.value === "-") return;
-              setTextPosition(selectedImg, props.id, {
-                x: minMaxValidation(Number(e.value), 0),
-                y: props.position.y,
-              })
-            }
-            }
+            onValueChange={(e) => {
+              if (e.value === "-") return;
+              setTextPosition(
+                selectedImg,
+                props.id,
+                {
+                  x: minMaxValidation(Number(e.value), 0),
+                  y: Number(props.position.y ?? 0) * imageScale,
+                },
+                imageScale,
+              );
+            }}
           >
             <NumberInput.Control />
             <NumberInput.Input />
@@ -69,19 +87,26 @@ function TextPositionInputs(props: TextBlockPositionProps) {
 
         <HStack flex="1">
           <NumberInput.Root
-            value={
-                props.position.y.toString() ?? "0"
-            }
+            value={(
+              Number(
+                typeof props.position.y === "number"
+                  ? (props.position.y ?? 0)
+                  : 0,
+              ) * imageScale
+            ).toString()}
             min={0}
-            onValueChange={(e) =>
-            {
-              if(e.value === "-") return;
-              setTextPosition(selectedImg, props.id, {
-                x: props.position.x,
-                y: minMaxValidation(Number(e.value), 0),
-              })
-            }
-            }
+            onValueChange={(e) => {
+              if (e.value === "-") return;
+              setTextPosition(
+                selectedImg,
+                props.id,
+                {
+                  x: Number(props.position.x ?? 0) * imageScale,
+                  y: minMaxValidation(Number(e.value), 0),
+                },
+                imageScale,
+              );
+            }}
           >
             <NumberInput.Control />
             <NumberInput.Input />
@@ -94,10 +119,21 @@ function TextPositionInputs(props: TextBlockPositionProps) {
 
 export function TextBlockPosition(props: TextBlockPositionProps) {
   const { setTextPosition } = useSessionStore();
-  const { selectedImg } = useWorkSession();
+  const { selectedImg, textAndImagePlaceRef } = useWorkSession();
   const imageSize = useSessionStore(
     (s) => s.sessionData.find((img) => img.id === selectedImg)?.dimesions,
     shallow,
+  );
+
+  const image = useSessionStore((state) =>
+    state.sessionData.find((si) => si.id === selectedImg),
+  );
+
+  const imageScale = Math.min(
+    (textAndImagePlaceRef.current?.clientHeight ?? 0) /
+      (image?.dimesions?.height ?? 0),
+    (textAndImagePlaceRef.current?.clientWidth ?? 0) /
+      (image?.dimesions?.width ?? 0),
   );
 
   return (
@@ -125,10 +161,15 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
             props.textPosition.y === YPositions.TOP
           }
           onClick={() => {
-            setTextPosition(selectedImg, props.id, {
-              x: XPositions.LEFT,
-              y: YPositions.TOP,
-            });
+            setTextPosition(
+              selectedImg,
+              props.id,
+              {
+                x: XPositions.LEFT,
+                y: YPositions.TOP,
+              },
+              imageScale,
+            );
           }}
         >
           <LuArrowUpLeft />
@@ -144,10 +185,15 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
           }
           onClick={() => {
             if (imageSize)
-              setTextPosition(selectedImg, props.id, {
-                x: XPositions.CENTER,
-                y: YPositions.TOP,
-              });
+              setTextPosition(
+                selectedImg,
+                props.id,
+                {
+                  x: XPositions.CENTER,
+                  y: YPositions.TOP,
+                },
+                imageScale,
+              );
           }}
         >
           <LuArrowUp />
@@ -163,10 +209,15 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
           }
           onClick={() => {
             if (imageSize)
-              setTextPosition(selectedImg, props.id, {
-                x: XPositions.RIGHT,
-                y: YPositions.TOP,
-              });
+              setTextPosition(
+                selectedImg,
+                props.id,
+                {
+                  x: XPositions.RIGHT,
+                  y: YPositions.TOP,
+                },
+                imageScale,
+              );
           }}
         >
           <LuArrowUpRight />
@@ -183,10 +234,15 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
           }
           onClick={() => {
             if (imageSize)
-              setTextPosition(selectedImg, props.id, {
-                x: XPositions.LEFT,
-                y: YPositions.CENTER,
-              });
+              setTextPosition(
+                selectedImg,
+                props.id,
+                {
+                  x: XPositions.LEFT,
+                  y: YPositions.CENTER,
+                },
+                imageScale,
+              );
           }}
         >
           <LuArrowLeft />
@@ -202,10 +258,15 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
           }
           onClick={() => {
             if (imageSize)
-              setTextPosition(selectedImg, props.id, {
-                x: XPositions.CENTER,
-                y: YPositions.CENTER,
-              });
+              setTextPosition(
+                selectedImg,
+                props.id,
+                {
+                  x: XPositions.CENTER,
+                  y: YPositions.CENTER,
+                },
+                imageScale,
+              );
           }}
         >
           <LuDot />
@@ -221,10 +282,15 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
           }
           onClick={() => {
             if (imageSize)
-              setTextPosition(selectedImg, props.id, {
-                x: XPositions.RIGHT,
-                y: YPositions.CENTER,
-              });
+              setTextPosition(
+                selectedImg,
+                props.id,
+                {
+                  x: XPositions.RIGHT,
+                  y: YPositions.CENTER,
+                },
+                imageScale,
+              );
           }}
         >
           <LuArrowRight />
@@ -241,10 +307,15 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
           }
           onClick={() => {
             if (imageSize)
-              setTextPosition(selectedImg, props.id, {
-                x: XPositions.LEFT,
-                y: YPositions.BOTTOM,
-              });
+              setTextPosition(
+                selectedImg,
+                props.id,
+                {
+                  x: XPositions.LEFT,
+                  y: YPositions.BOTTOM,
+                },
+                imageScale,
+              );
           }}
         >
           <LuArrowDownLeft />
@@ -260,10 +331,15 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
           }
           onClick={() => {
             if (imageSize)
-              setTextPosition(selectedImg, props.id, {
-                x: XPositions.CENTER,
-                y: YPositions.BOTTOM,
-              });
+              setTextPosition(
+                selectedImg,
+                props.id,
+                {
+                  x: XPositions.CENTER,
+                  y: YPositions.BOTTOM,
+                },
+                imageScale,
+              );
           }}
         >
           <LuArrowDown />
@@ -279,10 +355,15 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
           }
           onClick={() => {
             if (imageSize)
-              setTextPosition(selectedImg, props.id, {
-                x: XPositions.RIGHT,
-                y: YPositions.BOTTOM,
-              });
+              setTextPosition(
+                selectedImg,
+                props.id,
+                {
+                  x: XPositions.RIGHT,
+                  y: YPositions.BOTTOM,
+                },
+                imageScale,
+              );
           }}
         >
           <LuArrowDownRight />

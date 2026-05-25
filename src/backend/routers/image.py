@@ -16,6 +16,8 @@ router = APIRouter(prefix="/images", tags=["images"])
 @router.post("/upload")
 async def uploadImage(file: UploadFile):
     try:
+        print("file")
+        print(file)
         accepted_files = ["image/" + x.lower() for x in IMAGE_EXTENSIONS]
         if file.content_type not in accepted_files:
             raise Exception(
@@ -35,6 +37,8 @@ async def uploadImage(file: UploadFile):
                 "byte": img.encode_bytes(),
             }
         )
+        print("data")
+        print(data)
         return JSONResponse(
             status_code=200,
             content={

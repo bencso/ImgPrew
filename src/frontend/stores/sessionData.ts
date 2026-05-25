@@ -428,6 +428,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       imageId: number,
       textId: string,
       position: { x: number | XPositions; y: number | YPositions },
+      scale: number,
     ) =>
       set((state) => {
         const image = state.sessionData.find((img: any) => img.id === imageId);
@@ -474,11 +475,34 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           return;
         }
 
-        image.texts = [
-          ...image.texts.slice(0, textIndex),
-          { ...image.texts[textIndex], position },
-          ...image.texts.slice(textIndex + 1),
-        ];
+        if (
+          position &&
+          typeof position.x === "number" &&
+          typeof position.x === "number"
+        ) {
+          const endPos = {
+            x: Number(position.x) / scale,
+            y: Number(position.y) / scale,
+          };
+
+          image.texts = [
+            ...image.texts.slice(0, textIndex),
+            { ...image.texts[textIndex], position: endPos },
+            ...image.texts.slice(textIndex + 1),
+          ];
+        } else {
+          const endPos = {
+            x: position.x,
+            y: position.y,
+          };
+
+          image.texts = [
+            ...image.texts.slice(0, textIndex),
+            { ...image.texts[textIndex], position: endPos },
+            ...image.texts.slice(textIndex + 1),
+          ];
+        }
+
       }),
     //#endregion
 
@@ -582,8 +606,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           haldImage = await appRef.current.renderer.extract.base64({
             target: image.haldSprite,
             format: "png",
-          })
-
+          });
         }
 
         if (image.haldSprite) returnData.hald = haldImage;

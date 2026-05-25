@@ -83,6 +83,13 @@ export default function ImageWorkPlace() {
     s.sessionData.find((sD) => sD.id === selectedImg),
   );
 
+  const imageScale = Math.min(
+    (textAndImagePlaceRef.current?.clientHeight ?? 0) /
+      (image?.dimesions?.height ?? 0),
+    (textAndImagePlaceRef.current?.clientWidth ?? 0) /
+      (image?.dimesions?.width ?? 0),
+  );
+
   useEffect(() => {
     if (!copyrightImageRef) return;
     const position = calculationReFixPosition({
@@ -110,7 +117,14 @@ export default function ImageWorkPlace() {
         textId: element.id,
       });
 
-      newPositions[element.id] = textPosition;
+      const positions = image?.texts?.find(
+        (it) => it.id === element.id,
+      )?.position;
+
+      newPositions[element.id] = {
+        x: textPosition.x * (typeof positions?.x === "number" ? imageScale : 1),
+        y: textPosition.y * (typeof positions?.y === "number" ? imageScale : 1),
+      };
     });
 
     setTextPositions(newPositions);
@@ -174,10 +188,15 @@ export default function ImageWorkPlace() {
                 minWidth={"fit"}
                 minHeight={"fit"}
                 onDragStop={(e, d) => {
-                  setTextPosition(selectedImg, element.id, {
-                    x: parseFloat(d.x.toString()),
-                    y: parseFloat(d.y.toString()),
-                  });
+                  setTextPosition(
+                    selectedImg,
+                    element.id,
+                    {
+                      x: parseFloat(d.x.toString()),
+                      y: parseFloat(d.y.toString()),
+                    },
+                    imageScale,
+                  );
                 }}
                 position={{
                   x: textPositions[element.id]
@@ -226,8 +245,8 @@ export default function ImageWorkPlace() {
           {expandMode === "crop" && !cropSaved && (
             <Rnd
               size={{
-              width: (box?.width ?? 1080) * (scaleX ?? 1),
-  height: (box?.height ?? 1080) * (scaleY ?? 1),
+                width: (box?.width ?? 1080) * (scaleX ?? 1),
+                height: (box?.height ?? 1080) * (scaleY ?? 1),
               }}
               position={{
                 x: (box?.x ?? 0) * (scaleX ?? 1),

@@ -89,8 +89,8 @@ export interface CropBox {
   y?: number | null;
   width?: number | null;
   height?: number | null;
-  currentHeight?:number | null;
-  currentWidth?:number | null;
+  currentHeight?: number | null;
+  currentWidth?: number | null;
 }
 //#endregion
 
@@ -135,7 +135,7 @@ export interface CustomImage {
   lutFile?: File | null;
   // Export settings
   exportSettings?: ExportSettings;
-  haldSprite: Sprite | any
+  haldSprite: Sprite | any;
 }
 
 //#region CalculationReFixPositionProps
@@ -214,7 +214,7 @@ export interface SessionStore {
       y: YPositions | number;
     },
   ) => void;
-  setCopyrightImageOpacity: (id: number,  opacity: number) => void;
+  setCopyrightImageOpacity: (id: number, opacity: number) => void;
   setCopyrightImageSize: (id: number, size: number) => void;
   //#endregion
 
@@ -235,7 +235,10 @@ export interface SessionStore {
   setExportFileExtension: (id: number, extension: string) => void;
   setExportAllFileExtension: (extension: string) => void;
   setExportExifs: (id: number, exifs: string[]) => void;
-  exportImageSettings: (id: number, appRef: RefObject<Application<Renderer> | null>) => Promise<any>
+  exportImageSettings: (
+    id: number,
+    appRef: RefObject<Application<Renderer> | null>,
+  ) => Promise<any>;
   exportAllImageSettings: (appRef: RefObject<any>) => Promise<any[]>;
   //#endregion
 
@@ -265,6 +268,7 @@ export interface SessionStore {
       x: number | XPositions;
       y: number | YPositions;
     },
+    scale: number,
   ) => void;
   setTextColor: (imageId: number, textId: string, color: string) => void;
   //#endregion
