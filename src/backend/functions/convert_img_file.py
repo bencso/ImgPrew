@@ -22,7 +22,7 @@ class Export:
         self.image = image
         self.allowed_info = (
             allowed_infos
-            if allowed_infos and len(allowed_infos.count) > 0
+            if allowed_infos and len(allowed_infos) > 0
             else EXIF_TAG_NAMES_LIST
         )
         self.output_extension = output_extension
@@ -46,6 +46,8 @@ class Export:
                     filtered_exif[ifd] = {}
                     for tag in self.exif_data.get(ifd, {}):
                         tag_name = piexif.TAGS[ifd][tag]["name"]
+                        print(tag_name)
+                        print(tag_name in allowed_set)
                         if tag_name in allowed_set:
                             filtered_exif[ifd][tag] = self.exif_data[ifd][tag]
                 for ifd in ("thumbnail",):

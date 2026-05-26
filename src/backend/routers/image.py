@@ -1,14 +1,13 @@
 import json
-
+from typing import Annotated
 from functions.convert_img_file import Export
 from functions.lut import Lut
-from fastapi import UploadFile, APIRouter
+from fastapi import UploadFile, APIRouter, Form, File
 from fastapi.responses import JSONResponse
 from functions.caption_generator import CaptionGenerator
+from functions.get_exif_data import GetExifData
 from classes.uploadedimage import UploadedImage
 from dependencies import IMAGE_EXTENSIONS
-from functions.get_exif_data import GetExifData
-from models.exportimage import ExportImage
 import piexif
 
 router = APIRouter(prefix="/images", tags=["images"])
@@ -57,7 +56,7 @@ async def uploadImage(file: UploadFile):
         )
 
 @router.post("/export")
-async def exportImages(file: UploadFile, lut: UploadFile = None, data: ExportImage = None):
+async def exportImages(body: Annotated[str, Form(...)] = None, file: Annotated[UploadFile, File()] = None, lut: Annotated[UploadFile, File()] = None):
     try:
         file_bytes = await file.read()
         lut_file_bytes = await lut.read()
@@ -66,18 +65,18 @@ async def exportImages(file: UploadFile, lut: UploadFile = None, data: ExportIma
         image = image.get_img()
         hald = hald.get_img()
         
-        print(data)
-        
-        exif_bytes = image.info.get("exif")
-        if exif_bytes:ü
-            exif_dict = piexif.load(exif_bytes)
-        else:
-            exif_dict = {}
+        data = json.loads(body)
+        file_extension = data.get("extension") or "jpg"
+        allowed_infos = data.get("exif_data") or []
         
         lut_helper =  Lut(hald, image)
         image = lut_helper.apply_hald()
         
-        exporter = Export(image, "jpg", exif_data=exif_dict, allowed_infos=[])
+        exif_bytes = image.info.get("exif")
+        if exif_bytes:
+            exif_data = piexif.load(exif_bytes)
+        
+        exporter = Export(image, output_extension=file_extension, exif_data=exif_data, allowed_infos=allowed_infos)
         exporter = exporter.apply()
         
         if(exporter is not True):

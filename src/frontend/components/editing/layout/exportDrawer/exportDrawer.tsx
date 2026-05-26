@@ -112,17 +112,20 @@ export default function ExportDrawer() {
                         `hald_${selectedImage.id}`,
                       );
 
+                      const body = {
+                        extension: selectedImage.exportSettings?.fileExtension ?? "jpg",
+                        exif_data: selectedImage.exportSettings?.exifDatas ?? []
+                      };
+
                       const formData = new FormData();
                       formData.append("file", imageBlobFile);
                       formData.append("lut", haldFile, "hald.png");
-                      formData.append("extension", "jpeg");
+                      formData.append("body", JSON.stringify(body));
 
-                      const res = await fetch("/api/images/export", {
+                      await fetch("/api/images/export", {
                         method: "POST",
                         body: formData,
                       }).catch(() => null);
-
-                      console.log(res);
                     }}
                   >
                     <FaFileImage size={"12"} />
