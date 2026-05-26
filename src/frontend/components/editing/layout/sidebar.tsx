@@ -735,9 +735,9 @@ const sidebarElements = (
                   : parseColor("#ffff")
               }
               onValueChange={(e: any) => {
-                let value = e.valueAsString;
+                let value = e.value;
                 if (value !== "") {
-                  setExpandBackground(selectedImg, value);
+                  setExpandBackground(selectedImg, value.toString("hex"));
                 }
               }}
             >

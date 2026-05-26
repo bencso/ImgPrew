@@ -113,7 +113,7 @@ export default function ResizeBlock() {
     useSessionStore(
       (state) =>
         state.sessionData.find((si) => si.id === selectedImg)?.expandBackground,
-    ) ?? "rgba(255,255,255,1)";
+    ) ?? "#ffffff";
 
   const expandMode =
     useSessionStore(
@@ -315,10 +315,10 @@ export default function ResizeBlock() {
                 : parseColor("#ffff")
             }
             onValueChange={(e: any) => {
-              let value = e.valueAsString;
-              if (value !== "") {
-                setExpandBackground(selectedImg, value);
-              }
+                let value = e.value;
+                if (value !== "") {
+                  setExpandBackground(selectedImg, value.toString("hex"));
+                }
             }}
           >
             <ColorPicker.HiddenInput />

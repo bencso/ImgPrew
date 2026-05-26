@@ -275,7 +275,7 @@ export interface SessionStore {
 
   //#region EXPAND
   setExpandMode: (id: number, mode: string) => void;
-  setExpandBackground: (id: number, rgba: string) => void;
+  setExpandBackground: (id: number, color: string) => void;
   setExpandSize: (
     id: number,
     size: {

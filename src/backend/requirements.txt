@@ -20,6 +20,7 @@ pydantic-settings
 pydantic_core
 typing-inspection
 typing_extensions
+matplotlib
 
 # ==========================================
 # HTTP Clients & Networking

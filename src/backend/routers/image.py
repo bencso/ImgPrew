@@ -5,10 +5,11 @@ from functions.lut import Lut
 from fastapi import UploadFile, APIRouter, Form, File
 from fastapi.responses import JSONResponse
 from functions.caption_generator import CaptionGenerator
-from functions.get_exif_data import GetExifData
+from functions.border import Border
 from classes.uploadedimage import UploadedImage
 from dependencies import IMAGE_EXTENSIONS
 import piexif
+from functions.valid_colors import validColors
 
 router = APIRouter(prefix="/images", tags=["images"])
 
@@ -68,6 +69,10 @@ async def exportImages(body: Annotated[str, Form(...)] = None, file: Annotated[U
         data = json.loads(body)
         file_extension = data.get("extension") or "jpg"
         allowed_infos = data.get("exif_data") or []
+        border_size = data.get("border_size") or 0
+        border_color = validColors(data.get("border_color"))  or "#fff"
+        
+        print(border_size, border_color)
         
         lut_helper =  Lut(hald, image)
         image = lut_helper.apply_hald()
@@ -75,6 +80,9 @@ async def exportImages(body: Annotated[str, Form(...)] = None, file: Annotated[U
         exif_bytes = image.info.get("exif")
         if exif_bytes:
             exif_data = piexif.load(exif_bytes)
+            
+        border_helper = Border(image,border_size, color=border_color)
+        image = border_helper.apply()
         
         exporter = Export(image, output_extension=file_extension, exif_data=exif_data, allowed_infos=allowed_infos)
         exporter = exporter.apply()

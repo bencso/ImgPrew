@@ -44,7 +44,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           id: nextId,
           blob: blob,
           expandMode: "no",
-          expandBackground: "rgba(255, 255, 255,1)",
+          expandBackground: "#ffffff",
           box: {
             x: null,
             y: null,
@@ -535,15 +535,10 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       }));
     },
 
-    setExpandBackground: (id: number, rgba: string) => {
-      if (
-        /^rgba\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3}),\s*(\d*(?:\.\d+)?)\)$/.test(
-          rgba,
-        )
-      )
+    setExpandBackground: (id: number, color: string) => {
         set((state) => ({
           sessionData: state.sessionData.map((img: any) =>
-            img.id === id ? { ...img, expandBackground: rgba } : img,
+            img.id === id ? { ...img, expandBackground: color } : img,
           ),
         }));
     },

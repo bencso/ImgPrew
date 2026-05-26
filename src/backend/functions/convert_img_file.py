@@ -46,20 +46,11 @@ class Export:
                     filtered_exif[ifd] = {}
                     for tag in self.exif_data.get(ifd, {}):
                         tag_name = piexif.TAGS[ifd][tag]["name"]
-                        print(tag_name)
-                        print(tag_name in allowed_set)
                         if tag_name in allowed_set:
                             filtered_exif[ifd][tag] = self.exif_data[ifd][tag]
                 for ifd in ("thumbnail",):
                     filtered_exif[ifd] = self.exif_data.get(ifd, None)
                 exif_bytes = piexif.dump(filtered_exif)
-
-            if self.output_extension.lower() in ["jpg", "jpeg"]:
-                if self.image.mode in ("RGBA", "LA", "P"):
-                    self.image = self.image.convert("RGB")
-            elif self.output_extension.lower() == "png":
-                if self.image.mode not in ("RGB", "RGBA"):
-                    self.image = self.image.convert("RGBA")
 
             ext = self.output_extension or self.f_ext
             ext = ext.lstrip(".")
@@ -72,7 +63,7 @@ class Export:
             file_name = f"{uuid.uuid4().hex}.{ext}"
             exif = exif_bytes
             
-            self.image.save(UPLOAD_DIR/file_name, exif=exif)
+            self.image.save(UPLOAD_DIR/file_name, exif=exif, quality=70)
             return True
         except Exception as e:
             logging.error(f"HIBA: {e}")

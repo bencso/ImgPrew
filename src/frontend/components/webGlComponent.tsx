@@ -3,7 +3,7 @@ import { allFiltersFragment } from "@/handlers/filters/allFiltersFragment";
 import { ParamProps } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
-import { Box } from "@chakra-ui/react";
+import { Box, parseColor } from "@chakra-ui/react";
 import "pixi-filters";
 import {
   Application,
@@ -336,7 +336,7 @@ export default function WebGlComponent() {
       const areaW = canvasW + padding;
       const areaH = canvasH + padding;
 
-      appRef.current.renderer.background.color = expandBackground;
+      appRef.current.renderer.background.color = parseColor(expandBackground).toString("rgba");
       appRef.current.renderer.resize(areaW, areaH);
 
       const imgW = textureRef.current.width;
@@ -451,8 +451,10 @@ export default function WebGlComponent() {
       }
 
       if (expandMode === "border" || expandMode === "crop") {
-        const targetH = canvasH + (borderSize?.x ?? 0);
-        const targetW = canvasW + (borderSize?.x ?? 0);
+        const scale = Math.min(workPlaceRef.current.clientHeight / (imageSize?.height ?? 0), workPlaceRef.current.clientWidth / (imageSize?.width ?? 0));
+
+        const targetH = canvasH + ((borderSize?.x ?? 0) * scale);
+        const targetW = canvasW + ((borderSize?.x ?? 0) * scale);
 
         const finalScaleH = workPlaceRef.current.clientHeight / targetH;
         const finalScaleW = workPlaceRef.current.clientWidth / targetW;
@@ -462,10 +464,10 @@ export default function WebGlComponent() {
           targetW * finalScale,
           targetH * finalScale,
         );
-        appRef.current.renderer.background.color = expandBackground;
+        appRef.current.renderer.background.color = parseColor(expandBackground).toString("rgba");
 
-        spriteRef.current.height = canvasH * finalScale - (borderSize?.x ?? 0);
-        spriteRef.current.width = canvasW * finalScale - (borderSize?.x ?? 0);
+        spriteRef.current.height = (canvasH * finalScale) - ((borderSize?.x ?? 0)*scale);
+        spriteRef.current.width = (canvasW * finalScale) - ((borderSize?.x ?? 0)*scale);
         spriteRef.current.anchor = 0.5;
         spriteRef.current.x = appRef.current.canvas.width / 2;
         spriteRef.current.y = appRef.current.canvas.height / 2;

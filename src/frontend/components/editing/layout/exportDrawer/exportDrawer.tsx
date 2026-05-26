@@ -114,8 +114,12 @@ export default function ExportDrawer() {
 
                       const body = {
                         extension: selectedImage.exportSettings?.fileExtension ?? "jpg",
-                        exif_data: selectedImage.exportSettings?.exifDatas ?? []
+                        exif_data: selectedImage.exportSettings?.exifDatas ?? [],
+                        border_size: selectedImage.borderSize?.x ?? 0,
+                        border_color: selectedImage.expandBackground ?? "#fff"
                       };
+
+                      console.log(body);
 
                       const formData = new FormData();
                       formData.append("file", imageBlobFile);
