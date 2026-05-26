@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 from functions.caption_generator import CaptionGenerator
 from classes.uploadedimage import UploadedImage
 from dependencies import IMAGE_EXTENSIONS
+from functions.get_exif_data import GetExifData
 from models.exportimage import ExportImage
 import piexif
 
@@ -16,8 +17,6 @@ router = APIRouter(prefix="/images", tags=["images"])
 @router.post("/upload")
 async def uploadImage(file: UploadFile):
     try:
-        print("file")
-        print(file)
         accepted_files = ["image/" + x.lower() for x in IMAGE_EXTENSIONS]
         if file.content_type not in accepted_files:
             raise Exception(
@@ -28,17 +27,20 @@ async def uploadImage(file: UploadFile):
 
         caption_helper = CaptionGenerator(img=img.get_img())
         caption_sample = caption_helper.getSampleForPhoto() or []
+        
         data = json.dumps(
             {
                 "exif_data": [
-                    item for _, item in caption_helper.getExifInfos().items()
+                    {
+                     "key": key,
+                     "item": item
+                     } for key, item in caption_helper.getExifInfos().items()
                 ],
                 "caption_samples": caption_sample,
                 "byte": img.encode_bytes(),
             }
         )
-        print("data")
-        print(data)
+
         return JSONResponse(
             status_code=200,
             content={
@@ -64,8 +66,10 @@ async def exportImages(file: UploadFile, lut: UploadFile = None, data: ExportIma
         image = image.get_img()
         hald = hald.get_img()
         
+        print(data)
+        
         exif_bytes = image.info.get("exif")
-        if exif_bytes:
+        if exif_bytes:ü
             exif_dict = piexif.load(exif_bytes)
         else:
             exif_dict = {}

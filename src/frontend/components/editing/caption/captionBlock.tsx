@@ -86,7 +86,10 @@ export default function CaptionBlock() {
     useSessionStore(
       (s) => s.sessionData.find((img) => img.id === selectedImg)?.exifDatas,
       shallow,
-    ) || [];
+    )?.map((i: any)=>{
+    return i["item"]
+  }) || [];
+
 
   const samples =
     useSessionStore(

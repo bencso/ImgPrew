@@ -4,7 +4,6 @@ from typing import Optional
 from PIL import Image
 from functions.get_exif_data import GetExifData
 
-
 class CaptionGenerator:
     def __init__(self, img: Image, instagram_caption: Optional[str] = None):
         self.instagram_caption = instagram_caption
@@ -51,8 +50,6 @@ class CaptionGenerator:
                 samples.append({"key": keys, "item": sample})
         return samples
 
-    # Igazándiból már meg is van, csak a feldolgozáson kell dolgozni, fe oldalon is, de.. (mert itt a keys -> values :) -> bár erre majd még szüréseket csinálunk)
-    # TODO: Megcsinálni, hogy ne az exif adat kulcsaival dolgozzunk hanem már rögtön az értékekkel
     def getExifInfos(self):
         if self.exif_helper.get_info():
             return {

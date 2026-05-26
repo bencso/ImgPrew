@@ -8,6 +8,7 @@ import {
   Box,
   Text,
   Input,
+  Span,
 } from "@chakra-ui/react";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { shallow } from "zustand/shallow";
@@ -15,6 +16,7 @@ import { shallow } from "zustand/shallow";
 type ExifItem = {
   label: string;
   checked: boolean;
+  description: string;
 };
 
 interface ExportExifBlockProp {
@@ -37,8 +39,9 @@ export const ExportExifBlock = (props: ExportExifBlockProp) => {
     const uniqueTags = Array.from(new Set(exifTags));
 
     setValues(
-      uniqueTags.map((tag) => ({
-        label: tag,
+      uniqueTags.map((tag: any) => ({
+        label: tag["key"],
+        description: tag["item"],
         checked: false,
       })),
     );
@@ -53,11 +56,16 @@ export const ExportExifBlock = (props: ExportExifBlockProp) => {
     );
   }
 
-  const filteredItems = values.filter((item) =>
-    item.label
-      .toLowerCase()
-      .replace(/\s+/g, "")
-      .includes(searchQuery.toLowerCase()),
+  const filteredItems = values.filter(
+    (item) =>
+      item.label
+        .toLowerCase()
+        .replace(/\s+/g, "")
+        .includes(searchQuery.toLowerCase()) ||
+      item.description
+        .toLowerCase()
+        .replace(/\s+/g, "")
+        .includes(searchQuery.toLowerCase()),
   );
 
   const allFilteredChecked =
@@ -94,7 +102,7 @@ export const ExportExifBlock = (props: ExportExifBlockProp) => {
 
       <Box borderBottomWidth="1px" pb={3} borderColor="border.muted">
         <Checkbox.Root
-        mt={3}
+          mt={3}
           colorPalette="teal"
           checked={indeterminate ? "indeterminate" : allFilteredChecked}
           onCheckedChange={(e) => handleToggleAllFiltered(!!e.checked)}
@@ -154,7 +162,8 @@ export const ExportExifBlock = (props: ExportExifBlockProp) => {
                     <Checkbox.Indicator />
                   </Checkbox.Control>
                   <Checkbox.Label maxW="250px" lineClamp={1} title={item.label}>
-                    {item.label}
+                    {item.label}{" "}
+                    <Span fontSize={"x-small"}>({item.description})</Span>
                   </Checkbox.Label>
                 </Checkbox.Root>
               </GridItem>

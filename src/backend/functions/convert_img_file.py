@@ -64,7 +64,8 @@ class Export:
             
             BASE_DIR = Path(__file__).resolve().parent.parent
             UPLOAD_DIR = BASE_DIR / "images"
-            os.mkdir(UPLOAD_DIR)
+            
+            if not os.path.exists(UPLOAD_DIR): os.mkdir(UPLOAD_DIR)
             
             file_name = f"{uuid.uuid4().hex}.{ext}"
             exif = exif_bytes

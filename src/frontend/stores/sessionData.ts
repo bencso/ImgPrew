@@ -612,6 +612,8 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         if (image.haldSprite) returnData.hald = haldImage;
         if (image.exportSettings)
           returnData.exportSettings = image.exportSettings;
+        if (image.exifDatas)
+          returnData.exifDatas = image.exifDatas;
         if (image.box) returnData.cropBox = image.box;
         if (image.expandSize)
           returnData.expand = {
