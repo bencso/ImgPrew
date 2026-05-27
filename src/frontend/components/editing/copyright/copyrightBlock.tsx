@@ -155,6 +155,13 @@ const ImageManipulationBlock = () => {
     s.sessionData.find((sD) => sD.id === selectedImg),
   )?.copyrightImage;
 
+    const imageScale = Math.min(
+    (textAndImagePlaceRef.current?.clientHeight ?? 0) /
+      (imageSize?.height ?? 0),
+    (textAndImagePlaceRef.current?.clientWidth ?? 0) /
+      (imageSize?.width ?? 0),
+  );
+
   if (copyrightImageRef) {
     return (
       <Stack gap={5}>
@@ -162,11 +169,11 @@ const ImageManipulationBlock = () => {
           <Field.Label>Méret</Field.Label>
           <Input
             placeholder="Méret"
-            value={copyrightImage ? copyrightImage?.size : 20}
+            value={copyrightImage ? Number(copyrightImage?.size) * imageScale : 20}
             onChange={(e) => {
-              setCopyrightImageSize(selectedImg, Number(e.target.value));
+              setCopyrightImageSize(selectedImg, minMaxValidation(Number(e.target.value),0) / imageScale);
             }}
-            min={10}
+            min={100}
             type="number"
           />
         </Field.Root>

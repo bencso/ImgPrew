@@ -1,5 +1,4 @@
 //TODO: Refaktorálni
-//TODO: A croppolásnál ha mentünk akkor
 
 import {
   calculationTypeEnum,
@@ -40,6 +39,13 @@ export default function ImageWorkPlace() {
 
   const image = useSessionStore((state) =>
     state.sessionData.find((si) => si.id === selectedImg),
+  );
+
+  const imageScale = Math.min(
+    (textAndImagePlaceRef.current?.clientHeight ?? 0) /
+      (image?.dimesions?.height ?? 0),
+    (textAndImagePlaceRef.current?.clientWidth ?? 0) /
+      (image?.dimesions?.width ?? 0),
   );
 
   const expandSize = useSessionStore(
@@ -83,13 +89,6 @@ export default function ImageWorkPlace() {
     s.sessionData.find((sD) => sD.id === selectedImg),
   );
 
-  const imageScale = Math.min(
-    (textAndImagePlaceRef.current?.clientHeight ?? 0) /
-      (image?.dimesions?.height ?? 0),
-    (textAndImagePlaceRef.current?.clientWidth ?? 0) /
-      (image?.dimesions?.width ?? 0),
-  );
-
   useEffect(() => {
     if (!copyrightImageRef) return;
     const position = calculationReFixPosition({
@@ -98,9 +97,10 @@ export default function ImageWorkPlace() {
       elementRef: copyrightImageRef,
       textAndImagePlaceRef,
     });
+
     setCpPosition({
-      x: Number(position.x),
-      y: Number(position.y),
+      x: position.x,
+      y: position.y,
     });
   }, [selectedImg, copyrightImageRef, copyrightImageSize]);
 
@@ -233,7 +233,7 @@ export default function ImageWorkPlace() {
               }}
               src={copyrightImage.blob}
               alt="copyright"
-              height={copyrightImage.size + "px"}
+              height={(copyrightImage.size  ?? 0) * imageScale + "px"}
               position={"relative"}
               left={Number(cpPosition.x) + "px"}
               top={Number(cpPosition.y) + "px"}

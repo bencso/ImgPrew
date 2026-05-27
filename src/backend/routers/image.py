@@ -8,6 +8,7 @@ from functions.caption_generator import CaptionGenerator
 from functions.border import Border
 from classes.uploadedimage import UploadedImage
 from dependencies import IMAGE_EXTENSIONS
+from functions.watermark import WaterMarking
 import piexif
 from functions.valid_colors import validColors
 
@@ -57,7 +58,7 @@ async def uploadImage(file: UploadFile):
         )
 
 @router.post("/export")
-async def exportImages(body: Annotated[str, Form(...)] = None, file: Annotated[UploadFile, File()] = None, lut: Annotated[UploadFile, File()] = None):
+async def exportImages(body: Annotated[str, Form(...)] = None, file: Annotated[UploadFile, File()] = None, lut: Annotated[UploadFile, File()] = None, copyright_image: Annotated[UploadFile, File()] = None):
     try:
         file_bytes = await file.read()
         lut_file_bytes = await lut.read()
@@ -72,7 +73,16 @@ async def exportImages(body: Annotated[str, Form(...)] = None, file: Annotated[U
         border_size = data.get("border_size") or 0
         border_color = validColors(data.get("border_color"))  or "#fff"
         
-        print(border_size, border_color)
+        if copyright_image is not None:
+            cp_image = await copyright_image.read()
+            cp = UploadedImage(cp_image)
+            cp = cp.get_img()
+            copyright_image_size = int(data.get("copyright_image_size")) or 0
+            copyright_image_position = data.get("copyright_image_position")
+            copyright_image_opacity = int(data.get("copyright_image_opacity")) or 1.0
+            copyright_image_position = (str.upper(copyright_image_position["x"]),str.upper(copyright_image_position["y"]))
+            
+            image = WaterMarking(image, position=copyright_image_position).watermark_with_image(cp, copyright_image_size, copyright_image_opacity)
         
         lut_helper =  Lut(hald, image)
         image = lut_helper.apply_hald()

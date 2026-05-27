@@ -112,11 +112,31 @@ export default function ExportDrawer() {
                         `hald_${selectedImage.id}`,
                       );
 
+                      let copyrightImage = null;
+
+                      if (selectedImage.copyrightImage?.blob) {
+                        let copyrightBlob = await fetch(
+                          selectedImage.copyrightImage.blob,
+                        ).then((res) => res.blob());
+                        copyrightImage = new File(
+                          [copyrightBlob],
+                          `copyright_${selectedImage.id}`,
+                        );
+                      }
+
                       const body = {
-                        extension: selectedImage.exportSettings?.fileExtension ?? "jpg",
-                        exif_data: selectedImage.exportSettings?.exifDatas ?? [],
+                        extension:
+                          selectedImage.exportSettings?.fileExtension ?? "jpg",
+                        exif_data:
+                          selectedImage.exportSettings?.exifDatas ?? [],
                         border_size: selectedImage.borderSize?.x ?? 0,
-                        border_color: selectedImage.expandBackground ?? "#fff"
+                        border_color: selectedImage.expandBackground ?? "#fff",
+                        copyright_image_size:
+                          selectedImage.copyrightImage?.size,
+                        copyright_image_position:
+                          selectedImage.copyrightImage?.position,
+                        copyright_image_opacity:
+                          selectedImage.copyrightImage?.opacity,
                       };
 
                       console.log(body);
@@ -124,6 +144,9 @@ export default function ExportDrawer() {
                       const formData = new FormData();
                       formData.append("file", imageBlobFile);
                       formData.append("lut", haldFile, "hald.png");
+                      if(copyrightImage){
+                        formData.append("copyright_image", copyrightImage, "copyright.png");
+                      }
                       formData.append("body", JSON.stringify(body));
 
                       await fetch("/api/images/export", {

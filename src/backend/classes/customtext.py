@@ -78,8 +78,7 @@ class Text:
         text_width = bbox[2] - bbox[0]
         text_height = bbox[3] - bbox[1]
 
-        # TODO: Késöbb itt is bármilyen érték lehessen!
-        if type(x) == str and type(y) == str:
+        if int.is_integer(x) and int.is_integer(y):
             if x == "LEFT":
                 x = 20
             elif x == "RIGHT":
