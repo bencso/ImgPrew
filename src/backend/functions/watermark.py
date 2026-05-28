@@ -1,7 +1,7 @@
 from PIL import Image
+from PIL import ImageOps
 from typing import Optional
 from dependencies import X_AXIS, Y_AXIS
-from PIL import ImageOps
 from classes.customtext import Text
 import io
 
@@ -44,17 +44,16 @@ class WaterMarking:
         return watermarked
 
     def watermark_with_image(self, watermark_image: Image.Image, watermark_size: int, watermark_opacity: int):
-        if self.img.mode != "RGBA":
-            self.img = self.img.convert("RGBA")
-
         SIZE = (watermark_size,watermark_size) or (300,300)
+        print(SIZE)
         try:
             watermark_image_png = watermark_image.convert("RGBA")
-            watermark_image_png = ImageOps.contain(
+            watermark_image_png = ImageOps.exif_transpose(watermark_image)
+            watermark_image_png = ImageOps.cover(
                 watermark_image_png,
                 SIZE,
             )
-            watermark_image_png.putalpha(watermark_opacity*255)
+            watermark_image_png.putalpha(watermark_opacity)
 
             x, y = self.position
             if type(x) == str and type(y) == str:

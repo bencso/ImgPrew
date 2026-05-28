@@ -73,24 +73,25 @@ async def exportImages(body: Annotated[str, Form(...)] = None, file: Annotated[U
         border_size = data.get("border_size") or 0
         border_color = validColors(data.get("border_color"))  or "#fff"
         
+        exif_bytes = image.info.get("exif")
+        if exif_bytes:
+            exif_data = piexif.load(exif_bytes)
+        
+        lut_helper = Lut(hald, image)
+        image = lut_helper.apply_hald()
+            
         if copyright_image is not None:
             cp_image = await copyright_image.read()
             cp = UploadedImage(cp_image)
             cp = cp.get_img()
             copyright_image_size = int(data.get("copyright_image_size")) or 0
             copyright_image_position = data.get("copyright_image_position")
-            copyright_image_opacity = int(data.get("copyright_image_opacity")) or 100
+            copyright_image_opacity = float(data.get("copyright_image_opacity")) or 100
+            
             copyright_image_position = (str.upper(copyright_image_position["x"]),str.upper(copyright_image_position["y"]))
-            
+            copyright_image_opacity = int((copyright_image_opacity / 100.0) * 255)
             image = WaterMarking(image, position=copyright_image_position).watermark_with_image(cp, copyright_image_size, copyright_image_opacity)
-        
-        lut_helper =  Lut(hald, image)
-        image = lut_helper.apply_hald()
-        
-        exif_bytes = image.info.get("exif")
-        if exif_bytes:
-            exif_data = piexif.load(exif_bytes)
-            
+  
         border_helper = Border(image,border_size, color=border_color)
         image = border_helper.apply()
         

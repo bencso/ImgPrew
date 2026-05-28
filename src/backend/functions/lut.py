@@ -6,7 +6,7 @@ import imageio.v3 as iio
 import numpy as np
 
 class Lut:
-    def __init__(self, hald: Image.Image = None, image=Image.Image, cube: str = None):
+    def __init__(self, hald: Image.Image, image=Image.Image, cube: str = None):
         self.hald = hald
         self.image = image
         self.cube = cube
