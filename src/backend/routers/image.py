@@ -79,7 +79,7 @@ async def exportImages(body: Annotated[str, Form(...)] = None, file: Annotated[U
             cp = cp.get_img()
             copyright_image_size = int(data.get("copyright_image_size")) or 0
             copyright_image_position = data.get("copyright_image_position")
-            copyright_image_opacity = int(data.get("copyright_image_opacity")) or 1.0
+            copyright_image_opacity = int(data.get("copyright_image_opacity")) or 100
             copyright_image_position = (str.upper(copyright_image_position["x"]),str.upper(copyright_image_position["y"]))
             
             image = WaterMarking(image, position=copyright_image_position).watermark_with_image(cp, copyright_image_size, copyright_image_opacity)

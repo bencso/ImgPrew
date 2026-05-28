@@ -4,6 +4,7 @@ export function minMaxValidation(
   value: number,
   min?: number,
   max?: number,
+  factor?: number,
 ): number {
   let minValue = min ?? -300;
   let maxValue = max ?? Infinity;
@@ -12,8 +13,8 @@ export function minMaxValidation(
     toaster.create({
       type: "error",
       title: "Hibás érték",
-      description: `Az érték legalább ${minValue}${maxValue !== Infinity ? ` és maximum ${maxValue} ` : ""} lehet`,
-       closable: true,
+      description: `Az érték legalább ${minValue * (factor ?? 1)}${maxValue !== Infinity ? ` és maximum ${maxValue * (factor ?? 1)} ` : ""} lehet`,
+      closable: true,
     });
   }
 
@@ -23,11 +24,10 @@ export function minMaxValidation(
   return value;
 }
 
-
-export function createError(title: string, description?: string){
-     toaster.create({
-      type: "error",
-      title: title,
-      description:description
-    });
+export function createError(title: string, description?: string) {
+  toaster.create({
+    type: "error",
+    title: title,
+    description: description,
+  });
 }

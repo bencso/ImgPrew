@@ -47,8 +47,6 @@ export default function CopyrightBlock() {
       shallow,
     ) ?? null;
 
-
-
   useEffect(() => {
     (async () => {
       if (copyrightImage) {
@@ -138,8 +136,11 @@ export default function CopyrightBlock() {
 const ImageManipulationBlock = () => {
   const { selectedImg, copyrightImageRef, textAndImagePlaceRef } =
     useWorkSession();
-  const { setCopyrightImageSize, setCopyrightImagePosition, setCopyrightImageOpacity } =
-    useSessionStore();
+  const {
+    setCopyrightImageSize,
+    setCopyrightImagePosition,
+    setCopyrightImageOpacity,
+  } = useSessionStore();
 
   const imageSize = useSessionStore(
     (s) => s.sessionData.find((img) => img.id === selectedImg)?.dimesions,
@@ -157,12 +158,12 @@ const ImageManipulationBlock = () => {
     s.sessionData.find((sD) => sD.id === selectedImg),
   )?.copyrightImage;
 
-    const imageScale = Math.min(
+  const imageScale = Math.min(
     (textAndImagePlaceRef.current?.clientHeight ?? 0) /
       (imageSize?.height ?? 0),
-    (textAndImagePlaceRef.current?.clientWidth ?? 0) /
-      (imageSize?.width ?? 0),
+    (textAndImagePlaceRef.current?.clientWidth ?? 0) / (imageSize?.width ?? 0),
   );
+
 
   if (copyrightImageRef) {
     return (
@@ -171,36 +172,42 @@ const ImageManipulationBlock = () => {
           <Field.Label>Méret</Field.Label>
           <Input
             placeholder="Méret"
-            value={copyrightImage ? Number(copyrightImage?.size) * imageScale : 200}
+            value={(copyrightImage?.size ?? 30) * imageScale}
             onChange={(e) => {
-              setCopyrightImageSize(selectedImg, minMaxValidation((Number(e.target.value) / imageScale), 0));
+              setCopyrightImageSize(
+                selectedImg,
+                minMaxValidation(
+                  Number(e.target.value) / imageScale,
+                  0 
+                ),
+              );
             }}
             min={200}
             type="number"
           />
         </Field.Root>
-                  <Box display={"flex"} flexDir={"row"} gap={2} alignItems={"center"}>
-            <Text w="fit">Áttettszőség:</Text>
+        <Box display={"flex"} flexDir={"row"} gap={2} alignItems={"center"}>
+          <Text w="fit">Áttettszőség:</Text>
 
-            <HStack flex="1">
-              <NumberInput.Root
-                value={copyrightImage?.opacity?.toString() ?? "0"}
-                min={0}
-                max={100}
-                w={"full"}
-                onValueChange={(e) => {
-                  setCopyrightImageOpacity(selectedImg, 
-                      minMaxValidation(Number(e.value),
-                      0,
-                     200)
-                  )}}
-              >
-                <NumberInput.Control />
-                <NumberInput.Input />
-              </NumberInput.Root>
-              <Text>%</Text>
-            </HStack>
-          </Box>
+          <HStack flex="1">
+            <NumberInput.Root
+              value={copyrightImage?.opacity?.toString() ?? "0"}
+              min={0}
+              max={100}
+              w={"full"}
+              onValueChange={(e) => {
+                setCopyrightImageOpacity(
+                  selectedImg,
+                  minMaxValidation(Number(e.value), 0, 100),
+                );
+              }}
+            >
+              <NumberInput.Control />
+              <NumberInput.Input />
+            </NumberInput.Root>
+            <Text>%</Text>
+          </HStack>
+        </Box>
         <Flex gap={4} width="full" alignItems="center">
           <Box display={"flex"} flexDir={"row"} gap={2} alignItems={"center"}>
             <Text w="fit">X:</Text>
@@ -216,7 +223,8 @@ const ImageManipulationBlock = () => {
                       Number(e.value),
                       0,
                       ((textAndImagePlaceRef.current?.clientWidth ?? 0) -
-                        (copyrightImageRef.clientWidth ?? 0)) / imageScale,
+                        (copyrightImageRef.clientWidth ?? 0)) /
+                        imageScale,
                     ),
                     y: imagePosition?.y ?? 0,
                   });
@@ -242,7 +250,8 @@ const ImageManipulationBlock = () => {
                       Number(e.value),
                       0,
                       ((textAndImagePlaceRef.current?.clientHeight ?? 0) -
-                        (copyrightImageRef.height ?? 0)) / imageScale ,
+                        (copyrightImageRef.height ?? 0)) /
+                        imageScale,
                     ),
                   });
                 }}

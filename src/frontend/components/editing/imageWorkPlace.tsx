@@ -235,7 +235,7 @@ export default function ImageWorkPlace() {
               }}
               src={copyrightImage.blob}
               alt="copyright"
-              height={(copyrightImage.size  ?? 0) * imageScale + "px"}
+              w={(copyrightImage.size  ?? 0) * imageScale + "px"}
               position={"relative"}
               left={Number(cpPosition.x) + "px"}
               top={Number(cpPosition.y) + "px"}
