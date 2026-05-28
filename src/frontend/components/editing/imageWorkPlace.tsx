@@ -96,11 +96,12 @@ export default function ImageWorkPlace() {
       type: calculationTypeEnum.COPYRIGHT,
       elementRef: copyrightImageRef,
       textAndImagePlaceRef,
+      imageScale
     });
 
     setCpPosition({
-      x: position.x,
-      y: position.y,
+      x: position.x  * (typeof copyrightImage?.position?.x === "number" ? imageScale : 1),
+      y: position.y  * (typeof copyrightImage?.position?.y === "number" ? imageScale : 1),
     });
   }, [selectedImg, copyrightImageRef, copyrightImageSize]);
 
@@ -115,6 +116,7 @@ export default function ImageWorkPlace() {
         elementRef: textElements[element.id],
         textAndImagePlaceRef: textAndImagePlaceRef,
         textId: element.id,
+        imageScale
       });
 
       const positions = image?.texts?.find(

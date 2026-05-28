@@ -145,6 +145,7 @@ export interface CalculationReFixPositionProps {
   elementRef: HTMLElement;
   textAndImagePlaceRef: RefObject<HTMLDivElement | null>;
   textId?: string;
+  imageScale?: any
 }
 //#endregion
 

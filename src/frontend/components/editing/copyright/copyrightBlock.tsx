@@ -47,6 +47,8 @@ export default function CopyrightBlock() {
       shallow,
     ) ?? null;
 
+
+
   useEffect(() => {
     (async () => {
       if (copyrightImage) {
@@ -169,11 +171,11 @@ const ImageManipulationBlock = () => {
           <Field.Label>Méret</Field.Label>
           <Input
             placeholder="Méret"
-            value={copyrightImage ? Number(copyrightImage?.size) * imageScale : 20}
+            value={copyrightImage ? Number(copyrightImage?.size) * imageScale : 200}
             onChange={(e) => {
-              setCopyrightImageSize(selectedImg, minMaxValidation(Number(e.target.value),0) / imageScale);
+              setCopyrightImageSize(selectedImg, minMaxValidation((Number(e.target.value) / imageScale), 0));
             }}
-            min={100}
+            min={200}
             type="number"
           />
         </Field.Root>
@@ -190,7 +192,7 @@ const ImageManipulationBlock = () => {
                   setCopyrightImageOpacity(selectedImg, 
                       minMaxValidation(Number(e.value),
                       0,
-                     100)
+                     200)
                   )}}
               >
                 <NumberInput.Control />
@@ -213,8 +215,8 @@ const ImageManipulationBlock = () => {
                     x: minMaxValidation(
                       Number(e.value),
                       0,
-                      (textAndImagePlaceRef.current?.clientWidth ?? 0) -
-                        (copyrightImageRef.clientWidth ?? 0) ,
+                      ((textAndImagePlaceRef.current?.clientWidth ?? 0) -
+                        (copyrightImageRef.clientWidth ?? 0)) / imageScale,
                     ),
                     y: imagePosition?.y ?? 0,
                   });
@@ -239,8 +241,8 @@ const ImageManipulationBlock = () => {
                     y: minMaxValidation(
                       Number(e.value),
                       0,
-                      (textAndImagePlaceRef.current?.clientHeight ?? 0) -
-                        (copyrightImageRef.height ?? 0) ,
+                      ((textAndImagePlaceRef.current?.clientHeight ?? 0) -
+                        (copyrightImageRef.height ?? 0)) / imageScale ,
                     ),
                   });
                 }}

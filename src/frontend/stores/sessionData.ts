@@ -80,16 +80,21 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
 
       if (!props.textAndImagePlaceRef.current) return;
 
-      const height = props.textAndImagePlaceRef.current.offsetHeight;
-      const width = props.textAndImagePlaceRef.current.offsetWidth;
+      const height =
+        props.textAndImagePlaceRef.current.offsetHeight;
+      const width =
+        props.textAndImagePlaceRef.current.offsetWidth ;
 
-      const imageHalf = width / 2 - props.elementRef.offsetWidth / 2;
+      const imageHalf =
+        width / 2 -
+        props.elementRef.offsetWidth /
+          2;
 
       const imageWCP = width - props.elementRef.offsetWidth;
       const imageHCP = height - props.elementRef.offsetHeight;
 
-      const bX = image?.borderSize?.x ? Number(image.borderSize.x) : 20;
-      const bY = image?.borderSize?.y ? Number(image.borderSize.y) : 20;
+      const bX = (image?.borderSize?.x ?? 0) * (props.imageScale ?? 0) + 30 * (props.imageScale ?? 0);
+      const bY = (image?.borderSize?.y ?? 0) * (props.imageScale ?? 0) + 30 * (props.imageScale ?? 0);
 
       const defaultPosition = props.textId
         ? ((positions as {
@@ -502,7 +507,6 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
             ...image.texts.slice(textIndex + 1),
           ];
         }
-
       }),
     //#endregion
 
@@ -536,11 +540,11 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     },
 
     setExpandBackground: (id: number, color: string) => {
-        set((state) => ({
-          sessionData: state.sessionData.map((img: any) =>
-            img.id === id ? { ...img, expandBackground: color } : img,
-          ),
-        }));
+      set((state) => ({
+        sessionData: state.sessionData.map((img: any) =>
+          img.id === id ? { ...img, expandBackground: color } : img,
+        ),
+      }));
     },
     //#endregion
 
@@ -607,8 +611,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         if (image.haldSprite) returnData.hald = haldImage;
         if (image.exportSettings)
           returnData.exportSettings = image.exportSettings;
-        if (image.exifDatas)
-          returnData.exifDatas = image.exifDatas;
+        if (image.exifDatas) returnData.exifDatas = image.exifDatas;
         if (image.box) returnData.cropBox = image.box;
         if (image.expandSize)
           returnData.expand = {
