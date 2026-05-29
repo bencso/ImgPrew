@@ -59,7 +59,7 @@ async def uploadImage(file: UploadFile):
         )
 
 @router.post("/export")
-async def exportImages(body: Annotated[str, Form(...)] = None, file: Annotated[UploadFile, File()] = None, lut: Annotated[UploadFile, File()] = None, copyright_image: Annotated[UploadFile, File()] = None):
+async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[UploadFile, File()] = None, lut: Annotated[UploadFile, File()] = None, copyright_image: Annotated[UploadFile, File()] = None):
     try:
         file_bytes = await file.read()
         lut_file_bytes = await lut.read()

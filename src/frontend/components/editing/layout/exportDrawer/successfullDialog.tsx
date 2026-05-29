@@ -10,21 +10,45 @@ import {
   DialogContent,
   DialogRoot,
   DialogTitle,
+  DownloadTrigger,
+  Span,
+  Carousel,
+  IconButton,
+  HStack,
+  Text,
 } from "@chakra-ui/react";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { SuccessfullyImagesProps } from "./exportDrawer";
+import { LuChevronLeft, LuChevronRight, LuDownload } from "react-icons/lu";
 
 interface SuccessfullDialogProps {
   successfullyImageShow: boolean;
   setSuccessfullyImageShow: Dispatch<SetStateAction<boolean>>;
-  successfullyImage: string;
+  successfullyImages: SuccessfullyImagesProps[];
   selectedImage?: CustomImage | undefined;
 }
 
 export const SuccessfullDialog = (props: SuccessfullDialogProps) => {
+  const [page, setPage] = useState(0);
+  let images = props.successfullyImages ?? [];
+  const hasMultipleImages = images.length > 1;
+  const [close, setClose] = useState<boolean>(false);
+
+  useEffect(() => {
+    setClose(true);
+  }, [images]);
+
+  const currentImage = images[page] || images[0];
+
+  if (images.length === 0) return null;
+
   return (
     <DialogRoot
-      open={props.successfullyImageShow}
-      onOpenChange={(e) => props.setSuccessfullyImageShow(e.open)}
+      open={close}
+      onOpenChange={(e) => {
+        props.setSuccessfullyImageShow(e.open);
+        if (!e.open) setPage(0);
+      }}
     >
       <DialogContent
         borderRadius="l3"
@@ -35,44 +59,119 @@ export const SuccessfullDialog = (props: SuccessfullDialogProps) => {
         bottom={4}
         p={0}
         m={0}
+        maxW="md"
+        w="100%"
       >
         <DialogHeader borderBottomWidth="1px" py={4}>
           <DialogTitle fontSize="lg" fontWeight="bold">
-            Sikeres exportálás!
+            {hasMultipleImages
+              ? `Sikeres exportálás! (${images.length} kép)`
+              : "Sikeres exportálás!"}
           </DialogTitle>
         </DialogHeader>
 
-        <DialogBody
-          p={6}
-          bg="bg.muted"
-          display="flex"
-          justifyContent="center"
-          alignItems="center"
-        >
-          <Image
-            src={props.successfullyImage}
-            alt="Kiexportált kép"
-            maxH="50vh"
-            objectFit="contain"
-            borderRadius="l2"
-            shadow="md"
-          />
+        <DialogBody p={6} bg="bg.muted" position="relative">
+          {hasMultipleImages ? (
+            <Carousel.Root
+              slideCount={images.length}
+              page={page}
+              onPageChange={(e) => setPage(e.page)}
+            >
+              <Carousel.ItemGroup>
+                {images.map((sI, index) => (
+                  <Carousel.Item
+                    key={index}
+                    index={index}
+                    display="flex"
+                    justifyContent="center"
+                  >
+                    <Image
+                      src={sI.data}
+                      alt={sI.title || "Kiexportált kép"}
+                      maxH="40vh"
+                      objectFit="contain"
+                      borderRadius="l2"
+                      shadow="md"
+                    />
+                  </Carousel.Item>
+                ))}
+              </Carousel.ItemGroup>
+
+              <HStack justify="space-between" mt={4} px={2}>
+                <Carousel.PrevTrigger asChild>
+                  <IconButton size="sm" variant="subtle" aria-label="Előző kép">
+                    <LuChevronLeft />
+                  </IconButton>
+                </Carousel.PrevTrigger>
+
+                <Text fontSize="sm" fontWeight="medium">
+                  {page + 1} / {images.length}
+                </Text>
+
+                <Carousel.NextTrigger asChild>
+                  <IconButton
+                    size="sm"
+                    variant="subtle"
+                    aria-label="Következő kép"
+                  >
+                    <LuChevronRight />
+                  </IconButton>
+                </Carousel.NextTrigger>
+              </HStack>
+            </Carousel.Root>
+          ) : (
+            <DialogBody display="flex" justifyContent="center" p={0}>
+              <Image
+                src={currentImage.data}
+                alt={currentImage.title || "Kiexportált kép"}
+                maxH="45vh"
+                objectFit="contain"
+                borderRadius="l2"
+                shadow="md"
+              />
+            </DialogBody>
+          )}
         </DialogBody>
 
-        <DialogFooter borderTopWidth="1px" gap={3}>
+        <DialogFooter
+          borderTopWidth="1px"
+          gap={3}
+          justifyContent="space-between"
+        >
           <DialogActionTrigger asChild>
-            <Button variant="ghost">Bezárás</Button>
+            <Button
+              onClick={() => {
+                setClose(false);
+              }}
+              variant="ghost"
+            >
+              Bezárás
+            </Button>
           </DialogActionTrigger>
 
-          <Button
-            as={"a"}
-            //@ts-ignore
-            href={props.successfullyImage}
-            download={`exportalas.${props.selectedImage?.exportSettings?.fileExtension ?? "jpg"}`}
-            bg="brand.solid"
-          >
-            Letöltés
-          </Button>
+          <HStack gap={2}>
+            {currentImage && (
+              <Button
+                as={"a"}
+                //@ts-ignore
+                href={currentImage.data}
+                download={`${crypto.randomUUID()}.${currentImage.extension ?? "jpg"}`}
+              >
+                <LuDownload />
+                Aktuális letöltése
+                {currentImage.title && (
+                  <Span
+                    fontSize={"xx-small"}
+                    opacity={0.8}
+                    maxW="80px"
+                    truncate
+                  >
+                    ({currentImage.title})
+                  </Span>
+                )}
+              </Button>
+            )}
+          </HStack>
         </DialogFooter>
 
         <DialogCloseTrigger />

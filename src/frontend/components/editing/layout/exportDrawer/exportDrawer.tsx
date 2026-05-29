@@ -20,16 +20,24 @@ import { SuccessfullDialog } from "./successfullDialog";
 import Loader from "@/components/loader";
 import { BeatLoader } from "react-spinners";
 
+export interface SuccessfullyImagesProps {
+  title: string;
+  data: string;
+  extension: string;
+}
+
 export default function ExportDrawer() {
   const images = useSessionStore((s) => s.sessionData);
   const [selected, setSelected] = useState<number>(images.length > 1 ? -1 : 0);
   const {
     exportImageSettings,
-    exportAllImageSettings,
     setExportAllFileOptimize,
     setExportFileOptimize,
   } = useSessionStore();
-  const [successfullyImage, setSuccessfulyImage] = useState<string>("");
+
+  const [successfullyImages, setSuccessfulyImages] = useState<
+    SuccessfullyImagesProps[]
+  >([]);
   const [successfullyImageShow, setSuccessfullyImageShow] =
     useState<boolean>(false);
   const { appRef } = useWorkSession();
@@ -37,9 +45,9 @@ export default function ExportDrawer() {
 
   const selectedImage = images.find((i) => i.id === selected);
 
-  async function exportSelectedImage() {
-    setIsLoading(true);
-    const exportData = await exportImageSettings(selected, appRef);
+  async function exportSelectedImage(id: number) {
+    const exportData = await exportImageSettings(id, appRef);
+    let selectedImage = images.find((i) => i.id === id);
 
     if (!selectedImage) return;
 
@@ -91,18 +99,23 @@ export default function ExportDrawer() {
         if (res) {
           const blob = await res?.blob();
           const imageUrl = URL.createObjectURL(blob);
-          setSuccessfulyImage(imageUrl);
+
+          setSuccessfulyImages((prev) => [
+            ...prev,
+            {
+              title: String(selectedImage.id),
+              data: imageUrl,
+              extension: body.extension,
+            } as SuccessfullyImagesProps,
+          ]);
           setSuccessfullyImageShow(true);
-          setIsLoading(false);
         }
       });
   }
 
   return (
     <Drawer.Root size={"lg"}>
-      {
-        isLoading &&<Loader showBg={false}/>
-      }
+      {isLoading && <Loader showBg={false} />}
       <Box p={2}>
         {
           //#region Exportálás gomb
@@ -146,7 +159,7 @@ export default function ExportDrawer() {
         //#endregion
       }
       <SuccessfullDialog
-        successfullyImage={successfullyImage}
+        successfullyImages={successfullyImages}
         successfullyImageShow={successfullyImageShow}
         setSuccessfullyImageShow={setSuccessfullyImageShow}
         selectedImage={selectedImage}
@@ -212,7 +225,10 @@ export default function ExportDrawer() {
                     flex={1}
                     disabled={isLoading}
                     onClick={async () => {
-                      await exportSelectedImage();
+                      setIsLoading(true);
+                      await exportSelectedImage(selected).then(() => {
+                        setIsLoading(false);
+                      });
                     }}
                   >
                     <FaFileImage size={"12"} />
@@ -228,7 +244,17 @@ export default function ExportDrawer() {
                     flex={1}
                     disabled={isLoading}
                     onClick={async () => {
-                      console.log(await exportAllImageSettings(appRef));
+                      setIsLoading(true);
+                      try {
+                        const exportPromises = images.map((image) =>
+                          exportSelectedImage(image.id),
+                        );
+                        await Promise.all(exportPromises);
+                      } catch (error) {
+                        console.error("Hiba az exportáláskor:", error);
+                      } finally {
+                        setIsLoading(false);
+                      }
                     }}
                   >
                     <LuFileBox size={"12"} />
