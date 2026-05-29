@@ -216,6 +216,8 @@ export default function ImageWorkPlace() {
                   ref={setTextRef(element.id)}
                   cursor={"pointer"}
                   textWrap={"balance"}
+                  lineClamp={"none"}
+                  lineHeight={"normal"}
                   style={{
                     fontSize: (element.fontSize || 20) * imageScale ,
                     fontFamily: element.fontFamily || "Roboto",

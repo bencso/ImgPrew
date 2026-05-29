@@ -1,6 +1,6 @@
 from typing import Optional
 from functions.valid_colors import validColors
-from dependencies import FONT_SIZES, FONT_WEIGHTS
+from dependencies import FONT_WEIGHTS
 from PIL import ImageDraw, Image, ImageFont, ImageStat, ImageColor
 
 class TextProps:
@@ -82,11 +82,11 @@ class Text:
             if y == "TOP":
                 y = 30
             elif y == "BOTTOM":
-                y = self.img.height - text_height
+                y = self.img.height - text_height*1.5
             elif y == "CENTER":
                 y = (self.img.height / 2) - (text_height / 2)
-
-        text_position = (x, y)
+            
+        text_position = (float(x), float(y))
         return text_position
 
     def generate_text(self):
@@ -107,8 +107,8 @@ class Text:
                 else int(FONT_WEIGHTS.get(t.weight, FONT_WEIGHTS.get("normal", 400)))
             )
             
-            # TODO: A font typeokat ki lehessen választani majd
             font = ImageFont.truetype("fonts/Roboto.ttf", fontsize)
+            
             try:
                 font.set_variation_by_axes([fontweight])
             except AttributeError:
@@ -118,5 +118,6 @@ class Text:
             position = self.get_position(position=t.position, bbox=bbox)
             color = self.get_font_color(t.color, t.opacity)
             draw.text(position, t.text, font=font, fill=color)
+        
         self.img.paste(txt_layer, (0,0),txt_layer)
         return self.img
