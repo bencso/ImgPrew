@@ -15,6 +15,8 @@ import {
   DialogActionTrigger,
   DialogCloseTrigger,
   Link,
+  HStack,
+  Switch,
 } from "@chakra-ui/react";
 import { FaFileExport, FaFileImage } from "react-icons/fa";
 import { LuFileBox } from "react-icons/lu";
@@ -28,7 +30,12 @@ import { useWorkSession } from "@/providers/sessionprovider";
 export default function ExportDrawer() {
   const images = useSessionStore((s) => s.sessionData);
   const [selected, setSelected] = useState<number>(images.length > 1 ? -1 : 0);
-  const { exportImageSettings, exportAllImageSettings } = useSessionStore();
+  const {
+    exportImageSettings,
+    exportAllImageSettings,
+    setExportAllFileOptimize,
+    setExportFileOptimize,
+  } = useSessionStore();
   const [successfullyImage, setSuccessfulyImage] = useState<string>("");
   const [successfullyImageShow, setSuccessfullyImageShow] =
     useState<boolean>(false);
@@ -68,10 +75,17 @@ export default function ExportDrawer() {
         open={successfullyImageShow}
         onOpenChange={(e) => setSuccessfullyImageShow(e.open)}
         motionPreset="slide-in-bottom"
-        placement="bottom"
-        size="md"
       >
-        <DialogContent borderRadius="l3" boxShadow="lg" zIndex={"max"}>
+        <DialogContent
+          borderRadius="l3"
+          boxShadow="2xl"
+          zIndex={"max"}
+          pos={"absolute"}
+          right={4}
+          bottom={4}
+          p={0}
+          m={0}
+        >
           <DialogHeader borderBottomWidth="1px" py={4}>
             <DialogTitle fontSize="lg" fontWeight="bold">
               Sikeres exportálás!
@@ -100,13 +114,15 @@ export default function ExportDrawer() {
               <Button variant="ghost">Bezárás</Button>
             </DialogActionTrigger>
 
-            <Link
+            <Button
+              as={"a"}
+              //@ts-ignore
               href={successfullyImage}
               download={`exportalas.${selectedImage?.exportSettings?.fileExtension ?? "jpg"}`}
               bg="brand.solid"
             >
               Letöltés
-            </Link>
+            </Button>
           </DialogFooter>
 
           <DialogCloseTrigger />
@@ -142,6 +158,24 @@ export default function ExportDrawer() {
                 selected={selected}
                 setSelected={setSelected}
               />
+              <HStack>
+                <Switch.Root
+                  checked={selectedImage?.exportSettings?.optimize}
+                  onCheckedChange={(e) => {
+                    if (selected !== -1) {
+                      setExportFileOptimize(selected, e.checked);
+                    } else {
+                      setExportAllFileOptimize(e.checked);
+                    }
+                  }}
+                >
+                  <Switch.HiddenInput />
+                  <Switch.Control>
+                    <Switch.Thumb />
+                  </Switch.Control>
+                  <Switch.Label>Optimalizálás</Switch.Label>
+                </Switch.Root>
+              </HStack>
             </Drawer.Body>
             {
               //#region Drawer Footer
@@ -204,6 +238,8 @@ export default function ExportDrawer() {
                         copyright_image_opacity:
                           selectedImage.copyrightImage?.opacity,
                         texts: selectedImage.texts,
+                        optimize:
+                          selectedImage.exportSettings?.optimize ?? false,
                       };
 
                       const formData = new FormData();

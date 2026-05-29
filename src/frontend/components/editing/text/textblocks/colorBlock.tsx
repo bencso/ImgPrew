@@ -24,13 +24,14 @@ export function TextBlockColor(props: TextBlockColorProps) {
   )?.texts?.find((t) => t.id === props.id);
 
   return (
-    <Flex gap={4} width="full" flexDir={"column"} alignItems="center">
+    <Flex gap={4} width="full" flexDir={"column"} alignItems="start">
       <Text w="fit">Szín</Text>
       <ColorPicker.Root
         onValueChange={(details) => {
           setTextColor(selectedImg, props.id, details.value.toString("hex"));
         }}
         w={"full"}
+        variant={"subtle"}
         value={parseColor(props.color)}
       >
         <ColorPicker.HiddenInput />
@@ -42,10 +43,7 @@ export function TextBlockColor(props: TextBlockColorProps) {
           <ColorPicker.Positioner>
             <ColorPicker.Content>
               <ColorPicker.Area />
-              <HStack>
-                <ColorPicker.EyeDropper size="xs" variant="outline" />
                 <ColorPicker.Sliders />
-              </HStack>
             </ColorPicker.Content>
           </ColorPicker.Positioner>
         </Portal>

@@ -71,6 +71,7 @@ async def exportImages(body: Annotated[str, Form(...)] = None, file: Annotated[U
         data = json.loads(body)
         file_extension = data.get("extension") or "jpg"
         allowed_infos = data.get("exif_data") or []
+        optimize = data.get("optimize") or False
         border_size = data.get("border_size") or 0
         border_color = validColors(data.get("border_color"))  or "#fff"
         texts = data.get("texts") or []
@@ -100,8 +101,8 @@ async def exportImages(body: Annotated[str, Form(...)] = None, file: Annotated[U
   
         border_helper = Border(image,border_size, color=border_color)
         image = border_helper.apply()
-       
-        exporter = Export(image, output_extension=file_extension, exif_data=exif_data, allowed_infos=allowed_infos)
+    
+        exporter = Export(image, output_extension=file_extension, exif_data=exif_data, allowed_infos=allowed_infos, optimized=optimize)
         exporter = exporter.apply()
         
         if(not isinstance(exporter,bytes)):

@@ -99,6 +99,7 @@ export interface CropBox {
 export interface ExportSettings {
   fileExtension?: string;
   exifDatas?: string[];
+  optimize?: boolean;
 }
 //#endregion
 
@@ -231,6 +232,11 @@ export interface SessionStore {
   //#region CAPTION
   getCaptionForImage: (id: number) => string;
   setCaptionForImage: (id: number, caption: string) => void;
+  //#endregion
+
+    //#region OPTIMIZE
+  setExportFileOptimize: (id: number, optimize: boolean) => void;
+  setExportAllFileOptimize: (optimize: boolean) => void;
   //#endregion
 
   //#region EXPORT

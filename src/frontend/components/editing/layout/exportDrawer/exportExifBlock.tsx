@@ -25,6 +25,7 @@ interface ExportExifBlockProp {
 }
 
 export const ExportExifBlock = (props: ExportExifBlockProp) => {
+  const { setExportExifs} = useSessionStore();
   const [values, setValues] = useState<ExifItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -47,6 +48,10 @@ export const ExportExifBlock = (props: ExportExifBlockProp) => {
     );
     setSearchQuery("");
   }, [exifTags]);
+
+  useEffect(()=>{
+    setExportExifs(props.selected, values.filter((v)=> v.checked).map((m)=>m.label));
+  }, [values])
 
   if (exifTags.length === 0) {
     return (

@@ -18,6 +18,7 @@ class Export:
         allowed_infos: Optional[list[
             EXIF_TAG_NAMES_LIST  # pyright: ignore[reportInvalidTypeForm]
         ]],
+        optimized: Optional[bool]
     ) -> str:
         self.image = image
         self.allowed_info = (
@@ -27,6 +28,7 @@ class Export:
         )
         self.output_extension = output_extension
         self.exif_data = exif_data
+        self.optimized = True if optimized else False
     
     def __enter__(self):
         return self
@@ -41,17 +43,21 @@ class Export:
             exif_bytes = None
             if self.exif_data:
                 allowed_set = set(self.allowed_info)
+                print("allowed_set")
+                print(allowed_set)
                 filtered_exif = {}
                 for ifd in ("0th", "Exif", "GPS", "1st"):
                     filtered_exif[ifd] = {}
                     for tag in self.exif_data.get(ifd, {}):
                         tag_name = piexif.TAGS[ifd][tag]["name"]
                         if tag_name in allowed_set:
+                            print(tag_name)
                             filtered_exif[ifd][tag] = self.exif_data[ifd][tag]
                 for ifd in ("thumbnail",):
-                    filtered_exif[ifd] = self.exif_data.get(ifd, None)
+                    if ifd in allowed_set:
+                        filtered_exif[ifd] = self.exif_data.get(ifd, None)
                 exif_bytes = piexif.dump(filtered_exif)
-
+            
             ext = self.output_extension or self.f_ext
             ext = ext.lstrip(".")
             if ext == "jpg": ext = "jpeg"
@@ -65,7 +71,12 @@ class Export:
             exif = exif_bytes
             
             buffer = BytesIO()
-            self.image.save(buffer, exif=exif, quality=70, format=ext)
+            print(self.optimized)
+            if self.optimized is True:
+                exif=piexif.dump({})
+                self.image.save(buffer, exif=exif, format=ext, quality=40)
+            else: 
+                self.image.save(buffer, exif=exif, format=ext)
             return buffer.getvalue()
         except Exception as e:
             logging.error(f"HIBA: {e}")

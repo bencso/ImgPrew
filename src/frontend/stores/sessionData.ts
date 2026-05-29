@@ -326,7 +326,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
             fontFamily: "Roboto",
             fontWeight: 500,
             color: "#ffff",
-            opacity: 1
+            opacity: 1,
           };
 
           image.texts.push(element);
@@ -563,7 +563,36 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       }));
     },
     //#endregion
-
+    //#region EXPORT
+    setExportFileOptimize: (id: number, optimize: boolean) => {
+      set((state) => ({
+        sessionData: state.sessionData.map((img: any) =>
+          img.id === id
+            ? {
+                ...img,
+                exportSettings: {
+                  ...img.exportSettings,
+                  optimize: optimize,
+                },
+              }
+            : img,
+        ),
+      }));
+    },
+    setExportAllFileOptimize: (optimize: boolean) => {
+      set((state) => ({
+        sessionData: state.sessionData.map((img: any) => {
+          return {
+            ...img,
+            exportSettings: {
+              ...img.exportSettings,
+              optimize: optimize,
+            },
+          };
+        }),
+      }));
+    },
+    //#endregion
     //#region EXPORT
     setExportFileExtension: (id: number, extension: string) => {
       set((state) => ({
