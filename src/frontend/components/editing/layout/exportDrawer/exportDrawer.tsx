@@ -9,7 +9,7 @@ import {
   Switch,
 } from "@chakra-ui/react";
 import { FaFileExport, FaFileImage } from "react-icons/fa";
-import { LuFileBox } from "react-icons/lu";
+import { LuFileBox, LuLoader } from "react-icons/lu";
 import { ExportExifBlock } from "./exportExifBlock";
 import { ExportImageBlock } from "./exportImageSelect";
 import { useState } from "react";
@@ -17,6 +17,8 @@ import { ExportFileExtension } from "./exportFileExtension";
 import { useSessionStore } from "@/stores/sessionData";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { SuccessfullDialog } from "./successfullDialog";
+import Loader from "@/components/loader";
+import { BeatLoader } from "react-spinners";
 
 export default function ExportDrawer() {
   const images = useSessionStore((s) => s.sessionData);
@@ -31,10 +33,12 @@ export default function ExportDrawer() {
   const [successfullyImageShow, setSuccessfullyImageShow] =
     useState<boolean>(false);
   const { appRef } = useWorkSession();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const selectedImage = images.find((i) => i.id === selected);
 
   async function exportSelectedImage() {
+    setIsLoading(true);
     const exportData = await exportImageSettings(selected, appRef);
 
     if (!selectedImage) return;
@@ -89,17 +93,21 @@ export default function ExportDrawer() {
           const imageUrl = URL.createObjectURL(blob);
           setSuccessfulyImage(imageUrl);
           setSuccessfullyImageShow(true);
+          setIsLoading(false);
         }
       });
   }
 
   return (
     <Drawer.Root size={"lg"}>
+      {
+        isLoading &&<Loader showBg={false}/>
+      }
       <Box p={2}>
         {
           //#region Exportálás gomb
         }
-        <Drawer.Trigger asChild>
+        <Drawer.Trigger asChild hidden={isLoading}>
           <Button
             w="80px"
             h="80px"
@@ -109,6 +117,7 @@ export default function ExportDrawer() {
             flexDirection="column"
             alignItems="center"
             justifyContent="center"
+            disabled={isLoading}
             colorPalette={"teal"}
           >
             <FaFileExport size={"16"} />
@@ -117,6 +126,21 @@ export default function ExportDrawer() {
             </Text>
           </Button>
         </Drawer.Trigger>
+        <Button
+          w="80px"
+          h="80px"
+          variant={"surface"}
+          rounded={"xl"}
+          display="flex"
+          hidden={!isLoading}
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+          disabled={isLoading}
+          colorPalette={"red"}
+        >
+          <BeatLoader size={12} color={"red"} />
+        </Button>
       </Box>
       {
         //#endregion
@@ -186,12 +210,15 @@ export default function ExportDrawer() {
                     colorPalette={"teal"}
                     w={"full"}
                     flex={1}
+                    disabled={isLoading}
                     onClick={async () => {
                       await exportSelectedImage();
                     }}
                   >
                     <FaFileImage size={"12"} />
-                    Kép exportálása
+                    {isLoading
+                      ? "Exportálás folyamatban, kérjük várj!"
+                      : "Exportálás"}
                   </Button>
                 )}
                 {selected === -1 && (
@@ -199,12 +226,15 @@ export default function ExportDrawer() {
                     colorPalette={"teal"}
                     w={"full"}
                     flex={1}
+                    disabled={isLoading}
                     onClick={async () => {
                       console.log(await exportAllImageSettings(appRef));
                     }}
                   >
                     <LuFileBox size={"12"} />
-                    Összes exportálása
+                    {isLoading
+                      ? "Exportálás folyamatban, kérjük várj!"
+                      : "Összes exportálása"}
                   </Button>
                 )}
               </Flex>

@@ -67,7 +67,7 @@ export const SuccessfullDialog = (props: SuccessfullDialogProps) => {
           <Button
             as={"a"}
             //@ts-ignore
-            href={successfullyImage}
+            href={props.successfullyImage}
             download={`exportalas.${props.selectedImage?.exportSettings?.fileExtension ?? "jpg"}`}
             bg="brand.solid"
           >

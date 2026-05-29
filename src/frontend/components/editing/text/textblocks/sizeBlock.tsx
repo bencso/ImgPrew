@@ -31,13 +31,13 @@ export function TextBlockSize(props: TextBlockSizeProps) {
 
       <HStack flex="1">
         <NumberInput.Root
-          value={((props.fontSize || 20)*imageScale).toString()}
-          min={0}
+          value={((props.fontSize ?? 20) * imageScale).toString()}
+          min={20 }
           onValueChange={(e) =>
             setTextFontSize(
               selectedImg,
               props.id,
-              minMaxValidation(e.valueAsNumber / imageScale, 0),
+              minMaxValidation(e.valueAsNumber / imageScale, 20 ),
             )
           }
         >

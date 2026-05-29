@@ -174,9 +174,19 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     //#endregion
 
     //#region "Copyright" kép
-    uploadCopyrightImage: (id: number, blob: ArrayBuffer) =>
+    uploadCopyrightImage: (
+      id: number,
+      blob: ArrayBuffer,
+      textAndImagePlaceRef: RefObject<HTMLDivElement | null>,
+    ) =>
       set((state) => {
         const image = state.sessionData.find((img: any) => img.id === id);
+        const imageScale = Math.min(
+          (textAndImagePlaceRef.current?.clientHeight ?? 0) /
+            (image?.dimesions?.height ?? 0),
+          (textAndImagePlaceRef.current?.clientWidth ?? 0) /
+            (image?.dimesions?.width ?? 0),
+        );
         const blobConvert = new Blob([blob], { type: "image/png" });
         const url = URL.createObjectURL(blobConvert);
 
@@ -184,7 +194,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           image.copyrightImage = {
             ...image.copyrightImage,
             blob: url,
-            size: 150,
+            size: 150 / imageScale,
             opacity: 100,
           };
       }),
@@ -309,9 +319,20 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     //#endregion
 
     //#region TEXT
-    addTexts: (imageId: number, text: string) =>
+    addTexts: (
+      imageId: number,
+      text: string,
+      textAndImagePlaceRef: RefObject<HTMLDivElement | null>,
+    ) =>
       set((state) => {
         const image = state.sessionData.find((img: any) => img.id === imageId);
+        const imageScale = Math.min(
+          (textAndImagePlaceRef.current?.clientHeight ?? 0) /
+            (image?.dimesions?.height ?? 0),
+          (textAndImagePlaceRef.current?.clientWidth ?? 0) /
+            (image?.dimesions?.width ?? 0),
+        );
+
         if (image) {
           if (!image.texts) image.texts = [];
 
@@ -322,7 +343,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
             text,
             position: { x: XPositions.LEFT, y: YPositions.TOP },
             enabled: true,
-            fontSize: 20,
+            fontSize: 20 / imageScale,
             fontFamily: "Roboto",
             fontWeight: 500,
             color: "#ffff",

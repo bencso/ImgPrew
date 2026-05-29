@@ -4,7 +4,10 @@ import { Box } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { BeatLoader } from "react-spinners";
 
-export default function Loader() {
+interface LoaderProps {
+  showBg?: boolean;
+}
+export default function Loader(props: LoaderProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -20,13 +23,15 @@ export default function Loader() {
       display={"flex"}
       justifyContent={"center"}
       alignItems={"center"}
-      backgroundColor={"bg"}
+      backgroundColor={(props.showBg ?? true) ? "bg" : "bg/20"}
       zIndex={"max"}
       transition="all"
-      animation={"ease-in-out"}
-      animationName={"fade-out"}
+      animation="fadeIn 300ms ease-in"
     >
-      <BeatLoader size={12} color={"#004d40"} />
+      <BeatLoader
+        size={12}
+        color={(props.showBg ?? true) ? "#004d40" : "#b0fff2"}
+      />
     </Box>
   );
 }

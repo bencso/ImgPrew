@@ -35,7 +35,7 @@ import {
 import { shallow } from "zustand/shallow";
 
 export default function CopyrightBlock() {
-  const { selectedImg, setCopyrightImageRef } = useWorkSession();
+  const { selectedImg, setCopyrightImageRef, textAndImagePlaceRef } = useWorkSession();
   const { uploadCopyrightImage, clearCopyrightImage } = useSessionStore();
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
@@ -74,7 +74,7 @@ export default function CopyrightBlock() {
       if (details.files.length > 0)
         details.files[0]
           .arrayBuffer()
-          .then((buffer) => uploadCopyrightImage(selectedImg, buffer));
+          .then((buffer) => uploadCopyrightImage(selectedImg, buffer,textAndImagePlaceRef));
     },
   });
 

@@ -69,7 +69,7 @@ export interface DraggableImageEvent {
   fontFamily: string;
   fontWeight: number;
   color: string;
-  opacity: number
+  opacity: number;
 }
 
 //#region CopyRightImage
@@ -147,7 +147,7 @@ export interface CalculationReFixPositionProps {
   elementRef: HTMLElement;
   textAndImagePlaceRef: RefObject<HTMLDivElement | null>;
   textId?: string;
-  imageScale?: any
+  imageScale?: any;
 }
 //#endregion
 
@@ -208,7 +208,11 @@ export interface SessionStore {
   //#endregion
 
   //#region Copyright kép
-  uploadCopyrightImage: (id: number, blob: ArrayBuffer) => void;
+  uploadCopyrightImage: (
+    id: number,
+    blob: ArrayBuffer,
+    textAndImagePlaceRef: RefObject<HTMLDivElement | null>,
+  ) => void;
   clearCopyrightImage: (id: number) => void;
   setCopyrightImagePosition: (
     id: number,
@@ -234,7 +238,7 @@ export interface SessionStore {
   setCaptionForImage: (id: number, caption: string) => void;
   //#endregion
 
-    //#region OPTIMIZE
+  //#region OPTIMIZE
   setExportFileOptimize: (id: number, optimize: boolean) => void;
   setExportAllFileOptimize: (optimize: boolean) => void;
   //#endregion
@@ -251,7 +255,11 @@ export interface SessionStore {
   //#endregion
 
   //#region TEXT
-  addTexts: (imageId: number, text: string) => void;
+  addTexts: (
+    imageId: number,
+    text: string,
+    textAndImagePlaceRef: RefObject<HTMLDivElement | null>,
+  ) => void;
   deleteText: (imageId: number, textId: string) => void;
   editText: (imageId: number, textId: string, text: string) => void;
   setTextFontSize: (imageId: number, textId: string, fontSize: number) => void;
