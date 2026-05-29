@@ -137,15 +137,18 @@ export default function ExportDrawer() {
                           selectedImage.copyrightImage?.position,
                         copyright_image_opacity:
                           selectedImage.copyrightImage?.opacity,
+                        texts: selectedImage.texts,
                       };
-
-                      console.log(body);
 
                       const formData = new FormData();
                       formData.append("file", imageBlobFile);
                       formData.append("lut", haldFile, "hald.png");
-                      if(copyrightImage){
-                        formData.append("copyright_image", copyrightImage, "copyright.png");
+                      if (copyrightImage) {
+                        formData.append(
+                          "copyright_image",
+                          copyrightImage,
+                          "copyright.png",
+                        );
                       }
                       formData.append("body", JSON.stringify(body));
 

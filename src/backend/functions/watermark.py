@@ -2,7 +2,7 @@ from PIL import Image
 from PIL import ImageOps
 from typing import Optional
 from dependencies import X_AXIS, Y_AXIS
-from classes.customtext import Text
+from functions.customtext import Text
 import io
 
 class WaterMarking:

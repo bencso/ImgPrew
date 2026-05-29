@@ -11,6 +11,7 @@ from dependencies import IMAGE_EXTENSIONS
 from functions.watermark import WaterMarking
 import piexif
 from functions.valid_colors import validColors
+from functions.customtext import Text
 
 router = APIRouter(prefix="/images", tags=["images"])
 
@@ -72,6 +73,7 @@ async def exportImages(body: Annotated[str, Form(...)] = None, file: Annotated[U
         allowed_infos = data.get("exif_data") or []
         border_size = data.get("border_size") or 0
         border_color = validColors(data.get("border_color"))  or "#fff"
+        texts = data.get("texts") or []
         
         exif_bytes = image.info.get("exif")
         if exif_bytes:
@@ -94,6 +96,9 @@ async def exportImages(body: Annotated[str, Form(...)] = None, file: Annotated[U
   
         border_helper = Border(image,border_size, color=border_color)
         image = border_helper.apply()
+        
+        texts_helper = Text(texts, image)
+        image = texts_helper.generate_text()
         
         exporter = Export(image, output_extension=file_extension, exif_data=exif_data, allowed_infos=allowed_infos)
         exporter = exporter.apply()

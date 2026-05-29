@@ -217,7 +217,7 @@ export default function ImageWorkPlace() {
                   cursor={"pointer"}
                   textWrap={"balance"}
                   style={{
-                    fontSize: element.fontSize || 20,
+                    fontSize: (element.fontSize || 20) * imageScale ,
                     fontFamily: element.fontFamily || "Roboto",
                     fontWeight: element.fontWeight || 500,
                     color: element.color || "#ffff",

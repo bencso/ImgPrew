@@ -2,6 +2,7 @@ import { minMaxValidation } from "@/helper/errorHelper";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { Flex, HStack, NumberInput, Text } from "@chakra-ui/react";
+import { shallow } from "zustand/shallow";
 
 //#region Szöveg méret box
 interface TextBlockSizeProps {
@@ -10,8 +11,19 @@ interface TextBlockSizeProps {
 }
 
 export function TextBlockSize(props: TextBlockSizeProps) {
-  const { selectedImg } = useWorkSession();
+  const { selectedImg, textAndImagePlaceRef } = useWorkSession();
   const { setTextFontSize } = useSessionStore();
+
+  const imageSize = useSessionStore(
+    (s) => s.sessionData.find((img) => img.id === selectedImg)?.dimesions,
+    shallow,
+  );
+
+  const imageScale = Math.min(
+    (textAndImagePlaceRef.current?.clientHeight ?? 0) /
+      (imageSize?.height ?? 0),
+    (textAndImagePlaceRef.current?.clientWidth ?? 0) / (imageSize?.width ?? 0),
+  );
 
   return (
     <Flex gap={4} width="full" alignItems="center">
@@ -19,14 +31,13 @@ export function TextBlockSize(props: TextBlockSizeProps) {
 
       <HStack flex="1">
         <NumberInput.Root
-          value={(minMaxValidation(props.fontSize, 0, 180) || 20).toString()}
+          value={((props.fontSize || 20)*imageScale).toString()}
           min={0}
-          max={180}
           onValueChange={(e) =>
             setTextFontSize(
               selectedImg,
               props.id,
-              minMaxValidation(e.valueAsNumber, 0, 180),
+              minMaxValidation(e.valueAsNumber / imageScale, 0),
             )
           }
         >
