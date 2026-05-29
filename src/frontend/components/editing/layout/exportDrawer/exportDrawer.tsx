@@ -5,16 +5,6 @@ import {
   Portal,
   Flex,
   Text,
-  Image,
-  DialogRoot,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogBody,
-  DialogFooter,
-  DialogActionTrigger,
-  DialogCloseTrigger,
-  Link,
   HStack,
   Switch,
 } from "@chakra-ui/react";
@@ -22,10 +12,11 @@ import { FaFileExport, FaFileImage } from "react-icons/fa";
 import { LuFileBox } from "react-icons/lu";
 import { ExportExifBlock } from "./exportExifBlock";
 import { ExportImageBlock } from "./exportImageSelect";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ExportFileExtension } from "./exportFileExtension";
 import { useSessionStore } from "@/stores/sessionData";
 import { useWorkSession } from "@/providers/sessionprovider";
+import { SuccessfullDialog } from "./successfullDialog";
 
 export default function ExportDrawer() {
   const images = useSessionStore((s) => s.sessionData);
@@ -42,6 +33,65 @@ export default function ExportDrawer() {
   const { appRef } = useWorkSession();
 
   const selectedImage = images.find((i) => i.id === selected);
+
+  async function exportSelectedImage() {
+    const exportData = await exportImageSettings(selected, appRef);
+
+    if (!selectedImage) return;
+
+    const blob = await fetch(selectedImage.blob).then((res) => res.blob());
+    const haldBlob = await fetch(exportData.hald).then((res) => res.blob());
+
+    const imageBlobFile = new File([blob], `image_${selectedImage.id}`);
+
+    const haldFile = new File([haldBlob], `hald_${selectedImage.id}`);
+
+    let copyrightImage = null;
+
+    if (selectedImage.copyrightImage?.blob) {
+      let copyrightBlob = await fetch(selectedImage.copyrightImage.blob).then(
+        (res) => res.blob(),
+      );
+      copyrightImage = new File(
+        [copyrightBlob],
+        `copyright_${selectedImage.id}`,
+      );
+    }
+
+    const body = {
+      extension: selectedImage.exportSettings?.fileExtension ?? "jpg",
+      exif_data: selectedImage.exportSettings?.exifDatas ?? [],
+      border_size: selectedImage.borderSize?.x ?? 0,
+      border_color: selectedImage.expandBackground ?? "#fff",
+      copyright_image_size: selectedImage.copyrightImage?.size,
+      copyright_image_position: selectedImage.copyrightImage?.position,
+      copyright_image_opacity: selectedImage.copyrightImage?.opacity,
+      texts: selectedImage.texts,
+      optimize: selectedImage.exportSettings?.optimize ?? false,
+    };
+
+    const formData = new FormData();
+    formData.append("file", imageBlobFile);
+    formData.append("lut", haldFile, "hald.png");
+    if (copyrightImage) {
+      formData.append("copyright_image", copyrightImage, "copyright.png");
+    }
+    formData.append("body", JSON.stringify(body));
+
+    await fetch("/api/images/export", {
+      method: "POST",
+      body: formData,
+    })
+      .catch(() => null)
+      .then(async (res) => {
+        if (res) {
+          const blob = await res?.blob();
+          const imageUrl = URL.createObjectURL(blob);
+          setSuccessfulyImage(imageUrl);
+          setSuccessfullyImageShow(true);
+        }
+      });
+  }
 
   return (
     <Drawer.Root size={"lg"}>
@@ -71,63 +121,12 @@ export default function ExportDrawer() {
       {
         //#endregion
       }
-      <DialogRoot
-        open={successfullyImageShow}
-        onOpenChange={(e) => setSuccessfullyImageShow(e.open)}
-        motionPreset="slide-in-bottom"
-      >
-        <DialogContent
-          borderRadius="l3"
-          boxShadow="2xl"
-          zIndex={"max"}
-          pos={"absolute"}
-          right={4}
-          bottom={4}
-          p={0}
-          m={0}
-        >
-          <DialogHeader borderBottomWidth="1px" py={4}>
-            <DialogTitle fontSize="lg" fontWeight="bold">
-              Sikeres exportálás!
-            </DialogTitle>
-          </DialogHeader>
-
-          <DialogBody
-            p={6}
-            bg="bg.muted"
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-          >
-            <Image
-              src={successfullyImage}
-              alt="Kiexportált kép"
-              maxH="50vh"
-              objectFit="contain"
-              borderRadius="l2"
-              shadow="md"
-            />
-          </DialogBody>
-
-          <DialogFooter borderTopWidth="1px" gap={3}>
-            <DialogActionTrigger asChild>
-              <Button variant="ghost">Bezárás</Button>
-            </DialogActionTrigger>
-
-            <Button
-              as={"a"}
-              //@ts-ignore
-              href={successfullyImage}
-              download={`exportalas.${selectedImage?.exportSettings?.fileExtension ?? "jpg"}`}
-              bg="brand.solid"
-            >
-              Letöltés
-            </Button>
-          </DialogFooter>
-
-          <DialogCloseTrigger />
-        </DialogContent>
-      </DialogRoot>
+      <SuccessfullDialog
+        successfullyImage={successfullyImage}
+        successfullyImageShow={successfullyImageShow}
+        setSuccessfullyImageShow={setSuccessfullyImageShow}
+        selectedImage={selectedImage}
+      />
       <Portal>
         <Drawer.Backdrop />
         <Drawer.Positioner>
@@ -188,85 +187,7 @@ export default function ExportDrawer() {
                     w={"full"}
                     flex={1}
                     onClick={async () => {
-                      const exportData = await exportImageSettings(
-                        selected,
-                        appRef,
-                      );
-
-                      if (!selectedImage) return;
-
-                      const blob = await fetch(selectedImage.blob).then((res) =>
-                        res.blob(),
-                      );
-                      const haldBlob = await fetch(exportData.hald).then(
-                        (res) => res.blob(),
-                      );
-
-                      const imageBlobFile = new File(
-                        [blob],
-                        `image_${selectedImage.id}`,
-                      );
-
-                      const haldFile = new File(
-                        [haldBlob],
-                        `hald_${selectedImage.id}`,
-                      );
-
-                      let copyrightImage = null;
-
-                      if (selectedImage.copyrightImage?.blob) {
-                        let copyrightBlob = await fetch(
-                          selectedImage.copyrightImage.blob,
-                        ).then((res) => res.blob());
-                        copyrightImage = new File(
-                          [copyrightBlob],
-                          `copyright_${selectedImage.id}`,
-                        );
-                      }
-
-                      const body = {
-                        extension:
-                          selectedImage.exportSettings?.fileExtension ?? "jpg",
-                        exif_data:
-                          selectedImage.exportSettings?.exifDatas ?? [],
-                        border_size: selectedImage.borderSize?.x ?? 0,
-                        border_color: selectedImage.expandBackground ?? "#fff",
-                        copyright_image_size:
-                          selectedImage.copyrightImage?.size,
-                        copyright_image_position:
-                          selectedImage.copyrightImage?.position,
-                        copyright_image_opacity:
-                          selectedImage.copyrightImage?.opacity,
-                        texts: selectedImage.texts,
-                        optimize:
-                          selectedImage.exportSettings?.optimize ?? false,
-                      };
-
-                      const formData = new FormData();
-                      formData.append("file", imageBlobFile);
-                      formData.append("lut", haldFile, "hald.png");
-                      if (copyrightImage) {
-                        formData.append(
-                          "copyright_image",
-                          copyrightImage,
-                          "copyright.png",
-                        );
-                      }
-                      formData.append("body", JSON.stringify(body));
-
-                      await fetch("/api/images/export", {
-                        method: "POST",
-                        body: formData,
-                      })
-                        .catch(() => null)
-                        .then(async (res) => {
-                          if (res) {
-                            const blob = await res?.blob();
-                            const imageUrl = URL.createObjectURL(blob);
-                            setSuccessfulyImage(imageUrl);
-                            setSuccessfullyImageShow(true);
-                          }
-                        });
+                      await exportSelectedImage();
                     }}
                   >
                     <FaFileImage size={"12"} />
