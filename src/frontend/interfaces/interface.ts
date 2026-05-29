@@ -69,6 +69,7 @@ export interface DraggableImageEvent {
   fontFamily: string;
   fontWeight: number;
   color: string;
+  opacity: number
 }
 
 //#region CopyRightImage
@@ -272,6 +273,7 @@ export interface SessionStore {
     scale: number,
   ) => void;
   setTextColor: (imageId: number, textId: string, color: string) => void;
+  setTextOpacity: (imageId: number, textId: string, opacity: number) => void;
   //#endregion
 
   //#region EXPAND

@@ -1,9 +1,26 @@
-import { Drawer, Box, Button, Portal, Flex, Text } from "@chakra-ui/react";
+import {
+  Drawer,
+  Box,
+  Button,
+  Portal,
+  Flex,
+  Text,
+  Image,
+  DialogRoot,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogBody,
+  DialogFooter,
+  DialogActionTrigger,
+  DialogCloseTrigger,
+  Link,
+} from "@chakra-ui/react";
 import { FaFileExport, FaFileImage } from "react-icons/fa";
 import { LuFileBox } from "react-icons/lu";
 import { ExportExifBlock } from "./exportExifBlock";
 import { ExportImageBlock } from "./exportImageSelect";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ExportFileExtension } from "./exportFileExtension";
 import { useSessionStore } from "@/stores/sessionData";
 import { useWorkSession } from "@/providers/sessionprovider";
@@ -12,7 +29,12 @@ export default function ExportDrawer() {
   const images = useSessionStore((s) => s.sessionData);
   const [selected, setSelected] = useState<number>(images.length > 1 ? -1 : 0);
   const { exportImageSettings, exportAllImageSettings } = useSessionStore();
+  const [successfullyImage, setSuccessfulyImage] = useState<string>("");
+  const [successfullyImageShow, setSuccessfullyImageShow] =
+    useState<boolean>(false);
   const { appRef } = useWorkSession();
+
+  const selectedImage = images.find((i) => i.id === selected);
 
   return (
     <Drawer.Root size={"lg"}>
@@ -42,6 +64,54 @@ export default function ExportDrawer() {
       {
         //#endregion
       }
+      <DialogRoot
+        open={successfullyImageShow}
+        onOpenChange={(e) => setSuccessfullyImageShow(e.open)}
+        motionPreset="slide-in-bottom"
+        placement="bottom"
+        size="md"
+      >
+        <DialogContent borderRadius="l3" boxShadow="lg" zIndex={"max"}>
+          <DialogHeader borderBottomWidth="1px" py={4}>
+            <DialogTitle fontSize="lg" fontWeight="bold">
+              Sikeres exportálás!
+            </DialogTitle>
+          </DialogHeader>
+
+          <DialogBody
+            p={6}
+            bg="bg.muted"
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+          >
+            <Image
+              src={successfullyImage}
+              alt="Kiexportált kép"
+              maxH="50vh"
+              objectFit="contain"
+              borderRadius="l2"
+              shadow="md"
+            />
+          </DialogBody>
+
+          <DialogFooter borderTopWidth="1px" gap={3}>
+            <DialogActionTrigger asChild>
+              <Button variant="ghost">Bezárás</Button>
+            </DialogActionTrigger>
+
+            <Link
+              href={successfullyImage}
+              download={`exportalas.${selectedImage?.exportSettings?.fileExtension ?? "jpg"}`}
+              bg="brand.solid"
+            >
+              Letöltés
+            </Link>
+          </DialogFooter>
+
+          <DialogCloseTrigger />
+        </DialogContent>
+      </DialogRoot>
       <Portal>
         <Drawer.Backdrop />
         <Drawer.Positioner>
@@ -87,10 +157,6 @@ export default function ExportDrawer() {
                       const exportData = await exportImageSettings(
                         selected,
                         appRef,
-                      );
-
-                      const selectedImage = images.find(
-                        (i) => i.id === selected,
                       );
 
                       if (!selectedImage) return;
@@ -155,7 +221,16 @@ export default function ExportDrawer() {
                       await fetch("/api/images/export", {
                         method: "POST",
                         body: formData,
-                      }).catch(() => null);
+                      })
+                        .catch(() => null)
+                        .then(async (res) => {
+                          if (res) {
+                            const blob = await res?.blob();
+                            const imageUrl = URL.createObjectURL(blob);
+                            setSuccessfulyImage(imageUrl);
+                            setSuccessfullyImageShow(true);
+                          }
+                        });
                     }}
                   >
                     <FaFileImage size={"12"} />

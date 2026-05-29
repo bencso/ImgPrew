@@ -80,21 +80,20 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
 
       if (!props.textAndImagePlaceRef.current) return;
 
-      const height =
-        props.textAndImagePlaceRef.current.offsetHeight;
-      const width =
-        props.textAndImagePlaceRef.current.offsetWidth ;
+      const height = props.textAndImagePlaceRef.current.offsetHeight;
+      const width = props.textAndImagePlaceRef.current.offsetWidth;
 
-      const imageHalf =
-        width / 2 -
-        props.elementRef.offsetWidth /
-          2;
+      const imageHalf = width / 2 - props.elementRef.offsetWidth / 2;
 
       const imageWCP = width - props.elementRef.offsetWidth;
       const imageHCP = height - props.elementRef.offsetHeight;
 
-      const bX = (image?.borderSize?.x ?? 0) * (props.imageScale ?? 0) + 30 * (props.imageScale ?? 0);
-      const bY = (image?.borderSize?.y ?? 0) * (props.imageScale ?? 0) + 30 * (props.imageScale ?? 0);
+      const bX =
+        (image?.borderSize?.x ?? 0) * (props.imageScale ?? 0) +
+        30 * (props.imageScale ?? 0);
+      const bY =
+        (image?.borderSize?.y ?? 0) * (props.imageScale ?? 0) +
+        30 * (props.imageScale ?? 0);
 
       const defaultPosition = props.textId
         ? ((positions as {
@@ -327,6 +326,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
             fontFamily: "Roboto",
             fontWeight: 500,
             color: "#ffff",
+            opacity: 1
           };
 
           image.texts.push(element);
@@ -421,6 +421,22 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         image.texts = [
           ...image.texts.slice(0, textIndex),
           { ...image.texts[textIndex], color },
+          ...image.texts.slice(textIndex + 1),
+        ];
+      }),
+    setTextOpacity: (imageId: number, textId: string, opacity: number) =>
+      set((state) => {
+        const image = state.sessionData.find((img: any) => img.id === imageId);
+        if (!image || !image.texts) return;
+
+        const textIndex = image.texts.findIndex(
+          (text: any) => text.id === textId,
+        );
+        if (textIndex === -1) return;
+
+        image.texts = [
+          ...image.texts.slice(0, textIndex),
+          { ...image.texts[textIndex], opacity: opacity / 100 },
           ...image.texts.slice(textIndex + 1),
         ];
       }),

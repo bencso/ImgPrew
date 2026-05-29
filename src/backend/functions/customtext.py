@@ -34,7 +34,7 @@ class Text:
                 text=t.get("text", ""),
                 size=t.get("fontSize"),
                 weight=t.get("fontWeight"),
-                opacity=100,
+                opacity=t.get("opacity", 1),
                 color=t.get("color"),
                 font=t.get("fontFamily"),
                 position=(t.get("position", {}).get("x", 0), t.get("position", {}).get("y", 0))
@@ -51,7 +51,7 @@ class Text:
             hex_color = validColors(color)
             (R, G, B) = ImageColor.getrgb(hex_color)
 
-        alpha = int(opacity * 255 / 100)
+        alpha = int(opacity * 255)
 
         return (R, G, B, alpha)
 

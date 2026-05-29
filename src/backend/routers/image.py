@@ -3,7 +3,7 @@ from typing import Annotated
 from functions.convert_img_file import Export
 from functions.lut import Lut
 from fastapi import UploadFile, APIRouter, Form, File
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse,Response
 from functions.caption_generator import CaptionGenerator
 from functions.border import Border
 from classes.uploadedimage import UploadedImage
@@ -94,23 +94,22 @@ async def exportImages(body: Annotated[str, Form(...)] = None, file: Annotated[U
             copyright_image_opacity = int((copyright_image_opacity / 100.0) * 255)
             image = WaterMarking(image, position=copyright_image_position).watermark_with_image(cp, copyright_image_size, copyright_image_opacity)
   
-        border_helper = Border(image,border_size, color=border_color)
-        image = border_helper.apply()
-        
+     
         texts_helper = Text(texts, image)
         image = texts_helper.generate_text()
-        
+  
+        border_helper = Border(image,border_size, color=border_color)
+        image = border_helper.apply()
+       
         exporter = Export(image, output_extension=file_extension, exif_data=exif_data, allowed_infos=allowed_infos)
         exporter = exporter.apply()
         
-        if(exporter is not True):
+        if(not isinstance(exporter,bytes)):
             raise Exception("Hiba történt az exportálás közben!")
                 
-        return JSONResponse(
-            status_code=200,
-            content={
-                "message": "Sikeres",
-            },
+        return Response(
+            content=exporter,
+            media_type="image/jpeg"
         )
     except Exception as ex:
         return JSONResponse(

@@ -4,6 +4,7 @@ import {
   ColorPicker,
   Flex,
   HStack,
+  NumberInput,
   parseColor,
   Portal,
   Text,
@@ -16,10 +17,14 @@ interface TextBlockColorProps {
 
 export function TextBlockColor(props: TextBlockColorProps) {
   const { selectedImg } = useWorkSession();
-  const { setTextColor } = useSessionStore();
+  const { setTextColor, setTextOpacity } = useSessionStore();
+
+  const texts = useSessionStore((i) =>
+    i.sessionData.find((s) => s.id === selectedImg),
+  )?.texts?.find((t) => t.id === props.id);
 
   return (
-    <Flex gap={4} width="full" alignItems="center">
+    <Flex gap={4} width="full" flexDir={"column"} alignItems="center">
       <Text w="fit">Szín</Text>
       <ColorPicker.Root
         onValueChange={(details) => {
@@ -45,6 +50,24 @@ export function TextBlockColor(props: TextBlockColorProps) {
           </ColorPicker.Positioner>
         </Portal>
       </ColorPicker.Root>
+      <Text w="fit" mt={4}>
+        Áttettszőség
+      </Text>
+      <HStack flex="1">
+        <NumberInput.Root
+          value={((texts?.opacity ?? 1) * 100).toString() ?? "100"}
+          min={0}
+          max={100}
+          w={"full"}
+          onValueChange={(e) => {
+            setTextOpacity(selectedImg, props.id, e.valueAsNumber);
+          }}
+        >
+          <NumberInput.Control />
+          <NumberInput.Input />
+        </NumberInput.Root>
+        <Text>%</Text>
+      </HStack>
     </Flex>
   );
 }

@@ -7,7 +7,7 @@ import logging
 import io
 from typing import Optional
 import uuid
-
+from io import BytesIO
 
 class Export:
     def __init__(
@@ -54,17 +54,19 @@ class Export:
 
             ext = self.output_extension or self.f_ext
             ext = ext.lstrip(".")
+            if ext == "jpg": ext = "jpeg"
             
-            BASE_DIR = Path(__file__).resolve().parent.parent
-            UPLOAD_DIR = BASE_DIR / "images"
+            # BASE_DIR = Path(__file__).resolve().parent.parent
+            # UPLOAD_DIR = BASE_DIR / "images"
             
-            if not os.path.exists(UPLOAD_DIR): os.mkdir(UPLOAD_DIR)
+            # if not os.path.exists(UPLOAD_DIR): os.mkdir(UPLOAD_DIR)
+            # file_name = f"{uuid.uuid4().hex}.{ext}"
             
-            file_name = f"{uuid.uuid4().hex}.{ext}"
             exif = exif_bytes
             
-            self.image.save(UPLOAD_DIR/file_name, exif=exif, quality=70)
-            return True
+            buffer = BytesIO()
+            self.image.save(buffer, exif=exif, quality=70, format=ext)
+            return buffer.getvalue()
         except Exception as e:
             logging.error(f"HIBA: {e}")
             return None

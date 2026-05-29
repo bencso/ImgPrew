@@ -223,6 +223,7 @@ export default function ImageWorkPlace() {
                     fontFamily: element.fontFamily || "Roboto",
                     fontWeight: element.fontWeight || 500,
                     color: element.color || "#ffff",
+                    opacity: element.opacity || 100
                   }}
                 >
                   {element.text}
