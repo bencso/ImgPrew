@@ -10,7 +10,6 @@ import {
   DialogContent,
   DialogRoot,
   DialogTitle,
-  DownloadTrigger,
   Span,
   Carousel,
   IconButton,

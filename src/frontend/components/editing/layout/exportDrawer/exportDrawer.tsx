@@ -80,6 +80,23 @@ export default function ExportDrawer() {
       copyright_image_opacity: selectedImage.copyrightImage?.opacity,
       texts: selectedImage.texts,
       optimize: selectedImage.exportSettings?.optimize ?? false,
+      expand_mode: selectedImage.expandMode ?? "no",
+      expand_size: (selectedImage.expandMode === "expand"
+        ? selectedImage.expandSize
+        : {
+            width: selectedImage.box?.width,
+            height: selectedImage.box?.height,
+            padding: 0,
+          }) ?? {
+        width: 0,
+        height: 0,
+        padding: 0,
+      },
+      expand_position:
+        selectedImage.expandMode === "crop"
+          ? { x: selectedImage.box?.x, y: selectedImage.box?.y }
+          : { x: 0, y: 0 },
+      expand_color: selectedImage.expandBackground ?? "#fff",
     };
 
     const formData = new FormData();

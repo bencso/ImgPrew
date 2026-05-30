@@ -1,5 +1,6 @@
 import json
 from typing import Annotated
+from functions.resize_img import ResizeImg
 from functions.convert_img_file import Export
 from functions.lut import Lut
 from fastapi import UploadFile, APIRouter, Form, File
@@ -76,6 +77,11 @@ async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[Up
         border_color = validColors(data.get("border_color"))  or "#fff"
         texts = data.get("texts") or []
         
+        expand_mode = data.get("expand_mode") or "no"
+        expand_size = data.get("expand_size") or None
+        expand_color  = data.get("expand_color") or "#fff"
+        expand_position = data.get("expand_position") or None
+        
         exif_bytes = image.info.get("exif")
         if exif_bytes:
             exif_data = piexif.load(exif_bytes)
@@ -101,6 +107,14 @@ async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[Up
   
         border_helper = Border(image,border_size, color=border_color)
         image = border_helper.apply()
+        
+        print(expand_color, expand_mode, expand_size)
+        
+        if expand_mode != "no":
+            expand_position = (expand_position["x"], expand_position["y"])
+            print(expand_position)
+            expand_helper = ResizeImg(image, height=expand_size["height"],width=expand_size["width"], expand=(True if expand_mode=="expand" else False),expand_bg=expand_color,padding=expand_size["padding"], position=expand_position)
+            image = expand_helper.apply()
     
         exporter = Export(image, output_extension=file_extension, exif_data=exif_data, allowed_infos=allowed_infos, optimized=optimize)
         exporter = exporter.apply()
