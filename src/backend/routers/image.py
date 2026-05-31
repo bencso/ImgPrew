@@ -87,7 +87,14 @@ async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[Up
             exif_data = piexif.load(exif_bytes)
         
         lut_helper = Lut(hald, image)
-        image = lut_helper.apply_hald()
+        image = lut_helper.apply_hald()        
+        
+        if expand_mode != "no" and expand_mode != "border":
+            print(expand_position)
+            print(expand_size)
+            crop_box = (float(expand_position["x"]), float(expand_position["y"]), float(expand_position["x"]) + expand_size["width"] , float(expand_position["y"])  + expand_size["height"])
+            expand_helper = ResizeImg(image, height=expand_size["height"],width=expand_size["width"], expand=(True if expand_mode=="expand" else False),expand_bg=expand_color,padding=expand_size["padding"], crop_box=crop_box)
+            image = expand_helper.apply()
             
         if copyright_image is not None:
             cp_image = await copyright_image.read()
@@ -104,17 +111,9 @@ async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[Up
      
         texts_helper = Text(texts, image)
         image = texts_helper.generate_text()
-  
+        
         border_helper = Border(image,border_size, color=border_color)
         image = border_helper.apply()
-        
-        print(expand_color, expand_mode, expand_size)
-        
-        if expand_mode != "no":
-            expand_position = (expand_position["x"], expand_position["y"])
-            print(expand_position)
-            expand_helper = ResizeImg(image, height=expand_size["height"],width=expand_size["width"], expand=(True if expand_mode=="expand" else False),expand_bg=expand_color,padding=expand_size["padding"], position=expand_position)
-            image = expand_helper.apply()
     
         exporter = Export(image, output_extension=file_extension, exif_data=exif_data, allowed_infos=allowed_infos, optimized=optimize)
         exporter = exporter.apply()

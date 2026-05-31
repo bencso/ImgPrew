@@ -181,11 +181,12 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     ) =>
       set((state) => {
         const image = state.sessionData.find((img: any) => img.id === id);
+
         const imageScale = Math.min(
           (textAndImagePlaceRef.current?.clientHeight ?? 0) /
-            (image?.dimesions?.height ?? 0),
+            (image?.box?.height ?? image?.dimesions?.height ?? 1),
           (textAndImagePlaceRef.current?.clientWidth ?? 0) /
-            (image?.dimesions?.width ?? 0),
+            (image?.box?.width ?? image?.dimesions?.width ?? 1),
         );
         const blobConvert = new Blob([blob], { type: "image/png" });
         const url = URL.createObjectURL(blobConvert);

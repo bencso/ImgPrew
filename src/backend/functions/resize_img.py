@@ -16,7 +16,7 @@ class ResizeImg:
         width: Optional[float] = None,
         expand: Optional[bool] = None,
         expand_bg: Optional[str] = None,
-        position: Optional[tuple[float, float]] = None,
+        crop_box: Optional[tuple[float, float]] = None,
         padding: Optional[float] = 0
     ):
         size_config = SOCIAL_IMAGES_SIZES.get(sample_size_id)
@@ -30,7 +30,7 @@ class ResizeImg:
         self.expand = expand if expand else False
         self.expand_bg = validColors(expand_bg)
         self.padding = padding
-        self.position=position
+        self.crop_box=crop_box
 
     def __enter__(self):
         return self
@@ -52,12 +52,7 @@ class ResizeImg:
     def apply(self) -> Image:
         try:
             if not self.expand:
-                SIZE = (int(self.width), int(self.height))
-                resized_img = ImageOps.fit(
-                    self.img,
-                    SIZE,
-                    method=Image.Resampling.LANCZOS,
-                )
+                resized_img = self.img.crop(self.crop_box)
                 return resized_img
             else:
                 return self.expandImg()

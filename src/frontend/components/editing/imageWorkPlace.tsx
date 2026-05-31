@@ -24,7 +24,7 @@ export default function ImageWorkPlace() {
     workPlaceRef,
     textAndImagePlaceRef,
   } = useWorkSession();
-  const { calculationReFixPosition, setCropBox, setTextPosition } =
+  const { calculationReFixPosition, setCropBox, setTextPosition, } =
     useSessionStore();
 
   const box = useSessionStore(
@@ -43,9 +43,9 @@ export default function ImageWorkPlace() {
 
   const imageScale = Math.min(
     (textAndImagePlaceRef.current?.clientHeight ?? 0) /
-      (image?.dimesions?.height ?? 0),
+      (selectedScale?.image.height ?? 1),
     (textAndImagePlaceRef.current?.clientWidth ?? 0) /
-      (image?.dimesions?.width ?? 0),
+      (selectedScale?.image.height ?? 1),
   );
 
   const expandSize = useSessionStore(

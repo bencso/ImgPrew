@@ -11,18 +11,14 @@ interface TextBlockSizeProps {
 }
 
 export function TextBlockSize(props: TextBlockSizeProps) {
-  const { selectedImg, textAndImagePlaceRef } = useWorkSession();
+  const { selectedImg, textAndImagePlaceRef, selectedScale } = useWorkSession();
   const { setTextFontSize } = useSessionStore();
-
-  const imageSize = useSessionStore(
-    (s) => s.sessionData.find((img) => img.id === selectedImg)?.dimesions,
-    shallow,
-  );
 
   const imageScale = Math.min(
     (textAndImagePlaceRef.current?.clientHeight ?? 0) /
-      (imageSize?.height ?? 0),
-    (textAndImagePlaceRef.current?.clientWidth ?? 0) / (imageSize?.width ?? 0),
+      (selectedScale?.image.height ?? 1),
+    (textAndImagePlaceRef.current?.clientWidth ?? 0) /
+      (selectedScale?.image.height ?? 1),
   );
 
   return (
@@ -32,12 +28,12 @@ export function TextBlockSize(props: TextBlockSizeProps) {
       <HStack flex="1">
         <NumberInput.Root
           value={((props.fontSize ?? 20) * imageScale).toString()}
-          min={20 }
+          min={20}
           onValueChange={(e) =>
             setTextFontSize(
               selectedImg,
               props.id,
-              minMaxValidation(e.valueAsNumber / imageScale, 20 ),
+              minMaxValidation(e.valueAsNumber / imageScale, 20),
             )
           }
         >

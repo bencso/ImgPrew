@@ -45,7 +45,7 @@ export default function RootLayout({
           {sessionData.length > 0 &&
             isEditor &&
             !isLoading && <ImagesSide />}
-          <Box p={isMd ? 4 : 2} h={"full"} w={"full"}>
+          <Box  h={"full"} w={"full"}>
             {children}
           </Box>
           {sessionData.length > 0 &&

@@ -35,7 +35,8 @@ import {
 import { shallow } from "zustand/shallow";
 
 export default function CopyrightBlock() {
-  const { selectedImg, setCopyrightImageRef, textAndImagePlaceRef } = useWorkSession();
+  const { selectedImg, setCopyrightImageRef, textAndImagePlaceRef } =
+    useWorkSession();
   const { uploadCopyrightImage, clearCopyrightImage } = useSessionStore();
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
@@ -74,7 +75,9 @@ export default function CopyrightBlock() {
       if (details.files.length > 0)
         details.files[0]
           .arrayBuffer()
-          .then((buffer) => uploadCopyrightImage(selectedImg, buffer,textAndImagePlaceRef));
+          .then((buffer) =>
+            uploadCopyrightImage(selectedImg, buffer, textAndImagePlaceRef),
+          );
     },
   });
 
@@ -134,7 +137,7 @@ export default function CopyrightBlock() {
 }
 
 const ImageManipulationBlock = () => {
-  const { selectedImg, copyrightImageRef, textAndImagePlaceRef } =
+  const { selectedImg, copyrightImageRef, textAndImagePlaceRef, selectedScale } =
     useWorkSession();
   const {
     setCopyrightImageSize,
@@ -143,7 +146,7 @@ const ImageManipulationBlock = () => {
   } = useSessionStore();
 
   const imageSize = useSessionStore(
-    (s) => s.sessionData.find((img) => img.id === selectedImg)?.dimesions,
+    (s) => s.sessionData.find((img) => img.id === selectedImg)?.box,
     shallow,
   );
 
@@ -160,10 +163,10 @@ const ImageManipulationBlock = () => {
 
   const imageScale = Math.min(
     (textAndImagePlaceRef.current?.clientHeight ?? 0) /
-      (imageSize?.height ?? 0),
-    (textAndImagePlaceRef.current?.clientWidth ?? 0) / (imageSize?.width ?? 0),
+      (selectedScale?.image.height ?? 1),
+    (textAndImagePlaceRef.current?.clientWidth ?? 0) /
+      (selectedScale?.image.height ?? 1),
   );
-
 
   if (copyrightImageRef) {
     return (
@@ -176,10 +179,7 @@ const ImageManipulationBlock = () => {
             onChange={(e) => {
               setCopyrightImageSize(
                 selectedImg,
-                minMaxValidation(
-                  Number(e.target.value) / imageScale,
-                  0 
-                ),
+                minMaxValidation(Number(e.target.value) / imageScale, 0),
               );
             }}
             min={200}

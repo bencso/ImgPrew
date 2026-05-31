@@ -28,13 +28,16 @@ interface SuccessfullDialogProps {
 }
 
 export const SuccessfullDialog = (props: SuccessfullDialogProps) => {
-  const [page, setPage] = useState(0);
   let images = props.successfullyImages ?? [];
+
+  const [page, setPage] = useState(0);
+  
   const hasMultipleImages = images.length > 1;
-  const [close, setClose] = useState<boolean>(false);
+  const [open, setOpen] = useState<boolean>(false);
 
   useEffect(() => {
-    setClose(true);
+    setOpen(true);
+    setPage(images.length > 0 ? images.length : 0);
   }, [images]);
 
   const currentImage = images[page] || images[0];
@@ -43,7 +46,7 @@ export const SuccessfullDialog = (props: SuccessfullDialogProps) => {
 
   return (
     <DialogRoot
-      open={close}
+      open={open}
       onOpenChange={(e) => {
         props.setSuccessfullyImageShow(e.open);
         if (!e.open) setPage(0);
@@ -140,7 +143,7 @@ export const SuccessfullDialog = (props: SuccessfullDialogProps) => {
           <DialogActionTrigger asChild>
             <Button
               onClick={() => {
-                setClose(false);
+                setOpen(false);
               }}
               variant="ghost"
             >

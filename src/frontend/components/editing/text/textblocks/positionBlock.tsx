@@ -36,17 +36,13 @@ interface TextBlockPositionProps {
 
 function TextPositionInputs(props: TextBlockPositionProps) {
   const { setTextPosition } = useSessionStore();
-  const { selectedImg, textAndImagePlaceRef } = useWorkSession();
-
-  const image = useSessionStore((state) =>
-    state.sessionData.find((si) => si.id === selectedImg),
-  );
-
-  const imageScale = Math.min(
+  const { selectedImg, textAndImagePlaceRef, selectedScale } = useWorkSession();
+  
+    const imageScale = Math.min(
     (textAndImagePlaceRef.current?.clientHeight ?? 0) /
-      (image?.dimesions?.height ?? 0),
+      (selectedScale?.image.height ?? 1),
     (textAndImagePlaceRef.current?.clientWidth ?? 0) /
-      (image?.dimesions?.width ?? 0),
+      (selectedScale?.image.height ?? 1),
   );
 
   return (
@@ -119,8 +115,14 @@ function TextPositionInputs(props: TextBlockPositionProps) {
 
 export function TextBlockPosition(props: TextBlockPositionProps) {
   const { setTextPosition } = useSessionStore();
-  const { selectedImg, textAndImagePlaceRef } = useWorkSession();
+  const { selectedImg, textAndImagePlaceRef, selectedScale } = useWorkSession();
+  
   const imageSize = useSessionStore(
+    (s) => s.sessionData.find((img) => img.id === selectedImg)?.dimesions,
+    shallow,
+  );
+
+  const imageBox = useSessionStore(
     (s) => s.sessionData.find((img) => img.id === selectedImg)?.dimesions,
     shallow,
   );
@@ -131,9 +133,9 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
 
   const imageScale = Math.min(
     (textAndImagePlaceRef.current?.clientHeight ?? 0) /
-      (image?.dimesions?.height ?? 0),
+      (selectedScale?.image.height ?? 1),
     (textAndImagePlaceRef.current?.clientWidth ?? 0) /
-      (image?.dimesions?.width ?? 0),
+      (selectedScale?.image.height ?? 1),
   );
 
   return (
