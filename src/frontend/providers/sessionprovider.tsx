@@ -37,6 +37,16 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
   const { functions, editFunction } = useFunctionsStore();
   const webglFilterRef = useRef<Filter | null>(null);
   const lutFilterRef = useRef<ColorMapFilter | null>(null);
+  
+  const [imageScale, setImageScale] = useState<number>(1);
+  const [cpPosition, setCpPosition] = useState<{ x: number; y: number }>({
+    x: 5,
+    y: 5,
+  });
+
+  const [textPositions, setTextPositions] = useState<
+    Record<string, { x: number; y: number }>
+  >({});
 
   const contextValue = useMemo<WorkSessionContextProps>(
     () => ({
@@ -65,7 +75,13 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       selectedChannel,
       setSelectedChannel,
       webglFilterRef,
-      lutFilterRef
+      lutFilterRef,
+      imageScale,
+      setImageScale,
+      cpPosition,
+      setCpPosition,
+      textPositions,
+      setTextPositions
     }),
     [
       step,
@@ -84,7 +100,10 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       canvasRef,
       textAndImagePlaceRef,
       selectedChannel,
-      lutFilterRef
+      lutFilterRef,
+      imageScale,
+      cpPosition,
+      textPositions
     ],
   );
 

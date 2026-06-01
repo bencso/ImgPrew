@@ -1,6 +1,6 @@
 //TODO: Refaktorálás
 import { allFiltersFragment } from "@/handlers/filters/allFiltersFragment";
-import { ParamProps } from "@/interfaces/interface";
+import { calculationTypeEnum, ParamProps } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { Box, parseColor } from "@chakra-ui/react";
@@ -54,8 +54,16 @@ export default function WebGlComponent() {
     textAndImagePlaceRef,
     webglFilterRef,
     selectedScale,
+    setCpPosition,
+    copyrightImageRef,
+    setImageScale,
+    setTextPositions,
+    textElements,
+    imageScale,
+    textPositions,
   } = useWorkSession();
-  const { sessionData, setImageSize } = useSessionStore();
+  const { sessionData, setImageSize, calculationReFixPosition } =
+    useSessionStore();
 
   const canvasRef = useRef<HTMLElement | null>(null);
   const filtersRef = useRef<Container | null>(null);
@@ -113,6 +121,17 @@ export default function WebGlComponent() {
   const haldSprite = useSessionStore(
     (state) =>
       state.sessionData.find((si) => si.id === selectedImg)?.haldSprite,
+    shallow,
+  );
+
+  const copyrightImage = useSessionStore(
+    (state) =>
+      state.sessionData.find((si) => si.id === selectedImg)?.copyrightImage,
+    shallow,
+  );
+
+  const texts = useSessionStore(
+    (s) => s.sessionData.find((si) => si.id === selectedImg)?.texts || [],
     shallow,
   );
 
@@ -322,8 +341,8 @@ export default function WebGlComponent() {
 
       const h = expandSize.height;
       const w = expandSize.width;
-
-      const padding = expandPadding ?? 0;
+      //TODO: Exportnál ugyanugy kell madj egy ilyen expandos szorzást csinálni és akkor jól fogja mutatni
+      const padding = (expandPadding ?? 0) * (imageScale??1);
       const maxTargetWidth = workPlaceRef.current.clientWidth - padding;
       const maxTargetHeight = workPlaceRef.current.clientHeight - padding;
       const canvasScale = Math.min(maxTargetWidth / w, maxTargetHeight / h);
@@ -340,10 +359,10 @@ export default function WebGlComponent() {
 
       const imgW = textureRef.current.width;
       const imgH = textureRef.current.height;
-      const imageScale = Math.min(canvasW / imgW, canvasH / imgH);
+      const scale = Math.min(canvasW / imgW, canvasH / imgH);
 
-      const spW = Math.round(imgW * imageScale);
-      const spH = Math.round(imgH * imageScale);
+      const spW = Math.round(imgW * scale);
+      const spH = Math.round(imgH * scale);
 
       spriteRef.current.width = spW;
       spriteRef.current.height = spH;
@@ -352,15 +371,16 @@ export default function WebGlComponent() {
       spriteRef.current.y = appRef.current.canvas.height / 2;
 
       setSelectedScale({
-        image: { height: areaH, width: areaW },
-        scale: canvasScale,
+        image: { height: imgH, width: imgW },
+        scale: scale,
         position: {
-          x: canvasW / 2,
-          y: canvasH / 2,
+          x: appRef.current.canvas.width / 2,
+          y: appRef.current.canvas.height / 2,
         },
       });
 
       applyFilters();
+
       return;
     } else {
       const scale = Math.min(areaH / imgH, areaW / imgW);
@@ -413,10 +433,6 @@ export default function WebGlComponent() {
         const defaultImageScaleW =
           imageSize.width / workPlaceRef.current?.clientWidth;
 
-        const defaultImageScale = Math.min(
-          defaultImageScaleH,
-          defaultImageScaleW,
-        );
         const canvasW = w * defaultImageScaleW;
         const canvasH = h * defaultImageScaleH;
 
@@ -424,12 +440,7 @@ export default function WebGlComponent() {
           source: textureRef.current.source,
           orig: textureRef.current.orig,
           trim: textureRef.current.trim,
-          frame: new Rectangle(
-            box.x * scaleX * defaultImageScale,
-            box.y * scaleY * defaultImageScale,
-            canvasW,
-            canvasH,
-          ),
+          frame: new Rectangle(box.x, box.y, canvasW, canvasH),
         });
 
         const spriteCopy = new Sprite(textureRef.current);
@@ -442,26 +453,30 @@ export default function WebGlComponent() {
           workPlaceRef.current.clientWidth / (canvasW ?? 0),
         );
 
-        const targetH = canvasH + (borderSize?.y ?? 0) * scale;
-        const targetW = canvasW + (borderSize?.x ?? 0) * scale;
+        const targetH = canvasH + (borderSize?.y ?? 0);
+        const targetW = canvasW + (borderSize?.x ?? 0);
 
         appRef.current.renderer.resize(targetW * scale, targetH * scale);
 
         appRef.current.renderer.background.color =
           parseColor(expandBackground).toString("rgba");
 
-        spriteRef.current.height =
-          canvasH * scale - (borderSize?.y ?? 0) * scale;
-        spriteRef.current.width =
-          canvasW * scale - (borderSize?.x ?? 0) * scale;
+        spriteRef.current.height = canvasH * scale - (borderSize?.y ?? 0);
+        spriteRef.current.width = canvasW * scale - (borderSize?.x ?? 0);
         spriteRef.current.anchor = 0.5;
         spriteRef.current.x = appRef.current.canvas.width / 2;
         spriteRef.current.y = appRef.current.canvas.height / 2;
 
         setSelectedScale({
-          image: { height: canvasH, width: canvasW },
+          image: {
+            height: canvasH,
+            width: canvasW,
+          },
           scale: scale,
-          position: { x: spX, y: spY },
+          position: {
+            x: appRef.current.canvas.width / 2,
+            y: appRef.current.canvas.height / 2,
+          },
         });
       }
 
@@ -477,20 +492,18 @@ export default function WebGlComponent() {
         spriteRef.current.y = spY;
 
         setSelectedScale({
-          image: { height: imageSize?.height ?? spH, width: imageSize?.width ?? spW },
+          image: {
+            height: imageSize?.height ?? spH,
+            width: imageSize?.width ?? spW,
+          },
           scale: scale,
           position: { x: spX, y: spY },
         });
       }
 
       if (expandMode === "border") {
-        const scale = Math.min(
-          workPlaceRef.current.clientHeight / (imageSize?.height ?? 0),
-          workPlaceRef.current.clientWidth / (imageSize?.width ?? 0),
-        );
-
-        const targetH = canvasH + (borderSize?.y ?? 0) * scale;
-        const targetW = canvasW + (borderSize?.x ?? 0) * scale;
+        const targetH = canvasH + (borderSize?.y ?? 0);
+        const targetW = canvasW + (borderSize?.x ?? 0);
 
         const finalScaleH = workPlaceRef.current.clientHeight / targetH;
         const finalScaleW = workPlaceRef.current.clientWidth / targetW;
@@ -503,15 +516,21 @@ export default function WebGlComponent() {
         appRef.current.renderer.background.color =
           parseColor(expandBackground).toString("rgba");
 
-        spriteRef.current.height =
-          canvasH * finalScale - (borderSize?.x ?? 0) * scale;
-        spriteRef.current.width =
-          canvasW * finalScale - (borderSize?.x ?? 0) * scale;
+        spriteRef.current.height = canvasH * finalScale - (borderSize?.x ?? 0);
+        spriteRef.current.width = canvasW * finalScale - (borderSize?.x ?? 0);
         spriteRef.current.anchor = 0.5;
         spriteRef.current.x = appRef.current.canvas.width / 2;
         spriteRef.current.y = appRef.current.canvas.height / 2;
-      }
 
+        setSelectedScale({
+          image: {
+            height: imageSize?.height ?? spH,
+            width: imageSize?.width ?? spH,
+          },
+          scale: scale,
+          position: { x: spX, y: spY },
+        });
+      }
       applyFilters();
     }
   };
@@ -541,6 +560,66 @@ export default function WebGlComponent() {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
+  const expandScale =
+    expandMode === "expand"
+      ? Math.min(
+          (expandSize?.width ?? 1) / (imageSize?.width ?? 1),
+          (expandSize?.height ?? 1) / (imageSize?.height ?? 1),
+        )
+      : 1;
+
+  useEffect(() => {
+    if (!copyrightImageRef) return;
+
+    const position = calculationReFixPosition({
+      id: selectedImg,
+      type: calculationTypeEnum.COPYRIGHT,
+      elementRef: copyrightImageRef,
+      textAndImagePlaceRef,
+      imageScale: imageScale / expandScale,
+    });
+
+    setCpPosition({
+      x: position.x,
+      y: position.y,
+    });
+  }, [copyrightImageRef, copyrightImage, selectedScale, imageScale]);
+
+  useEffect(() => {
+    const newPositions: Record<string, { x: number; y: number }> = {};
+
+    texts.forEach((element) => {
+      if (!textElements[element.id]) return;
+      const textPosition = calculationReFixPosition({
+        id: selectedImg,
+        type: calculationTypeEnum.TEXT,
+        elementRef: textElements[element.id],
+        textAndImagePlaceRef: textAndImagePlaceRef,
+        textId: element.id,
+        imageScale: imageScale / expandScale,
+      });
+
+      newPositions[element.id] = {
+        x: textPosition.x,
+        y: textPosition.y,
+      };
+    });
+
+    setTextPositions(newPositions);
+  }, [texts, textElements, selectedScale, imageScale]);
+
+  useEffect(() => {
+    if (!appRef.current || !imageSize) return;
+
+    const imageScale = Math.min(
+      (textAndImagePlaceRef.current?.clientHeight ?? 0) /
+        (selectedScale?.image.height ?? 1),
+      (textAndImagePlaceRef.current?.clientWidth ?? 0) /
+        (selectedScale?.image.width ?? 1),
+    );
+    setImageScale(imageScale);
+  }, [selectedScale, selectedImg, expandMode, imageSize]);
 
   return (
     <Box

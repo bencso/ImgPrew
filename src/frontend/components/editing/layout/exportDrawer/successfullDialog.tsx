@@ -55,7 +55,7 @@ export const SuccessfullDialog = (props: SuccessfullDialogProps) => {
       <DialogContent
         borderRadius="l3"
         boxShadow="2xl"
-        zIndex={"max"}
+        zIndex={open===true ? "max" : "hide"}
         pos={"absolute"}
         right={4}
         bottom={4}

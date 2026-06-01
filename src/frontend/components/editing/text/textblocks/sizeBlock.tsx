@@ -11,15 +11,8 @@ interface TextBlockSizeProps {
 }
 
 export function TextBlockSize(props: TextBlockSizeProps) {
-  const { selectedImg, textAndImagePlaceRef, selectedScale } = useWorkSession();
+  const { selectedImg, imageScale } = useWorkSession();
   const { setTextFontSize } = useSessionStore();
-
-  const imageScale = Math.min(
-    (textAndImagePlaceRef.current?.clientHeight ?? 0) /
-      (selectedScale?.image.height ?? 1),
-    (textAndImagePlaceRef.current?.clientWidth ?? 0) /
-      (selectedScale?.image.height ?? 1),
-  );
 
   return (
     <Flex gap={4} width="full" alignItems="center">
@@ -27,23 +20,23 @@ export function TextBlockSize(props: TextBlockSizeProps) {
 
       <HStack flex="1">
         <NumberInput.Root
-          value={((props.fontSize ?? 20) * imageScale).toString()}
+          value={Math.round(
+            (Number.isNaN(props.fontSize) ? 20 : (props.fontSize ?? 20)) *
+              imageScale,
+          ).toString()}
           min={20}
           onValueChange={(e) =>
             setTextFontSize(
               selectedImg,
               props.id,
-              minMaxValidation(e.valueAsNumber / imageScale, 20),
+              minMaxValidation(e.valueAsNumber, 20, 200),
+              imageScale,
             )
           }
         >
           <NumberInput.Control />
           <NumberInput.Input />
         </NumberInput.Root>
-
-        <Text fontSize="sm" color="gray.500">
-          px
-        </Text>
       </HStack>
     </Flex>
   );

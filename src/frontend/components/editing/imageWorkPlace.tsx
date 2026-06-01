@@ -19,13 +19,13 @@ export default function ImageWorkPlace() {
     textElements,
     setTextElements,
     setCopyrightImageRef,
-    copyrightImageRef,
-    selectedScale,
+    textPositions,
     workPlaceRef,
     textAndImagePlaceRef,
+    imageScale,
+    cpPosition,
   } = useWorkSession();
-  const { calculationReFixPosition, setCropBox, setTextPosition, } =
-    useSessionStore();
+  const { setCropBox, setTextPosition } = useSessionStore();
 
   const box = useSessionStore(
     (state) => state.sessionData.find((si) => si.id === selectedImg)?.box,
@@ -39,18 +39,6 @@ export default function ImageWorkPlace() {
 
   const image = useSessionStore((state) =>
     state.sessionData.find((si) => si.id === selectedImg),
-  );
-
-  const imageScale = Math.min(
-    (textAndImagePlaceRef.current?.clientHeight ?? 0) /
-      (selectedScale?.image.height ?? 1),
-    (textAndImagePlaceRef.current?.clientWidth ?? 0) /
-      (selectedScale?.image.height ?? 1),
-  );
-
-  const expandSize = useSessionStore(
-    (state) =>
-      state.sessionData.find((si) => si.id === selectedImg)?.expandSize,
   );
 
   const copyrightImage = useSessionStore(
@@ -75,71 +63,6 @@ export default function ImageWorkPlace() {
     },
     [textElements],
   );
-
-  //#region CP position manipuláció
-  const [cpPosition, setCpPosition] = useState<{ x: number; y: number }>({
-    x: 5,
-    y: 5,
-  });
-  const [textPositions, setTextPositions] = useState<
-    Record<string, { x: number; y: number }>
-  >({});
-
-  const copyrightImageSize = useSessionStore((s) =>
-    s.sessionData.find((sD) => sD.id === selectedImg),
-  );
-
-  useEffect(() => {
-    if (!copyrightImageRef) return;
-    const position = calculationReFixPosition({
-      id: selectedImg,
-      type: calculationTypeEnum.COPYRIGHT,
-      elementRef: copyrightImageRef,
-      textAndImagePlaceRef,
-      imageScale
-    });
-
-    setCpPosition({
-      x: position.x  * (typeof copyrightImage?.position?.x === "number" ? imageScale : 1),
-      y: position.y  * (typeof copyrightImage?.position?.y === "number" ? imageScale : 1),
-    });
-  }, [selectedImg, copyrightImageRef, copyrightImageSize]);
-
-  useEffect(() => {
-    const newPositions: Record<string, { x: number; y: number }> = {};
-
-    texts.forEach((element) => {
-      if (!textElements[element.id]) return;
-      const textPosition = calculationReFixPosition({
-        id: selectedImg,
-        type: calculationTypeEnum.TEXT,
-        elementRef: textElements[element.id],
-        textAndImagePlaceRef: textAndImagePlaceRef,
-        textId: element.id,
-        imageScale
-      });
-
-      const positions = image?.texts?.find(
-        (it) => it.id === element.id,
-      )?.position;
-
-      newPositions[element.id] = {
-        x: textPosition.x * (typeof positions?.x === "number" ? imageScale : 1),
-        y: textPosition.y * (typeof positions?.y === "number" ? imageScale : 1),
-      };
-    });
-
-    setTextPositions(newPositions);
-  }, [
-    selectedImg,
-    texts,
-    textElements,
-    expandSize,
-    expandMode,
-    box,
-    selectedScale,
-  ]);
-  //#endregion
 
   const scaleX = box?.currentHeight
     ? (textAndImagePlaceRef.current?.clientHeight ?? 0) /
@@ -219,11 +142,11 @@ export default function ImageWorkPlace() {
                   lineClamp={"none"}
                   lineHeight={"normal"}
                   style={{
-                    fontSize: (element.fontSize || 20) * imageScale ,
+                    fontSize: (element.fontSize || 20) * imageScale,
                     fontFamily: element.fontFamily || "Roboto",
                     fontWeight: element.fontWeight || 500,
                     color: element.color || "#ffff",
-                    opacity: element.opacity || 100
+                    opacity: element.opacity || 100,
                   }}
                 >
                   {element.text}
@@ -238,7 +161,9 @@ export default function ImageWorkPlace() {
               }}
               src={copyrightImage.blob}
               alt="copyright"
-              w={(copyrightImage.size  ?? 0) * imageScale + "px"}
+              w={`${
+                (copyrightImage?.size ?? 0) * imageScale
+              }px`}
               position={"relative"}
               left={Number(cpPosition.x) + "px"}
               top={Number(cpPosition.y) + "px"}

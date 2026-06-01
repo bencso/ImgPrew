@@ -35,8 +35,7 @@ import {
 import { shallow } from "zustand/shallow";
 
 export default function CopyrightBlock() {
-  const { selectedImg, setCopyrightImageRef, textAndImagePlaceRef } =
-    useWorkSession();
+  const { selectedImg, setCopyrightImageRef } = useWorkSession();
   const { uploadCopyrightImage, clearCopyrightImage } = useSessionStore();
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
@@ -75,9 +74,7 @@ export default function CopyrightBlock() {
       if (details.files.length > 0)
         details.files[0]
           .arrayBuffer()
-          .then((buffer) =>
-            uploadCopyrightImage(selectedImg, buffer, textAndImagePlaceRef),
-          );
+          .then((buffer) => uploadCopyrightImage(selectedImg, buffer));
     },
   });
 
@@ -137,7 +134,7 @@ export default function CopyrightBlock() {
 }
 
 const ImageManipulationBlock = () => {
-  const { selectedImg, copyrightImageRef, textAndImagePlaceRef, selectedScale } =
+  const { selectedImg, copyrightImageRef, textAndImagePlaceRef, imageScale } =
     useWorkSession();
   const {
     setCopyrightImageSize,
@@ -161,13 +158,6 @@ const ImageManipulationBlock = () => {
     s.sessionData.find((sD) => sD.id === selectedImg),
   )?.copyrightImage;
 
-  const imageScale = Math.min(
-    (textAndImagePlaceRef.current?.clientHeight ?? 0) /
-      (selectedScale?.image.height ?? 1),
-    (textAndImagePlaceRef.current?.clientWidth ?? 0) /
-      (selectedScale?.image.height ?? 1),
-  );
-
   if (copyrightImageRef) {
     return (
       <Stack gap={5}>
@@ -175,11 +165,14 @@ const ImageManipulationBlock = () => {
           <Field.Label>Méret</Field.Label>
           <Input
             placeholder="Méret"
-            value={(copyrightImage?.size ?? 30) * imageScale}
+            value={Math.round((copyrightImage?.size ?? 1) )}
             onChange={(e) => {
               setCopyrightImageSize(
                 selectedImg,
-                minMaxValidation(Number(e.target.value) / imageScale, 0),
+                minMaxValidation(
+                  Math.round(Number(e.target.value ?? 1) ),
+                  0,
+                ),
               );
             }}
             min={200}
@@ -191,7 +184,10 @@ const ImageManipulationBlock = () => {
 
           <HStack flex="1">
             <NumberInput.Root
-              value={copyrightImage?.opacity?.toString() ?? "0"}
+              value={(Number.isNaN(copyrightImage?.opacity ?? 100)
+                ? "100"
+                : copyrightImage?.opacity
+              )?.toString()}
               min={0}
               max={100}
               w={"full"}
@@ -218,14 +214,12 @@ const ImageManipulationBlock = () => {
                 min={0}
                 onValueChange={(e) => {
                   if (e.value === "-") return;
+                  const maxX =
+                    (textAndImagePlaceRef.current?.clientWidth ?? 0) -
+                    (copyrightImageRef.offsetWidth ?? 0);
+
                   setCopyrightImagePosition(selectedImg, {
-                    x: minMaxValidation(
-                      Number(e.value),
-                      0,
-                      ((textAndImagePlaceRef.current?.clientWidth ?? 0) -
-                        (copyrightImageRef.clientWidth ?? 0)) /
-                        imageScale,
-                    ),
+                    x: minMaxValidation(Number(e.value), 0, maxX),
                     y: imagePosition?.y ?? 0,
                   });
                 }}
@@ -244,15 +238,13 @@ const ImageManipulationBlock = () => {
                 min={0}
                 onValueChange={(e) => {
                   if (e.value === "-") return;
+                  const maxY =
+                    (textAndImagePlaceRef.current?.clientHeight ?? 0) -
+                    (copyrightImageRef.offsetHeight ?? 0);
+
                   setCopyrightImagePosition(selectedImg, {
                     x: imagePosition?.x ?? 0,
-                    y: minMaxValidation(
-                      Number(e.value),
-                      0,
-                      ((textAndImagePlaceRef.current?.clientHeight ?? 0) -
-                        (copyrightImageRef.height ?? 0)) /
-                        imageScale,
-                    ),
+                    y: minMaxValidation(Number(e.value), 0, maxY),
                   });
                 }}
               >

@@ -53,7 +53,12 @@ export function TextBlockColor(props: TextBlockColorProps) {
       </Text>
       <HStack flex="1">
         <NumberInput.Root
-          value={((texts?.opacity ?? 1) * 100).toString() ?? "100"}
+           value={
+                (Number.isNaN(texts?.opacity ?? 100)
+                  ? "100"
+                  : (texts?.opacity)
+                )?.toString()
+              }
           min={0}
           max={100}
           w={"full"}

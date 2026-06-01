@@ -39,14 +39,10 @@ import ChannelMixerBlock from "../channelmixer/channelmixer";
 import { getChannelOffsets } from "../../webGlComponent";
 import { HiAdjustments } from "react-icons/hi";
 import LutBlock from "../lut/lutBlock";
-import { ExportExifBlock } from "./exportDrawer/exportExifBlock";
 import ExportDrawer from "./exportDrawer/exportDrawer";
 
 const sidebarElements = (
-  exportAllDataForImage: any,
-  setExportFileExtension: any,
   selectedImg: any,
-  selectedExtension: any,
   editFilters: any,
   getFilterValue: any,
   spriteRef: RefObject<Sprite | null>,
@@ -79,6 +75,7 @@ const sidebarElements = (
   captionSamples: string[],
   webglFilterRef: RefObject<Filter | null>,
   uniforms: any,
+  imageScale: any
 ) => {
   return [
     {
@@ -700,8 +697,8 @@ const sidebarElements = (
                 if (expandMode !== "crop") setExpandMode(selectedImg, "border");
 
                 setBorderSize(selectedImg, {
-                  x: number,
-                  y: number,
+                  x: number ,
+                  y: number ,
                 });
               } else {
                 if (expandMode !== "crop") {
@@ -784,11 +781,10 @@ export default function SideBar() {
     selectedScale,
     selectedChannel,
     webglFilterRef,
+    imageScale
   } = useWorkSession();
 
   const {
-    setExportFileExtension,
-    exportAllImageSettings,
     editFilters,
     getFilterValue,
     setExpandMode,
@@ -835,10 +831,7 @@ export default function SideBar() {
 
   const editItems = useMemo(() => {
     return sidebarElements(
-      exportAllImageSettings,
-      setExportFileExtension,
       selectedImg,
-      selectedExtension,
       editFilters,
       getFilterValue,
       spriteRef,
@@ -853,6 +846,7 @@ export default function SideBar() {
       captionSamples,
       webglFilterRef,
       uniforms,
+      imageScale
     );
   }, [
     selectedImg,
@@ -864,6 +858,7 @@ export default function SideBar() {
     webglFilterRef,
     selectedChannel,
     uniforms,
+    imageScale
   ]);
 
   //#endregion

@@ -34,6 +34,7 @@ export default function ExportDrawer() {
     setExportAllFileOptimize,
     setExportFileOptimize,
   } = useSessionStore();
+  const { imageScale, selectedScale } = useWorkSession();
 
   const [successfullyImages, setSuccessfulyImages] = useState<
     SuccessfullyImagesProps[]
@@ -70,13 +71,33 @@ export default function ExportDrawer() {
       );
     }
 
+    const expandScale =  selectedImage.expandMode === "expand" ?
+        Math.min(
+          (selectedImage.expandSize?.width ?? 1) /
+            (selectedImage.dimesions?.width ?? 1),
+          (selectedImage.expandSize?.height ?? 1) /
+            (selectedImage.dimesions?.height ?? 1),
+        ) : 1;
+
     const body = {
       extension: selectedImage.exportSettings?.fileExtension ?? "jpg",
       exif_data: selectedImage.exportSettings?.exifDatas ?? [],
-      border_size: selectedImage.borderSize?.x ?? 0,
+      border_size: (selectedImage.borderSize?.x ?? 0) / (imageScale ?? 1),
       border_color: selectedImage.expandBackground ?? "#fff",
-      copyright_image_size: selectedImage.copyrightImage?.size,
-      copyright_image_position: selectedImage.copyrightImage?.position,
+      copyright_image_size:
+        (selectedImage.copyrightImage?.size ?? 0) * expandScale ,
+      copyright_image_position: {
+        x:
+          typeof selectedImage.copyrightImage?.position?.x !== "string"
+            ? (Number(selectedImage.copyrightImage?.position?.x) ?? 0) /
+              (imageScale ?? 1)
+            : (selectedImage.copyrightImage?.position?.x ?? "left"),
+        y:
+          typeof selectedImage.copyrightImage?.position?.y !== "string"
+            ? (Number(selectedImage.copyrightImage?.position?.y) ?? 0) /
+              (imageScale ?? 1)
+            : (selectedImage.copyrightImage?.position?.y ?? "bottom"),
+      },
       copyright_image_opacity: selectedImage.copyrightImage?.opacity,
       texts: selectedImage.texts,
       optimize: selectedImage.exportSettings?.optimize ?? false,

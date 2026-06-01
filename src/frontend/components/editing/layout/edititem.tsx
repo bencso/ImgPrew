@@ -36,7 +36,8 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
   const [open, setOpen] = useState(false);
 
   return (
-    items && !items.hide && (
+    items &&
+    !items.hide && (
       <Popover.Root
         open={open}
         onOpenChange={(e) => setOpen(e.open)}
@@ -57,7 +58,7 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
             border={"0"}
             bg={"bg"}
             _hover={{
-              bg: "bg.muted"
+              bg: "bg.muted",
             }}
           >
             {isMd && items.icon && items.icon}
@@ -75,7 +76,13 @@ export const EditItem = ({ items }: { items: EditItemProp }) => {
         </Popover.Trigger>
         <Portal>
           <Popover.Positioner>
-            <Popover.Content maxWidth="300px" minW={"300px"} w={"300px"}  rounded={"l3"} opacity={1}>
+            <Popover.Content
+              maxWidth="300px"
+              minW={"300px"}
+              w={"300px"}
+              rounded={"l3"}
+              opacity={1}
+            >
               <Popover.Body>
                 <Item items={items} />
               </Popover.Body>
@@ -340,8 +347,8 @@ const Item = ({ items }: { items: EditItemProp }) => {
                       </Flex>
                     </Box>
                     <Slider.Control mt={2}>
-                      <Slider.Track css={{...item.style}}>
-                        <Slider.Range bg={"transparent"}/>
+                      <Slider.Track css={{ ...item.style }}>
+                        <Slider.Range bg={"transparent"} />
                       </Slider.Track>
                       <Slider.Thumb
                         index={0}
@@ -349,7 +356,7 @@ const Item = ({ items }: { items: EditItemProp }) => {
                         borderColor="teal.500"
                         rounded={"l3"}
                       >
-                        {item.icon  && (
+                        {item.icon && (
                           <Box
                             justifyContent={"center"}
                             alignItems={"center"}
@@ -375,8 +382,8 @@ const Item = ({ items }: { items: EditItemProp }) => {
                     <Input
                       onChange={(event) => {
                         handleChange(item.name, event.target.value);
+                        item.onChange?.(event);
                       }}
-                      onInput={item.onChange ? item.onChange : undefined}
                       type={item.inputType}
                       placeholder={item.name}
                     />

@@ -42,7 +42,9 @@ class ResizeImg:
 
     def expandImg(self) -> Image:
         result = Image.new("RGB", (self.width, self.height), self.expand_bg)
-        self.img.thumbnail((self.width-self.padding, self.height-self.padding), Image.Resampling.LANCZOS)
+        self.img.thumbnail((int(self.width)-self.padding, int(self.height)-self.padding))
+        print("canvas:", self.width, self.height)
+        print("image:", self.img.width, self.img.height)
         x_offset = ((self.width - self.img.width) // 2)
         y_offset = ((self.height - self.img.height) // 2)
         result.paste(self.img, (x_offset, y_offset))

@@ -94,7 +94,7 @@ const sizesDatas = [
 export default function ResizeBlock() {
   const { setExpandMode, setExpandBackground, setExpandSize, setCropSave } =
     useSessionStore();
-  const { appRef, spriteRef, textureRef, workPlaceRef, selectedImg } =
+  const { appRef, spriteRef, textureRef, workPlaceRef, selectedImg, imageScale } =
     useWorkSession();
 
   //#region breakPoint beállíátoks (isMd)
@@ -289,7 +289,7 @@ export default function ResizeBlock() {
             }
             max={200}
             min={0}
-            value={expandPadding ? String(expandPadding) : "0"}
+            value={expandPadding ? String(expandPadding * imageScale) : "0"}
             onChange={(e: any) => {
               let value = minMaxValidation(Number(e.target.value) ?? 0, 0, 200);
 
@@ -297,7 +297,7 @@ export default function ResizeBlock() {
                 setExpandSize(
                   selectedImg,
                   { width: expandSize.width, height: expandSize.height },
-                  value,
+                  value / imageScale,
                 );
               }
             }}

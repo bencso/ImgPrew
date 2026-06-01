@@ -88,27 +88,16 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       const imageWCP = width - props.elementRef.offsetWidth;
       const imageHCP = height - props.elementRef.offsetHeight;
 
-      const bX =
-        (image?.borderSize?.x ?? 0) * (props.imageScale ?? 0) +
-        30 * (props.imageScale ?? 0);
-      const bY =
-        (image?.borderSize?.y ?? 0) * (props.imageScale ?? 0) +
-        30 * (props.imageScale ?? 0);
+      const bX = (image?.borderSize?.x ?? 0) + (30 * props.imageScale);
+      const bY = (image?.borderSize?.x ?? 0) + (30 * props.imageScale);
 
-      const defaultPosition = props.textId
-        ? ((positions as {
-            x: number;
-            y: number;
-          }) ?? {
-            x: typeof positions?.x === "number" ? positions?.x : bX,
-            y: typeof positions?.y === "number" ? positions?.y : bY,
-          })
-        : {
-            x: typeof positions?.x === "number" ? positions?.x : bX,
-            y: typeof positions?.y === "number" ? positions?.y : bY,
-          };
 
-      if (positions && positions.x && positions.y) {
+      const defaultPosition = {
+        x: typeof positions?.x === "number" ? positions.x : bX,
+        y: typeof positions?.y === "number" ? positions.y : bY,
+      };
+
+      if (positions && positions.x !== undefined && positions.y !== undefined) {
         let x, y;
 
         x = Number(positions.x);
@@ -123,10 +112,10 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
 
         if (typeof x === "number") {
           return {
-            x: x,
+            x: x + (30 * props.imageScale),
             y:
               typeof y === "number"
-                ? y
+                ? y + (30 * props.imageScale)
                 : y === "top"
                   ? bY
                   : y === "center"
@@ -139,13 +128,13 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           return {
             x:
               typeof x === "number"
-                ? x
+                ? x + (30 * props.imageScale)
                 : x === "left"
                   ? bX
                   : x === "center"
                     ? imageHalf
                     : imageWCP - bX,
-            y: y,
+            y: y + (30 * props.imageScale),
           };
         }
 
@@ -177,17 +166,10 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     uploadCopyrightImage: (
       id: number,
       blob: ArrayBuffer,
-      textAndImagePlaceRef: RefObject<HTMLDivElement | null>,
     ) =>
       set((state) => {
         const image = state.sessionData.find((img: any) => img.id === id);
 
-        const imageScale = Math.min(
-          (textAndImagePlaceRef.current?.clientHeight ?? 0) /
-            (image?.box?.height ?? image?.dimesions?.height ?? 1),
-          (textAndImagePlaceRef.current?.clientWidth ?? 0) /
-            (image?.box?.width ?? image?.dimesions?.width ?? 1),
-        );
         const blobConvert = new Blob([blob], { type: "image/png" });
         const url = URL.createObjectURL(blobConvert);
 
@@ -195,8 +177,12 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           image.copyrightImage = {
             ...image.copyrightImage,
             blob: url,
-            size: 150 / imageScale,
+            size: 300,
             opacity: 100,
+            position: {
+              x: XPositions.LEFT,
+              y: YPositions.TOP
+            }
           };
       }),
     clearCopyrightImage: (id: number) =>
@@ -234,7 +220,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         if (image)
           image.copyrightImage = {
             ...image.copyrightImage,
-            size: size,
+            size: size ,
           };
       }),
     //#region KÉP MÉRETEK
@@ -382,7 +368,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         ];
       });
     },
-    setTextFontSize: (imageId: number, textId: string, fontSize: number) =>
+    setTextFontSize: (imageId: number, textId: string, fontSize: number, imageScale: number) =>
       set((state) => {
         const image = state.sessionData.find((img: any) => img.id === imageId);
         if (!image || !image.texts) return;
@@ -394,7 +380,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
 
         image.texts = [
           ...image.texts.slice(0, textIndex),
-          { ...image.texts[textIndex], fontSize },
+          { ...image.texts[textIndex], fontSize: Math.round(fontSize / imageScale) },
           ...image.texts.slice(textIndex + 1),
         ];
       }),

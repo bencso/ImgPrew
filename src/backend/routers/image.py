@@ -8,6 +8,7 @@ from fastapi.responses import JSONResponse,Response
 from functions.caption_generator import CaptionGenerator
 from functions.border import Border
 from classes.uploadedimage import UploadedImage
+from PIL import ImageOps
 from dependencies import IMAGE_EXTENSIONS
 from functions.watermark import WaterMarking
 import piexif
@@ -71,10 +72,14 @@ async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[Up
         
         data = json.loads(body)
         file_extension = data.get("extension") or "jpg"
-        allowed_infos = data.get("exif_data") or []
+        
+        allowed_infos = data.get("exif_data") or []        
         optimize = data.get("optimize") or False
+        
         border_size = data.get("border_size") or 0
+        border_size = round(border_size)
         border_color = validColors(data.get("border_color"))  or "#fff"
+        
         texts = data.get("texts") or []
         
         expand_mode = data.get("expand_mode") or "no"
@@ -83,18 +88,26 @@ async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[Up
         expand_position = data.get("expand_position") or None
         
         exif_bytes = image.info.get("exif")
+        exif_data = None
+        
         if exif_bytes:
-            exif_data = piexif.load(exif_bytes)
+            try:
+                exif_data = piexif.load(exif_bytes)
+            except Exception as e:
+                print("EXIF load error:", e)
+
+        image = ImageOps.exif_transpose(image)
         
         lut_helper = Lut(hald, image)
-        image = lut_helper.apply_hald()        
+        image = lut_helper.apply_hald()       
         
         if expand_mode != "no" and expand_mode != "border":
-            print(expand_position)
-            print(expand_size)
             crop_box = (float(expand_position["x"]), float(expand_position["y"]), float(expand_position["x"]) + expand_size["width"] , float(expand_position["y"])  + expand_size["height"])
             expand_helper = ResizeImg(image, height=expand_size["height"],width=expand_size["width"], expand=(True if expand_mode=="expand" else False),expand_bg=expand_color,padding=expand_size["padding"], crop_box=crop_box)
             image = expand_helper.apply()
+            
+        border_helper = Border(image,border_size, color=border_color)
+        image = border_helper.apply()    
             
         if copyright_image is not None:
             cp_image = await copyright_image.read()
@@ -103,17 +116,16 @@ async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[Up
             copyright_image_size = int(data.get("copyright_image_size")) or 0
             copyright_image_position = data.get("copyright_image_position")
             copyright_image_opacity = float(data.get("copyright_image_opacity")) or 100
-            
-            copyright_image_position = (str.upper(copyright_image_position["x"]),str.upper(copyright_image_position["y"]))
+            if isinstance(copyright_image_position["x"], str) and isinstance(copyright_image_position["y"], str):
+                copyright_image_position = (str.upper(copyright_image_position["x"]),str.upper(copyright_image_position["y"]))
+            else:
+                copyright_image_position = (round(copyright_image_position["x"]),round(copyright_image_position["y"]))
             copyright_image_opacity = int((copyright_image_opacity / 100.0) * 255)
-            image = WaterMarking(image, position=copyright_image_position).watermark_with_image(cp, copyright_image_size, copyright_image_opacity)
+            image = WaterMarking(image, position=copyright_image_position,border_size=border_size).watermark_with_image(cp, copyright_image_size, copyright_image_opacity, border_size)
   
-     
-        texts_helper = Text(texts, image)
-        image = texts_helper.generate_text()
-        
-        border_helper = Border(image,border_size, color=border_color)
-        image = border_helper.apply()
+        if len(texts) > 0:
+            texts_helper = Text(texts, image)
+            image = texts_helper.generate_text()
     
         exporter = Export(image, output_extension=file_extension, exif_data=exif_data, allowed_infos=allowed_infos, optimized=optimize)
         exporter = exporter.apply()

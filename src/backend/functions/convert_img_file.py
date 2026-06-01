@@ -24,7 +24,7 @@ class Export:
         self.allowed_info = (
             allowed_infos
             if allowed_infos and len(allowed_infos) > 0
-            else EXIF_TAG_NAMES_LIST
+            else []
         )
         self.output_extension = output_extension
         self.exif_data = exif_data
@@ -43,8 +43,6 @@ class Export:
             exif_bytes = None
             if self.exif_data:
                 allowed_set = set(self.allowed_info)
-                print("allowed_set")
-                print(allowed_set)
                 filtered_exif = {}
                 for ifd in ("0th", "Exif", "GPS", "1st"):
                     filtered_exif[ifd] = {}

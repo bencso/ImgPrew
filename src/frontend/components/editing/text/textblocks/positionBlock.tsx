@@ -36,14 +36,7 @@ interface TextBlockPositionProps {
 
 function TextPositionInputs(props: TextBlockPositionProps) {
   const { setTextPosition } = useSessionStore();
-  const { selectedImg, textAndImagePlaceRef, selectedScale } = useWorkSession();
-  
-    const imageScale = Math.min(
-    (textAndImagePlaceRef.current?.clientHeight ?? 0) /
-      (selectedScale?.image.height ?? 1),
-    (textAndImagePlaceRef.current?.clientWidth ?? 0) /
-      (selectedScale?.image.height ?? 1),
-  );
+  const { selectedImg, imageScale } = useWorkSession();
 
   return (
     <Flex gap={4} width="full" alignItems="center">
@@ -57,7 +50,7 @@ function TextPositionInputs(props: TextBlockPositionProps) {
                 typeof props.position.x === "number"
                   ? (props.position.x ?? 0)
                   : 0,
-              ) * imageScale
+              )
             ).toString()}
             min={0}
             onValueChange={(e) => {
@@ -88,7 +81,7 @@ function TextPositionInputs(props: TextBlockPositionProps) {
                 typeof props.position.y === "number"
                   ? (props.position.y ?? 0)
                   : 0,
-              ) * imageScale
+              )
             ).toString()}
             min={0}
             onValueChange={(e) => {
@@ -115,27 +108,11 @@ function TextPositionInputs(props: TextBlockPositionProps) {
 
 export function TextBlockPosition(props: TextBlockPositionProps) {
   const { setTextPosition } = useSessionStore();
-  const { selectedImg, textAndImagePlaceRef, selectedScale } = useWorkSession();
+  const { selectedImg, textAndImagePlaceRef, selectedScale, imageScale } = useWorkSession();
   
   const imageSize = useSessionStore(
     (s) => s.sessionData.find((img) => img.id === selectedImg)?.dimesions,
     shallow,
-  );
-
-  const imageBox = useSessionStore(
-    (s) => s.sessionData.find((img) => img.id === selectedImg)?.dimesions,
-    shallow,
-  );
-
-  const image = useSessionStore((state) =>
-    state.sessionData.find((si) => si.id === selectedImg),
-  );
-
-  const imageScale = Math.min(
-    (textAndImagePlaceRef.current?.clientHeight ?? 0) /
-      (selectedScale?.image.height ?? 1),
-    (textAndImagePlaceRef.current?.clientWidth ?? 0) /
-      (selectedScale?.image.height ?? 1),
   );
 
   return (

@@ -10,9 +10,11 @@ class WaterMarking:
         self,
         image: Image.Image,
         position: Optional[tuple[str, str] | tuple[int, int]] = None,  # type: ignore
+        border_size: int = None
     ) -> None:
         self.img = image
         self.position = position
+        self.border_size = border_size
 
     def __enter__(self):
         return self
@@ -22,8 +24,8 @@ class WaterMarking:
         self.img.save(self.buffer, format="PNG")
         self.buffer.seek(0)
 
-    def apply(self, watermark_image=str | None):
-        if not watermark_image and watermark_image is not None:
+    def apply(self, watermark_image: Optional[Image.Image] = None):
+        if watermark_image is not None:
             return self.watermark_with_image(watermark_image=watermark_image)
         else:
             return self.watermark()
@@ -43,9 +45,8 @@ class WaterMarking:
 
         return watermarked
 
-    def watermark_with_image(self, watermark_image: Image.Image, watermark_size: int, watermark_opacity: int):
-        SIZE = (watermark_size,watermark_size) or (300,300)
-        print(SIZE)
+    def watermark_with_image(self, watermark_image: Image.Image, watermark_size: int, watermark_opacity: int, border_size: int):
+        SIZE = (watermark_size or 300, watermark_size or 300)        
         try:
             watermark_image_png = watermark_image.convert("RGBA")
             watermark_image_png = ImageOps.exif_transpose(watermark_image)
@@ -56,21 +57,23 @@ class WaterMarking:
             watermark_image_png.putalpha(watermark_opacity)
 
             x, y = self.position
-            if type(x) == str and type(y) == str:
+            if type(x) == int and type(y) == int:
+                image_position = (int(x) + border_size, int(y) + border_size)
+            else:
                 if x == "LEFT":
-                    x = 20
+                    x = 30 + border_size
                 elif x == "RIGHT":
-                    x = self.img.width - watermark_image_png.width - 40
+                    x = self.img.width - watermark_image_png.width - (30 + (border_size))
                 elif x == "CENTER":
                     x = (self.img.width / 2) - (watermark_image_png.width / 2)
                 if y == "TOP":
-                    y = 20
+                    y = 30  + (border_size)
                 elif y == "BOTTOM":
-                    y = self.img.height - watermark_image_png.height - 40
+                    y = self.img.height - watermark_image_png.height  - (30 + (border_size))
                 elif y == "CENTER":
                     y = (self.img.height / 2) - (watermark_image_png.height / 2)
-
-            image_position = (int(x), int(y))
+            
+                image_position = (int(x) , int(y) )
 
             self.img.paste(
                 watermark_image_png, image_position, mask=watermark_image_png

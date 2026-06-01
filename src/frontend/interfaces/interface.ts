@@ -211,7 +211,6 @@ export interface SessionStore {
   uploadCopyrightImage: (
     id: number,
     blob: ArrayBuffer,
-    textAndImagePlaceRef: RefObject<HTMLDivElement | null>,
   ) => void;
   clearCopyrightImage: (id: number) => void;
   setCopyrightImagePosition: (
@@ -262,7 +261,12 @@ export interface SessionStore {
   ) => void;
   deleteText: (imageId: number, textId: string) => void;
   editText: (imageId: number, textId: string, text: string) => void;
-  setTextFontSize: (imageId: number, textId: string, fontSize: number) => void;
+  setTextFontSize: (
+    imageId: number,
+    textId: string,
+    fontSize: number,
+    imageScale: number,
+  ) => void;
   setTextFontWeight: (
     imageId: number,
     textId: string,
@@ -395,6 +399,36 @@ export interface WorkSessionContextProps {
   selectedChannel: string;
   setSelectedChannel: Dispatch<SetStateAction<string>>;
   webglFilterRef: RefObject<Filter | null>;
+  imageScale: number;
+  setImageScale: Dispatch<SetStateAction<number>>;
+  cpPosition: {
+    x: number;
+    y: number;
+  };
+  setCpPosition: Dispatch<
+    SetStateAction<{
+      x: number;
+      y: number;
+    }>
+  >;
+  textPositions: Record<
+    string,
+    {
+      x: number;
+      y: number;
+    }
+  >;
+  setTextPositions: Dispatch<
+    SetStateAction<
+      Record<
+        string,
+        {
+          x: number;
+          y: number;
+        }
+      >
+    >
+  >;
 }
 //#endregion
 
@@ -413,6 +447,7 @@ export interface FunctionProp {
   clearFunc?: () => void;
   resetValue?: number;
   style?: SystemStyleObject;
+  value?: any;
 }
 //#endregion
 
