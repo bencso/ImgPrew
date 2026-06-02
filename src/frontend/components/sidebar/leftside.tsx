@@ -19,6 +19,7 @@ export const LeftSide = () => {
     { base: false, sm: false, md: false, lg: true, xl: true },
     { fallback: "md" },
   );
+
   //TODO: Ezt majd kitenni, hogy cookieba tárolja és onnan beolvasni
   const [collapsed, setCollapsed] = useState(false);
 

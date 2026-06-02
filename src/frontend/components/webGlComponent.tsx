@@ -440,7 +440,7 @@ export default function WebGlComponent() {
           source: textureRef.current.source,
           orig: textureRef.current.orig,
           trim: textureRef.current.trim,
-          frame: new Rectangle(box.x, box.y, canvasW, canvasH),
+          frame: new Rectangle(box.x , box.y, canvasW, canvasH),
         });
 
         const spriteCopy = new Sprite(textureRef.current);

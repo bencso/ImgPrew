@@ -92,10 +92,22 @@ const sizesDatas = [
 ];
 
 export default function ResizeBlock() {
-  const { setExpandMode, setExpandBackground, setExpandSize, setCropSave, setCropBox } =
-    useSessionStore();
-  const { appRef, spriteRef, textureRef, workPlaceRef, selectedImg, imageScale,textAndImagePlaceRef } =
-    useWorkSession();
+  const {
+    setExpandMode,
+    setExpandBackground,
+    setExpandSize,
+    setCropSave,
+    setCropBox,
+  } = useSessionStore();
+  const {
+    appRef,
+    spriteRef,
+    textureRef,
+    workPlaceRef,
+    selectedImg,
+    imageScale,
+    textAndImagePlaceRef,
+  } = useWorkSession();
 
   //#region breakPoint beállíátoks (isMd)
   const isMd = useBreakpointValue(
@@ -125,7 +137,7 @@ export default function ResizeBlock() {
     (state) => state.sessionData.find((si) => si.id === selectedImg)?.box,
   );
 
-   const imageSize = useSessionStore(
+  const imageSize = useSessionStore(
     (state) => state.sessionData.find((si) => si.id === selectedImg)?.dimesions,
   );
 
@@ -136,7 +148,8 @@ export default function ResizeBlock() {
 
   const expandPadding = useSessionStore(
     (state) =>
-      state.sessionData.find((si) => si.id === selectedImg)?.expandSize?.padding,
+      state.sessionData.find((si) => si.id === selectedImg)?.expandSize
+        ?.padding,
     shallow,
   );
 
@@ -151,7 +164,7 @@ export default function ResizeBlock() {
           colorPalette={"teal"}
           variant={"surface"}
           rounded={"l3"}
-          defaultValue={expandSize?.width + "-" + expandSize?.height}
+          defaultValue={box?.width + "-" + box?.height}
           onValueChange={(details) => {
             const value = details.value;
             if (!value) return;
@@ -163,23 +176,20 @@ export default function ResizeBlock() {
               workPlaceRef.current &&
               appRef.current &&
               textureRef.current &&
-              spriteRef.current && textAndImagePlaceRef.current
+              spriteRef.current &&
+              textAndImagePlaceRef.current
             ) {
-
-              // TODO: Itt nem jó méreteket használunk, felnagyított eredményeket használunk, ami az eredeti képhez viszonyulnak
-
-                 setCropBox({
-                  id: selectedImg,
-                  box: {
-                    x: parseFloat("0"),
-                    y: parseFloat("0"),
-                    height: parseFloat(((h ?? 300) ).toString()),
-                    width: parseFloat(((w ?? 300) ).toString()) ,
-                    currentHeight: textAndImagePlaceRef.current?.clientHeight,
-                    currentWidth: textAndImagePlaceRef.current?.clientWidth,
-                  },
-                });
-                console.log(box);
+              setCropBox({
+                id: selectedImg,
+                box: {
+                  x: (imageSize?.width ?? 0) / 2 - w / 2,
+                  y: (imageSize?.height ?? 0) / 2 - h / 2,
+                  height: parseFloat((h ?? 300).toString()),
+                  width: parseFloat((w ?? 300).toString()),
+                  currentHeight: textAndImagePlaceRef.current?.clientHeight,
+                  currentWidth: textAndImagePlaceRef.current?.clientWidth,
+                },
+              });
             }
           }}
         >
@@ -233,9 +243,8 @@ export default function ResizeBlock() {
         minW={"0"}
         onValueChange={(e) => {
           const type = e.value;
-          if(type !== "crop" && cropSaved !== false )
-            setCropSave(selectedImg);
-          
+          if (type !== "crop" && cropSaved !== false) setCropSave(selectedImg);
+
           setExpandMode(selectedImg, type);
         }}
       >
@@ -336,10 +345,10 @@ export default function ResizeBlock() {
                 : parseColor("#ffff")
             }
             onValueChange={(e: any) => {
-                let value = e.value;
-                if (value !== "") {
-                  setExpandBackground(selectedImg, value.toString("hex"));
-                }
+              let value = e.value;
+              if (value !== "") {
+                setExpandBackground(selectedImg, value.toString("hex"));
+              }
             }}
           >
             <ColorPicker.HiddenInput />

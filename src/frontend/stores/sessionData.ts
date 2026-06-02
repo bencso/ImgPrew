@@ -88,9 +88,8 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       const imageWCP = width - props.elementRef.offsetWidth;
       const imageHCP = height - props.elementRef.offsetHeight;
 
-      const bX = (image?.borderSize?.x ?? 0) + (30 * props.imageScale);
-      const bY = (image?.borderSize?.x ?? 0) + (30 * props.imageScale);
-
+      const bX = (image?.borderSize?.x ?? 0) + 30 * props.imageScale;
+      const bY = (image?.borderSize?.x ?? 0) + 30 * props.imageScale;
 
       const defaultPosition = {
         x: typeof positions?.x === "number" ? positions.x : bX,
@@ -112,10 +111,10 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
 
         if (typeof x === "number") {
           return {
-            x: x + (30 * props.imageScale),
+            x: x + 30 * props.imageScale,
             y:
               typeof y === "number"
-                ? y + (30 * props.imageScale)
+                ? y + 30 * props.imageScale
                 : y === "top"
                   ? bY
                   : y === "center"
@@ -128,13 +127,13 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           return {
             x:
               typeof x === "number"
-                ? x + (30 * props.imageScale)
+                ? x + 30 * props.imageScale
                 : x === "left"
                   ? bX
                   : x === "center"
                     ? imageHalf
                     : imageWCP - bX,
-            y: y + (30 * props.imageScale),
+            y: y + 30 * props.imageScale,
           };
         }
 
@@ -163,10 +162,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     //#endregion
 
     //#region "Copyright" kép
-    uploadCopyrightImage: (
-      id: number,
-      blob: ArrayBuffer,
-    ) =>
+    uploadCopyrightImage: (id: number, blob: ArrayBuffer) =>
       set((state) => {
         const image = state.sessionData.find((img: any) => img.id === id);
 
@@ -181,8 +177,8 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
             opacity: 100,
             position: {
               x: XPositions.LEFT,
-              y: YPositions.TOP
-            }
+              y: YPositions.TOP,
+            },
           };
       }),
     clearCopyrightImage: (id: number) =>
@@ -220,7 +216,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         if (image)
           image.copyrightImage = {
             ...image.copyrightImage,
-            size: size ,
+            size: size,
           };
       }),
     //#region KÉP MÉRETEK
@@ -241,22 +237,13 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         const image = state.sessionData.find((img: any) => img.id === id);
 
         if (image && image.box) {
-          const scaleX = box.currentWidth
-            ? box.currentWidth / (image.dimesions?.width ?? 1)
-            : 1;
-          const scaleY = box.currentHeight
-            ? box.currentHeight / (image.dimesions?.height ?? 1)
-            : 1;
-
-          if (box.x === null || box.y === null || box.width === null  || box.height === null ) return;
-
-          let finalX = box.x !== undefined ? box.x / scaleX : image.box.x;
-          let finalY = box.y !== undefined ? box.y / scaleY : image.box.y;
+          let finalX = box.x !== undefined ? (box.x ?? 0) : image.box.x;
+          let finalY = box.y !== undefined ? (box.y ?? 0) : image.box.y;
 
           let finalW =
-            box.width !== undefined ? box.width / scaleX : image.box.width;
+            box.width !== undefined ? (box.width ?? 0) : image.box.width;
           let finalH =
-            box.height !== undefined ? box.height / scaleY : image.box.height;
+            box.height !== undefined ? (box.height ?? 0) : image.box.height;
 
           image.box = {
             ...image.box,
@@ -368,7 +355,12 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         ];
       });
     },
-    setTextFontSize: (imageId: number, textId: string, fontSize: number, imageScale: number) =>
+    setTextFontSize: (
+      imageId: number,
+      textId: string,
+      fontSize: number,
+      imageScale: number,
+    ) =>
       set((state) => {
         const image = state.sessionData.find((img: any) => img.id === imageId);
         if (!image || !image.texts) return;
@@ -380,7 +372,10 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
 
         image.texts = [
           ...image.texts.slice(0, textIndex),
-          { ...image.texts[textIndex], fontSize: Math.round(fontSize / imageScale) },
+          {
+            ...image.texts[textIndex],
+            fontSize: Math.round(fontSize / imageScale),
+          },
           ...image.texts.slice(textIndex + 1),
         ];
       }),

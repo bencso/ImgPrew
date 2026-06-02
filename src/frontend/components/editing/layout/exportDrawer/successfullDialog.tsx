@@ -31,7 +31,7 @@ export const SuccessfullDialog = (props: SuccessfullDialogProps) => {
   let images = props.successfullyImages ?? [];
 
   const [page, setPage] = useState(0);
-  
+
   const hasMultipleImages = images.length > 1;
   const [open, setOpen] = useState<boolean>(false);
 
@@ -55,7 +55,7 @@ export const SuccessfullDialog = (props: SuccessfullDialogProps) => {
       <DialogContent
         borderRadius="l3"
         boxShadow="2xl"
-        zIndex={open===true ? "max" : "hide"}
+        zIndex={open === true ? "max" : "hide"}
         pos={"absolute"}
         right={4}
         bottom={4}
@@ -161,16 +161,6 @@ export const SuccessfullDialog = (props: SuccessfullDialogProps) => {
               >
                 <LuDownload />
                 Aktuális letöltése
-                {currentImage.title && (
-                  <Span
-                    fontSize={"xx-small"}
-                    opacity={0.8}
-                    maxW="80px"
-                    truncate
-                  >
-                    ({currentImage.title})
-                  </Span>
-                )}
               </Button>
             )}
           </HStack>

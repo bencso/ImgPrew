@@ -56,7 +56,6 @@ export default function ExportDrawer() {
     const haldBlob = await fetch(exportData.hald).then((res) => res.blob());
 
     const imageBlobFile = new File([blob], `image_${selectedImage.id}`);
-
     const haldFile = new File([haldBlob], `hald_${selectedImage.id}`);
 
     let copyrightImage = null;
@@ -76,11 +75,6 @@ export default function ExportDrawer() {
         (selectedImage.dimesions?.width ?? 1),
       (selectedImage.expandSize?.height ?? 1) /
         (selectedImage.dimesions?.height ?? 1),
-    );
-
-    const cropScale = Math.min(
-      (selectedImage.box?.width ?? 1) / (selectedImage.dimesions?.width ?? 1),
-      (selectedImage.box?.height ?? 1) / (selectedImage.dimesions?.height ?? 1),
     );
 
     const finalScale =
@@ -120,13 +114,16 @@ export default function ExportDrawer() {
               padding: (selectedImage.expandSize?.padding ?? 0) * finalScale,
             }
           : {
-              width: (selectedImage.box?.width ?? 0) * cropScale,
-              height: (selectedImage.box?.height ?? 0) * cropScale,
+              width: selectedImage.box?.width ?? 0,
+              height: selectedImage.box?.height ?? 0,
               padding: 0,
             },
       expand_position:
         selectedImage.expandMode === "crop"
-          ? { x: selectedImage.box?.x, y: selectedImage.box?.y }
+          ? {
+              x: selectedImage.box?.x ?? 0,
+              y: selectedImage.box?.y ?? 0,
+            }
           : { x: 0, y: 0 },
       expand_color: selectedImage.expandBackground ?? "#fff",
     };
@@ -275,6 +272,8 @@ export default function ExportDrawer() {
                     disabled={isLoading}
                     onClick={async () => {
                       setIsLoading(true);
+                      setSuccessfulyImages([]);
+
                       await exportSelectedImage(selected).then(() => {
                         setIsLoading(false);
                       });
@@ -294,6 +293,8 @@ export default function ExportDrawer() {
                     disabled={isLoading}
                     onClick={async () => {
                       setIsLoading(true);
+                      setSuccessfulyImages([]);
+                      
                       try {
                         const exportPromises = images.map((image) =>
                           exportSelectedImage(image.id),

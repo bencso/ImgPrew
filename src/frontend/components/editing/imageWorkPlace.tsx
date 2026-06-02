@@ -64,14 +64,12 @@ export default function ImageWorkPlace() {
     [textElements],
   );
 
-  const scaleX = box?.currentHeight
-    ? (textAndImagePlaceRef.current?.clientHeight ?? 0) /
-      (image?.dimesions?.height ?? 0)
-    : 1;
-  const scaleY = box?.currentWidth
-    ? (textAndImagePlaceRef.current?.clientWidth ?? 0) /
-      (image?.dimesions?.width ?? 0)
-    : 1;
+  const cropboxScale = Math.min(
+    (textAndImagePlaceRef.current?.clientWidth ?? 0) /
+      (image?.dimesions?.width ?? 1),
+    (textAndImagePlaceRef.current?.clientHeight ?? 0) /
+      (image?.dimesions?.height ?? 1),
+  );
 
   return (
     <Flex
@@ -91,6 +89,7 @@ export default function ImageWorkPlace() {
         position={"relative"}
         display={"flex"}
         className="manipulalhato"
+        
       >
         <Box
           zIndex={100}
@@ -161,9 +160,7 @@ export default function ImageWorkPlace() {
               }}
               src={copyrightImage.blob}
               alt="copyright"
-              w={`${
-                (copyrightImage?.size ?? 0) * imageScale
-              }px`}
+              w={`${(copyrightImage?.size ?? 0) * imageScale}px`}
               position={"relative"}
               left={Number(cpPosition.x) + "px"}
               top={Number(cpPosition.y) + "px"}
@@ -175,15 +172,15 @@ export default function ImageWorkPlace() {
           {expandMode === "crop" && !cropSaved && (
             <Rnd
               size={{
-                width: (box?.width ?? 1080) * (scaleX ?? 1),
-                height: (box?.height ?? 1080) * (scaleY ?? 1),
+                width: (box?.width ?? 1080) * cropboxScale,
+                height: (box?.height ?? 1080) * cropboxScale,
               }}
               position={{
-                x: (box?.x ?? 0) * (scaleX ?? 1),
-                y: (box?.y ?? 0) * (scaleY ?? 1),
+                x: (box?.x ?? 0) * cropboxScale,
+                y: (box?.y ?? 0) * cropboxScale,
               }}
-              minHeight={300}
-              minWidth={300}
+              minHeight={300 * cropboxScale}
+              minWidth={300 * cropboxScale}
               maxHeight={textAndImagePlaceRef.current?.clientHeight}
               maxWidth={textAndImagePlaceRef.current?.clientWidth}
               bounds={".manipulalhato"}
@@ -195,28 +192,34 @@ export default function ImageWorkPlace() {
                 setCropBox({
                   id: selectedImg,
                   box: {
-                    x: parseFloat(d.x.toString()),
-                    y: parseFloat(d.y.toString()),
-                    height: parseFloat(d.node.style.height) ?? 300,
-                    width: parseFloat(d.node.style.width) ?? 300,
+                    x: parseFloat(d.x.toString()) / cropboxScale,
+                    y: parseFloat(d.y.toString()) / cropboxScale,
+                    height:
+                      (parseFloat(d.node.style.height) ?? 300) / cropboxScale,
+                    width:
+                      (parseFloat(d.node.style.width) ?? 300) / cropboxScale,
                     currentHeight: textAndImagePlaceRef.current?.clientHeight,
                     currentWidth: textAndImagePlaceRef.current?.clientWidth,
                   },
                 });
               }}
               onResizeStop={(e, direction, ref, delta, position) => {
+                const minH = 300;
+                const minW = 300;
+                const h = parseFloat(ref.style.height) ?? minH;
+                const w = parseFloat(ref.style.width) ?? minW;
                 setCropBox({
                   id: selectedImg,
                   box: {
-                    x: parseFloat(position.x.toString()),
-                    y: parseFloat(position.y.toString()),
+                    x: parseFloat(position.x.toString()) / cropboxScale,
+                    y: parseFloat(position.y.toString()) / cropboxScale,
                     height: minMaxValidation(
-                      parseFloat(ref.style.height) ?? 300,
-                      300,
+                      Number.isNaN(h) ? minH : h / cropboxScale,
+                      minH * cropboxScale,
                     ),
                     width: minMaxValidation(
-                      parseFloat(ref.style.width) ?? 300,
-                      300,
+                      Number.isNaN(h) ? minW : w / cropboxScale,
+                      minW * cropboxScale,
                     ),
                     currentHeight: textAndImagePlaceRef.current?.clientHeight,
                     currentWidth: textAndImagePlaceRef.current?.clientWidth,
