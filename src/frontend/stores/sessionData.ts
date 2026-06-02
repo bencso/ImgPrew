@@ -248,7 +248,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
             ? box.currentHeight / (image.dimesions?.height ?? 1)
             : 1;
 
-          if (!box.x || !box.y || !box.width || !box.height) return;
+          if (box.x === null || box.y === null || box.width === null  || box.height === null ) return;
 
           let finalX = box.x !== undefined ? box.x / scaleX : image.box.x;
           let finalY = box.y !== undefined ? box.y / scaleY : image.box.y;

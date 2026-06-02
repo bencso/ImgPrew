@@ -341,7 +341,7 @@ export default function WebGlComponent() {
 
       const h = expandSize.height;
       const w = expandSize.width;
-      //TODO: Exportnál ugyanugy kell madj egy ilyen expandos szorzást csinálni és akkor jól fogja mutatni
+      
       const padding = (expandPadding ?? 0) * (imageScale??1);
       const maxTargetWidth = workPlaceRef.current.clientWidth - padding;
       const maxTargetHeight = workPlaceRef.current.clientHeight - padding;

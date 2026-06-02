@@ -71,13 +71,24 @@ export default function ExportDrawer() {
       );
     }
 
-    const expandScale =  selectedImage.expandMode === "expand" ?
-        Math.min(
-          (selectedImage.expandSize?.width ?? 1) /
-            (selectedImage.dimesions?.width ?? 1),
-          (selectedImage.expandSize?.height ?? 1) /
-            (selectedImage.dimesions?.height ?? 1),
-        ) : 1;
+    const expandScale = Math.min(
+      (selectedImage.expandSize?.width ?? 1) /
+        (selectedImage.dimesions?.width ?? 1),
+      (selectedImage.expandSize?.height ?? 1) /
+        (selectedImage.dimesions?.height ?? 1),
+    );
+
+    const cropScale = Math.min(
+      (selectedImage.box?.width ?? 1) / (selectedImage.dimesions?.width ?? 1),
+      (selectedImage.box?.height ?? 1) / (selectedImage.dimesions?.height ?? 1),
+    );
+
+    const finalScale =
+      selectedImage.expandMode === "expand"
+        ? expandScale
+        : selectedImage.expandMode === "crop"
+          ? 1
+          : 1;
 
     const body = {
       extension: selectedImage.exportSettings?.fileExtension ?? "jpg",
@@ -85,7 +96,7 @@ export default function ExportDrawer() {
       border_size: (selectedImage.borderSize?.x ?? 0) / (imageScale ?? 1),
       border_color: selectedImage.expandBackground ?? "#fff",
       copyright_image_size:
-        (selectedImage.copyrightImage?.size ?? 0) * expandScale ,
+        (selectedImage.copyrightImage?.size ?? 0) * finalScale,
       copyright_image_position: {
         x:
           typeof selectedImage.copyrightImage?.position?.x !== "string"
@@ -102,17 +113,17 @@ export default function ExportDrawer() {
       texts: selectedImage.texts,
       optimize: selectedImage.exportSettings?.optimize ?? false,
       expand_mode: selectedImage.expandMode ?? "no",
-      expand_size: (selectedImage.expandMode === "expand"
-        ? selectedImage.expandSize
-        : {
-            width: selectedImage.box?.width,
-            height: selectedImage.box?.height,
-            padding: 0,
-          }) ?? {
-        width: 0,
-        height: 0,
-        padding: 0,
-      },
+      expand_size:
+        selectedImage.expandMode === "expand"
+          ? {
+              ...selectedImage.expandSize,
+              padding: (selectedImage.expandSize?.padding ?? 0) * finalScale,
+            }
+          : {
+              width: (selectedImage.box?.width ?? 0) * cropScale,
+              height: (selectedImage.box?.height ?? 0) * cropScale,
+              padding: 0,
+            },
       expand_position:
         selectedImage.expandMode === "crop"
           ? { x: selectedImage.box?.x, y: selectedImage.box?.y }

@@ -92,9 +92,9 @@ const sizesDatas = [
 ];
 
 export default function ResizeBlock() {
-  const { setExpandMode, setExpandBackground, setExpandSize, setCropSave } =
+  const { setExpandMode, setExpandBackground, setExpandSize, setCropSave, setCropBox } =
     useSessionStore();
-  const { appRef, spriteRef, textureRef, workPlaceRef, selectedImg, imageScale } =
+  const { appRef, spriteRef, textureRef, workPlaceRef, selectedImg, imageScale,textAndImagePlaceRef } =
     useWorkSession();
 
   //#region breakPoint beállíátoks (isMd)
@@ -123,6 +123,10 @@ export default function ResizeBlock() {
 
   const box = useSessionStore(
     (state) => state.sessionData.find((si) => si.id === selectedImg)?.box,
+  );
+
+   const imageSize = useSessionStore(
+    (state) => state.sessionData.find((si) => si.id === selectedImg)?.dimesions,
   );
 
   const cropSaved = useSessionStore(
@@ -159,9 +163,23 @@ export default function ResizeBlock() {
               workPlaceRef.current &&
               appRef.current &&
               textureRef.current &&
-              spriteRef.current
+              spriteRef.current && textAndImagePlaceRef.current
             ) {
-              setExpandSize(selectedImg, { width: w, height: h });
+
+              // TODO: Itt nem jó méreteket használunk, felnagyított eredményeket használunk, ami az eredeti képhez viszonyulnak
+
+                 setCropBox({
+                  id: selectedImg,
+                  box: {
+                    x: parseFloat("0"),
+                    y: parseFloat("0"),
+                    height: parseFloat(((h ?? 300) ).toString()),
+                    width: parseFloat(((w ?? 300) ).toString()) ,
+                    currentHeight: textAndImagePlaceRef.current?.clientHeight,
+                    currentWidth: textAndImagePlaceRef.current?.clientWidth,
+                  },
+                });
+                console.log(box);
             }
           }}
         >
@@ -215,6 +233,9 @@ export default function ResizeBlock() {
         minW={"0"}
         onValueChange={(e) => {
           const type = e.value;
+          if(type !== "crop" && cropSaved !== false )
+            setCropSave(selectedImg);
+          
           setExpandMode(selectedImg, type);
         }}
       >
