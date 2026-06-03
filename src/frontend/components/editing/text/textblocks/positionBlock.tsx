@@ -36,7 +36,10 @@ interface TextBlockPositionProps {
 
 function TextPositionInputs(props: TextBlockPositionProps) {
   const { setTextPosition } = useSessionStore();
-  const { selectedImg, imageScale } = useWorkSession();
+  const { selectedImg, imageScale, textAndImagePlaceRef, copyrightImageRef, textElements } =
+    useWorkSession();
+
+    const textElementRef = textElements[props.id];
 
   return (
     <Flex gap={4} width="full" alignItems="center">
@@ -45,21 +48,25 @@ function TextPositionInputs(props: TextBlockPositionProps) {
 
         <HStack flex="1">
           <NumberInput.Root
-            value={(
-              Number(
-                typeof props.position.x === "number"
-                  ? (props.position.x ?? 0)
-                  : 0,
-              )
+            value={Number(
+              typeof props.position.x === "number"
+                ? Math.round((props.position.x ?? 0) * imageScale)
+                : 0,
             ).toString()}
             min={0}
             onValueChange={(e) => {
               if (e.value === "-") return;
+
+              const imageWCP = textAndImagePlaceRef?.current?.offsetWidth ?? 0;
+              const maxX = Math.round(
+                (imageWCP - (textElementRef?.offsetWidth ?? 0)) ,
+              );
+
               setTextPosition(
                 selectedImg,
                 props.id,
                 {
-                  x: minMaxValidation(Number(e.value), 0),
+                  x: minMaxValidation(Number(e.value) , 0, maxX),
                   y: Number(props.position.y ?? 0) * imageScale,
                 },
                 imageScale,
@@ -76,22 +83,26 @@ function TextPositionInputs(props: TextBlockPositionProps) {
 
         <HStack flex="1">
           <NumberInput.Root
-            value={(
-              Number(
-                typeof props.position.y === "number"
-                  ? (props.position.y ?? 0)
-                  : 0,
-              )
+            value={Number(
+              typeof props.position.y === "number"
+                ? Math.round((props.position.y ?? 0) * imageScale)
+                : 0,
             ).toString()}
             min={0}
             onValueChange={(e) => {
               if (e.value === "-") return;
+
+              const imageHCP = textAndImagePlaceRef?.current?.offsetHeight ?? 0;
+              const maxY = Math.round(
+                (imageHCP - (textElementRef?.offsetHeight ?? 0)) ,
+              );
+
               setTextPosition(
                 selectedImg,
                 props.id,
                 {
                   x: Number(props.position.x ?? 0) * imageScale,
-                  y: minMaxValidation(Number(e.value), 0),
+                  y: minMaxValidation(Number(e.value), 0, maxY),
                 },
                 imageScale,
               );
@@ -108,8 +119,8 @@ function TextPositionInputs(props: TextBlockPositionProps) {
 
 export function TextBlockPosition(props: TextBlockPositionProps) {
   const { setTextPosition } = useSessionStore();
-  const { selectedImg, textAndImagePlaceRef, selectedScale, imageScale } = useWorkSession();
-  
+  const { selectedImg, imageScale } = useWorkSession();
+
   const imageSize = useSessionStore(
     (s) => s.sessionData.find((img) => img.id === selectedImg)?.dimesions,
     shallow,

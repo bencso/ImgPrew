@@ -1,5 +1,4 @@
 //TODO: Refaktorálni
-//TODO: Mikor border van, annyival kisebb legyen a copyright image, hogy igazolodjunk
 import {
   calculationTypeEnum,
   DraggableImageEvent,
@@ -32,8 +31,9 @@ export default function ImageWorkPlace() {
     shallow,
   );
 
-    const borderSize = useSessionStore(
-    (state) => state.sessionData.find((si) => si.id === selectedImg)?.borderSize,
+  const borderSize = useSessionStore(
+    (state) =>
+      state.sessionData.find((si) => si.id === selectedImg)?.borderSize,
     shallow,
   );
 
@@ -170,7 +170,7 @@ export default function ImageWorkPlace() {
               }}
               src={copyrightImage.blob}
               alt="copyright"
-              w={`${((copyrightImage?.size ?? 0)) * imageScale}px`}
+              w={`${(copyrightImage?.size ?? 0)* imageScale}px`}
               position={"relative"}
               left={Number(cpPosition.x) * imageScale + "px"}
               top={Number(cpPosition.y) * imageScale + "px"}

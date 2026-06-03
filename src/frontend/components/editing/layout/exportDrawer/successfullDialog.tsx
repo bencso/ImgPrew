@@ -51,6 +51,9 @@ export const SuccessfullDialog = (props: SuccessfullDialogProps) => {
         props.setSuccessfullyImageShow(e.open);
         if (!e.open) setPage(0);
       }}
+      onEscapeKeyDown={()=>{
+        setOpen(false);
+      }}
     >
       <DialogContent
         borderRadius="l3"

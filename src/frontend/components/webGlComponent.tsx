@@ -519,16 +519,21 @@ export default function WebGlComponent() {
         appRef.current.renderer.background.color =
           parseColor(expandBackground).toString("rgba");
 
-        spriteRef.current.height = canvasH * finalScale - (borderSize?.x ?? 0);
+        spriteRef.current.height = canvasH * finalScale - (borderSize?.y ?? 0);
         spriteRef.current.width = canvasW * finalScale - (borderSize?.x ?? 0);
         spriteRef.current.anchor = 0.5;
         spriteRef.current.x = appRef.current.canvas.width / 2;
         spriteRef.current.y = appRef.current.canvas.height / 2;
 
+        const displayW =
+          (imageSize?.width ?? spW) + (borderSize?.x ?? 0) / finalScale;
+        const displayH =
+          (imageSize?.height ?? spH) + (borderSize?.y ?? 0) / finalScale;
+
         setSelectedScale({
           image: {
-            height: (imageSize?.height ?? spH)- (borderSize?.x ?? 0)  ,
-            width: (imageSize?.width ?? spH) - (borderSize?.x ?? 0),
+            height: displayH,
+            width: displayW,
           },
           scale: scale,
           position: { x: spX, y: spY },
@@ -615,14 +620,15 @@ export default function WebGlComponent() {
   useEffect(() => {
     if (!appRef.current || !imageSize) return;
 
-    const imageScale = Math.min(
+    let imageScale = Math.min(
       (textAndImagePlaceRef.current?.clientHeight ?? 0) /
         (selectedScale?.image.height ?? 1),
       (textAndImagePlaceRef.current?.clientWidth ?? 0) /
         (selectedScale?.image.width ?? 1),
     );
+
     setImageScale(imageScale);
-  }, [selectedScale, selectedImg, expandMode, imageSize]);
+  }, [selectedScale, selectedImg, expandMode, imageSize, borderSize]);
 
   return (
     <Box

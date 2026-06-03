@@ -147,6 +147,10 @@ const ImageManipulationBlock = () => {
     shallow,
   );
 
+  const borderSize = useSessionStore(
+    (s) => s.sessionData.find((img) => img.id === selectedImg)?.borderSize,
+  ) ?? { x: 0, y: 0 };
+
   const imagePosition = useSessionStore(
     (s) =>
       s.sessionData.find((img) => img.id === selectedImg)?.copyrightImage
@@ -165,14 +169,11 @@ const ImageManipulationBlock = () => {
           <Field.Label>Méret</Field.Label>
           <Input
             placeholder="Méret"
-            value={Math.round((copyrightImage?.size ?? 1) )}
+            value={Math.round(copyrightImage?.size ?? 1)}
             onChange={(e) => {
               setCopyrightImageSize(
                 selectedImg,
-                minMaxValidation(
-                  Math.round(Number(e.target.value ?? 1) ),
-                  0,
-                ),
+                minMaxValidation(Math.round(Number(e.target.value ?? 1)), 0),
               );
             }}
             min={200}
@@ -214,9 +215,13 @@ const ImageManipulationBlock = () => {
                 min={0}
                 onValueChange={(e) => {
                   if (e.value === "-") return;
-                  const maxX =
-                    (textAndImagePlaceRef.current?.clientWidth ?? 0) -
-                    (copyrightImageRef.offsetWidth ?? 0);
+
+                  const imageWCP =
+                    textAndImagePlaceRef?.current?.offsetWidth ?? 0;
+
+                  const maxX = Math.round(
+                    (imageWCP - (copyrightImageRef?.width ?? 0)) / imageScale,
+                  );
 
                   setCopyrightImagePosition(selectedImg, {
                     x: minMaxValidation(Number(e.value), 0, maxX),
@@ -238,9 +243,12 @@ const ImageManipulationBlock = () => {
                 min={0}
                 onValueChange={(e) => {
                   if (e.value === "-") return;
-                  const maxY =
-                    (textAndImagePlaceRef.current?.clientHeight ?? 0) -
-                    (copyrightImageRef.offsetHeight ?? 0);
+                  const imageHCP =
+                    textAndImagePlaceRef?.current?.offsetHeight ?? 0;
+
+                  const maxY = Math.round(
+                    (imageHCP - (copyrightImageRef?.height ?? 0)) / imageScale,
+                  );
 
                   setCopyrightImagePosition(selectedImg, {
                     x: imagePosition?.x ?? 0,
