@@ -60,10 +60,13 @@ export default function WebGlComponent() {
     setTextPositions,
     textElements,
     imageScale,
-    textPositions,
   } = useWorkSession();
-  const { sessionData, setImageSize, calculationReFixPosition } =
-    useSessionStore();
+  const {
+    sessionData,
+    setImageSize,
+    calculationReFixPosition,
+    setCopyrightImageSize,
+  } = useSessionStore();
 
   const canvasRef = useRef<HTMLElement | null>(null);
   const filtersRef = useRef<Container | null>(null);
@@ -341,8 +344,8 @@ export default function WebGlComponent() {
 
       const h = expandSize.height;
       const w = expandSize.width;
-      
-      const padding = (expandPadding ?? 0) * (imageScale??1);
+
+      const padding = (expandPadding ?? 0) * (imageScale ?? 1);
       const maxTargetWidth = workPlaceRef.current.clientWidth - padding;
       const maxTargetHeight = workPlaceRef.current.clientHeight - padding;
       const canvasScale = Math.min(maxTargetWidth / w, maxTargetHeight / h);
@@ -440,7 +443,7 @@ export default function WebGlComponent() {
           source: textureRef.current.source,
           orig: textureRef.current.orig,
           trim: textureRef.current.trim,
-          frame: new Rectangle(box.x , box.y, canvasW, canvasH),
+          frame: new Rectangle(box.x, box.y, canvasW, canvasH),
         });
 
         const spriteCopy = new Sprite(textureRef.current);
@@ -524,8 +527,8 @@ export default function WebGlComponent() {
 
         setSelectedScale({
           image: {
-            height: imageSize?.height ?? spH,
-            width: imageSize?.width ?? spH,
+            height: (imageSize?.height ?? spH)- (borderSize?.x ?? 0)  ,
+            width: (imageSize?.width ?? spH) - (borderSize?.x ?? 0),
           },
           scale: scale,
           position: { x: spX, y: spY },

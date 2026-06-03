@@ -1,5 +1,5 @@
 //TODO: Refaktorálni
-
+//TODO: Mikor border van, annyival kisebb legyen a copyright image, hogy igazolodjunk
 import {
   calculationTypeEnum,
   DraggableImageEvent,
@@ -29,6 +29,11 @@ export default function ImageWorkPlace() {
 
   const box = useSessionStore(
     (state) => state.sessionData.find((si) => si.id === selectedImg)?.box,
+    shallow,
+  );
+
+    const borderSize = useSessionStore(
+    (state) => state.sessionData.find((si) => si.id === selectedImg)?.borderSize,
     shallow,
   );
 
@@ -89,7 +94,6 @@ export default function ImageWorkPlace() {
         position={"relative"}
         display={"flex"}
         className="manipulalhato"
-        
       >
         <Box
           zIndex={100}
@@ -109,43 +113,49 @@ export default function ImageWorkPlace() {
                 key={element.id}
                 bounds={".manipulalhato"}
                 enableResizing={false}
-                minWidth={"fit"}
-                minHeight={"fit"}
+                size={{
+                  width: textElements[element.id]?.offsetWidth ?? "auto",
+                  height: textElements[element.id]?.offsetHeight ?? "auto",
+                }}
                 onDragStop={(e, d) => {
+                  console.log(e);
+                  console.log(d);
                   setTextPosition(
                     selectedImg,
                     element.id,
                     {
-                      x: parseFloat(d.x.toString()),
-                      y: parseFloat(d.y.toString()),
+                      x: Math.round(d.x),
+                      y: Math.round(d.y),
                     },
                     imageScale,
                   );
                 }}
                 position={{
                   x: textPositions[element.id]
-                    ? (textPositions[element.id].x ?? 0)
+                    ? (textPositions[element.id].x ?? 0) * imageScale
                     : 0,
                   y: textPositions[element.id]
-                    ? (textPositions[element.id].y ?? 0)
+                    ? (textPositions[element.id].y ?? 0) * imageScale
                     : 0,
                 }}
               >
                 <Span
                   id={element.id}
                   w={"fit"}
-                  h={"fit"}
+                  h={(element.fontSize || 20) * imageScale + "px"}
                   ref={setTextRef(element.id)}
                   cursor={"pointer"}
                   textWrap={"balance"}
                   lineClamp={"none"}
-                  lineHeight={"normal"}
                   style={{
                     fontSize: (element.fontSize || 20) * imageScale,
                     fontFamily: element.fontFamily || "Roboto",
                     fontWeight: element.fontWeight || 500,
                     color: element.color || "#ffff",
                     opacity: element.opacity || 100,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    display: "inline-flex",
                   }}
                 >
                   {element.text}
@@ -160,10 +170,10 @@ export default function ImageWorkPlace() {
               }}
               src={copyrightImage.blob}
               alt="copyright"
-              w={`${(copyrightImage?.size ?? 0) * imageScale}px`}
+              w={`${((copyrightImage?.size ?? 0)) * imageScale}px`}
               position={"relative"}
-              left={Number(cpPosition.x) + "px"}
-              top={Number(cpPosition.y) + "px"}
+              left={Number(cpPosition.x) * imageScale + "px"}
+              top={Number(cpPosition.y) * imageScale + "px"}
               opacity={Number(copyrightImage.opacity) / 100}
               draggable={false}
               userSelect={"none"}

@@ -26,9 +26,11 @@ class Text:
         self,
         text: list[TextProps] = list(),
         image: Image.Image = Image.Image,
+        border_size: Optional[int] = None
     ):
         self.img = image
         self.text = []
+        self.border_size = border_size or 0
         for t in text:
             self.text.append(TextProps(
                 text=t.get("text", ""),
@@ -66,23 +68,21 @@ class Text:
         text_width = bbox[2] - bbox[0]
         text_height = bbox[3] - bbox[1]
         
-        print(text_height)
-
         if isinstance(x, str):
             x = str.upper(x)
             if x == "LEFT":
-                x = 30
+                x = (30 + self.border_size)
             elif x == "RIGHT":
-                x = self.img.width - text_width - 30
+                x = self.img.width - text_width - (30 + self.border_size)
             elif x == "CENTER":
-                x = (self.img.width / 2) - (text_width / 2)
+                x = (self.img.width / 2) - (text_width / 2) 
         
         if isinstance(y, str):
             y = str.upper(y)
             if y == "TOP":
-                y = 30
+                y =(30 + self.border_size)
             elif y == "BOTTOM":
-                y = self.img.height - text_height*1.5
+                y = self.img.height - (text_height*1.5) - (30 + self.border_size)
             elif y == "CENTER":
                 y = (self.img.height / 2) - (text_height / 2)
             

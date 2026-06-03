@@ -69,6 +69,8 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     calculationReFixPosition: (props: CalculationReFixPositionProps) => {
       const image = get().sessionData.find((s) => s.id === props.id);
 
+      const imageScale = props.imageScale;
+
       let positions = null;
 
       if (props.type === calculationTypeEnum.TEXT)
@@ -88,8 +90,8 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       const imageWCP = width - props.elementRef.offsetWidth;
       const imageHCP = height - props.elementRef.offsetHeight;
 
-      const bX = (image?.borderSize?.x ?? 0) + 30 * props.imageScale;
-      const bY = (image?.borderSize?.x ?? 0) + 30 * props.imageScale;
+      const bX = (image?.borderSize?.x ?? 0) + (30 * props.imageScale);
+      const bY = (image?.borderSize?.x ?? 0) + (30 * props.imageScale);
 
       const defaultPosition = {
         x: typeof positions?.x === "number" ? positions.x : bX,
@@ -139,19 +141,28 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
 
         const map: any = {
           left: {
-            top: { x: bX, y: bY },
-            center: { x: bX, y: imageHCP / 2 },
-            bottom: { x: bX, y: imageHCP - bY },
+            top: { x: bX / imageScale, y: bY / imageScale },
+            center: { x: bX / imageScale, y: imageHCP / 2 / imageScale },
+            bottom: { x: bX / imageScale, y: (imageHCP - bY) / imageScale },
           },
           center: {
-            top: { x: imageHalf, y: bY },
-            center: { x: imageHalf, y: imageHCP / 2 },
-            bottom: { x: imageHalf, y: imageHCP - bY },
+            top: { x: imageHalf / imageScale, y: bY / imageScale },
+            center: { x: imageHalf / imageScale, y: imageHCP / 2 / imageScale },
+            bottom: {
+              x: imageHalf / imageScale,
+              y: (imageHCP - bY) / imageScale,
+            },
           },
           right: {
-            top: { x: imageWCP - bX, y: bY },
-            center: { x: imageWCP - bX, y: imageHCP / 2 },
-            bottom: { x: imageWCP - bX, y: imageHCP - bY },
+            top: { x: (imageWCP - bX) / imageScale, y: bY / imageScale },
+            center: {
+              x: (imageWCP - bX) / imageScale,
+              y: imageHCP / 2 / imageScale,
+            },
+            bottom: {
+              x: (imageWCP - bX) / imageScale,
+              y: (imageHCP - bY) / imageScale,
+            },
           },
         };
 

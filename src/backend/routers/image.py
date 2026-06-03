@@ -108,6 +108,8 @@ async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[Up
             
         border_helper = Border(image,border_size, color=border_color)
         image = border_helper.apply()    
+        
+     
             
         if copyright_image is not None:
             cp_image = await copyright_image.read()
@@ -115,6 +117,7 @@ async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[Up
             cp = cp.get_img()
             copyright_image_size = int(data.get("copyright_image_size")) or 0
             copyright_image_position = data.get("copyright_image_position")
+            print(copyright_image_size)
             copyright_image_opacity = float(data.get("copyright_image_opacity")) or 100
             if isinstance(copyright_image_position["x"], str) and isinstance(copyright_image_position["y"], str):
                 copyright_image_position = (str.upper(copyright_image_position["x"]),str.upper(copyright_image_position["y"]))
@@ -124,7 +127,7 @@ async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[Up
             image = WaterMarking(image, position=copyright_image_position,border_size=border_size).watermark_with_image(cp, copyright_image_size, copyright_image_opacity, border_size)
   
         if len(texts) > 0:
-            texts_helper = Text(texts, image)
+            texts_helper = Text(texts, image, border_size)
             image = texts_helper.generate_text()
     
         exporter = Export(image, output_extension=file_extension, exif_data=exif_data, allowed_infos=allowed_infos, optimized=optimize)
