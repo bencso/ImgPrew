@@ -525,15 +525,10 @@ export default function WebGlComponent() {
         spriteRef.current.x = appRef.current.canvas.width / 2;
         spriteRef.current.y = appRef.current.canvas.height / 2;
 
-        const displayW =
-          (imageSize?.width ?? spW) + (borderSize?.x ?? 0) / finalScale;
-        const displayH =
-          (imageSize?.height ?? spH) + (borderSize?.y ?? 0) / finalScale;
-
         setSelectedScale({
           image: {
-            height: displayH,
-            width: displayW,
+             height: imageSize?.height ?? spH,
+            width: imageSize?.width ?? spW,
           },
           scale: scale,
           position: { x: spX, y: spY },
@@ -617,19 +612,22 @@ export default function WebGlComponent() {
     setTextPositions(newPositions);
   }, [texts, textElements, selectedScale, imageScale]);
 
-  useEffect(() => {
-    if (!appRef.current || !imageSize) return;
+useEffect(() => {
+  if (!appRef.current || !imageSize) return;
 
-    let imageScale = Math.min(
-      (textAndImagePlaceRef.current?.clientHeight ?? 0) /
-        (selectedScale?.image.height ?? 1),
-      (textAndImagePlaceRef.current?.clientWidth ?? 0) /
-        (selectedScale?.image.width ?? 1),
-    );
+  
+  const borderSizes = (borderSize?.x ?? 0) * 2;
 
-    setImageScale(imageScale);
-  }, [selectedScale, selectedImg, expandMode, imageSize, borderSize]);
+  const maxH = Math.max(0, (textAndImagePlaceRef.current?.clientHeight ?? 0) - borderSizes);
+  const maxW = Math.max(0, (textAndImagePlaceRef.current?.clientWidth ?? 0) - borderSizes);
 
+  let imageScale = Math.min(
+    maxH / (selectedScale?.image.height ?? 1),
+    maxW / (selectedScale?.image.width ?? 1)
+  );
+
+  setImageScale(imageScale);
+}, [selectedScale, selectedImg, expandMode, imageSize, borderSize]);
   return (
     <Box
       alignItems={expandMode !== "crop" ? "center" : undefined}

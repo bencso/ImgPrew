@@ -36,10 +36,15 @@ interface TextBlockPositionProps {
 
 function TextPositionInputs(props: TextBlockPositionProps) {
   const { setTextPosition } = useSessionStore();
-  const { selectedImg, imageScale, textAndImagePlaceRef, copyrightImageRef, textElements } =
-    useWorkSession();
+  const {
+    selectedImg,
+    imageScale,
+    textAndImagePlaceRef,
+    copyrightImageRef,
+    textElements,
+  } = useWorkSession();
 
-    const textElementRef = textElements[props.id];
+  const textElementRef = textElements[props.id];
 
   return (
     <Flex gap={4} width="full" alignItems="center">
@@ -59,14 +64,14 @@ function TextPositionInputs(props: TextBlockPositionProps) {
 
               const imageWCP = textAndImagePlaceRef?.current?.offsetWidth ?? 0;
               const maxX = Math.round(
-                (imageWCP - (textElementRef?.offsetWidth ?? 0)) ,
+                imageWCP - (textElementRef?.offsetWidth ?? 0),
               );
 
               setTextPosition(
                 selectedImg,
                 props.id,
                 {
-                  x: minMaxValidation(Number(e.value) , 0, maxX),
+                  x: minMaxValidation(Math.round(Number(e.value)), 0, maxX),
                   y: Number(props.position.y ?? 0) * imageScale,
                 },
                 imageScale,
@@ -94,7 +99,7 @@ function TextPositionInputs(props: TextBlockPositionProps) {
 
               const imageHCP = textAndImagePlaceRef?.current?.offsetHeight ?? 0;
               const maxY = Math.round(
-                (imageHCP - (textElementRef?.offsetHeight ?? 0)) ,
+                imageHCP - (textElementRef?.offsetHeight ?? 0),
               );
 
               setTextPosition(
@@ -102,7 +107,7 @@ function TextPositionInputs(props: TextBlockPositionProps) {
                 props.id,
                 {
                   x: Number(props.position.x ?? 0) * imageScale,
-                  y: minMaxValidation(Number(e.value), 0, maxY),
+                  y: minMaxValidation(Math.round(Number(e.value)), 0, maxY),
                 },
                 imageScale,
               );

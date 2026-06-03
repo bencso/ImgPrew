@@ -10,7 +10,6 @@ import {
   DialogContent,
   DialogRoot,
   DialogTitle,
-  Span,
   Carousel,
   IconButton,
   HStack,
@@ -31,34 +30,42 @@ export const SuccessfullDialog = (props: SuccessfullDialogProps) => {
   let images = props.successfullyImages ?? [];
 
   const [page, setPage] = useState(0);
-
   const hasMultipleImages = images.length > 1;
   const [open, setOpen] = useState<boolean>(false);
 
+  // Szinkronizáljuk a belső 'open' állapotot a külső 'successfullyImageShow' proppal
   useEffect(() => {
-    setOpen(true);
-    setPage(images.length > 0 ? images.length : 0);
-  }, [images]);
+    if (props.successfullyImageShow && images.length > 0) {
+      setOpen(true);
+      // Ha új képek jöttek, alapértelmezetten az utolsóra vagy az elsőre ugrunk (igény szerint módosítható)
+      setPage(0); 
+    } else {
+      setOpen(false);
+    }
+  }, [props.successfullyImageShow, images]);
 
   const currentImage = images[page] || images[0];
 
   if (images.length === 0) return null;
 
+  const handleClose = () => {
+    setOpen(false);
+    props.setSuccessfullyImageShow(false);
+    setPage(0);
+  };
+
   return (
     <DialogRoot
       open={open}
       onOpenChange={(e) => {
-        props.setSuccessfullyImageShow(e.open);
-        if (!e.open) setPage(0);
+        if (!e.open) handleClose();
       }}
-      onEscapeKeyDown={()=>{
-        setOpen(false);
-      }}
+      onEscapeKeyDown={handleClose}
     >
       <DialogContent
         borderRadius="l3"
         boxShadow="2xl"
-        zIndex={open === true ? "max" : "hide"}
+        zIndex={open ? "max" : "-1000"} 
         pos={"absolute"}
         right={4}
         bottom={4}
@@ -66,6 +73,8 @@ export const SuccessfullDialog = (props: SuccessfullDialogProps) => {
         m={0}
         maxW="md"
         w="100%"
+        onPointerDownCapture={handleClose} 
+        onPointerCancelCapture={handleClose}
       >
         <DialogHeader borderBottomWidth="1px" py={4}>
           <DialogTitle fontSize="lg" fontWeight="bold">
@@ -145,9 +154,7 @@ export const SuccessfullDialog = (props: SuccessfullDialogProps) => {
         >
           <DialogActionTrigger asChild>
             <Button
-              onClick={() => {
-                setOpen(false);
-              }}
+              onClick={handleClose}
               variant="ghost"
             >
               Bezárás
@@ -169,7 +176,7 @@ export const SuccessfullDialog = (props: SuccessfullDialogProps) => {
           </HStack>
         </DialogFooter>
 
-        <DialogCloseTrigger />
+        <DialogCloseTrigger onClick={handleClose} />
       </DialogContent>
     </DialogRoot>
   );

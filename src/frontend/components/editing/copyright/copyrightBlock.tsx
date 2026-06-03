@@ -147,9 +147,6 @@ const ImageManipulationBlock = () => {
     shallow,
   );
 
-  const borderSize = useSessionStore(
-    (s) => s.sessionData.find((img) => img.id === selectedImg)?.borderSize,
-  ) ?? { x: 0, y: 0 };
 
   const imagePosition = useSessionStore(
     (s) =>

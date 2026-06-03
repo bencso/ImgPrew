@@ -90,8 +90,9 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       const imageWCP = width - props.elementRef.offsetWidth;
       const imageHCP = height - props.elementRef.offsetHeight;
 
-      const bX = (image?.borderSize?.x ?? 0) + (30 * props.imageScale);
-      const bY = (image?.borderSize?.x ?? 0) + (30 * props.imageScale);
+      const bX = (image?.borderSize?.x ?? 0) + 30 * props.imageScale;
+      const bY = (image?.borderSize?.y ?? 0) + 30 * props.imageScale;
+      
 
       const defaultPosition = {
         x: typeof positions?.x === "number" ? positions.x : bX,
@@ -113,10 +114,10 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
 
         if (typeof x === "number") {
           return {
-            x: x + 30 * props.imageScale,
+            x: x + bX,
             y:
               typeof y === "number"
-                ? y + 30 * props.imageScale
+                ? y + bY
                 : y === "top"
                   ? bY
                   : y === "center"
@@ -129,13 +130,13 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           return {
             x:
               typeof x === "number"
-                ? x + 30 * props.imageScale
+                ? x + bX
                 : x === "left"
                   ? bX
                   : x === "center"
                     ? imageHalf
                     : imageWCP - bX,
-            y: y + 30 * props.imageScale,
+            y: y + bY,
           };
         }
 

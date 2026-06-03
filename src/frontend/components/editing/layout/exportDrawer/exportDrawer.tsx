@@ -83,6 +83,8 @@ export default function ExportDrawer() {
         : selectedImage.expandMode === "crop"
           ? 1
           : 1;
+        
+      //TODO: A kép mérete legyen olyan mint FE-n (bordernek megfelelő)
 
     const body = {
       extension: selectedImage.exportSettings?.fileExtension ?? "jpg",
@@ -90,7 +92,7 @@ export default function ExportDrawer() {
       border_size: (selectedImage.borderSize?.x ?? 0) / (imageScale ?? 1),
       border_color: selectedImage.expandBackground ?? "#fff",
       copyright_image_size:
-        (selectedImage.copyrightImage?.size ?? 0) * finalScale,
+        (selectedImage.copyrightImage?.size ?? 0) * finalScale ,
       copyright_image_position: {
         x:
           typeof selectedImage.copyrightImage?.position?.x !== "string"

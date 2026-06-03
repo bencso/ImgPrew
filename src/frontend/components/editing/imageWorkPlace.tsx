@@ -105,37 +105,40 @@ export default function ImageWorkPlace() {
           h={"full"}
           w={"full"}
           className="3"
+          border={0}
           overflow={"hidden"}
         >
-          {texts.map((element: DraggableImageEvent) => {
+          {texts.map((element: DraggableImageEvent, index: number) => {
             return (
               <Rnd
                 key={element.id}
                 bounds={".manipulalhato"}
+                style={{
+                  zIndex: 11 + index,
+                }}
                 enableResizing={false}
                 size={{
                   width: textElements[element.id]?.offsetWidth ?? "auto",
                   height: textElements[element.id]?.offsetHeight ?? "auto",
                 }}
+                //TODO: Ez nem jó mikor border van
                 onDragStop={(e, d) => {
-                  console.log(e);
-                  console.log(d);
                   setTextPosition(
                     selectedImg,
                     element.id,
                     {
-                      x: Math.round(d.x),
-                      y: Math.round(d.y),
+                      x: d.x - (borderSize?.x ?? 0)  ,
+                      y: d.y - (borderSize?.x ?? 0),
                     },
                     imageScale,
                   );
                 }}
                 position={{
                   x: textPositions[element.id]
-                    ? (textPositions[element.id].x ?? 0) * imageScale
+                    ? (textPositions[element.id].x)  * imageScale + (borderSize?.x ?? 0)
                     : 0,
                   y: textPositions[element.id]
-                    ? (textPositions[element.id].y ?? 0) * imageScale
+                    ? (textPositions[element.id].y) * imageScale + (borderSize?.y ?? 0)
                     : 0,
                 }}
               >
@@ -146,6 +149,8 @@ export default function ImageWorkPlace() {
                   ref={setTextRef(element.id)}
                   cursor={"pointer"}
                   textWrap={"balance"}
+                  border={0}
+                  boxSizing={"border-box"}
                   lineClamp={"none"}
                   style={{
                     fontSize: (element.fontSize || 20) * imageScale,
@@ -156,6 +161,7 @@ export default function ImageWorkPlace() {
                     alignItems: "center",
                     justifyContent: "center",
                     display: "inline-flex",
+                    lineHeight: 1,
                   }}
                 >
                   {element.text}
@@ -170,13 +176,14 @@ export default function ImageWorkPlace() {
               }}
               src={copyrightImage.blob}
               alt="copyright"
-              w={`${(copyrightImage?.size ?? 0)* imageScale}px`}
+              w={`${(copyrightImage?.size ?? 0) * imageScale}px`}
               position={"relative"}
               left={Number(cpPosition.x) * imageScale + "px"}
               top={Number(cpPosition.y) * imageScale + "px"}
               opacity={Number(copyrightImage.opacity) / 100}
               draggable={false}
               userSelect={"none"}
+              zIndex={10}
             />
           )}
           {expandMode === "crop" && !cropSaved && (
