@@ -695,7 +695,6 @@ const sidebarElements = (
             if (typeof number === "number") {
               if (number > 0) {
                 if (expandMode !== "crop") setExpandMode(selectedImg, "border");
-                
                 setBorderSize(selectedImg, {
                   x: number ,
                   y: number ,

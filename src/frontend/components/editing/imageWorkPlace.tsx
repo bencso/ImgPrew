@@ -24,7 +24,7 @@ export default function ImageWorkPlace() {
     imageScale,
     cpPosition,
   } = useWorkSession();
-  const { setCropBox, setTextPosition } = useSessionStore();
+  const { setCropBox, setTextPosition, getTextPosition } = useSessionStore();
 
   const box = useSessionStore(
     (state) => state.sessionData.find((si) => si.id === selectedImg)?.box,
@@ -121,24 +121,23 @@ export default function ImageWorkPlace() {
                   width: textElements[element.id]?.offsetWidth ?? "auto",
                   height: textElements[element.id]?.offsetHeight ?? "auto",
                 }}
-                //TODO: Ez nem jó mikor border van
                 onDragStop={(e, d) => {
                   setTextPosition(
                     selectedImg,
                     element.id,
                     {
-                      x: d.x - (borderSize?.x ?? 0)  ,
-                      y: d.y - (borderSize?.x ?? 0),
+                      x: d.x,
+                      y: d.y,
                     },
                     imageScale,
                   );
                 }}
                 position={{
                   x: textPositions[element.id]
-                    ? (textPositions[element.id].x)  * imageScale + (borderSize?.x ?? 0)
+                    ? ((textPositions[element.id].x) *imageScale)
                     : 0,
                   y: textPositions[element.id]
-                    ? (textPositions[element.id].y) * imageScale + (borderSize?.y ?? 0)
+                    ? ((textPositions[element.id].y) *imageScale)
                     : 0,
                 }}
               >

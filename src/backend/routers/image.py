@@ -108,8 +108,6 @@ async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[Up
             
         border_helper = Border(image,border_size, color=border_color)
         image = border_helper.apply()    
-        
-     
             
         if copyright_image is not None:
             cp_image = await copyright_image.read()

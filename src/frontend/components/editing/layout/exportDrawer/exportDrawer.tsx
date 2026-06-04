@@ -34,7 +34,7 @@ export default function ExportDrawer() {
     setExportAllFileOptimize,
     setExportFileOptimize,
   } = useSessionStore();
-  const { imageScale, selectedScale } = useWorkSession();
+  const { imageScale} = useWorkSession();
 
   const [successfullyImages, setSuccessfulyImages] = useState<
     SuccessfullyImagesProps[]
@@ -83,16 +83,15 @@ export default function ExportDrawer() {
         : selectedImage.expandMode === "crop"
           ? 1
           : 1;
-        
-      //TODO: A kép mérete legyen olyan mint FE-n (bordernek megfelelő)
 
+    //TODO: Exportáláshoz átalakítani a text rendszert, hogy már a borderezett értéket adja vissza a selectedImage.texts, mikor változik a border...
     const body = {
       extension: selectedImage.exportSettings?.fileExtension ?? "jpg",
       exif_data: selectedImage.exportSettings?.exifDatas ?? [],
       border_size: (selectedImage.borderSize?.x ?? 0) / (imageScale ?? 1),
       border_color: selectedImage.expandBackground ?? "#fff",
       copyright_image_size:
-        (selectedImage.copyrightImage?.size ?? 0) * finalScale ,
+        (selectedImage.copyrightImage?.size ?? 0) * finalScale,
       copyright_image_position: {
         x:
           typeof selectedImage.copyrightImage?.position?.x !== "string"
@@ -296,7 +295,7 @@ export default function ExportDrawer() {
                     onClick={async () => {
                       setIsLoading(true);
                       setSuccessfulyImages([]);
-                      
+
                       try {
                         const exportPromises = images.map((image) =>
                           exportSelectedImage(image.id),

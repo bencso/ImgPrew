@@ -505,8 +505,8 @@ export default function WebGlComponent() {
       }
 
       if (expandMode === "border") {
-        const targetH = canvasH + (borderSize?.y ?? 0);
-        const targetW = canvasW + (borderSize?.x ?? 0);
+        const targetH = canvasH;
+        const targetW = canvasW;
 
         const finalScaleH = workPlaceRef.current.clientHeight / targetH;
         const finalScaleW = workPlaceRef.current.clientWidth / targetW;
@@ -587,7 +587,7 @@ export default function WebGlComponent() {
       x: position.x,
       y: position.y,
     });
-  }, [copyrightImageRef, copyrightImage, selectedScale, imageScale]);
+  }, [copyrightImageRef, copyrightImage, selectedScale, imageScale, borderSize]);
 
   useEffect(() => {
     const newPositions: Record<string, { x: number; y: number }> = {};
@@ -610,16 +610,13 @@ export default function WebGlComponent() {
     });
 
     setTextPositions(newPositions);
-  }, [texts, textElements, selectedScale, imageScale]);
+  }, [texts, textElements, selectedScale, imageScale, borderSize]);
 
 useEffect(() => {
   if (!appRef.current || !imageSize) return;
 
-  
-  const borderSizes = (borderSize?.x ?? 0) * 2;
-
-  const maxH = Math.max(0, (textAndImagePlaceRef.current?.clientHeight ?? 0) - borderSizes);
-  const maxW = Math.max(0, (textAndImagePlaceRef.current?.clientWidth ?? 0) - borderSizes);
+  const maxH = Math.max(0, (textAndImagePlaceRef.current?.clientHeight ?? 0));
+  const maxW = Math.max(0, (textAndImagePlaceRef.current?.clientWidth ?? 0));
 
   let imageScale = Math.min(
     maxH / (selectedScale?.image.height ?? 1),

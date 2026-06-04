@@ -90,7 +90,7 @@ function TextPositionInputs(props: TextBlockPositionProps) {
           <NumberInput.Root
             value={Number(
               typeof props.position.y === "number"
-                ? Math.round((props.position.y ?? 0) * imageScale)
+                ? Math.round(props.position.y ?? 0)
                 : 0,
             ).toString()}
             min={0}
@@ -106,7 +106,7 @@ function TextPositionInputs(props: TextBlockPositionProps) {
                 selectedImg,
                 props.id,
                 {
-                  x: Number(props.position.x ?? 0) * imageScale,
+                  x: Number(props.position.x ?? 0),
                   y: minMaxValidation(Math.round(Number(e.value)), 0, maxY),
                 },
                 imageScale,

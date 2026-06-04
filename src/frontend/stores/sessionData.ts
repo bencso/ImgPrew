@@ -92,14 +92,19 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
 
       const bX = (image?.borderSize?.x ?? 0) + 30 * props.imageScale;
       const bY = (image?.borderSize?.y ?? 0) + 30 * props.imageScale;
-      
 
       const defaultPosition = {
         x: typeof positions?.x === "number" ? positions.x : bX,
         y: typeof positions?.y === "number" ? positions.y : bY,
       };
 
-      if (positions && positions.x !== undefined && positions.y !== undefined) {
+      if (
+        positions &&
+        positions.x !== undefined &&
+        positions.y !== undefined &&
+        typeof positions.x !== "number" &&
+        typeof positions.y !== "number"
+      ) {
         let x, y;
 
         x = Number(positions.x);
@@ -110,34 +115,6 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         y = Number(positions.y);
         if (Number.isNaN(y)) {
           y = positions.y.toString().toLowerCase();
-        }
-
-        if (typeof x === "number") {
-          return {
-            x: x + bX,
-            y:
-              typeof y === "number"
-                ? y + bY
-                : y === "top"
-                  ? bY
-                  : y === "center"
-                    ? imageHCP / 2
-                    : imageHCP - bY,
-          };
-        }
-
-        if (typeof y === "number") {
-          return {
-            x:
-              typeof x === "number"
-                ? x + bX
-                : x === "left"
-                  ? bX
-                  : x === "center"
-                    ? imageHalf
-                    : imageWCP - bX,
-            y: y + bY,
-          };
         }
 
         const map: any = {
@@ -167,7 +144,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           },
         };
 
-        return map[x][y] || defaultPosition;
+        return map[x][y];
       }
       return defaultPosition;
     },
@@ -455,10 +432,21 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           ...image.texts.slice(textIndex + 1),
         ];
       }),
-    getTextPosition: (selectedImage: number, textId: string) => {
-      return get()
+    getTextPosition: (selectedImage: number, textId: string, scale: number) => {
+      const text = get()
         .sessionData.find((si) => si.id === selectedImage)
         ?.texts?.find((st) => st.id === textId)?.position;
+
+      return {
+        x:
+          text?.x !== undefined && typeof text.x === "number"
+            ? (text.x ?? 0)  / scale
+            : (text?.x ?? 0),
+        y:
+          text?.y !== undefined && typeof text.y === "number"
+            ? (text.y ?? 0)  / scale
+            : (text?.y ?? 0),
+      };
     },
     setTextPosition: (
       imageId: number,
@@ -516,9 +504,10 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           typeof position.x === "number" &&
           typeof position.x === "number"
         ) {
+
           const endPos = {
-            x: Number(position.x) / scale,
-            y: Number(position.y) / scale,
+            x: (Number(position.x) ) / scale,
+            y: (Number(position.y) ) / scale,
           };
 
           image.texts = [

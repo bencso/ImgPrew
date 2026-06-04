@@ -277,10 +277,10 @@ export interface SessionStore {
     textId: string,
     fontFamily: string,
   ) => void;
-  getTextPosition: (
-    selectedImage: number,
-    textId: string,
-  ) => DraggableImageEventPosition | undefined;
+  getTextPosition: (selectedImage: number, textId: string, scale: number) => {
+    x: number | XPositions;
+    y: number | YPositions;
+}
   setTextPosition: (
     imageId: number,
     textId: string,
