@@ -24,12 +24,12 @@ export function TextBlockSize(props: TextBlockSizeProps) {
             (Number.isNaN(props.fontSize) ? 20 : (props.fontSize ?? 20)) *
               imageScale,
           ).toString()}
-          min={5}
+          min={1}
           onValueChange={(e) =>
             setTextFontSize(
               selectedImg,
               props.id,
-              minMaxValidation(e.valueAsNumber, 5, 200),
+              minMaxValidation(e.valueAsNumber, 1, 200),
               imageScale,
             )
           }

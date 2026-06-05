@@ -1,4 +1,5 @@
 //TODO: Refaktorálni
+
 import {
   calculationTypeEnum,
   DraggableImageEvent,
@@ -18,11 +19,10 @@ export default function ImageWorkPlace() {
     textElements,
     setTextElements,
     setCopyrightImageRef,
-    textPositions,
+    selectedScale,
     workPlaceRef,
     textAndImagePlaceRef,
     imageScale,
-    cpPosition,
   } = useWorkSession();
   const { setCropBox, setTextPosition, getTextPosition } = useSessionStore();
 
@@ -31,9 +31,10 @@ export default function ImageWorkPlace() {
     shallow,
   );
 
-  const borderSize = useSessionStore(
+  const cpPosition = useSessionStore(
     (state) =>
-      state.sessionData.find((si) => si.id === selectedImg)?.borderSize,
+      state.sessionData.find((si) => si.id === selectedImg)?.copyrightImage
+        ?.position,
     shallow,
   );
 
@@ -53,6 +54,10 @@ export default function ImageWorkPlace() {
   const texts = useSessionStore(
     (s) => s.sessionData.find((si) => si.id === selectedImg)?.texts || [],
     shallow,
+  );
+
+  const borderSize = useSessionStore(
+    (s) => s.sessionData.find((sD) => sD.id === selectedImg)?.borderSize,
   );
 
   const cropSaved = useSessionStore(
@@ -76,6 +81,9 @@ export default function ImageWorkPlace() {
       (image?.dimesions?.height ?? 1),
   );
 
+  const canvasDisplayWidth = (selectedScale?.image.width ?? 0) * imageScale;
+const canvasDisplayHeight = (selectedScale?.image.height ?? 0) * imageScale;
+
   return (
     <Flex
       ref={workPlaceRef}
@@ -88,33 +96,36 @@ export default function ImageWorkPlace() {
       mx={"auto"}
       className="workPlaceRef"
     >
-      <Box
-        alignContent={"center"}
-        justifyContent={"center"}
-        position={"relative"}
-        display={"flex"}
-        className="manipulalhato"
+     <Box
+      position={"relative"}
+      display={"flex"}
+      alignItems={"center"}
+      justifyContent={"center"}
+      className="manipulalhato"
+    >
+       <Box
+        zIndex={100}
+        ref={textAndImagePlaceRef}
+        position={"absolute"}
+        top={0}
+        left={0}
+        h={"full"}
+        w={"full"}
+        className="3"
+        border={0}
+        overflow={"hidden"}
       >
-        <Box
-          zIndex={100}
-          ref={textAndImagePlaceRef}
-          position={"absolute"}
-          transform="translate(-50%, -50%)"
-          top={"50%"}
-          left={"50%"}
-          h={"full"}
-          w={"full"}
-          className="3"
-          border={0}
-          overflow={"hidden"}
-        >
           {texts.map((element: DraggableImageEvent, index: number) => {
+            const textPosition = getTextPosition(selectedImg, element.id);
+
             return (
               <Rnd
                 key={element.id}
                 bounds={".manipulalhato"}
                 style={{
                   zIndex: 11 + index,
+                  display: "flex",
+                  alignItems: "end",
                 }}
                 enableResizing={false}
                 size={{
@@ -126,25 +137,27 @@ export default function ImageWorkPlace() {
                     selectedImg,
                     element.id,
                     {
-                      x: d.x,
-                      y: d.y,
+                      x: (d.x - (selectedScale?.position.x ?? 0)) / imageScale,
+                      y: (d.y - (selectedScale?.position.y ?? 0)) / imageScale,
                     },
                     imageScale,
                   );
                 }}
                 position={{
-                  x: textPositions[element.id]
-                    ? ((textPositions[element.id].x) *imageScale)
-                    : 0,
-                  y: textPositions[element.id]
-                    ? ((textPositions[element.id].y) *imageScale)
-                    : 0,
+                  x:
+                    ((typeof textPosition.x === "number" ? textPosition.x : 0) *
+                      imageScale +
+                    (selectedScale?.position.x ?? 0)),
+                  y:
+                    ((typeof textPosition.y === "number" ? textPosition.y : 0) *
+                      imageScale +
+                    (selectedScale?.position.y ?? 0)),
                 }}
               >
                 <Span
                   id={element.id}
-                  w={"fit"}
-                  h={(element.fontSize || 20) * imageScale + "px"}
+                  w={"auto"}
+                  h={"auto"}
                   ref={setTextRef(element.id)}
                   cursor={"pointer"}
                   textWrap={"balance"}
@@ -152,7 +165,7 @@ export default function ImageWorkPlace() {
                   boxSizing={"border-box"}
                   lineClamp={"none"}
                   style={{
-                    fontSize: (element.fontSize || 20) * imageScale,
+                    fontSize: element.fontSize * imageScale,
                     fontFamily: element.fontFamily || "Roboto",
                     fontWeight: element.fontWeight || 500,
                     color: element.color || "#ffff",
@@ -161,6 +174,8 @@ export default function ImageWorkPlace() {
                     justifyContent: "center",
                     display: "inline-flex",
                     lineHeight: 1,
+                    width: "auto",
+                    height: "auto",
                   }}
                 >
                   {element.text}
@@ -177,8 +192,8 @@ export default function ImageWorkPlace() {
               alt="copyright"
               w={`${(copyrightImage?.size ?? 0) * imageScale}px`}
               position={"relative"}
-              left={Number(cpPosition.x) * imageScale + "px"}
-              top={Number(cpPosition.y) * imageScale + "px"}
+              left={Number(cpPosition?.x ?? 0) * imageScale + "px"}
+              top={Number(cpPosition?.y ?? 0) * imageScale + "px"}
               opacity={Number(copyrightImage.opacity) / 100}
               draggable={false}
               userSelect={"none"}

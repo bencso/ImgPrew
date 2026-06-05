@@ -1,5 +1,6 @@
 import { toaster } from "@/components/ui/toaster";
 import { ACCEPTED_FILES } from "@/components/upload/dropzone";
+import { calculatePosition } from "@/helper/calculationPosition";
 import { minMaxValidation } from "@/helper/errorHelper";
 import { XPositions, YPositions } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
@@ -147,6 +148,10 @@ const ImageManipulationBlock = () => {
     shallow,
   );
 
+  const borderSize = useSessionStore(
+    (s) => s.sessionData.find((img) => img.id === selectedImg)?.borderSize,
+    shallow,
+  );
 
   const imagePosition = useSessionStore(
     (s) =>
@@ -217,13 +222,17 @@ const ImageManipulationBlock = () => {
                     textAndImagePlaceRef?.current?.offsetWidth ?? 0;
 
                   const maxX = Math.round(
-                    (imageWCP - (copyrightImageRef?.width ?? 0)) / imageScale,
+                    imageWCP - (copyrightImageRef?.width ?? 0),
                   );
 
-                  setCopyrightImagePosition(selectedImg, {
-                    x: minMaxValidation(Number(e.value), 0, maxX),
-                    y: imagePosition?.y ?? 0,
-                  });
+                  setCopyrightImagePosition(
+                    selectedImg,
+                    {
+                      x: minMaxValidation(Number(e.value), 0, maxX),
+                      y: imagePosition?.y ?? 0,
+                    },
+                    imageScale,
+                  );
                 }}
               >
                 <NumberInput.Control />
@@ -244,13 +253,17 @@ const ImageManipulationBlock = () => {
                     textAndImagePlaceRef?.current?.offsetHeight ?? 0;
 
                   const maxY = Math.round(
-                    (imageHCP - (copyrightImageRef?.height ?? 0)) / imageScale,
+                    imageHCP - (copyrightImageRef?.height ?? 0),
                   );
 
-                  setCopyrightImagePosition(selectedImg, {
-                    x: imagePosition?.x ?? 0,
-                    y: minMaxValidation(Number(e.value), 0, maxY),
-                  });
+                  setCopyrightImagePosition(
+                    selectedImg,
+                    {
+                      x: imagePosition?.x ?? 0,
+                      y: minMaxValidation(Number(e.value), 0, maxY),
+                    },
+                    imageScale,
+                  );
                 }}
               >
                 <NumberInput.Control />
@@ -277,10 +290,14 @@ const ImageManipulationBlock = () => {
               imagePosition.y === YPositions.TOP
             }
             onClick={() => {
-              setCopyrightImagePosition(selectedImg, {
-                x: XPositions.LEFT,
-                y: YPositions.TOP,
-              });
+              setCopyrightImagePosition(
+                selectedImg,
+                {
+                  x: XPositions.LEFT,
+                  y: YPositions.TOP,
+                },
+                imageScale,
+              );
             }}
           >
             <LuArrowUpLeft />
@@ -295,11 +312,15 @@ const ImageManipulationBlock = () => {
               imagePosition.y === YPositions.TOP
             }
             onClick={() => {
-              if (imageSize)
-                setCopyrightImagePosition(selectedImg, {
-                  x: XPositions.CENTER,
-                  y: YPositions.TOP,
-                });
+              const position = calculatePosition({
+                positionX: XPositions.CENTER,
+                positionY: YPositions.TOP,
+                elementRef: copyrightImageRef,
+                textAndImagePlaceRef: textAndImagePlaceRef,
+                imageScale: imageScale,
+                borderSize: borderSize,
+              });
+              setCopyrightImagePosition(selectedImg, position, imageScale);
             }}
           >
             <LuArrowUp />
@@ -314,11 +335,15 @@ const ImageManipulationBlock = () => {
               imagePosition.y === YPositions.TOP
             }
             onClick={() => {
-              if (imageSize)
-                setCopyrightImagePosition(selectedImg, {
-                  x: XPositions.RIGHT,
-                  y: YPositions.TOP,
-                });
+              const position = calculatePosition({
+                positionX: XPositions.RIGHT,
+                positionY: YPositions.TOP,
+                elementRef: copyrightImageRef,
+                textAndImagePlaceRef: textAndImagePlaceRef,
+                imageScale: imageScale,
+                borderSize: borderSize,
+              });
+              setCopyrightImagePosition(selectedImg, position, imageScale);
             }}
           >
             <LuArrowUpRight />
@@ -334,11 +359,15 @@ const ImageManipulationBlock = () => {
               imagePosition.y === YPositions.CENTER
             }
             onClick={() => {
-              if (imageSize)
-                setCopyrightImagePosition(selectedImg, {
-                  x: XPositions.LEFT,
-                  y: YPositions.CENTER,
-                });
+              const position = calculatePosition({
+                positionX: XPositions.LEFT,
+                positionY: YPositions.CENTER,
+                elementRef: copyrightImageRef,
+                textAndImagePlaceRef: textAndImagePlaceRef,
+                imageScale: imageScale,
+                borderSize: borderSize,
+              });
+              setCopyrightImagePosition(selectedImg, position, imageScale);
             }}
           >
             <LuArrowLeft />
@@ -353,11 +382,15 @@ const ImageManipulationBlock = () => {
               imagePosition.y === YPositions.CENTER
             }
             onClick={() => {
-              if (imageSize)
-                setCopyrightImagePosition(selectedImg, {
-                  x: XPositions.CENTER,
-                  y: YPositions.CENTER,
-                });
+              const position = calculatePosition({
+                positionX: XPositions.CENTER,
+                positionY: YPositions.CENTER,
+                elementRef: copyrightImageRef,
+                textAndImagePlaceRef: textAndImagePlaceRef,
+                imageScale: imageScale,
+                borderSize: borderSize,
+              });
+              setCopyrightImagePosition(selectedImg, position, imageScale);
             }}
           >
             <LuDot />
@@ -372,11 +405,15 @@ const ImageManipulationBlock = () => {
               imagePosition.y === YPositions.CENTER
             }
             onClick={() => {
-              if (imageSize)
-                setCopyrightImagePosition(selectedImg, {
-                  x: XPositions.RIGHT,
-                  y: YPositions.CENTER,
-                });
+              const position = calculatePosition({
+                positionX: XPositions.RIGHT,
+                positionY: YPositions.CENTER,
+                elementRef: copyrightImageRef,
+                textAndImagePlaceRef: textAndImagePlaceRef,
+                imageScale: imageScale,
+                borderSize: borderSize,
+              });
+              setCopyrightImagePosition(selectedImg, position, imageScale);
             }}
           >
             <LuArrowRight />
@@ -392,11 +429,15 @@ const ImageManipulationBlock = () => {
               imagePosition.y === YPositions.BOTTOM
             }
             onClick={() => {
-              if (imageSize)
-                setCopyrightImagePosition(selectedImg, {
-                  x: XPositions.LEFT,
-                  y: YPositions.BOTTOM,
-                });
+              const position = calculatePosition({
+                positionX: XPositions.LEFT,
+                positionY: YPositions.BOTTOM,
+                elementRef: copyrightImageRef,
+                textAndImagePlaceRef: textAndImagePlaceRef,
+                imageScale: imageScale,
+                borderSize: borderSize,
+              });
+              setCopyrightImagePosition(selectedImg, position, imageScale);
             }}
           >
             <LuArrowDownLeft />
@@ -411,11 +452,15 @@ const ImageManipulationBlock = () => {
               imagePosition.y === YPositions.BOTTOM
             }
             onClick={() => {
-              if (imageSize)
-                setCopyrightImagePosition(selectedImg, {
-                  x: XPositions.CENTER,
-                  y: YPositions.BOTTOM,
-                });
+              const position = calculatePosition({
+                positionX: XPositions.CENTER,
+                positionY: YPositions.BOTTOM,
+                elementRef: copyrightImageRef,
+                textAndImagePlaceRef: textAndImagePlaceRef,
+                imageScale: imageScale,
+                borderSize: borderSize,
+              });
+              setCopyrightImagePosition(selectedImg, position, imageScale);
             }}
           >
             <LuArrowDown />
@@ -430,11 +475,15 @@ const ImageManipulationBlock = () => {
               imagePosition.y === YPositions.BOTTOM
             }
             onClick={() => {
-              if (imageSize)
-                setCopyrightImagePosition(selectedImg, {
-                  x: XPositions.RIGHT,
-                  y: YPositions.BOTTOM,
-                });
+              const position = calculatePosition({
+                positionX: XPositions.RIGHT,
+                positionY: YPositions.BOTTOM,
+                elementRef: copyrightImageRef,
+                textAndImagePlaceRef: textAndImagePlaceRef,
+                imageScale: imageScale,
+                borderSize: borderSize,
+              });
+              setCopyrightImagePosition(selectedImg, position, imageScale);
             }}
           >
             <LuArrowDownRight />

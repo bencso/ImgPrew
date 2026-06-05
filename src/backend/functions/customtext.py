@@ -64,27 +64,6 @@ class Text:
 
     def get_position(self, position, bbox):
         x, y = position
-
-        text_width = bbox[2] - bbox[0]
-        text_height = bbox[3] - bbox[1]
-        
-        if isinstance(x, str):
-            x = str.upper(x)
-            if x == "LEFT":
-                x = (30 + self.border_size)
-            elif x == "RIGHT":
-                x = self.img.width - text_width - (30 + self.border_size)
-            elif x == "CENTER":
-                x = (self.img.width / 2) - (text_width / 2) 
-        
-        if isinstance(y, str):
-            y = str.upper(y)
-            if y == "TOP":
-                y =(30 + self.border_size)
-            elif y == "BOTTOM":
-                y = self.img.height - (text_height*1.5) - (30 + self.border_size)
-            elif y == "CENTER":
-                y = (self.img.height / 2) - (text_height / 2)
             
         text_position = (float(x), float(y))
         return text_position
@@ -114,8 +93,8 @@ class Text:
             except AttributeError:
                 pass
             
-            bbox = self.generate_text_box((0,0), t.text, font, txt_layer)
-            position = self.get_position(position=t.position, bbox=bbox)
+            x,y = t.position
+            position = (float(x), float(y))
             color = self.get_font_color(t.color, t.opacity)
             draw.text(position, t.text, font=font, fill=color)
         

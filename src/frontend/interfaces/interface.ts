@@ -142,12 +142,15 @@ export interface CustomImage {
 
 //#region CalculationReFixPositionProps
 export interface CalculationReFixPositionProps {
-  id: number;
-  type: calculationTypeEnum;
+  positionX: XPositions;
+  positionY: YPositions;
   elementRef: HTMLElement;
   textAndImagePlaceRef: RefObject<HTMLDivElement | null>;
-  textId?: string;
-  imageScale?: any;
+  imageScale: number;
+  borderSize: {
+    x: number | null;
+    y: number | null;
+} | undefined;
 }
 //#endregion
 
@@ -194,13 +197,6 @@ export interface SessionStore {
   ) => void;
   //#endregion
 
-  //#region Segédfüggvények
-  calculationReFixPosition: (props: CalculationReFixPositionProps) => {
-    x: number;
-    y: number;
-  };
-  //#endregion
-
   //#region MÉRETEK
   setImageSize: (id: number, width: number, height: number) => void;
   setCropBox: ({ id, box }: { id: number; box: CropBox }) => void;
@@ -219,6 +215,7 @@ export interface SessionStore {
       x: XPositions | number;
       y: YPositions | number;
     },
+    imageScale: number
   ) => void;
   setCopyrightImageOpacity: (id: number, opacity: number) => void;
   setCopyrightImageSize: (id: number, size: number) => void;
@@ -277,7 +274,7 @@ export interface SessionStore {
     textId: string,
     fontFamily: string,
   ) => void;
-  getTextPosition: (selectedImage: number, textId: string, scale: number) => {
+  getTextPosition: (selectedImage: number, textId: string) => {
     x: number | XPositions;
     y: number | YPositions;
 }

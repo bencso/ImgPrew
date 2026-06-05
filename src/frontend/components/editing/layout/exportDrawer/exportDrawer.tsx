@@ -19,6 +19,7 @@ import { useWorkSession } from "@/providers/sessionprovider";
 import { SuccessfullDialog } from "./successfullDialog";
 import Loader from "@/components/loader";
 import { BeatLoader } from "react-spinners";
+import { text } from "node:stream/consumers";
 
 export interface SuccessfullyImagesProps {
   title: string;
@@ -34,7 +35,7 @@ export default function ExportDrawer() {
     setExportAllFileOptimize,
     setExportFileOptimize,
   } = useSessionStore();
-  const { imageScale} = useWorkSession();
+  const { textAndImagePlaceRef, selectedScale } = useWorkSession();
 
   const [successfullyImages, setSuccessfulyImages] = useState<
     SuccessfullyImagesProps[]
@@ -77,6 +78,14 @@ export default function ExportDrawer() {
         (selectedImage.dimesions?.height ?? 1),
     );
 
+    const maxH = Math.max(0, textAndImagePlaceRef.current?.clientHeight ?? 0);
+    const maxW = Math.max(0, textAndImagePlaceRef.current?.clientWidth ?? 0);
+
+    let imageScale = Math.min(
+      maxH / (selectedScale?.image.height ?? 1),
+      maxW / (selectedScale?.image.width ?? 1),
+    );
+
     const finalScale =
       selectedImage.expandMode === "expand"
         ? expandScale
@@ -84,7 +93,6 @@ export default function ExportDrawer() {
           ? 1
           : 1;
 
-    //TODO: Exportáláshoz átalakítani a text rendszert, hogy már a borderezett értéket adja vissza a selectedImage.texts, mikor változik a border...
     const body = {
       extension: selectedImage.exportSettings?.fileExtension ?? "jpg",
       exif_data: selectedImage.exportSettings?.exifDatas ?? [],
@@ -93,19 +101,22 @@ export default function ExportDrawer() {
       copyright_image_size:
         (selectedImage.copyrightImage?.size ?? 0) * finalScale,
       copyright_image_position: {
-        x:
-          typeof selectedImage.copyrightImage?.position?.x !== "string"
-            ? (Number(selectedImage.copyrightImage?.position?.x) ?? 0) /
-              (imageScale ?? 1)
-            : (selectedImage.copyrightImage?.position?.x ?? "left"),
-        y:
-          typeof selectedImage.copyrightImage?.position?.y !== "string"
-            ? (Number(selectedImage.copyrightImage?.position?.y) ?? 0) /
-              (imageScale ?? 1)
-            : (selectedImage.copyrightImage?.position?.y ?? "bottom"),
+        x: Number(selectedImage.copyrightImage?.position?.x) ?? 0,
+        y: Number(selectedImage.copyrightImage?.position?.y) ?? 0,
       },
       copyright_image_opacity: selectedImage.copyrightImage?.opacity,
-      texts: selectedImage.texts,
+      texts: selectedImage.texts?.map((text) => ({
+        ...text,
+        fontSize: text.fontSize,
+        position: {
+          x:
+            ((typeof text.position.x === "number" ? text.position.x : 0) +
+            (selectedScale?.position.x ?? 0)) / imageScale,
+          y:
+            ((typeof text.position.y === "number" ? text.position.y : 0) +
+            (selectedScale?.position.y ?? 0)) / imageScale,
+        },
+      })),
       optimize: selectedImage.exportSettings?.optimize ?? false,
       expand_mode: selectedImage.expandMode ?? "no",
       expand_size:
