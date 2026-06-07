@@ -6,7 +6,7 @@ import math
 
 class TextProps:
     text: str
-    size: Optional[str | int]
+    size: Optional[str | float]
     weight: Optional[str]
     opacity: Optional[int]
     color: Optional[str]
@@ -47,7 +47,7 @@ class Text:
                     opacity=t.get("opacity", 1),
                     color=t.get("color"),
                     font=t.get("fontFamily"),
-                    position=(t.get("position", {}).get("x", 0), t.get("position", {}).get("y", 0)),
+                    position=(t.get("position", {}).get("x", 0.0), t.get("position", {}).get("y", 0.0)),
                     ui_width=t.get("uiWidth"),
                     ui_ascent=t.get("uiAscent"),
                     ui_descent=t.get("uiDescent"),
@@ -76,7 +76,6 @@ class Text:
 
     def generate_text(self):    
         txt_layer = Image.new("RGBA", self.img.size, (255, 255, 255, 0))
-        
         for t in self.text:
             fontsize = float(t.size) if t.size else 20
             fontweight = (
@@ -85,15 +84,15 @@ class Text:
                 else int(FONT_WEIGHTS.get(t.weight, FONT_WEIGHTS.get("normal", 400)))
             )
             
-            font = ImageFont.truetype("fonts/Roboto.ttf", fontsize)
+            font = ImageFont.truetype("fonts/Roboto.ttf", fontsize,layout_engine=ImageFont.Layout.BASIC)
             
             try:
                 font.set_variation_by_axes([fontweight])
             except AttributeError:
                 pass
             
-            w = int(math.ceil(t.ui_width))
-            h = int(math.ceil(t.ui_ascent + t.ui_descent))
+            w = int(t.ui_width)
+            h = int(t.ui_ascent + t.ui_descent)
         
             text_box_size = (w, h)
             text_box = Image.new("RGBA", text_box_size, (255, 255, 255, 0))
@@ -101,13 +100,11 @@ class Text:
             draw = ImageDraw.Draw(text_box)
             
             color = self.get_font_color(t.color, t.opacity)
-
+            draw.fontmode = "L"
             draw.text((0, float(t.ui_ascent)), t.text, font=font, fill=color, anchor="ls", align="left")
             
             x = int(round(t.position[0]))
             y = int(round(t.position[1]))
-            
-            print(x,y)
             
             txt_layer.paste(text_box, (x,y), text_box)
         

@@ -490,11 +490,16 @@ export default function WebGlComponent() {
 
         const imgW = imageSize?.width ?? 0;
         const imgH = imageSize?.height ?? 0;
+
+        console.log("image size");
+        console.log(imgH, imgW);
         
-        const h = Math.floor(imgH + borderSizeX-1);
-        const w = Math.floor(imgW + borderSizeY-0.5);
+        const h = (imgH + borderSizeX);
+        const w = (imgW + borderSizeY);
+
+        console.log("Borderes Image");
         console.log(h,w);
-        console.log(borderSizeY);
+        console.log("Border:" + borderSizeX);
 
         const maxTargetWidth = workPlaceRef.current.clientWidth;
         const maxTargetHeight = workPlaceRef.current.clientHeight;
@@ -509,8 +514,8 @@ export default function WebGlComponent() {
 
         let scale = Math.min(canvasW / imgW, canvasH / imgH);
 
-        const spW = Math.floor((imgW - borderSizeX) * scale);
-        const spH = Math.floor((imgH - borderSizeX) * scale);
+        const spW = (imgW - borderSizeX) * scale;
+        const spH = (imgH - borderSizeX) * scale;
 
         spriteRef.current.width = spW;
         spriteRef.current.height = spH;

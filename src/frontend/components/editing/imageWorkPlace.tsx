@@ -142,11 +142,11 @@ export default function ImageWorkPlace() {
                 position={{
                   x:
                     typeof textPosition.x === "number"
-                      ? textPosition.x * (selectedScale?.scale ?? 0)
+                      ? Math.round(textPosition.x * (selectedScale?.scale ?? 0))
                       : 0,
                   y:
                     typeof textPosition.y === "number"
-                      ? textPosition.y * (selectedScale?.scale ?? 0)
+                      ? Math.round(textPosition.y * (selectedScale?.scale ?? 0))
                       : 0,
                 }}
               >
@@ -161,17 +161,22 @@ export default function ImageWorkPlace() {
                   boxSizing={"border-box"}
                   lineClamp={"none"}
                   style={{
-                    fontSize: element.fontSize * (selectedScale?.scale ?? 0),
+                    fontSize: Math.round(
+                      element.fontSize * (selectedScale?.scale ?? 0),
+                    ),
                     fontFamily: element.fontFamily || "Roboto",
                     fontWeight: element.fontWeight || 500,
                     color: element.color || "#ffff",
                     opacity: element.opacity || 100,
                     display: "block",
-                    height: "auto",
+                    height: `${Math.round(textFont.fontBoundingBoxAscent + textFont.fontBoundingBoxDescent)}px`,
                     width: "auto",
-                    lineHeight: `${textFont.fontBoundingBoxAscent + textFont.fontBoundingBoxDescent}px`,
+                    lineHeight: `${Math.round(textFont.fontBoundingBoxAscent + textFont.fontBoundingBoxDescent)}px`,
                     padding: 0,
                     margin: 0,
+                    textRendering: "optimizeLegibility",
+                    WebkitFontSmoothing: "antialiased",
+                    MozOsxFontSmoothing: "grayscale"
                   }}
                 >
                   {element.text}

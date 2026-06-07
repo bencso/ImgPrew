@@ -390,11 +390,11 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         let newPos = { ...currentPos };
 
         if (typeof position.x === "number" && position.x !== currentPos.x) {
-          newPos.x = position.x / scale;
+          newPos.x = Math.round(position.x / scale);
         }
 
         if (typeof position.y === "number" && position.y !== currentPos.y) {
-          newPos.y = position.y / scale;
+          newPos.y = Math.round(position.y / scale);
         }
 
         image.texts = [
