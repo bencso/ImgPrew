@@ -92,14 +92,6 @@ export default function ExportDrawer() {
 
       const textFont = ctx.measureText(text.text);
 
-      console.log(textFont);
-      console.log({
-        uiWidth: textFont.width / (selectedScale?.scale ?? 0),
-        uiAscent: textFont.fontBoundingBoxAscent / (selectedScale?.scale ?? 0),
-        uiDescent:
-          textFont.fontBoundingBoxDescent / (selectedScale?.scale ?? 0),
-      });
-
       return {
         ...text,
         uiWidth: textFont.width / (selectedScale?.scale ?? 0),
@@ -113,7 +105,7 @@ export default function ExportDrawer() {
       extension: selectedImage.exportSettings?.fileExtension ?? "jpg",
       exif_data: selectedImage.exportSettings?.exifDatas ?? [],
       border_size:
-        (selectedImage.borderSize?.x ?? 0) / (selectedScale?.scale ?? 0),
+        (selectedImage.borderSize?.x ?? 0),
       border_color: selectedImage.expandBackground ?? "#fff",
       copyright_image_size:
         (selectedImage.copyrightImage?.size ?? 0) * finalScale,

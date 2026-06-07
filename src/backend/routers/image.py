@@ -77,7 +77,8 @@ async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[Up
         optimize = data.get("optimize") or False
         
         border_size = data.get("border_size") or 0
-        border_size = round(border_size)
+        
+        border_size = int(border_size)
         border_color = validColors(data.get("border_color"))  or "#fff"
         
         texts = data.get("texts") or []
@@ -107,8 +108,9 @@ async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[Up
             expand_helper = ResizeImg(image, height=expand_size["height"],width=expand_size["width"], expand=(True if expand_mode=="expand" else False),expand_bg=expand_color,padding=expand_size["padding"], crop_box=crop_box)
             image = expand_helper.apply()
             
-        border_helper = Border(image,border_size, color=border_color)
-        image = border_helper.apply()    
+        if border_size > 0:
+            border_helper = Border(image,border_size, color=border_color)
+            image = border_helper.apply()    
             
         if copyright_image is not None:
             cp_image = await copyright_image.read()

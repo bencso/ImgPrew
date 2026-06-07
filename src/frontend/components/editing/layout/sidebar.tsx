@@ -1,5 +1,9 @@
 //TODO: Refaktorálni
-import { EditItemProp, FilterProps, SelectedScale } from "@/interfaces/interface";
+import {
+  EditItemProp,
+  FilterProps,
+  SelectedScale,
+} from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import {
@@ -54,9 +58,7 @@ const sidebarElements = (
       y: number;
     },
   ) => void,
-  selectedScale:
-    | SelectedScale
-    | undefined,
+  selectedScale: SelectedScale | undefined,
   setExpandBackground: (id: number, rgba: string) => void,
   expandBackground: string,
   expandMode: string,
@@ -65,7 +67,7 @@ const sidebarElements = (
   captionSamples: string[],
   webglFilterRef: RefObject<Filter | null>,
   uniforms: any,
-  imageScale: any
+  imageScale: any,
 ) => {
   return [
     {
@@ -685,9 +687,11 @@ const sidebarElements = (
             if (typeof number === "number") {
               if (number > 0) {
                 if (expandMode !== "crop") setExpandMode(selectedImg, "border");
+                const scale = (imageScale);
+                
                 setBorderSize(selectedImg, {
-                  x: number  ,
-                  y: number  ,
+                  x: Math.round(number / scale),
+                  y: Math.round(number / scale),
                 });
               } else {
                 if (expandMode !== "crop") {
@@ -770,7 +774,7 @@ export default function SideBar() {
     selectedScale,
     selectedChannel,
     webglFilterRef,
-    imageScale
+    imageScale,
   } = useWorkSession();
 
   const {
@@ -835,7 +839,7 @@ export default function SideBar() {
       captionSamples,
       webglFilterRef,
       uniforms,
-      imageScale
+      imageScale,
     );
   }, [
     selectedImg,
@@ -847,7 +851,7 @@ export default function SideBar() {
     webglFilterRef,
     selectedChannel,
     uniforms,
-    imageScale
+    imageScale,
   ]);
 
   //#endregion

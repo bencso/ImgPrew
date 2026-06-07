@@ -74,7 +74,7 @@ class Text:
         return bbox
 
 
-    def generate_text(self):
+    def generate_text(self):    
         txt_layer = Image.new("RGBA", self.img.size, (255, 255, 255, 0))
         
         for t in self.text:
@@ -94,12 +94,7 @@ class Text:
             
             w = int(math.ceil(t.ui_width))
             h = int(math.ceil(t.ui_ascent + t.ui_descent))
-            
-            print("w,h")
-            print(w,h)
-            print("t.ui_ascent")
-            print(t.ui_ascent)
-
+        
             text_box_size = (w, h)
             text_box = Image.new("RGBA", text_box_size, (255, 255, 255, 0))
         
@@ -111,8 +106,9 @@ class Text:
             
             x = int(round(t.position[0]))
             y = int(round(t.position[1]))
+            
             print(x,y)
-            print("x,y")
+            
             txt_layer.paste(text_box, (x,y), text_box)
         
         self.img.paste(txt_layer, (0,0), txt_layer)
