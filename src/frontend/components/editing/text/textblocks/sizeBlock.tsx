@@ -11,7 +11,7 @@ interface TextBlockSizeProps {
 }
 
 export function TextBlockSize(props: TextBlockSizeProps) {
-  const { selectedImg, imageScale } = useWorkSession();
+  const { selectedImg, imageScale, selectedScale } = useWorkSession();
   const { setTextFontSize } = useSessionStore();
 
   return (
@@ -22,7 +22,7 @@ export function TextBlockSize(props: TextBlockSizeProps) {
         <NumberInput.Root
           value={Math.round(
             (Number.isNaN(props.fontSize) ? 20 : (props.fontSize ?? 20)) *
-              imageScale,
+              (selectedScale?.scale ?? 1),
           ).toString()}
           min={1}
           onValueChange={(e) =>
@@ -30,7 +30,7 @@ export function TextBlockSize(props: TextBlockSizeProps) {
               selectedImg,
               props.id,
               minMaxValidation(e.valueAsNumber, 1, 200),
-              imageScale,
+              (selectedScale?.scale??1),
             )
           }
         >

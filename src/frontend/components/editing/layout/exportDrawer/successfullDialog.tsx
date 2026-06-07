@@ -14,9 +14,10 @@ import {
   IconButton,
   HStack,
   Text,
+  DialogContext,
+  useDialogContext,
 } from "@chakra-ui/react";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { SuccessfullyImagesProps } from "./exportDrawer";
 import { LuChevronLeft, LuChevronRight, LuDownload } from "react-icons/lu";
 
 interface SuccessfullDialogProps {
@@ -26,6 +27,12 @@ interface SuccessfullDialogProps {
   selectedImage?: CustomImage | undefined;
 }
 
+export interface SuccessfullyImagesProps {
+  title: string;
+  data: string;
+  extension: string;
+}
+
 export const SuccessfullDialog = (props: SuccessfullDialogProps) => {
   let images = props.successfullyImages ?? [];
 
@@ -33,12 +40,10 @@ export const SuccessfullDialog = (props: SuccessfullDialogProps) => {
   const hasMultipleImages = images.length > 1;
   const [open, setOpen] = useState<boolean>(false);
 
-  // Szinkronizáljuk a belső 'open' állapotot a külső 'successfullyImageShow' proppal
   useEffect(() => {
     if (props.successfullyImageShow && images.length > 0) {
       setOpen(true);
-      // Ha új képek jöttek, alapértelmezetten az utolsóra vagy az elsőre ugrunk (igény szerint módosítható)
-      setPage(0); 
+      setPage(0);
     } else {
       setOpen(false);
     }
@@ -60,12 +65,11 @@ export const SuccessfullDialog = (props: SuccessfullDialogProps) => {
       onOpenChange={(e) => {
         if (!e.open) handleClose();
       }}
-      onEscapeKeyDown={handleClose}
     >
       <DialogContent
         borderRadius="l3"
         boxShadow="2xl"
-        zIndex={open ? "max" : "-1000"} 
+        zIndex={open ? "max" : "-1000"}
         pos={"absolute"}
         right={4}
         bottom={4}
@@ -73,8 +77,6 @@ export const SuccessfullDialog = (props: SuccessfullDialogProps) => {
         m={0}
         maxW="md"
         w="100%"
-        onPointerDownCapture={handleClose} 
-        onPointerCancelCapture={handleClose}
       >
         <DialogHeader borderBottomWidth="1px" py={4}>
           <DialogTitle fontSize="lg" fontWeight="bold">
@@ -152,19 +154,10 @@ export const SuccessfullDialog = (props: SuccessfullDialogProps) => {
           gap={3}
           justifyContent="space-between"
         >
-          <DialogActionTrigger asChild>
-            <Button
-              onClick={handleClose}
-              variant="ghost"
-            >
-              Bezárás
-            </Button>
-          </DialogActionTrigger>
-
           <HStack gap={2}>
             {currentImage && (
               <Button
-                as={"a"}
+              as={"a"}
                 //@ts-ignore
                 href={currentImage.data}
                 download={`${crypto.randomUUID()}.${currentImage.extension ?? "jpg"}`}
@@ -175,8 +168,6 @@ export const SuccessfullDialog = (props: SuccessfullDialogProps) => {
             )}
           </HStack>
         </DialogFooter>
-
-        <DialogCloseTrigger onClick={handleClose} />
       </DialogContent>
     </DialogRoot>
   );

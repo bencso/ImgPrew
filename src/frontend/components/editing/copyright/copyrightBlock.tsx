@@ -389,6 +389,7 @@ const ImageManipulationBlock = () => {
                 textAndImagePlaceRef: textAndImagePlaceRef,
                 imageScale: imageScale,
                 borderSize: borderSize,
+                
               });
               setCopyrightImagePosition(selectedImg, position, imageScale);
             }}

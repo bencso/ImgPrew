@@ -284,7 +284,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           ...image.texts.slice(0, textIndex),
           {
             ...image.texts[textIndex],
-            fontSize: Math.round(fontSize ),
+            fontSize: Math.round(fontSize / imageScale),
           },
           ...image.texts.slice(textIndex + 1),
         ];
@@ -388,14 +388,13 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         const currentPos = image.texts[textIndex].position;
 
         let newPos = { ...currentPos };
-        console.log(newPos);
 
         if (typeof position.x === "number" && position.x !== currentPos.x) {
-          newPos.x = position.x;
+          newPos.x = position.x / scale;
         }
 
         if (typeof position.y === "number" && position.y !== currentPos.y) {
-          newPos.y = position.y;
+          newPos.y = position.y / scale;
         }
 
         image.texts = [

@@ -1,5 +1,4 @@
 import { CalculationReFixPositionProps } from "@/interfaces/interface";
-//TODO: Még majd annyit hogy ha változik az értéke a képnek vagy a szöveg méretének akkor újra kell számolni annak fgv-nyben
 
 export const calculatePosition = (props: CalculationReFixPositionProps) => {
   const imageScale = props.imageScale;
@@ -25,6 +24,7 @@ export const calculatePosition = (props: CalculationReFixPositionProps) => {
       ? 0
       : props.borderSize.y) +
     30 * imageScale;
+
 
   x = props.positionX ?? bX;
   y = props.positionY ?? bY;

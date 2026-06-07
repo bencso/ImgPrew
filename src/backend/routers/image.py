@@ -81,6 +81,7 @@ async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[Up
         border_color = validColors(data.get("border_color"))  or "#fff"
         
         texts = data.get("texts") or []
+        print(texts)
         
         expand_mode = data.get("expand_mode") or "no"
         expand_size = data.get("expand_size") or None

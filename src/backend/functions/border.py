@@ -19,8 +19,8 @@ class Border:
         self.buffer.seek(0)
 
     def apply(self) -> Image:
-        new_width = self.image.width - (self.border_size * 2)
-        new_height = self.image.height - (self.border_size * 2)
+        new_width = self.image.width - (self.border_size )
+        new_height = self.image.height - (self.border_size )
         if new_width > 0 and new_height > 0:
             resized_img = self.image.resize((new_width, new_height))
             img_with_border = ImageOps.expand(

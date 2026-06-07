@@ -142,6 +142,7 @@ export interface CustomImage {
 
 //#region CalculationReFixPositionProps
 export interface CalculationReFixPositionProps {
+  front?: boolean;
   positionX: XPositions;
   positionY: YPositions;
   elementRef: HTMLElement;

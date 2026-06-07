@@ -1,5 +1,5 @@
 //TODO: Refaktorálni
-import { EditItemProp, FilterProps } from "@/interfaces/interface";
+import { EditItemProp, FilterProps, SelectedScale } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import {
@@ -55,17 +55,7 @@ const sidebarElements = (
     },
   ) => void,
   selectedScale:
-    | {
-        image: {
-          height: number;
-          width: number;
-        };
-        scale: number;
-        position: {
-          x: number;
-          y: number;
-        };
-      }
+    | SelectedScale
     | undefined,
   setExpandBackground: (id: number, rgba: string) => void,
   expandBackground: string,
@@ -696,8 +686,8 @@ const sidebarElements = (
               if (number > 0) {
                 if (expandMode !== "crop") setExpandMode(selectedImg, "border");
                 setBorderSize(selectedImg, {
-                  x: number ,
-                  y: number ,
+                  x: number  ,
+                  y: number  ,
                 });
               } else {
                 if (expandMode !== "crop") {

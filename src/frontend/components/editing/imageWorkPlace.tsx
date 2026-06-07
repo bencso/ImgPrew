@@ -56,10 +56,6 @@ export default function ImageWorkPlace() {
     shallow,
   );
 
-  const borderSize = useSessionStore(
-    (s) => s.sessionData.find((sD) => sD.id === selectedImg)?.borderSize,
-  );
-
   const cropSaved = useSessionStore(
     (s) => s.sessionData.find((si) => si.id === selectedImg)?.cropSave || false,
     shallow,
@@ -81,9 +77,6 @@ export default function ImageWorkPlace() {
       (image?.dimesions?.height ?? 1),
   );
 
-  const canvasDisplayWidth = (selectedScale?.image.width ?? 0) * imageScale;
-const canvasDisplayHeight = (selectedScale?.image.height ?? 0) * imageScale;
-
   return (
     <Flex
       ref={workPlaceRef}
@@ -96,27 +89,34 @@ const canvasDisplayHeight = (selectedScale?.image.height ?? 0) * imageScale;
       mx={"auto"}
       className="workPlaceRef"
     >
-     <Box
-      position={"relative"}
-      display={"flex"}
-      alignItems={"center"}
-      justifyContent={"center"}
-      className="manipulalhato"
-    >
-       <Box
-        zIndex={100}
-        ref={textAndImagePlaceRef}
-        position={"absolute"}
-        top={0}
-        left={0}
-        h={"full"}
-        w={"full"}
-        className="3"
-        border={0}
-        overflow={"hidden"}
+      <Box
+        position={"relative"}
+        display={"flex"}
+        alignItems={"center"}
+        justifyContent={"center"}
+        className="manipulalhato"
       >
+        <Box
+          zIndex={100}
+          ref={textAndImagePlaceRef}
+          position={"absolute"}
+          top={0}
+          left={0}
+          h={"full"}
+          w={"full"}
+          className="3"
+          border={0}
+          overflow={"hidden"}
+        >
           {texts.map((element: DraggableImageEvent, index: number) => {
             const textPosition = getTextPosition(selectedImg, element.id);
+
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return;
+            ctx.font = `${element.fontSize * (selectedScale?.scale ?? 0)}px ${element.fontFamily}`;
+
+            const textFont = ctx.measureText(element.text);
 
             return (
               <Rnd
@@ -124,34 +124,31 @@ const canvasDisplayHeight = (selectedScale?.image.height ?? 0) * imageScale;
                 bounds={".manipulalhato"}
                 style={{
                   zIndex: 11 + index,
-                  display: "flex",
-                  alignItems: "end",
                 }}
                 enableResizing={false}
-                size={{
-                  width: textElements[element.id]?.offsetWidth ?? "auto",
-                  height: textElements[element.id]?.offsetHeight ?? "auto",
-                }}
                 onDragStop={(e, d) => {
+                  const x = d.lastX;
+                  const y = d.lastY;
+
                   setTextPosition(
                     selectedImg,
                     element.id,
                     {
-                      x: (d.x - (selectedScale?.position.x ?? 0)) / imageScale,
-                      y: (d.y - (selectedScale?.position.y ?? 0)) / imageScale,
+                      x,
+                      y,
                     },
-                    imageScale,
+                    selectedScale?.scale ?? 0,
                   );
                 }}
                 position={{
                   x:
-                    ((typeof textPosition.x === "number" ? textPosition.x : 0) *
-                      imageScale +
-                    (selectedScale?.position.x ?? 0)),
+                    typeof textPosition.x === "number"
+                      ? textPosition.x * (selectedScale?.scale ?? 0)
+                      : 0,
                   y:
-                    ((typeof textPosition.y === "number" ? textPosition.y : 0) *
-                      imageScale +
-                    (selectedScale?.position.y ?? 0)),
+                    typeof textPosition.y === "number"
+                      ? textPosition.y * (selectedScale?.scale ?? 0)
+                      : 0,
                 }}
               >
                 <Span
@@ -165,17 +162,17 @@ const canvasDisplayHeight = (selectedScale?.image.height ?? 0) * imageScale;
                   boxSizing={"border-box"}
                   lineClamp={"none"}
                   style={{
-                    fontSize: element.fontSize * imageScale,
+                    fontSize: element.fontSize * (selectedScale?.scale ?? 0),
                     fontFamily: element.fontFamily || "Roboto",
                     fontWeight: element.fontWeight || 500,
                     color: element.color || "#ffff",
                     opacity: element.opacity || 100,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    display: "inline-flex",
-                    lineHeight: 1,
-                    width: "auto",
+                    display: "block",
                     height: "auto",
+                    width: "auto",
+                    lineHeight: `${textFont.fontBoundingBoxAscent + textFont.fontBoundingBoxDescent}px`,
+                    padding: 0,
+                    margin: 0,
                   }}
                 >
                   {element.text}

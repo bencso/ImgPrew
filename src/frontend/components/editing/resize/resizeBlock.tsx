@@ -107,6 +107,7 @@ export default function ResizeBlock() {
     selectedImg,
     imageScale,
     textAndImagePlaceRef,
+    selectedScale,
   } = useWorkSession();
 
   //#region breakPoint beállíátoks (isMd)
@@ -179,17 +180,14 @@ export default function ResizeBlock() {
               spriteRef.current &&
               textAndImagePlaceRef.current
             ) {
-              setCropBox({
-                id: selectedImg,
-                box: {
-                  x: (imageSize?.width ?? 0) / 2 - w / 2,
-                  y: (imageSize?.height ?? 0) / 2 - h / 2,
-                  height: parseFloat((h ?? 300).toString()),
-                  width: parseFloat((w ?? 300).toString()),
-                  currentHeight: textAndImagePlaceRef.current?.clientHeight,
-                  currentWidth: textAndImagePlaceRef.current?.clientWidth,
+              setExpandSize(
+                selectedImg,
+                {
+                  width: w,
+                  height: h,
                 },
-              });
+                0,
+              );
             }
           }}
         >
@@ -319,15 +317,26 @@ export default function ResizeBlock() {
             }
             max={200}
             min={0}
-            value={expandPadding ? String(expandPadding * imageScale) : "0"}
+            value={
+              expandPadding
+                ? String(
+                    Math.round(expandPadding * (imageScale ?? 0)),
+                  )
+                : "0"
+            }
             onChange={(e: any) => {
-              let value = minMaxValidation(Number(e.target.value) ?? 0, 0, 200);
-
+              let value = minMaxValidation(
+                Math.round(
+                  Number(e.target.value) / (imageScale ?? 0),
+                ),
+                0,
+                200,
+              );
               if (expandSize) {
                 setExpandSize(
                   selectedImg,
                   { width: expandSize.width, height: expandSize.height },
-                  value / imageScale,
+                  value,
                 );
               }
             }}
