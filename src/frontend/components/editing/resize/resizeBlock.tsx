@@ -188,6 +188,17 @@ export default function ResizeBlock() {
                 },
                 0,
               );
+              setCropBox({
+                id: selectedImg,
+                box: {
+                  x: 0,
+                  y: 0,
+                  width: w,
+                  height: h,
+                  currentHeight: 0,
+                  currentWidth: 0,
+                },
+              });
             }
           }}
         >
@@ -319,16 +330,12 @@ export default function ResizeBlock() {
             min={0}
             value={
               expandPadding
-                ? String(
-                    Math.round(expandPadding * (imageScale ?? 0)),
-                  )
+                ? String(Math.round(expandPadding * (imageScale ?? 0)))
                 : "0"
             }
             onChange={(e: any) => {
               let value = minMaxValidation(
-                Math.round(
-                  Number(e.target.value) / (imageScale ?? 0),
-                ),
+                Math.round(Number(e.target.value) / (imageScale ?? 0)),
                 0,
                 200,
               );

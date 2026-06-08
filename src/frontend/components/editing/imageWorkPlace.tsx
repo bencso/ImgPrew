@@ -38,6 +38,11 @@ export default function ImageWorkPlace() {
     shallow,
   );
 
+  const borderSize = useSessionStore(
+    (state) =>
+      state.sessionData.find((si) => si.id === selectedImg)?.borderSize,
+  );
+
   const expandMode = useSessionStore(
     (state) =>
       state.sessionData.find((si) => si.id === selectedImg)?.expandMode,
@@ -109,6 +114,7 @@ export default function ImageWorkPlace() {
         >
           {texts.map((element: DraggableImageEvent, index: number) => {
             const textPosition = getTextPosition(selectedImg, element.id);
+            console.log(textPosition);
 
             const canvas = document.createElement("canvas");
             const ctx = canvas.getContext("2d");
@@ -128,6 +134,20 @@ export default function ImageWorkPlace() {
                 onDragStop={(e, d) => {
                   const x = d.lastX;
                   const y = d.lastY;
+
+                  console.log("x,y");
+                  console.log(
+                    Math.round(x * (selectedScale?.scale ?? 0)),
+                    Math.round(y * (selectedScale?.scale ?? 0)),
+                  );
+                  console.log({
+                    width: textFont.width / (selectedScale?.scale ?? 0),
+                    height:
+                      textFont.fontBoundingBoxAscent /
+                        (selectedScale?.scale ?? 0) +
+                      textFont.fontBoundingBoxDescent /
+                        (selectedScale?.scale ?? 0),
+                  });
 
                   setTextPosition(
                     selectedImg,
@@ -150,6 +170,9 @@ export default function ImageWorkPlace() {
                       : 0,
                 }}
               >
+                {
+                  //TODO: Mobilon nem lehet olyan kicsit tet bizonyos esetekben erre megoldást
+                }
                 <Span
                   id={element.id}
                   w={"auto"}
@@ -176,7 +199,7 @@ export default function ImageWorkPlace() {
                     margin: 0,
                     textRendering: "optimizeLegibility",
                     WebkitFontSmoothing: "antialiased",
-                    MozOsxFontSmoothing: "grayscale"
+                    MozOsxFontSmoothing: "grayscale",
                   }}
                 >
                   {element.text}

@@ -104,8 +104,7 @@ export default function ExportDrawer() {
     const body = {
       extension: selectedImage.exportSettings?.fileExtension ?? "jpg",
       exif_data: selectedImage.exportSettings?.exifDatas ?? [],
-      border_size:
-        (selectedImage.borderSize?.x ?? 0),
+      border_size: selectedImage.borderSize?.x ?? 0,
       border_color: selectedImage.expandBackground ?? "#fff",
       copyright_image_size:
         (selectedImage.copyrightImage?.size ?? 0) * finalScale,

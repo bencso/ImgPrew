@@ -106,6 +106,19 @@ class Text:
             x = int(round(t.position[0]))
             y = int(round(t.position[1]))
             
+
+            
+            print("W - H")
+            print(text_box_size)
+            
+            print("X - Y")
+            print(x,y)
+            
+            print("Font size")
+            print(fontsize)
+            
+            print("Image size")
+            print(self.img.size)
             txt_layer.paste(text_box, (x,y), text_box)
         
         self.img.paste(txt_layer, (0,0), txt_layer)

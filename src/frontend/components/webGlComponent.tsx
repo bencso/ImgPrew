@@ -429,21 +429,21 @@ export default function WebGlComponent() {
         appRef.current.stage.addChild(spriteCopy);
         spriteRef.current = spriteCopy;
 
-        const scale = Math.min(
-          workPlaceRef.current.clientHeight / (canvasH ?? 0),
-          workPlaceRef.current.clientWidth / (canvasW ?? 0),
-        );
-
-        const targetH = canvasH + (borderSize?.y ?? 0);
+         const targetH = canvasH + (borderSize?.y ?? 0);
         const targetW = canvasW + (borderSize?.x ?? 0);
+
+        const scale = Math.min(
+          workPlaceRef.current.clientHeight / (targetH ?? 0),
+          workPlaceRef.current.clientWidth / (targetW ?? 0),
+        );
 
         appRef.current.renderer.resize(targetW * scale, targetH * scale);
 
         appRef.current.renderer.background.color =
           parseColor(expandBackground).toString("rgba");
 
-        spriteRef.current.height = canvasH * scale - (borderSize?.y ?? 0);
-        spriteRef.current.width = canvasW * scale - (borderSize?.x ?? 0);
+        spriteRef.current.height = canvasH * scale ;
+        spriteRef.current.width = canvasW * scale ;
         spriteRef.current.anchor = 0.5;
         spriteRef.current.x = appRef.current.canvas.width / 2;
         spriteRef.current.y = appRef.current.canvas.height / 2;
@@ -491,15 +491,8 @@ export default function WebGlComponent() {
         const imgW = imageSize?.width ?? 0;
         const imgH = imageSize?.height ?? 0;
 
-        console.log("image size");
-        console.log(imgH, imgW);
-        
-        const h = (imgH + borderSizeX);
-        const w = (imgW + borderSizeY);
-
-        console.log("Borderes Image");
-        console.log(h,w);
-        console.log("Border:" + borderSizeX);
+        const h = imgH + borderSizeX;
+        const w = imgW + borderSizeY;
 
         const maxTargetWidth = workPlaceRef.current.clientWidth;
         const maxTargetHeight = workPlaceRef.current.clientHeight;
@@ -508,14 +501,16 @@ export default function WebGlComponent() {
         const canvasW = w * canvasScale;
         const canvasH = h * canvasScale;
 
+        console.log("Image size ( H - W)");
+        console.log(h, w);
+
         appRef.current.renderer.background.color =
           parseColor(expandBackground).toString("rgba");
         appRef.current.renderer.resize(canvasW, canvasH);
 
-        let scale = Math.min(canvasW / imgW, canvasH / imgH);
 
-        const spW = (imgW - borderSizeX) * scale;
-        const spH = (imgH - borderSizeX) * scale;
+        const spW = imgW * canvasScale;
+        const spH = imgH * canvasScale;
 
         spriteRef.current.width = spW;
         spriteRef.current.height = spH;
@@ -523,9 +518,17 @@ export default function WebGlComponent() {
         spriteRef.current.x = appRef.current.canvas.width / 2;
         spriteRef.current.y = appRef.current.canvas.height / 2;
 
+        let scale = Math.min(
+          workPlaceRef.current.clientHeight / (h ?? 0),
+          workPlaceRef.current.clientWidth / (w ?? 0),
+        );
+
+        console.log("Bordersize");
+        console.log(borderSizeX);
+
         setSelectedScale({
           image: { height: imgH, width: imgW },
-          scale: canvasScale,
+          scale: scale,
           position: {
             x: appRef.current.canvas.width / 2,
             y: appRef.current.canvas.height / 2,

@@ -44,6 +44,7 @@ import { getChannelOffsets } from "../../webGlComponent";
 import { HiAdjustments } from "react-icons/hi";
 import LutBlock from "../lut/lutBlock";
 import ExportDrawer from "./exportDrawer/exportDrawer";
+import { minMaxValidation } from "@/helper/errorHelper";
 
 const sidebarElements = (
   selectedImg: any,
@@ -688,10 +689,11 @@ const sidebarElements = (
               if (number > 0) {
                 if (expandMode !== "crop") setExpandMode(selectedImg, "border");
                 const scale = (imageScale);
+                const border = minMaxValidation(number,0,200)
                 
                 setBorderSize(selectedImg, {
-                  x: Math.round(number / scale),
-                  y: Math.round(number / scale),
+                  x: Math.round( border/ scale),
+                  y: Math.round(border / scale),
                 });
               } else {
                 if (expandMode !== "crop") {

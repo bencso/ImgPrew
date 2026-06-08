@@ -20,8 +20,9 @@ class Border:
         self.buffer.seek(0)
 
     def apply(self) -> Image:
-        print(self.image.size)
-        border_size = int(round(self.border_size/2))
+        border_size = int(math.floor(self.border_size/2))
+        print("Border size")
+        print(border_size*2)
         img_with_border = ImageOps.expand(
         image=self.image,
         border=int(border_size),
