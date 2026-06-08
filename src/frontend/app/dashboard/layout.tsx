@@ -1,12 +1,9 @@
 "use client";
 
-import { Box, Flex, useBreakpointValue } from "@chakra-ui/react";
-
+import { Box, Flex, Skeleton, useBreakpointValue } from "@chakra-ui/react";
 import SideBar from "@/components/editing/layout/sidebar";
-import BottomBar from "@/components/editing/layout/imagesSide";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
-import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { LeftSide } from "@/components/sidebar/leftside";
 import ImagesSide from "@/components/editing/layout/imagesSide";
@@ -37,20 +34,22 @@ export default function RootLayout({
           h={"full"}
           w={"full"}
           flex={1}
-           bg={"bg.muted/30"}
+          bg={"bg.muted/30"}
           direction={isMd ? "row" : "column"}
           justifyContent={"center"}
           alignItems={"center"}
         >
-          {sessionData.length > 0 &&
-            isEditor &&
-            !isLoading && <ImagesSide />}
-          <Box h={"full"}   w={"full"} p={4} boxSizing={"border-box"}>
+          {sessionData.length > 0 && isEditor && (
+            
+              <ImagesSide />
+            
+          )}
+          <Box h={"full"} w={"full"} p={4} boxSizing={"border-box"}>
             {children}
           </Box>
-          {sessionData.length > 0 &&
-            isEditor &&
-            !isLoading && <SideBar />}
+          {sessionData.length > 0 && isEditor && (
+              <SideBar />
+          )}
         </Flex>
       </Flex>
     </Flex>

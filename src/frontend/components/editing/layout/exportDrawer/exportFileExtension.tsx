@@ -45,7 +45,9 @@ export const ExportFileExtension = (props: ExportFileExtensionProp) => {
       <Text textTransform={"uppercase"} fontSize={"xs"} fontWeight={"bold"}>
         Fájlkiterjesztés
       </Text>
-      <Grid templateColumns={"repeat(4, 1fr)"} gap={3} w={"full"}>
+      <Grid mdDown={{
+        gridTemplateColumns: "repeat(2,1fr)"
+      }} templateColumns={"repeat(4, 1fr)"} gap={3} w={"full"}>
         {items.map((item, index) => (
           <GridItem w={"full"} key={index}>
             <RadioCard.Item key={item.value} value={item.value}>

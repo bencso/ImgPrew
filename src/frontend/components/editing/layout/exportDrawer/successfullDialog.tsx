@@ -59,6 +59,9 @@ export const SuccessfullDialog = (props: SuccessfullDialogProps) => {
     setPage(0);
   };
 
+  const date = new Date();
+  const fileName = `imgprew${crypto.randomUUID().slice(0, -4)}-${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+
   return (
     <DialogRoot
       open={open}
@@ -78,7 +81,7 @@ export const SuccessfullDialog = (props: SuccessfullDialogProps) => {
         maxW="md"
         w="100%"
       >
-        <DialogHeader borderBottomWidth="1px" py={4}>
+        <DialogHeader borderBottomWidth="1px" py={3}>
           <DialogTitle fontSize="lg" fontWeight="bold">
             {hasMultipleImages
               ? `Sikeres exportálás! (${images.length} kép)`
@@ -152,15 +155,16 @@ export const SuccessfullDialog = (props: SuccessfullDialogProps) => {
         <DialogFooter
           borderTopWidth="1px"
           gap={3}
+          py={3}
           justifyContent="space-between"
         >
-          <HStack gap={2}>
+          <HStack>
             {currentImage && (
               <Button
-              as={"a"}
+                as={"a"}
                 //@ts-ignore
                 href={currentImage.data}
-                download={`${crypto.randomUUID()}.${currentImage.extension ?? "jpg"}`}
+                download={`${fileName}.${currentImage.extension ?? "jpg"}`}
               >
                 <LuDownload />
                 Aktuális letöltése

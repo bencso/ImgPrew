@@ -240,7 +240,7 @@ export default function ExportDrawer() {
               display={"flex"}
               flexDir={"column"}
             >
-              <ExportImageBlock selected={selected} setSelected={setSelected} />
+             { images.length>1 && <ExportImageBlock selected={selected} setSelected={setSelected} />}
               {selected !== -1 && (
                 <ExportExifBlock
                   selected={selected}

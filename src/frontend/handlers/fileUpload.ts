@@ -51,9 +51,9 @@ export const uploadFile = async ({
         addImage(URL.createObjectURL(blob), exifData, captionSamples);
       }),
     );
-    setIsLoading(false);
     setSelectedImg(0);
     setStep(1);
+    setIsLoading(false);
   } catch (err: any) {
     console.error("Hiba fájlfeltöltés közben! Error: " + err);
   }
