@@ -64,11 +64,14 @@ async def uploadImage(file: UploadFile):
 async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[UploadFile, File()] = None, lut: Annotated[UploadFile, File()] = None, copyright_image: Annotated[UploadFile, File()] = None):
     try:
         file_bytes = await file.read()
-        lut_file_bytes = await lut.read()
         image = UploadedImage(file_bytes)
-        hald = UploadedImage(lut_file_bytes)
         image = image.get_img()
-        hald = hald.get_img()
+        
+        hald= None
+        if lut:
+            lut_file_bytes = await lut.read()
+            hald = UploadedImage(lut_file_bytes)
+            hald = hald.get_img()
         
         data = json.loads(body)
         file_extension = data.get("extension") or "jpg"
@@ -100,8 +103,9 @@ async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[Up
 
         image = ImageOps.exif_transpose(image)
         
-        lut_helper = Lut(hald, image)
-        image = lut_helper.apply_hald()       
+        if hald:
+            lut_helper = Lut(hald, image)
+            image = lut_helper.apply_hald()       
         
         if expand_mode != "no" and expand_mode != "border":
             crop_box = (float(expand_position["x"]), float(expand_position["y"]), float(expand_position["x"]) + expand_size["width"] , float(expand_position["y"])  + expand_size["height"])

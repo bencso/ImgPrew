@@ -1,5 +1,3 @@
-//TODO: Számítási logikák kitevése
-import { toaster } from "@/components/ui/toaster";
 import { minMaxValidation } from "@/helper/errorHelper";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";

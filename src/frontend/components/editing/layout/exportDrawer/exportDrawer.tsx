@@ -47,6 +47,7 @@ export default function ExportDrawer() {
   const selectedImage = images.find((i) => i.id === selected);
 
   async function exportSelectedImage(id: number) {
+    //TODO: A Hald nem teljes egészében adja vissza a kép eredeti színeit, ezért ezen javitani
     const exportData = await exportImageSettings(id, appRef);
     let selectedImage = images.find((i) => i.id === id);
 
