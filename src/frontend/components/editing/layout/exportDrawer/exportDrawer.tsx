@@ -102,6 +102,8 @@ export default function ExportDrawer() {
       };
     });
 
+    console.log(selectedImage.expandSize);
+
     const body = {
       extension: selectedImage.exportSettings?.fileExtension ?? "jpg",
       exif_data: selectedImage.exportSettings?.exifDatas ?? [],
@@ -121,7 +123,7 @@ export default function ExportDrawer() {
         selectedImage.expandMode === "expand"
           ? {
               ...selectedImage.expandSize,
-              padding: (selectedImage.expandSize?.padding ?? 0) * finalScale,
+              padding: (selectedImage.expandSize?.padding ?? 0),
             }
           : {
               width: selectedImage.box?.width ?? 0,

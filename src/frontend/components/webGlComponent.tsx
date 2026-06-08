@@ -318,40 +318,39 @@ export default function WebGlComponent() {
     const areaW = workPlaceRef.current.offsetWidth;
     const areaH = workPlaceRef.current.offsetHeight;
 
-    if (expandMode === "expand" && expandSize) {
+      if (expandMode === "expand" && expandSize) {
       if (!textAndImagePlaceRef.current || !textureRef.current || !imageSize)
         return;
 
       const h = expandSize.height;
       const w = expandSize.width;
 
-      const maxTargetWidth = workPlaceRef.current.clientWidth;
-      const maxTargetHeight = workPlaceRef.current.clientHeight;
-      const canvasScale = Math.min(maxTargetWidth / w, maxTargetHeight / h);
+      const canvasScale = Math.min(areaW / w, areaH / h);
 
       const canvasW = w * canvasScale;
       const canvasH = h * canvasScale;
-      const padding = (expandPadding ?? 0 / imageScale) * canvasScale;
+      const padding = (expandPadding ?? 0)*canvasScale;
 
       appRef.current.renderer.background.color =
         parseColor(expandBackground).toString("rgba");
       appRef.current.renderer.resize(canvasW, canvasH);
 
-      const imgW = textureRef.current.width;
-      const imgH = textureRef.current.height;
-      let scale = Math.min(canvasW / imgW, canvasH / imgH);
+      let scale = Math.min(w / imageSize.width, h / imageSize.height);
 
-      const spW = (textureRef.current.width - padding) * scale;
-      const spH = (textureRef.current.height - padding) * scale;
+      const scaledImageW = imageSize.width * scale;
+      const scaledImageH = imageSize.height * scale;
+      scale = Math.min((canvasW-padding) / scaledImageW, (canvasH-padding) / scaledImageH);
 
-      spriteRef.current.width = spW;
-      spriteRef.current.height = spH;
+      spriteRef.current.width = scaledImageW * scale;
+      spriteRef.current.height = scaledImageH * scale;
 
       spriteRef.current.x = appRef.current.canvas.width / 2;
       spriteRef.current.y = appRef.current.canvas.height / 2;
 
+      console.log(h,w);
+
       setSelectedScale({
-        image: { height: imgH, width: imgW },
+        image: { height: h, width: w },
         scale: canvasScale,
         position: {
           x: appRef.current.canvas.width / 2,
@@ -406,6 +405,9 @@ export default function WebGlComponent() {
           ? (workPlaceRef.current?.clientHeight ?? 0) / imageSize.height
           : 1;
 
+          console.log("box");
+          console.log( box.height, box.width);
+
         const h = box.height * scaleY;
         const w = box.width * scaleX;
 
@@ -429,29 +431,34 @@ export default function WebGlComponent() {
         appRef.current.stage.addChild(spriteCopy);
         spriteRef.current = spriteCopy;
 
-         const targetH = canvasH + (borderSize?.y ?? 0);
-        const targetW = canvasW + (borderSize?.x ?? 0);
+        const targetH =  Math.floor(canvasH + (borderSize?.y ?? 0));
+        const targetW =  Math.floor(canvasW + (borderSize?.x ?? 0));
 
         const scale = Math.min(
           workPlaceRef.current.clientHeight / (targetH ?? 0),
           workPlaceRef.current.clientWidth / (targetW ?? 0),
         );
 
-        appRef.current.renderer.resize(targetW * scale, targetH * scale);
+        const appW = Math.floor(targetW * scale);
+        const appH = Math.floor(targetH * scale);
+        console.log("target");
+        console.log(targetW,targetH);
+        appRef.current.renderer.resize(appW, appH);
 
         appRef.current.renderer.background.color =
           parseColor(expandBackground).toString("rgba");
 
-        spriteRef.current.height = canvasH * scale ;
-        spriteRef.current.width = canvasW * scale ;
+        spriteRef.current.height = canvasH * scale;
+        spriteRef.current.width = canvasW * scale;
         spriteRef.current.anchor = 0.5;
         spriteRef.current.x = appRef.current.canvas.width / 2;
         spriteRef.current.y = appRef.current.canvas.height / 2;
 
+        console.log(borderSize);
         setSelectedScale({
           image: {
-            height: canvasH,
-            width: canvasW,
+            height: targetH,
+            width: targetW,
           },
           scale: scale,
           position: {
@@ -507,7 +514,6 @@ export default function WebGlComponent() {
         appRef.current.renderer.background.color =
           parseColor(expandBackground).toString("rgba");
         appRef.current.renderer.resize(canvasW, canvasH);
-
 
         const spW = imgW * canvasScale;
         const spH = imgH * canvasScale;

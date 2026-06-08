@@ -324,19 +324,20 @@ export default function ResizeBlock() {
               !expandSize?.height &&
               !expandSize?.width
             }
-            max={200}
+            max={400}
             min={0}
             value={
               expandPadding
-                ? String(Math.round(expandPadding * (imageScale ?? 0)))
+                ? String(Math.round(expandPadding * (selectedScale?.scale ?? 0)))
                 : "0"
             }
             onChange={(e: any) => {
               let value = minMaxValidation(
-                Math.round(Number(e.target.value) / (imageScale ?? 0)),
+                Math.round(Number(e.target.value) / (selectedScale?.scale ?? 0)),
                 0,
-                200,
+                400 / (selectedScale?.scale ?? 0),
               );
+              
               if (expandSize) {
                 setExpandSize(
                   selectedImg,
