@@ -34,7 +34,7 @@ export default function ExportDrawer() {
     setExportAllFileOptimize,
     setExportFileOptimize,
   } = useSessionStore();
-  const { imageScale} = useWorkSession();
+  const { imageScale, selectedScale } = useWorkSession();
 
   const [successfullyImages, setSuccessfulyImages] = useState<
     SuccessfullyImagesProps[]
@@ -47,6 +47,7 @@ export default function ExportDrawer() {
   const selectedImage = images.find((i) => i.id === selected);
 
   async function exportSelectedImage(id: number) {
+    //TODO: A Hald nem teljes egészében adja vissza a kép eredeti színeit, ezért ezen javitani
     const exportData = await exportImageSettings(id, appRef);
     let selectedImage = images.find((i) => i.id === id);
 
@@ -81,38 +82,48 @@ export default function ExportDrawer() {
       selectedImage.expandMode === "expand"
         ? expandScale
         : selectedImage.expandMode === "crop"
-          ? 1
-          : 1;
+          ? (selectedScale?.scale ?? 0)
+          : (selectedScale?.scale ?? 0);
 
-    //TODO: Exportáláshoz átalakítani a text rendszert, hogy már a borderezett értéket adja vissza a selectedImage.texts, mikor változik a border...
+    const texts = selectedImage.texts?.map((text) => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      ctx.font = `${text.fontSize * (selectedScale?.scale ?? 0)}px ${text.fontFamily}`;
+
+      const textFont = ctx.measureText(text.text);
+
+      return {
+        ...text,
+        uiWidth: textFont.width / (selectedScale?.scale ?? 0),
+        uiAscent: textFont.fontBoundingBoxAscent / (selectedScale?.scale ?? 0),
+        uiDescent:
+          textFont.fontBoundingBoxDescent / (selectedScale?.scale ?? 0),
+      };
+    });
+
+    console.log(selectedImage.expandSize);
+
     const body = {
       extension: selectedImage.exportSettings?.fileExtension ?? "jpg",
       exif_data: selectedImage.exportSettings?.exifDatas ?? [],
-      border_size: (selectedImage.borderSize?.x ?? 0) / (imageScale ?? 1),
+      border_size: selectedImage.borderSize?.x ?? 0,
       border_color: selectedImage.expandBackground ?? "#fff",
       copyright_image_size:
         (selectedImage.copyrightImage?.size ?? 0) * finalScale,
       copyright_image_position: {
-        x:
-          typeof selectedImage.copyrightImage?.position?.x !== "string"
-            ? (Number(selectedImage.copyrightImage?.position?.x) ?? 0) /
-              (imageScale ?? 1)
-            : (selectedImage.copyrightImage?.position?.x ?? "left"),
-        y:
-          typeof selectedImage.copyrightImage?.position?.y !== "string"
-            ? (Number(selectedImage.copyrightImage?.position?.y) ?? 0) /
-              (imageScale ?? 1)
-            : (selectedImage.copyrightImage?.position?.y ?? "bottom"),
+        x: Number(selectedImage.copyrightImage?.position?.x) ?? 0,
+        y: Number(selectedImage.copyrightImage?.position?.y) ?? 0,
       },
       copyright_image_opacity: selectedImage.copyrightImage?.opacity,
-      texts: selectedImage.texts,
+      texts: texts,
       optimize: selectedImage.exportSettings?.optimize ?? false,
       expand_mode: selectedImage.expandMode ?? "no",
       expand_size:
         selectedImage.expandMode === "expand"
           ? {
               ...selectedImage.expandSize,
-              padding: (selectedImage.expandSize?.padding ?? 0) * finalScale,
+              padding: (selectedImage.expandSize?.padding ?? 0),
             }
           : {
               width: selectedImage.box?.width ?? 0,
@@ -161,58 +172,57 @@ export default function ExportDrawer() {
   }
 
   return (
-    <Drawer.Root size={"lg"}>
-      {isLoading && <Loader showBg={false} />}
-      <Box p={2}>
-        {
-          //#region Exportálás gomb
-        }
-        <Drawer.Trigger asChild hidden={isLoading}>
-          <Button
-            w="80px"
-            h="80px"
-            variant={"surface"}
-            rounded={"xl"}
-            display="flex"
-            flexDirection="column"
-            alignItems="center"
-            justifyContent="center"
-            disabled={isLoading}
-            colorPalette={"teal"}
-          >
-            <FaFileExport size={"16"} />
-            <Text fontSize="xx-small" textAlign={"center"} mt={0} w={"full"}>
-              Exportálás
-            </Text>
-          </Button>
-        </Drawer.Trigger>
-        <Button
-          w="80px"
-          h="80px"
-          variant={"surface"}
-          rounded={"xl"}
-          display="flex"
-          hidden={!isLoading}
-          flexDirection="column"
-          alignItems="center"
-          justifyContent="center"
-          disabled={isLoading}
-          colorPalette={"red"}
-        >
-          <BeatLoader size={12} color={"red"} />
-        </Button>
-      </Box>
-      {
-        //#endregion
-      }
+    <>
       <SuccessfullDialog
         successfullyImages={successfullyImages}
         successfullyImageShow={successfullyImageShow}
         setSuccessfullyImageShow={setSuccessfullyImageShow}
         selectedImage={selectedImage}
       />
-      <Portal>
-        <Drawer.Backdrop />
+      <Drawer.Root size={"lg"}>
+        {isLoading && <Loader showBg={false} />}
+        <Box p={2}>
+          {
+            //#region Exportálás gomb
+          }
+          <Drawer.Trigger asChild hidden={isLoading}>
+            <Button
+              w="80px"
+              h="80px"
+              variant={"surface"}
+              rounded={"xl"}
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+              justifyContent="center"
+              disabled={isLoading}
+              colorPalette={"teal"}
+            >
+              <FaFileExport size={"16"} />
+              <Text fontSize="xx-small" textAlign={"center"} mt={0} w={"full"}>
+                Exportálás
+              </Text>
+            </Button>
+          </Drawer.Trigger>
+          <Button
+            w="80px"
+            h="80px"
+            variant={"surface"}
+            rounded={"xl"}
+            display="flex"
+            hidden={!isLoading}
+            flexDirection="column"
+            alignItems="center"
+            justifyContent="center"
+            disabled={isLoading}
+            colorPalette={"red"}
+          >
+            <BeatLoader size={12} color={"red"} />
+          </Button>
+        </Box>
+        {
+          //#endregion
+        }
         <Drawer.Positioner>
           <Drawer.Content>
             {
@@ -318,7 +328,7 @@ export default function ExportDrawer() {
             </Drawer.Footer>
           </Drawer.Content>
         </Drawer.Positioner>
-      </Portal>
-    </Drawer.Root>
+      </Drawer.Root>
+    </>
   );
 }

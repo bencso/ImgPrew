@@ -1,4 +1,3 @@
-import { useWorkSession } from "@/providers/sessionprovider";
 import { ColorMapFilter } from "pixi-filters";
 import { Texture } from "pixi.js";
 

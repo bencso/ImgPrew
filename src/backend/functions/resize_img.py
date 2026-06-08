@@ -41,16 +41,18 @@ class ResizeImg:
         self.buffer.seek(0)
 
     def expandImg(self) -> Image:
-        result = Image.new("RGB", (self.width, self.height), self.expand_bg)
-        self.img.thumbnail((int(self.width)-self.padding, int(self.height)-self.padding))
-        print("canvas:", self.width, self.height)
-        print("image:", self.img.width, self.img.height)
-        x_offset = ((self.width - self.img.width) // 2)
-        y_offset = ((self.height - self.img.height) // 2)
-        result.paste(self.img, (x_offset, y_offset))
-        return result
+        padding = int(self.padding)
+        inner_width = self.width - (padding*2)
+        inner_height = self.height - (padding*2)
+        self.img = ImageOps.pad(
+                image=self.img,
+                size=(inner_width, inner_height),
+                method=1,
+                color=self.expand_bg
+            )
+        self.img = ImageOps.pad(image=self.img,size=(self.width,self.height), method=1,color=self.expand_bg)
+        return self.img
 
-    # TODO: Pozició az X,Y-onnal mükdjön ne centeringgel
     def apply(self) -> Image:
         try:
             if not self.expand:

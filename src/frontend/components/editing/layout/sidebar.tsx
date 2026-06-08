@@ -1,5 +1,9 @@
 //TODO: Refaktorálni
-import { EditItemProp, FilterProps } from "@/interfaces/interface";
+import {
+  EditItemProp,
+  FilterProps,
+  SelectedScale,
+} from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import {
@@ -40,6 +44,7 @@ import { getChannelOffsets } from "../../webGlComponent";
 import { HiAdjustments } from "react-icons/hi";
 import LutBlock from "../lut/lutBlock";
 import ExportDrawer from "./exportDrawer/exportDrawer";
+import { minMaxValidation } from "@/helper/errorHelper";
 
 const sidebarElements = (
   selectedImg: any,
@@ -54,19 +59,7 @@ const sidebarElements = (
       y: number;
     },
   ) => void,
-  selectedScale:
-    | {
-        image: {
-          height: number;
-          width: number;
-        };
-        scale: number;
-        position: {
-          x: number;
-          y: number;
-        };
-      }
-    | undefined,
+  selectedScale: SelectedScale | undefined,
   setExpandBackground: (id: number, rgba: string) => void,
   expandBackground: string,
   expandMode: string,
@@ -75,7 +68,7 @@ const sidebarElements = (
   captionSamples: string[],
   webglFilterRef: RefObject<Filter | null>,
   uniforms: any,
-  imageScale: any
+  imageScale: any,
 ) => {
   return [
     {
@@ -695,9 +688,12 @@ const sidebarElements = (
             if (typeof number === "number") {
               if (number > 0) {
                 if (expandMode !== "crop") setExpandMode(selectedImg, "border");
+                const scale = (imageScale);
+                const border = minMaxValidation(number,0,200)
+                
                 setBorderSize(selectedImg, {
-                  x: number ,
-                  y: number ,
+                  x: Math.round( border/ scale),
+                  y: Math.round(border / scale),
                 });
               } else {
                 if (expandMode !== "crop") {
@@ -780,7 +776,7 @@ export default function SideBar() {
     selectedScale,
     selectedChannel,
     webglFilterRef,
-    imageScale
+    imageScale,
   } = useWorkSession();
 
   const {
@@ -845,7 +841,7 @@ export default function SideBar() {
       captionSamples,
       webglFilterRef,
       uniforms,
-      imageScale
+      imageScale,
     );
   }, [
     selectedImg,
@@ -857,7 +853,7 @@ export default function SideBar() {
     webglFilterRef,
     selectedChannel,
     uniforms,
-    imageScale
+    imageScale,
   ]);
 
   //#endregion

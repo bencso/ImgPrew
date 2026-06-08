@@ -1,4 +1,5 @@
 //TODO: Refaktorálni
+
 import {
   calculationTypeEnum,
   DraggableImageEvent,
@@ -18,11 +19,10 @@ export default function ImageWorkPlace() {
     textElements,
     setTextElements,
     setCopyrightImageRef,
-    textPositions,
+    selectedScale,
     workPlaceRef,
     textAndImagePlaceRef,
     imageScale,
-    cpPosition,
   } = useWorkSession();
   const { setCropBox, setTextPosition, getTextPosition } = useSessionStore();
 
@@ -31,10 +31,16 @@ export default function ImageWorkPlace() {
     shallow,
   );
 
+  const cpPosition = useSessionStore(
+    (state) =>
+      state.sessionData.find((si) => si.id === selectedImg)?.copyrightImage
+        ?.position,
+    shallow,
+  );
+
   const borderSize = useSessionStore(
     (state) =>
       state.sessionData.find((si) => si.id === selectedImg)?.borderSize,
-    shallow,
   );
 
   const expandMode = useSessionStore(
@@ -82,26 +88,24 @@ export default function ImageWorkPlace() {
       h={"full"}
       w={"full"}
       boxSizing={"border-box"}
-      overflow="hidden"
       justifyContent={"center"}
       alignItems={"center"}
       mx={"auto"}
       className="workPlaceRef"
     >
       <Box
-        alignContent={"center"}
-        justifyContent={"center"}
         position={"relative"}
         display={"flex"}
+        alignItems={"center"}
+        justifyContent={"center"}
         className="manipulalhato"
       >
         <Box
           zIndex={100}
           ref={textAndImagePlaceRef}
           position={"absolute"}
-          transform="translate(-50%, -50%)"
-          top={"50%"}
-          left={"50%"}
+          top={0}
+          left={0}
           h={"full"}
           w={"full"}
           className="3"
@@ -109,6 +113,16 @@ export default function ImageWorkPlace() {
           overflow={"hidden"}
         >
           {texts.map((element: DraggableImageEvent, index: number) => {
+            const textPosition = getTextPosition(selectedImg, element.id);
+            console.log(textPosition);
+
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return;
+            ctx.font = `${element.fontSize * (selectedScale?.scale ?? 0)}px ${element.fontFamily}`;
+
+            const textFont = ctx.measureText(element.text);
+
             return (
               <Rnd
                 key={element.id}
@@ -117,34 +131,52 @@ export default function ImageWorkPlace() {
                   zIndex: 11 + index,
                 }}
                 enableResizing={false}
-                size={{
-                  width: textElements[element.id]?.offsetWidth ?? "auto",
-                  height: textElements[element.id]?.offsetHeight ?? "auto",
-                }}
                 onDragStop={(e, d) => {
+                  const x = d.lastX;
+                  const y = d.lastY;
+
+                  console.log("x,y");
+                  console.log(
+                    Math.round(x * (selectedScale?.scale ?? 0)),
+                    Math.round(y * (selectedScale?.scale ?? 0)),
+                  );
+                  console.log({
+                    width: textFont.width / (selectedScale?.scale ?? 0),
+                    height:
+                      textFont.fontBoundingBoxAscent /
+                        (selectedScale?.scale ?? 0) +
+                      textFont.fontBoundingBoxDescent /
+                        (selectedScale?.scale ?? 0),
+                  });
+
                   setTextPosition(
                     selectedImg,
                     element.id,
                     {
-                      x: d.x,
-                      y: d.y,
+                      x,
+                      y,
                     },
-                    imageScale,
+                    selectedScale?.scale ?? 0,
                   );
                 }}
                 position={{
-                  x: textPositions[element.id]
-                    ? ((textPositions[element.id].x) *imageScale)
-                    : 0,
-                  y: textPositions[element.id]
-                    ? ((textPositions[element.id].y) *imageScale)
-                    : 0,
+                  x:
+                    typeof textPosition.x === "number"
+                      ? Math.round(textPosition.x * (selectedScale?.scale ?? 0))
+                      : 0,
+                  y:
+                    typeof textPosition.y === "number"
+                      ? Math.round(textPosition.y * (selectedScale?.scale ?? 0))
+                      : 0,
                 }}
               >
+                {
+                  //TODO: Mobilon nem lehet olyan kicsit tet bizonyos esetekben erre megoldást
+                }
                 <Span
                   id={element.id}
-                  w={"fit"}
-                  h={(element.fontSize || 20) * imageScale + "px"}
+                  w={"auto"}
+                  h={"auto"}
                   ref={setTextRef(element.id)}
                   cursor={"pointer"}
                   textWrap={"balance"}
@@ -152,15 +184,22 @@ export default function ImageWorkPlace() {
                   boxSizing={"border-box"}
                   lineClamp={"none"}
                   style={{
-                    fontSize: (element.fontSize || 20) * imageScale,
+                    fontSize: Math.round(
+                      element.fontSize * (selectedScale?.scale ?? 0),
+                    ),
                     fontFamily: element.fontFamily || "Roboto",
                     fontWeight: element.fontWeight || 500,
                     color: element.color || "#ffff",
                     opacity: element.opacity || 100,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    display: "inline-flex",
-                    lineHeight: 1,
+                    display: "block",
+                    height: `${Math.round(textFont.fontBoundingBoxAscent + textFont.fontBoundingBoxDescent)}px`,
+                    width: "auto",
+                    lineHeight: `${Math.round(textFont.fontBoundingBoxAscent + textFont.fontBoundingBoxDescent)}px`,
+                    padding: 0,
+                    margin: 0,
+                    textRendering: "optimizeLegibility",
+                    WebkitFontSmoothing: "antialiased",
+                    MozOsxFontSmoothing: "grayscale",
                   }}
                 >
                   {element.text}
@@ -177,8 +216,8 @@ export default function ImageWorkPlace() {
               alt="copyright"
               w={`${(copyrightImage?.size ?? 0) * imageScale}px`}
               position={"relative"}
-              left={Number(cpPosition.x) * imageScale + "px"}
-              top={Number(cpPosition.y) * imageScale + "px"}
+              left={Number(cpPosition?.x ?? 0) * imageScale + "px"}
+              top={Number(cpPosition?.y ?? 0) * imageScale + "px"}
               opacity={Number(copyrightImage.opacity) / 100}
               draggable={false}
               userSelect={"none"}

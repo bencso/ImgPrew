@@ -77,7 +77,7 @@ export default function TextBlock() {
               const element = textElements[text.id];
 
               if (!element) return;
-              const textPosition = getTextPosition(selectedImg, text.id, imageScale);
+              const textPosition = getTextPosition(selectedImg, text.id);
 
               return (
                 <Accordion.Item key={text.id} value={text.id}>

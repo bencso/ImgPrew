@@ -33,7 +33,7 @@ export default function RootLayout({
       <LeftSide />
       <Flex flex={1} w="full" h={"100vh"} minH={"0"} direction="column">
         <Flex
-          px={isMd ? 6 : 0}
+          px={isMd ? 3 : 0}
           h={"full"}
           w={"full"}
           flex={1}

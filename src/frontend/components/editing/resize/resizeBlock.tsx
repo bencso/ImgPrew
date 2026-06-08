@@ -1,5 +1,3 @@
-//TODO: Számítási logikák kitevése
-import { toaster } from "@/components/ui/toaster";
 import { minMaxValidation } from "@/helper/errorHelper";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
@@ -107,6 +105,7 @@ export default function ResizeBlock() {
     selectedImg,
     imageScale,
     textAndImagePlaceRef,
+    selectedScale,
   } = useWorkSession();
 
   //#region breakPoint beállíátoks (isMd)
@@ -179,15 +178,23 @@ export default function ResizeBlock() {
               spriteRef.current &&
               textAndImagePlaceRef.current
             ) {
+              setExpandSize(
+                selectedImg,
+                {
+                  width: w,
+                  height: h,
+                },
+                0,
+              );
               setCropBox({
                 id: selectedImg,
                 box: {
-                  x: (imageSize?.width ?? 0) / 2 - w / 2,
-                  y: (imageSize?.height ?? 0) / 2 - h / 2,
-                  height: parseFloat((h ?? 300).toString()),
-                  width: parseFloat((w ?? 300).toString()),
-                  currentHeight: textAndImagePlaceRef.current?.clientHeight,
-                  currentWidth: textAndImagePlaceRef.current?.clientWidth,
+                  x: 0,
+                  y: 0,
+                  width: w,
+                  height: h,
+                  currentHeight: 0,
+                  currentWidth: 0,
                 },
               });
             }
@@ -317,17 +324,25 @@ export default function ResizeBlock() {
               !expandSize?.height &&
               !expandSize?.width
             }
-            max={200}
+            max={400}
             min={0}
-            value={expandPadding ? String(expandPadding * imageScale) : "0"}
+            value={
+              expandPadding
+                ? String(Math.round(expandPadding * (selectedScale?.scale ?? 0)))
+                : "0"
+            }
             onChange={(e: any) => {
-              let value = minMaxValidation(Number(e.target.value) ?? 0, 0, 200);
-
+              let value = minMaxValidation(
+                Math.round(Number(e.target.value) / (selectedScale?.scale ?? 0)),
+                0,
+                400 / (selectedScale?.scale ?? 0),
+              );
+              
               if (expandSize) {
                 setExpandSize(
                   selectedImg,
                   { width: expandSize.width, height: expandSize.height },
-                  value / imageScale,
+                  value,
                 );
               }
             }}

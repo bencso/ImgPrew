@@ -2,8 +2,6 @@ import { toaster } from "@/components/ui/toaster";
 import { minMaxValidation } from "@/helper/errorHelper";
 import { generateHald } from "@/handlers/lutFunctions";
 import {
-  CalculationReFixPositionProps,
-  calculationTypeEnum,
   CropBox,
   CustomImage,
   DraggableImageEvent,
@@ -65,91 +63,6 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       }),
     //#endregion
 
-    //#region Segédfüggvények
-    calculationReFixPosition: (props: CalculationReFixPositionProps) => {
-      const image = get().sessionData.find((s) => s.id === props.id);
-
-      const imageScale = props.imageScale;
-
-      let positions = null;
-
-      if (props.type === calculationTypeEnum.TEXT)
-        positions = image?.texts?.find(
-          (it) => it.id === props.textId,
-        )?.position;
-      if (props.type === calculationTypeEnum.COPYRIGHT)
-        positions = image?.copyrightImage?.position;
-
-      if (!props.textAndImagePlaceRef.current) return;
-
-      const height = props.textAndImagePlaceRef.current.offsetHeight;
-      const width = props.textAndImagePlaceRef.current.offsetWidth;
-
-      const imageHalf = width / 2 - props.elementRef.offsetWidth / 2;
-
-      const imageWCP = width - props.elementRef.offsetWidth;
-      const imageHCP = height - props.elementRef.offsetHeight;
-
-      const bX = (image?.borderSize?.x ?? 0) + 30 * props.imageScale;
-      const bY = (image?.borderSize?.y ?? 0) + 30 * props.imageScale;
-
-      const defaultPosition = {
-        x: typeof positions?.x === "number" ? positions.x : bX,
-        y: typeof positions?.y === "number" ? positions.y : bY,
-      };
-
-      if (
-        positions &&
-        positions.x !== undefined &&
-        positions.y !== undefined &&
-        typeof positions.x !== "number" &&
-        typeof positions.y !== "number"
-      ) {
-        let x, y;
-
-        x = Number(positions.x);
-        if (Number.isNaN(x)) {
-          x = positions.x.toString().toLowerCase();
-        }
-
-        y = Number(positions.y);
-        if (Number.isNaN(y)) {
-          y = positions.y.toString().toLowerCase();
-        }
-
-        const map: any = {
-          left: {
-            top: { x: bX / imageScale, y: bY / imageScale },
-            center: { x: bX / imageScale, y: imageHCP / 2 / imageScale },
-            bottom: { x: bX / imageScale, y: (imageHCP - bY) / imageScale },
-          },
-          center: {
-            top: { x: imageHalf / imageScale, y: bY / imageScale },
-            center: { x: imageHalf / imageScale, y: imageHCP / 2 / imageScale },
-            bottom: {
-              x: imageHalf / imageScale,
-              y: (imageHCP - bY) / imageScale,
-            },
-          },
-          right: {
-            top: { x: (imageWCP - bX) / imageScale, y: bY / imageScale },
-            center: {
-              x: (imageWCP - bX) / imageScale,
-              y: imageHCP / 2 / imageScale,
-            },
-            bottom: {
-              x: (imageWCP - bX) / imageScale,
-              y: (imageHCP - bY) / imageScale,
-            },
-          },
-        };
-
-        return map[x][y];
-      }
-      return defaultPosition;
-    },
-    //#endregion
-
     //#region "Copyright" kép
     uploadCopyrightImage: (id: number, blob: ArrayBuffer) =>
       set((state) => {
@@ -179,13 +92,21 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     setCopyrightImagePosition: (
       id: number,
       position: { x: XPositions | number; y: YPositions | number },
+      imageScale: number,
     ) =>
       set((state) => {
         const image = state.sessionData.find((img: any) => img.id === id);
-        if (image)
+        if (
+          image &&
+          typeof position.x === "number" &&
+          typeof position.y === "number"
+        )
           image.copyrightImage = {
             ...image.copyrightImage,
-            position: position,
+            position: {
+              x: (position.x ?? 0) / imageScale,
+              y: (position.y ?? 0) / imageScale,
+            },
           };
       }),
     setCopyrightImageOpacity: (id: number, opacity: number) =>
@@ -432,7 +353,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           ...image.texts.slice(textIndex + 1),
         ];
       }),
-    getTextPosition: (selectedImage: number, textId: string, scale: number) => {
+    getTextPosition: (selectedImage: number, textId: string) => {
       const text = get()
         .sessionData.find((si) => si.id === selectedImage)
         ?.texts?.find((st) => st.id === textId)?.position;
@@ -440,12 +361,12 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       return {
         x:
           text?.x !== undefined && typeof text.x === "number"
-            ? (text.x ?? 0)  / scale
-            : (text?.x ?? 0),
+            ? (text.x ?? 0)
+            : 0,
         y:
           text?.y !== undefined && typeof text.y === "number"
-            ? (text.y ?? 0)  / scale
-            : (text?.y ?? 0),
+            ? (text.y ?? 0)
+            : 0,
       };
     },
     setTextPosition: (
@@ -461,72 +382,26 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         const textIndex = image.texts.findIndex(
           (text: any) => text.id === textId,
         );
+
         if (textIndex === -1) return;
 
-        if (position && typeof position.x === "number" && position.x < 0) {
-          toaster.create({
-            type: "error",
-            title: "Hibás érték",
-            description: "Az X értéke nem lehet negatív szám",
-          });
-          let resetPosition = {
-            ...position,
-            x: 0,
-          };
-          image.texts = [
-            ...image.texts.slice(0, textIndex),
-            { ...image.texts[textIndex], position: resetPosition },
-            ...image.texts.slice(textIndex + 1),
-          ];
-          return;
+        const currentPos = image.texts[textIndex].position;
+
+        let newPos = { ...currentPos };
+
+        if (typeof position.x === "number" && position.x !== currentPos.x) {
+          newPos.x = Math.round(position.x / scale);
         }
 
-        if (position && typeof position.y === "number" && position.y < 0) {
-          toaster.create({
-            type: "error",
-            title: "Hibás érték",
-            description: "Az X értéke nem lehet negatív szám",
-          });
-          let resetPosition = {
-            ...position,
-            y: 0,
-          };
-          image.texts = [
-            ...image.texts.slice(0, textIndex),
-            { ...image.texts[textIndex], position: resetPosition },
-            ...image.texts.slice(textIndex + 1),
-          ];
-          return;
+        if (typeof position.y === "number" && position.y !== currentPos.y) {
+          newPos.y = Math.round(position.y / scale);
         }
 
-        if (
-          position &&
-          typeof position.x === "number" &&
-          typeof position.x === "number"
-        ) {
-
-          const endPos = {
-            x: (Number(position.x) ) / scale,
-            y: (Number(position.y) ) / scale,
-          };
-
-          image.texts = [
-            ...image.texts.slice(0, textIndex),
-            { ...image.texts[textIndex], position: endPos },
-            ...image.texts.slice(textIndex + 1),
-          ];
-        } else {
-          const endPos = {
-            x: position.x,
-            y: position.y,
-          };
-
-          image.texts = [
-            ...image.texts.slice(0, textIndex),
-            { ...image.texts[textIndex], position: endPos },
-            ...image.texts.slice(textIndex + 1),
-          ];
-        }
+        image.texts = [
+          ...image.texts.slice(0, textIndex),
+          { ...image.texts[textIndex], position: newPos },
+          ...image.texts.slice(textIndex + 1),
+        ];
       }),
     //#endregion
 
