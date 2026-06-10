@@ -35,7 +35,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         const hald = generateHald(64);
 
         if (hald instanceof HTMLCanvasElement !== true) return null;
-        const haldTexture = Texture.from(hald);
+        const haldTexture = Texture.from(hald);        
         const haldSprite = new Sprite(haldTexture);
 
         const sessionData = {

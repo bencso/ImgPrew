@@ -52,8 +52,9 @@ export default function ExportDrawer() {
     let selectedImage = images.find((i) => i.id === id);
 
     if (!selectedImage) return;
-
+    console.log(selectedImage.blob);
     const blob = await fetch(selectedImage.blob).then((res) => res.blob());
+    console.log(blob);
     const haldBlob = await fetch(exportData.hald).then((res) => res.blob());
 
     const imageBlobFile = new File([blob], `image_${selectedImage.id}`);

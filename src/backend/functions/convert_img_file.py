@@ -18,9 +18,10 @@ class Export:
         allowed_infos: Optional[list[
             EXIF_TAG_NAMES_LIST  # pyright: ignore[reportInvalidTypeForm]
         ]],
-        optimized: Optional[bool]
+        optimized: Optional[bool],
     ) -> str:
         self.image = image
+        print(allowed_infos)
         self.allowed_info = (
             allowed_infos
             if allowed_infos and len(allowed_infos) > 0
@@ -41,7 +42,7 @@ class Export:
     def apply(self) -> dict | None:
         try:
             exif_bytes = None
-            if self.exif_data:
+            if len(self.exif_data) > 0:
                 allowed_set = set(self.allowed_info)
                 filtered_exif = {}
                 for ifd in ("0th", "Exif", "GPS", "1st"):
@@ -49,7 +50,6 @@ class Export:
                     for tag in self.exif_data.get(ifd, {}):
                         tag_name = piexif.TAGS[ifd][tag]["name"]
                         if tag_name in allowed_set:
-                            print(tag_name)
                             filtered_exif[ifd][tag] = self.exif_data[ifd][tag]
                 for ifd in ("thumbnail",):
                     if ifd in allowed_set:
@@ -66,10 +66,12 @@ class Export:
             # if not os.path.exists(UPLOAD_DIR): os.mkdir(UPLOAD_DIR)
             # file_name = f"{uuid.uuid4().hex}.{ext}"
             
-            exif = exif_bytes
+            if exif_bytes:
+                exif = exif_bytes
+            else:
+                exif=piexif.dump({})
             
             buffer = BytesIO()
-            print(self.optimized)
             if self.optimized is True:
                 exif=piexif.dump({})
                 self.image.save(buffer, exif=exif, format=ext, quality=40)

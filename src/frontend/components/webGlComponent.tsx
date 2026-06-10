@@ -123,8 +123,9 @@ export default function WebGlComponent() {
       const app = new Application();
       appRef.current = app;
       await appRef.current.init({
-        backgroundAlpha: 0,
+        backgroundAlpha: 1,
         antialias: true,
+        premultipliedAlpha: true
       });
 
       // @ts-ignore
@@ -150,8 +151,9 @@ export default function WebGlComponent() {
       await appRef.current.init();
 
       const source = new ImageSource({ resource: img });
+      source.scaleMode = "nearest";
       const texture = new Texture({ source });
-
+      
       textureRef.current = texture;
       const sprite = new Sprite(texture);
 

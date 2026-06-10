@@ -55,7 +55,7 @@ class CaptionGenerator:
             return {
                 key: item
                 for key, item in self.exif_helper.get_info().items()
-                if len(item) > 1
+                if item and len(item) > 1
             }
         else:
             return {}

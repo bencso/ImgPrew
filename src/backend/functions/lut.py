@@ -21,7 +21,7 @@ class Lut:
         
     def apply_hald(self):
         img_datas = np.array(self.hald.convert('RGB'))
-        lut_size = len(img_datas)
+        lut_size,_,_ = img_datas.shape
         
         lut_table = img_datas.reshape((lut_size, lut_size, lut_size, 3))
         lut_table = lut_table.transpose((1, 0,2, 3)).reshape(-1, 3) / 255.0
@@ -47,9 +47,9 @@ class Lut:
                         line = line.strip()
                         if not line:
                             continue
-                        if len(lut_table) < lut_size**3:
+                        if lut_table and len(lut_table) < lut_size**3:
                             parts = line.strip().split()
-                            if len(parts) == 3:
+                            if parts and len(parts) == 3:
                                 r, g, b = map(float, parts)
                                 lut_table.append((r, g, b))
                 else:

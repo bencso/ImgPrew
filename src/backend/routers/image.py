@@ -8,12 +8,13 @@ from fastapi.responses import JSONResponse,Response
 from functions.caption_generator import CaptionGenerator
 from functions.border import Border
 from classes.uploadedimage import UploadedImage
-from PIL import ImageOps
+from PIL import ImageOps, ImageCms
 from dependencies import IMAGE_EXTENSIONS
 from functions.watermark import WaterMarking
 import piexif
 from functions.valid_colors import validColors
 from functions.customtext import Text
+from io import BytesIO
 
 router = APIRouter(prefix="/images", tags=["images"])
 
@@ -66,6 +67,14 @@ async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[Up
         file_bytes = await file.read()
         image = UploadedImage(file_bytes)
         image = image.get_img()
+        icc_bytes = image.info.get("icc_profile")
+        image = ImageOps.exif_transpose(image)
+        
+        if icc_bytes:
+            input_profile = ImageCms.ImageCmsProfile(BytesIO(icc_bytes))
+            srgb_profile = ImageCms.createProfile('sRGB')
+            
+            image = ImageCms.profileToProfile(image, input_profile, srgb_profile)
         
         hald= None
         if lut:
@@ -85,7 +94,6 @@ async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[Up
         border_color = validColors(data.get("border_color"))  or "#fff"
         
         texts = data.get("texts") or []
-        print(texts)
         
         expand_mode = data.get("expand_mode") or "no"
         expand_size = data.get("expand_size") or None
@@ -93,15 +101,13 @@ async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[Up
         expand_position = data.get("expand_position") or None
         
         exif_bytes = image.info.get("exif")
-        exif_data = None
+        exif_data = []
         
         if exif_bytes:
             try:
                 exif_data = piexif.load(exif_bytes)
             except Exception as e:
-                print("EXIF load error:", e)
-
-        image = ImageOps.exif_transpose(image)
+                print("EXIF load hiba:", e)        
         
         if hald:
             lut_helper = Lut(hald, image)
@@ -131,7 +137,7 @@ async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[Up
             copyright_image_opacity = int((copyright_image_opacity / 100.0) * 255)
             image = WaterMarking(image, position=copyright_image_position,border_size=border_size).watermark_with_image(cp, copyright_image_size, copyright_image_opacity, border_size)
   
-        if len(texts) > 0:
+        if texts and len(texts) > 0:
             texts_helper = Text(texts, image, border_size)
             image = texts_helper.generate_text()
     
@@ -143,7 +149,7 @@ async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[Up
                 
         return Response(
             content=exporter,
-            media_type="image/jpeg"
+            media_type="image/png"
         )
     except Exception as ex:
         return JSONResponse(
