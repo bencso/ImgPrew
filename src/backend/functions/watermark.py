@@ -58,7 +58,7 @@ class WaterMarking:
 
             x, y = self.position
             if type(x) == int and type(y) == int:
-                image_position = (int(x) + border_size, int(y) + border_size)
+                image_position = (int(x) , int(y))
             else:
                 if x == "LEFT":
                     x = 30 + border_size

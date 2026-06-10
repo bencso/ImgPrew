@@ -135,34 +135,34 @@ export default function CopyrightBlock() {
 }
 
 const ImageManipulationBlock = () => {
-  const { selectedImg, copyrightImageRef, textAndImagePlaceRef, imageScale } =
-    useWorkSession();
+  const {
+    selectedImg,
+    copyrightImageRef,
+    textAndImagePlaceRef,
+    imageScale,
+    selectedScale,
+  } = useWorkSession();
   const {
     setCopyrightImageSize,
     setCopyrightImagePosition,
     setCopyrightImageOpacity,
+    setCopyrightImageRelativePosition,
   } = useSessionStore();
-
-  const imageSize = useSessionStore(
-    (s) => s.sessionData.find((img) => img.id === selectedImg)?.box,
-    shallow,
-  );
 
   const borderSize = useSessionStore(
     (s) => s.sessionData.find((img) => img.id === selectedImg)?.borderSize,
     shallow,
   );
 
+  const copyrightImage = useSessionStore((s) =>
+    s.sessionData.find((sD) => sD.id === selectedImg),
+  )?.copyrightImage;
+
   const imagePosition = useSessionStore(
     (s) =>
       s.sessionData.find((img) => img.id === selectedImg)?.copyrightImage
         ?.position,
-    shallow,
   );
-
-  const copyrightImage = useSessionStore((s) =>
-    s.sessionData.find((sD) => sD.id === selectedImg),
-  )?.copyrightImage;
 
   if (copyrightImageRef) {
     return (
@@ -213,16 +213,19 @@ const ImageManipulationBlock = () => {
 
             <HStack flex="1">
               <NumberInput.Root
-                value={imagePosition?.x.toString() ?? "0"}
+                value={Math.round(
+                  typeof imagePosition?.x == "number"
+                    ? (imagePosition?.x ?? 0) * (selectedScale?.scale ?? 0)
+                    : 0,
+                ).toString()}
                 min={0}
                 onValueChange={(e) => {
                   if (e.value === "-") return;
 
                   const imageWCP =
-                    textAndImagePlaceRef?.current?.offsetWidth ?? 0;
-
+                    textAndImagePlaceRef?.current?.clientWidth ?? 0;
                   const maxX = Math.round(
-                    imageWCP - (copyrightImageRef?.width ?? 0),
+                    imageWCP - (copyrightImageRef.width ?? 0),
                   );
 
                   setCopyrightImagePosition(
@@ -231,7 +234,7 @@ const ImageManipulationBlock = () => {
                       x: minMaxValidation(Number(e.value), 0, maxX),
                       y: imagePosition?.y ?? 0,
                     },
-                    imageScale,
+                    selectedScale?.scale ?? 1,
                   );
                 }}
               >
@@ -245,15 +248,19 @@ const ImageManipulationBlock = () => {
 
             <HStack flex="1">
               <NumberInput.Root
-                value={imagePosition?.y.toString() ?? "0"}
+                value={Math.round(
+                  typeof imagePosition?.y == "number"
+                    ? (imagePosition?.y ?? 0) * (selectedScale?.scale ?? 0)
+                    : 0,
+                ).toString()}
                 min={0}
                 onValueChange={(e) => {
                   if (e.value === "-") return;
-                  const imageHCP =
-                    textAndImagePlaceRef?.current?.offsetHeight ?? 0;
 
+                  const imageHCP =
+                    textAndImagePlaceRef?.current?.clientWidth ?? 0;
                   const maxY = Math.round(
-                    imageHCP - (copyrightImageRef?.height ?? 0),
+                    imageHCP - (copyrightImageRef.width ?? 0),
                   );
 
                   setCopyrightImagePosition(
@@ -262,7 +269,7 @@ const ImageManipulationBlock = () => {
                       x: imagePosition?.x ?? 0,
                       y: minMaxValidation(Number(e.value), 0, maxY),
                     },
-                    imageScale,
+                    selectedScale?.scale ?? 1,
                   );
                 }}
               >
@@ -290,13 +297,22 @@ const ImageManipulationBlock = () => {
               imagePosition.y === YPositions.TOP
             }
             onClick={() => {
+              const position = calculatePosition({
+                positionX: XPositions.LEFT,
+                positionY: YPositions.TOP,
+                elementRef: copyrightImageRef,
+                textAndImagePlaceRef: textAndImagePlaceRef,
+                imageScale: imageScale,
+                borderSize: borderSize,
+              });
+              setCopyrightImageRelativePosition(selectedImg, {
+                x: XPositions.LEFT,
+                y: YPositions.TOP,
+              });
               setCopyrightImagePosition(
                 selectedImg,
-                {
-                  x: XPositions.LEFT,
-                  y: YPositions.TOP,
-                },
-                imageScale,
+                position,
+                selectedScale?.scale ?? 0,
               );
             }}
           >
@@ -320,7 +336,15 @@ const ImageManipulationBlock = () => {
                 imageScale: imageScale,
                 borderSize: borderSize,
               });
-              setCopyrightImagePosition(selectedImg, position, imageScale);
+              setCopyrightImageRelativePosition(selectedImg, {
+                x: XPositions.CENTER,
+                y: YPositions.TOP,
+              });
+              setCopyrightImagePosition(
+                selectedImg,
+                position,
+                selectedScale?.scale ?? 0,
+              );
             }}
           >
             <LuArrowUp />
@@ -343,7 +367,15 @@ const ImageManipulationBlock = () => {
                 imageScale: imageScale,
                 borderSize: borderSize,
               });
-              setCopyrightImagePosition(selectedImg, position, imageScale);
+              setCopyrightImageRelativePosition(selectedImg, {
+                x: XPositions.RIGHT,
+                y: YPositions.TOP,
+              });
+              setCopyrightImagePosition(
+                selectedImg,
+                position,
+                selectedScale?.scale ?? 0,
+              );
             }}
           >
             <LuArrowUpRight />
@@ -367,7 +399,15 @@ const ImageManipulationBlock = () => {
                 imageScale: imageScale,
                 borderSize: borderSize,
               });
-              setCopyrightImagePosition(selectedImg, position, imageScale);
+              setCopyrightImageRelativePosition(selectedImg, {
+                x: XPositions.LEFT,
+                y: YPositions.CENTER,
+              });
+              setCopyrightImagePosition(
+                selectedImg,
+                position,
+                selectedScale?.scale ?? 0,
+              );
             }}
           >
             <LuArrowLeft />
@@ -387,11 +427,18 @@ const ImageManipulationBlock = () => {
                 positionY: YPositions.CENTER,
                 elementRef: copyrightImageRef,
                 textAndImagePlaceRef: textAndImagePlaceRef,
-                imageScale: imageScale,
+                imageScale: selectedScale?.scale ?? 0,
                 borderSize: borderSize,
-                
               });
-              setCopyrightImagePosition(selectedImg, position, imageScale);
+              setCopyrightImageRelativePosition(selectedImg, {
+                x: XPositions.CENTER,
+                y: YPositions.CENTER,
+              });
+              setCopyrightImagePosition(
+                selectedImg,
+                position,
+                selectedScale?.scale ?? 0,
+              );
             }}
           >
             <LuDot />
@@ -414,7 +461,15 @@ const ImageManipulationBlock = () => {
                 imageScale: imageScale,
                 borderSize: borderSize,
               });
-              setCopyrightImagePosition(selectedImg, position, imageScale);
+              setCopyrightImageRelativePosition(selectedImg, {
+                x: XPositions.RIGHT,
+                y: YPositions.CENTER,
+              });
+              setCopyrightImagePosition(
+                selectedImg,
+                position,
+                selectedScale?.scale ?? 0,
+              );
             }}
           >
             <LuArrowRight />
@@ -438,7 +493,15 @@ const ImageManipulationBlock = () => {
                 imageScale: imageScale,
                 borderSize: borderSize,
               });
-              setCopyrightImagePosition(selectedImg, position, imageScale);
+              setCopyrightImageRelativePosition(selectedImg, {
+                x: XPositions.LEFT,
+                y: YPositions.BOTTOM,
+              });
+              setCopyrightImagePosition(
+                selectedImg,
+                position,
+                selectedScale?.scale ?? 0,
+              );
             }}
           >
             <LuArrowDownLeft />
@@ -461,7 +524,15 @@ const ImageManipulationBlock = () => {
                 imageScale: imageScale,
                 borderSize: borderSize,
               });
-              setCopyrightImagePosition(selectedImg, position, imageScale);
+              setCopyrightImageRelativePosition(selectedImg, {
+                x: XPositions.CENTER,
+                y: YPositions.BOTTOM,
+              });
+              setCopyrightImagePosition(
+                selectedImg,
+                position,
+                selectedScale?.scale ?? 0,
+              );
             }}
           >
             <LuArrowDown />
@@ -484,7 +555,15 @@ const ImageManipulationBlock = () => {
                 imageScale: imageScale,
                 borderSize: borderSize,
               });
-              setCopyrightImagePosition(selectedImg, position, imageScale);
+              setCopyrightImageRelativePosition(selectedImg, {
+                x: XPositions.RIGHT,
+                y: YPositions.BOTTOM,
+              });
+              setCopyrightImagePosition(
+                selectedImg,
+                position,
+                selectedScale?.scale ?? 0,
+              );
             }}
           >
             <LuArrowDownRight />

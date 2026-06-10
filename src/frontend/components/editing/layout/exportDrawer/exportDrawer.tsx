@@ -72,19 +72,6 @@ export default function ExportDrawer() {
       );
     }
 
-    const expandScale = Math.min(
-      (selectedImage.expandSize?.width ?? 1) /
-        (selectedImage.dimesions?.width ?? 1),
-      (selectedImage.expandSize?.height ?? 1) /
-        (selectedImage.dimesions?.height ?? 1),
-    );
-
-    const finalScale =
-      selectedImage.expandMode === "expand"
-        ? expandScale
-        : selectedImage.expandMode === "crop"
-          ? (selectedScale?.scale ?? 0)
-          : (selectedScale?.scale ?? 0);
 
     const texts = selectedImage.texts?.map((text) => {
       const canvas = document.createElement("canvas");
@@ -103,18 +90,16 @@ export default function ExportDrawer() {
       };
     });
 
-    console.log(selectedImage.expandSize);
-
     const body = {
       extension: selectedImage.exportSettings?.fileExtension ?? "jpg",
       exif_data: selectedImage.exportSettings?.exifDatas ?? [],
       border_size: selectedImage.borderSize?.x ?? 0,
       border_color: selectedImage.expandBackground ?? "#fff",
       copyright_image_size:
-        (selectedImage.copyrightImage?.size ?? 0) * finalScale,
+        (selectedImage.copyrightImage?.size ?? 0),
       copyright_image_position: {
-        x: Number(selectedImage.copyrightImage?.position?.x) ?? 0,
-        y: Number(selectedImage.copyrightImage?.position?.y) ?? 0,
+        x: (Number(selectedImage.copyrightImage?.position?.x) ?? 0)/ (selectedScale?.scale ?? 0),
+        y: (Number(selectedImage.copyrightImage?.position?.y) ?? 0)/ (selectedScale?.scale ?? 0),
       },
       copyright_image_opacity: selectedImage.copyrightImage?.opacity,
       texts: texts,

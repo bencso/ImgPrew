@@ -35,7 +35,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         const hald = generateHald(64);
 
         if (hald instanceof HTMLCanvasElement !== true) return null;
-        const haldTexture = Texture.from(hald);        
+        const haldTexture = Texture.from(hald);
         const haldSprite = new Sprite(haldTexture);
 
         const sessionData = {
@@ -96,18 +96,39 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     ) =>
       set((state) => {
         const image = state.sessionData.find((img: any) => img.id === id);
-        if (
-          image &&
-          typeof position.x === "number" &&
-          typeof position.y === "number"
-        )
-          image.copyrightImage = {
-            ...image.copyrightImage,
-            position: {
-              x: (position.x ?? 0) / imageScale,
-              y: (position.y ?? 0) / imageScale,
-            },
-          };
+        
+        if (!image) return;
+
+        const currentPos = position;
+
+        let newPos = { ...currentPos };
+
+        if (typeof position.x === "number" && position.x !== currentPos.x) {
+          newPos.x = Math.round(position.x / imageScale);
+        }
+
+        if (typeof position.y === "number" && position.y !== currentPos.y) {
+          newPos.y = Math.round(position.y / imageScale);
+        }
+
+        image.copyrightImage = {
+          ...image.copyrightImage,
+          position: newPos,
+        };
+      }),
+       setCopyrightImageRelativePosition: (
+      id: number,
+      position: { x: XPositions | number; y: YPositions | number },
+    ) =>
+      set((state) => {
+        const image = state.sessionData.find((img: any) => img.id === id);
+        
+        if (!image) return;
+
+        image.copyrightImage = {
+          ...image.copyrightImage,
+          relativePosition: position,
+        };
       }),
     setCopyrightImageOpacity: (id: number, opacity: number) =>
       set((state) => {

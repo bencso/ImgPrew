@@ -75,12 +75,10 @@ export interface DraggableImageEvent {
 //#region CopyRightImage
 export interface CopyrightImage {
   blob?: string;
-  position?: {
-    x: XPositions | number;
-    y: YPositions | number;
-  };
+  position?: DraggableImageEventPosition;
   size?: number;
   opacity?: number;
+  relativePosition?: DraggableImageEventPosition;
 }
 //#endregion
 
@@ -148,10 +146,12 @@ export interface CalculationReFixPositionProps {
   elementRef: HTMLElement;
   textAndImagePlaceRef: RefObject<HTMLDivElement | null>;
   imageScale: number;
-  borderSize: {
-    x: number | null;
-    y: number | null;
-} | undefined;
+  borderSize:
+    | {
+        x: number | null;
+        y: number | null;
+      }
+    | undefined;
 }
 //#endregion
 
@@ -205,10 +205,7 @@ export interface SessionStore {
   //#endregion
 
   //#region Copyright kép
-  uploadCopyrightImage: (
-    id: number,
-    blob: ArrayBuffer,
-  ) => void;
+  uploadCopyrightImage: (id: number, blob: ArrayBuffer) => void;
   clearCopyrightImage: (id: number) => void;
   setCopyrightImagePosition: (
     id: number,
@@ -216,7 +213,14 @@ export interface SessionStore {
       x: XPositions | number;
       y: YPositions | number;
     },
-    imageScale: number
+    imageScale: number,
+  ) => void;
+  setCopyrightImageRelativePosition: (
+    id: number,
+    position: {
+      x: number | XPositions;
+      y: YPositions | number;
+    },
   ) => void;
   setCopyrightImageOpacity: (id: number, opacity: number) => void;
   setCopyrightImageSize: (id: number, size: number) => void;
@@ -275,10 +279,13 @@ export interface SessionStore {
     textId: string,
     fontFamily: string,
   ) => void;
-  getTextPosition: (selectedImage: number, textId: string) => {
+  getTextPosition: (
+    selectedImage: number,
+    textId: string,
+  ) => {
     x: number | XPositions;
     y: number | YPositions;
-}
+  };
   setTextPosition: (
     imageId: number,
     textId: string,
@@ -399,16 +406,6 @@ export interface WorkSessionContextProps {
   webglFilterRef: RefObject<Filter | null>;
   imageScale: number;
   setImageScale: Dispatch<SetStateAction<number>>;
-  cpPosition: {
-    x: number;
-    y: number;
-  };
-  setCpPosition: Dispatch<
-    SetStateAction<{
-      x: number;
-      y: number;
-    }>
-  >;
   textPositions: Record<
     string,
     {

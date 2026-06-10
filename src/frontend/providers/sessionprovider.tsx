@@ -39,10 +39,6 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
   const lutFilterRef = useRef<ColorMapFilter | null>(null);
   
   const [imageScale, setImageScale] = useState<number>(1);
-  const [cpPosition, setCpPosition] = useState<{ x: number; y: number }>({
-    x: 5,
-    y: 5,
-  });
 
   const [textPositions, setTextPositions] = useState<
     Record<string, { x: number; y: number }>
@@ -78,8 +74,6 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       lutFilterRef,
       imageScale,
       setImageScale,
-      cpPosition,
-      setCpPosition,
       textPositions,
       setTextPositions
     }),
@@ -102,7 +96,6 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       selectedChannel,
       lutFilterRef,
       imageScale,
-      cpPosition,
       textPositions
     ],
   );

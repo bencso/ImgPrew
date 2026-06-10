@@ -22,7 +22,6 @@ export default function ImageWorkPlace() {
     selectedScale,
     workPlaceRef,
     textAndImagePlaceRef,
-    imageScale,
   } = useWorkSession();
   const { setCropBox, setTextPosition, getTextPosition } = useSessionStore();
 
@@ -38,10 +37,6 @@ export default function ImageWorkPlace() {
     shallow,
   );
 
-  const borderSize = useSessionStore(
-    (state) =>
-      state.sessionData.find((si) => si.id === selectedImg)?.borderSize,
-  );
 
   const expandMode = useSessionStore(
     (state) =>
@@ -114,7 +109,7 @@ export default function ImageWorkPlace() {
         >
           {texts.map((element: DraggableImageEvent, index: number) => {
             const textPosition = getTextPosition(selectedImg, element.id);
-            console.log(textPosition);
+            
 
             const canvas = document.createElement("canvas");
             const ctx = canvas.getContext("2d");
@@ -214,10 +209,10 @@ export default function ImageWorkPlace() {
               }}
               src={copyrightImage.blob}
               alt="copyright"
-              w={`${(copyrightImage?.size ?? 0) * imageScale}px`}
+              w={`${(copyrightImage?.size ?? 0) * (selectedScale?.scale??0)}px`}
               position={"relative"}
-              left={Number(cpPosition?.x ?? 0) * imageScale + "px"}
-              top={Number(cpPosition?.y ?? 0) * imageScale + "px"}
+              left={Number(cpPosition?.x ?? 0) + "px"}
+              top={Number(cpPosition?.y ?? 0) + "px"}
               opacity={Number(copyrightImage.opacity) / 100}
               draggable={false}
               userSelect={"none"}
