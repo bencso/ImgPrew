@@ -3,6 +3,10 @@
 import { toaster } from "@/components/ui/toaster";
 import { FileUploadList } from "@/components/upload/fileuploadlist";
 import { uploadFile } from "@/handlers/fileUpload";
+import {
+  UPLOAD_ACCEPTED_FILES,
+  UPLOAD_MAX_FILES,
+} from "@/interfaces/upload.interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import {
@@ -16,33 +20,24 @@ import {
 import { LuUpload } from "react-icons/lu";
 import { BeatLoader } from "react-spinners";
 
-const MAX_FILES = 5;
-export const ACCEPTED_FILES = [
-  "image/avif",
-  "image/jpeg",
-  "image/png",
-  "image/tiff",
-  "image/webp",
-];
+export default function UploadImageBlock() {
+  const { isLoading, setIsLoading, setStep, setSelectedImg } = useWorkSession();
+  const { addImage } = useSessionStore();
 
-export const ImageDropZone = () => {
   const fileUpload = useFileUpload({
-    maxFiles: MAX_FILES,
-    accept: ACCEPTED_FILES.join(","),
+    maxFiles: UPLOAD_MAX_FILES,
+    accept: UPLOAD_ACCEPTED_FILES.join(","),
     onFileReject(details) {
       if (details.files.length > 0) {
         toaster.create({
           title: "Hiba történt feltöltés közben!",
-          description: `Maximum ${MAX_FILES} fájlt tölthetsz fel.`,
+          description: `Maximum ${UPLOAD_MAX_FILES} fájlt tölthetsz fel.`,
           type: "error",
         });
       }
       return (details.files = []);
     },
   });
-
-  const { isLoading, setIsLoading, setStep, setSelectedImg } = useWorkSession();
-  const { addImage } = useSessionStore();
 
   return (
     <Stack
@@ -56,7 +51,7 @@ export const ImageDropZone = () => {
       p={4}
       alignItems={"center"}
     >
-      <FileUpload.RootProvider value={fileUpload} w="full" >
+      <FileUpload.RootProvider value={fileUpload} w="full">
         <FileUpload.HiddenInput />
         <FileUpload.Dropzone
           w={"full"}
@@ -74,7 +69,7 @@ export const ImageDropZone = () => {
           <FileUpload.DropzoneContent>
             <Box>Húzza be a feltölteni kívánt fájlokat</Box>
             <Box color="fg.muted" fontSize={"xs"} fontWeight={"light"}>
-              {ACCEPTED_FILES.map((file) => {
+              {UPLOAD_ACCEPTED_FILES.map((file) => {
                 return file.replaceAll("image/", "");
               }).join(", ")}
             </Box>
@@ -112,4 +107,4 @@ export const ImageDropZone = () => {
       )}
     </Stack>
   );
-};
+}

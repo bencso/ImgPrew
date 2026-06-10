@@ -374,7 +374,6 @@ export default function WebGlComponent() {
       let spY = canvasH / 2;
 
       spriteRef.current.anchor = 0.5;
-      appRef.current.renderer.background.color = "transparent";
 
       if (expandMode === "crop" && cropSaved === true) {
         if (

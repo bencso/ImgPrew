@@ -14,8 +14,8 @@ export const calculatePosition = (props: CalculationReFixPositionProps) => {
   const imageWCP = width - props.elementRef.offsetWidth / imageScale;
   const imageHCP = height - props.elementRef.offsetHeight / imageScale;
 
-  const bX = 30 + (props.borderSize?.x ?? 0);
-  const bY = 30 + (props.borderSize?.x ?? 0);
+  const bX = props.borderSize?.x ?? 0;
+  const bY = props.borderSize?.x ?? 0;
 
   x = props.positionX ?? bX;
   y = props.positionY ?? bY;

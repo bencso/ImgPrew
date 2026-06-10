@@ -16,6 +16,7 @@ import {
   NumberInput,
   Text,
 } from "@chakra-ui/react";
+import { useEffect } from "react";
 import {
   LuArrowDown,
   LuArrowDownLeft,
@@ -128,14 +129,9 @@ function TextPositionInputs(props: TextBlockPositionProps) {
 }
 
 export function TextBlockPosition(props: TextBlockPositionProps) {
-  const { setTextPosition } = useSessionStore();
-  const {
-    selectedImg,
-    imageScale,
-    textAndImagePlaceRef,
-    textElements,
-    selectedScale,
-  } = useWorkSession();
+  const { setTextPosition, setTextRelativePosition } = useSessionStore();
+  const { selectedImg, textAndImagePlaceRef, textElements, selectedScale } =
+    useWorkSession();
 
   const borderSize = useSessionStore(
     (s) => s.sessionData.find((img) => img.id === selectedImg)?.borderSize,
@@ -172,8 +168,12 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
               positionY: YPositions.TOP,
               elementRef: textElements[props.id],
               textAndImagePlaceRef: textAndImagePlaceRef,
-              imageScale:  selectedScale?.scale ?? 0,
+              imageScale: selectedScale?.scale ?? 0,
               borderSize: borderSize,
+            });
+            setTextRelativePosition(selectedImg, props.id, {
+              x: XPositions.LEFT,
+              y: YPositions.TOP,
             });
             setTextPosition(
               selectedImg,
@@ -200,8 +200,12 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
               positionY: YPositions.TOP,
               elementRef: textElements[props.id],
               textAndImagePlaceRef: textAndImagePlaceRef,
-              imageScale:  selectedScale?.scale ?? 0,
+              imageScale: selectedScale?.scale ?? 0,
               borderSize: borderSize,
+            });
+            setTextRelativePosition(selectedImg, props.id, {
+              x: XPositions.CENTER,
+              y: YPositions.TOP,
             });
             setTextPosition(
               selectedImg,
@@ -228,8 +232,12 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
               positionY: YPositions.TOP,
               elementRef: textElements[props.id],
               textAndImagePlaceRef: textAndImagePlaceRef,
-              imageScale:  selectedScale?.scale ?? 0,
+              imageScale: selectedScale?.scale ?? 0,
               borderSize: borderSize,
+            });
+            setTextRelativePosition(selectedImg, props.id, {
+              x: XPositions.RIGHT,
+              y: YPositions.TOP,
             });
             setTextPosition(
               selectedImg,
@@ -257,8 +265,12 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
               positionY: YPositions.CENTER,
               elementRef: textElements[props.id],
               textAndImagePlaceRef: textAndImagePlaceRef,
-              imageScale:  selectedScale?.scale ?? 0,
+              imageScale: selectedScale?.scale ?? 0,
               borderSize: borderSize,
+            });
+            setTextRelativePosition(selectedImg, props.id, {
+              x: XPositions.LEFT,
+              y: YPositions.CENTER,
             });
             setTextPosition(
               selectedImg,
@@ -285,10 +297,13 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
               positionY: YPositions.CENTER,
               elementRef: textElements[props.id],
               textAndImagePlaceRef: textAndImagePlaceRef,
-              imageScale:  selectedScale?.scale ?? 0,
+              imageScale: selectedScale?.scale ?? 0,
               borderSize: borderSize,
             });
-
+            setTextRelativePosition(selectedImg, props.id, {
+              x: XPositions.CENTER,
+              y: YPositions.CENTER,
+            });
             setTextPosition(
               selectedImg,
               props.id,
@@ -314,8 +329,12 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
               positionY: YPositions.CENTER,
               elementRef: textElements[props.id],
               textAndImagePlaceRef: textAndImagePlaceRef,
-              imageScale:  selectedScale?.scale ?? 0,
+              imageScale: selectedScale?.scale ?? 0,
               borderSize: borderSize,
+            });
+            setTextRelativePosition(selectedImg, props.id, {
+              x: XPositions.RIGHT,
+              y: YPositions.CENTER,
             });
             setTextPosition(
               selectedImg,
@@ -343,8 +362,12 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
               positionY: YPositions.BOTTOM,
               elementRef: textElements[props.id],
               textAndImagePlaceRef: textAndImagePlaceRef,
-              imageScale:  selectedScale?.scale ?? 0,
+              imageScale: selectedScale?.scale ?? 0,
               borderSize: borderSize,
+            });
+             setTextRelativePosition(selectedImg, props.id, {
+              x: XPositions.LEFT,
+              y: YPositions.BOTTOM,
             });
             setTextPosition(
               selectedImg,
@@ -371,8 +394,12 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
               positionY: YPositions.BOTTOM,
               elementRef: textElements[props.id],
               textAndImagePlaceRef: textAndImagePlaceRef,
-              imageScale:  selectedScale?.scale ?? 0,
+              imageScale: selectedScale?.scale ?? 0,
               borderSize: borderSize,
+            });
+             setTextRelativePosition(selectedImg, props.id, {
+              x: XPositions.CENTER,
+              y: YPositions.BOTTOM,
             });
             setTextPosition(
               selectedImg,
@@ -399,8 +426,12 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
               positionY: YPositions.BOTTOM,
               elementRef: textElements[props.id],
               textAndImagePlaceRef: textAndImagePlaceRef,
-              imageScale:  selectedScale?.scale ?? 0,
+              imageScale: selectedScale?.scale ?? 0,
               borderSize: borderSize,
+            });
+             setTextRelativePosition(selectedImg, props.id, {
+              x: XPositions.RIGHT,
+              y: YPositions.BOTTOM,
             });
             setTextPosition(
               selectedImg,

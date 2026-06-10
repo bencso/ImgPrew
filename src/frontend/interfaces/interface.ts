@@ -64,6 +64,7 @@ export interface DraggableImageEvent {
   id: string;
   text: string;
   position: DraggableImageEventPosition;
+  relativePosition?: DraggableImageEventPosition;
   enabled: boolean;
   fontSize: number;
   fontFamily: string;
@@ -294,6 +295,14 @@ export interface SessionStore {
       y: number | YPositions;
     },
     scale: number,
+  ) => void;
+  setTextRelativePosition: (
+    imageId: number,
+    textId: string,
+    position: {
+      x: number | XPositions;
+      y: number | YPositions;
+    },
   ) => void;
   setTextColor: (imageId: number, textId: string, color: string) => void;
   setTextOpacity: (imageId: number, textId: string, opacity: number) => void;

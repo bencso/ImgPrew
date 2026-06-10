@@ -1,17 +1,17 @@
 //TODO: Refaktorálni
 
-import {
-  calculationTypeEnum,
-  DraggableImageEvent,
-} from "@/interfaces/interface";
+import { DraggableImageEvent } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { Box, Flex, Grid, GridItem, Image, Span } from "@chakra-ui/react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { shallow } from "zustand/shallow";
 import WebGlComponent from "../webGlComponent";
 import { Rnd } from "react-rnd";
 import { minMaxValidation } from "@/helper/errorHelper";
+import { CropGrid } from "../ui/cropgrid";
+import { isXPositions, isYPositions } from "@/helper/checkXYPositions";
+import { calculatePosition } from "@/helper/calculationPosition";
 
 export default function ImageWorkPlace() {
   const {
@@ -24,42 +24,18 @@ export default function ImageWorkPlace() {
     textAndImagePlaceRef,
   } = useWorkSession();
   const { setCropBox, setTextPosition, getTextPosition } = useSessionStore();
-
-  const box = useSessionStore(
-    (state) => state.sessionData.find((si) => si.id === selectedImg)?.box,
-    shallow,
-  );
-
-  const cpPosition = useSessionStore(
-    (state) =>
-      state.sessionData.find((si) => si.id === selectedImg)?.copyrightImage
-        ?.position,
-    shallow,
-  );
-
-
-  const expandMode = useSessionStore(
-    (state) =>
-      state.sessionData.find((si) => si.id === selectedImg)?.expandMode,
-  );
-
+  //TODO: Refaktorálás -> a sok különböző usesessionstore helyett egy is elég hisz mindegyik image
   const image = useSessionStore((state) =>
     state.sessionData.find((si) => si.id === selectedImg),
   );
 
-  const copyrightImage = useSessionStore(
-    (s) => s.sessionData.find((sD) => sD.id === selectedImg)?.copyrightImage,
-  );
-
-  const texts = useSessionStore(
-    (s) => s.sessionData.find((si) => si.id === selectedImg)?.texts || [],
-    shallow,
-  );
-
-  const cropSaved = useSessionStore(
-    (s) => s.sessionData.find((si) => si.id === selectedImg)?.cropSave || false,
-    shallow,
-  );
+  const box = image?.box;
+  const cpPosition = image?.copyrightImage?.position;
+  const expandMode = image?.expandMode;
+  const copyrightImage = image?.copyrightImage;
+  const borderSize = image?.borderSize;
+  const texts = image?.texts ?? [];
+  const cropSaved = image?.cropSave ?? false;
 
   const setTextRef = useCallback(
     (textId: string) => (el: any) => {
@@ -69,6 +45,31 @@ export default function ImageWorkPlace() {
     },
     [textElements],
   );
+
+  useEffect(() => {
+    if (!texts) return;
+    texts.forEach((text) => {
+      const textPosition = text.relativePosition;
+      if (!isXPositions(textPosition?.x) || !isYPositions(textPosition?.y)) {
+        return;
+      }
+
+      const position = calculatePosition({
+        positionX: textPosition.x,
+        positionY: textPosition.y,
+        elementRef: textElements[text.id],
+        textAndImagePlaceRef: textAndImagePlaceRef,
+        imageScale: selectedScale?.scale ?? 0,
+        borderSize: borderSize,
+      });
+      setTextPosition(
+        selectedImg,
+        text.id,
+        position,
+        selectedScale?.scale ?? 0,
+      );
+    });
+  }, [selectedScale]);
 
   const cropboxScale = Math.min(
     (textAndImagePlaceRef.current?.clientWidth ?? 0) /
@@ -109,7 +110,6 @@ export default function ImageWorkPlace() {
         >
           {texts.map((element: DraggableImageEvent, index: number) => {
             const textPosition = getTextPosition(selectedImg, element.id);
-            
 
             const canvas = document.createElement("canvas");
             const ctx = canvas.getContext("2d");
@@ -126,23 +126,9 @@ export default function ImageWorkPlace() {
                   zIndex: 11 + index,
                 }}
                 enableResizing={false}
-                onDragStop={(e, d) => {
+                onDragStop={(_e, d) => {
                   const x = d.lastX;
                   const y = d.lastY;
-
-                  console.log("x,y");
-                  console.log(
-                    Math.round(x * (selectedScale?.scale ?? 0)),
-                    Math.round(y * (selectedScale?.scale ?? 0)),
-                  );
-                  console.log({
-                    width: textFont.width / (selectedScale?.scale ?? 0),
-                    height:
-                      textFont.fontBoundingBoxAscent /
-                        (selectedScale?.scale ?? 0) +
-                      textFont.fontBoundingBoxDescent /
-                        (selectedScale?.scale ?? 0),
-                  });
 
                   setTextPosition(
                     selectedImg,
@@ -166,7 +152,7 @@ export default function ImageWorkPlace() {
                 }}
               >
                 {
-                  //TODO: Mobilon nem lehet olyan kicsit tet bizonyos esetekben erre megoldást
+                  //TODO: Font méretezés néha nem lehet olyan kicsi mint kéne, erre valami megoldás?!
                 }
                 <Span
                   id={element.id}
@@ -209,7 +195,7 @@ export default function ImageWorkPlace() {
               }}
               src={copyrightImage.blob}
               alt="copyright"
-              w={`${(copyrightImage?.size ?? 0) * (selectedScale?.scale??0)}px`}
+              w={`${(copyrightImage?.size ?? 0) * (selectedScale?.scale ?? 0)}px`}
               position={"relative"}
               left={Number(cpPosition?.x ?? 0) + "px"}
               top={Number(cpPosition?.y ?? 0) + "px"}
@@ -238,7 +224,7 @@ export default function ImageWorkPlace() {
               style={{
                 zIndex: 1000,
               }}
-              onDragStop={(e, d) => {
+              onDragStop={(_e, d) => {
                 setCropBox({
                   id: selectedImg,
                   box: {
@@ -253,7 +239,7 @@ export default function ImageWorkPlace() {
                   },
                 });
               }}
-              onResizeStop={(e, direction, ref, delta, position) => {
+              onResizeStop={(_e, _direction, ref, _delta, position) => {
                 const minH = 300;
                 const minW = 300;
                 const h = parseFloat(ref.style.height) ?? minH;
@@ -277,108 +263,7 @@ export default function ImageWorkPlace() {
                 });
               }}
             >
-              <Grid
-                position="absolute"
-                top="0"
-                left="0"
-                w="100%"
-                h="100%"
-                templateColumns="repeat(3, 1fr)"
-                templateRows="repeat(3, 1fr)"
-                pointerEvents="none"
-                border="2px solid white"
-                borderCollapse={"collapse"}
-              >
-                {Array.from({ length: 9 }).map((_, i) => (
-                  <GridItem
-                    key={i}
-                    border="1px dashed rgba(255, 255, 255, 0.5)"
-                  />
-                ))}
-                <Box
-                  h={"full"}
-                  w={"full"}
-                  position={"absolute"}
-                  boxShadow="1px 1px 0px 100vh #00000047"
-                >
-                  <Box
-                    position="absolute"
-                    top={"-0.5"}
-                    left={"-0.5"}
-                    w="20px"
-                    h="20px"
-                    borderTop="2px solid"
-                    borderLeft="2px solid"
-                    borderColor="white"
-                  />
-                  <Box
-                    position="absolute"
-                    top={"-0.5"}
-                    right={"-0.5"}
-                    w="20px"
-                    h="20px"
-                    borderTop="2px solid"
-                    borderRight="2px solid"
-                    borderColor="white"
-                  />
-                  <Box
-                    position="absolute"
-                    top={"-0.5"}
-                    left={"calc(50% - 15px )"}
-                    translateX={"-50%"}
-                    w="30px"
-                    borderTop="2px solid"
-                    borderColor="white"
-                  />
-                  <Box
-                    position="absolute"
-                    bottom={"-0.5"}
-                    left={"calc(50% - 15px)"}
-                    translateX={"-50%"}
-                    w="30px"
-                    borderTop="2px solid"
-                    borderColor="white"
-                  />
-                  <Box
-                    position="absolute"
-                    left={"-0.5"}
-                    top={"calc(50% - 15px)"}
-                    translateY={"-50%"}
-                    h="30px"
-                    borderLeft="2px solid"
-                    borderColor="white"
-                  />
-                  <Box
-                    position="absolute"
-                    right={"-0.5"}
-                    top={"calc(50% - 15px)"}
-                    translateY={"-50%"}
-                    h="30px"
-                    borderRight="2px solid"
-                    borderColor="white"
-                  />
-                  <Box
-                    position="absolute"
-                    bottom={"-0.5"}
-                    right={"-0.5"}
-                    w="20px"
-                    h="20px"
-                    borderBottom="2px solid"
-                    borderRight="2px solid"
-                    borderColor="white"
-                  />
-                  <Box
-                    position="absolute"
-                    bottom={"-0.5"}
-                    left={"-0.5"}
-                    w="20px"
-                    h="20px"
-                    borderBottom="2px solid"
-                    borderLeft="2px solid"
-                    borderColor="white"
-                  />
-                </Box>
-              </Grid>
+              <CropGrid />
             </Rnd>
           )}
         </Box>

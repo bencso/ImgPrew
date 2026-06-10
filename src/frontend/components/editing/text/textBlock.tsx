@@ -20,18 +20,17 @@ import { TextBlockWeight } from "./textblocks/weightBlock";
 import { TextBlockFamily } from "./textblocks/fontFamilyBlock";
 
 export default function TextBlock() {
-  const { selectedImg, textElements, textAndImagePlaceRef, imageScale } = useWorkSession();
+  const { selectedImg, textElements, textAndImagePlaceRef } = useWorkSession();
   const { addTexts, deleteText, getTextPosition, editText } = useSessionStore();
+  const [editId, setEditId] = useState<string | null>(null);
+  const [text, setText] = useState("");
 
   const texts = useSessionStore(
     (s) => s.sessionData.find((si) => si.id === selectedImg)?.texts || [],
     shallow,
   );
 
-  const [editId, setEditId] = useState<string | null>(null);
-  const [text, setText] = useState("");
-
-  const textFromStore = useSessionStore(
+  const getText = useSessionStore(
     (s) =>
       s.sessionData
         .find((i) => i.id === selectedImg)
@@ -41,8 +40,8 @@ export default function TextBlock() {
 
   useEffect(() => {
     if (!editId) return;
-    setText(textFromStore);
-  }, [editId, textFromStore]);
+    setText(getText);
+  }, [editId, getText]);
 
   return (
     <Box>

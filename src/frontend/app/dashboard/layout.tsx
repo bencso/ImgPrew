@@ -1,8 +1,7 @@
 "use client";
 
-import { Box, Flex, Skeleton, useBreakpointValue } from "@chakra-ui/react";
+import { Box, Flex, useBreakpointValue } from "@chakra-ui/react";
 import SideBar from "@/components/editing/layout/sidebar";
-import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { usePathname } from "next/navigation";
 import { LeftSide } from "@/components/sidebar/leftside";
@@ -13,7 +12,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { selectedImg, isLoading } = useWorkSession();
   const { sessionData } = useSessionStore();
   const path = usePathname();
   const isEditor = path === "/dashboard";
@@ -39,17 +37,11 @@ export default function RootLayout({
           justifyContent={"center"}
           alignItems={"center"}
         >
-          {sessionData.length > 0 && isEditor && (
-            
-              <ImagesSide />
-            
-          )}
+          {sessionData.length > 0 && isEditor && <ImagesSide />}
           <Box h={"full"} w={"full"} p={4} boxSizing={"border-box"}>
             {children}
           </Box>
-          {sessionData.length > 0 && isEditor && (
-              <SideBar />
-          )}
+          {sessionData.length > 0 && isEditor && <SideBar />}
         </Flex>
       </Flex>
     </Flex>

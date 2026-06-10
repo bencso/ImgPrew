@@ -96,7 +96,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     ) =>
       set((state) => {
         const image = state.sessionData.find((img: any) => img.id === id);
-        
+
         if (!image) return;
 
         const currentPos = position;
@@ -116,13 +116,13 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           position: newPos,
         };
       }),
-       setCopyrightImageRelativePosition: (
+    setCopyrightImageRelativePosition: (
       id: number,
       position: { x: XPositions | number; y: YPositions | number },
     ) =>
       set((state) => {
         const image = state.sessionData.find((img: any) => img.id === id);
-        
+
         if (!image) return;
 
         image.copyrightImage = {
@@ -421,6 +421,27 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         image.texts = [
           ...image.texts.slice(0, textIndex),
           { ...image.texts[textIndex], position: newPos },
+          ...image.texts.slice(textIndex + 1),
+        ];
+      }),
+    setTextRelativePosition: (
+      imageId: number,
+      textId: string,
+      position: { x: number | XPositions; y: number | YPositions },
+    ) =>
+      set((state) => {
+        const image = state.sessionData.find((img: any) => img.id === imageId);
+        if (!image || !image.texts || !image.dimesions) return;
+
+        const textIndex = image.texts.findIndex(
+          (text: any) => text.id === textId,
+        );
+
+        if (textIndex === -1) return;
+
+        image.texts = [
+          ...image.texts.slice(0, textIndex),
+          { ...image.texts[textIndex], relativePosition: position },
           ...image.texts.slice(textIndex + 1),
         ];
       }),
