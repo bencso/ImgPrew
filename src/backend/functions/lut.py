@@ -22,6 +22,7 @@ class Lut:
     def apply_hald(self):
         img_datas = np.array(self.hald.convert('RGB'))
         lut_size,_,_ = img_datas.shape
+        print(lut_size)
         
         lut_table = img_datas.reshape((lut_size, lut_size, lut_size, 3))
         lut_table = lut_table.transpose((1, 0,2, 3)).reshape(-1, 3) / 255.0

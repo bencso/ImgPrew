@@ -3,19 +3,20 @@ import { CalculationReFixPositionProps } from "@/interfaces/interface";
 export const calculatePosition = (props: CalculationReFixPositionProps) => {
   const imageScale = props.imageScale;
 
-  if (!props.textAndImagePlaceRef.current) return;
+  console.log(props.referenceElement.current);
+  if (!props.referenceElement.current) return;
   let x, y;
 
-  const height = props.textAndImagePlaceRef.current.offsetHeight / imageScale;
-  const width = props.textAndImagePlaceRef.current.offsetWidth / imageScale;
+  const height = props.referenceElement.current.offsetHeight / imageScale;
+  const width = props.referenceElement.current.offsetWidth / imageScale;
 
   const imageHalf = width / 2 - props.elementRef.offsetWidth / imageScale / 2;
 
   const imageWCP = width - props.elementRef.offsetWidth / imageScale;
   const imageHCP = height - props.elementRef.offsetHeight / imageScale;
 
-  const bX = props.borderSize?.x ?? 0;
-  const bY = props.borderSize?.x ?? 0;
+  const bX = props.borderSize?.x ?? 30;
+  const bY = props.borderSize?.x ?? 30;
 
   x = props.positionX ?? bX;
   y = props.positionY ?? bY;

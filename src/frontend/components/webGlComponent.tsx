@@ -1,4 +1,5 @@
 //TODO: Refaktorálás
+//TODO: Jelenleg a croppolás a nagyobb resolution miatt elcsúszik ennek javítása
 import { allFiltersFragment } from "@/handlers/filters/allFiltersFragment";
 import { calculationTypeEnum, ParamProps } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
@@ -16,7 +17,7 @@ import {
   Texture,
   UniformGroup,
 } from "pixi.js";
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { shallow } from "zustand/shallow";
 
 export function getChannelOffsets(params: ParamProps) {
@@ -51,15 +52,14 @@ export default function WebGlComponent() {
     spriteRef,
     appRef,
     workPlaceRef,
-    textAndImagePlaceRef,
     webglFilterRef,
     selectedScale,
     setImageScale,
     overlayRef,
+    canvasRef,
   } = useWorkSession();
   const { sessionData, setImageSize } = useSessionStore();
 
-  const canvasRef = useRef<HTMLElement | null>(null);
   const filtersRef = useRef<Container | null>(null);
 
   const lutFilter = useSessionStore(
@@ -118,38 +118,51 @@ export default function WebGlComponent() {
     shallow,
   );
 
+  async function initApp() {
+    const app = new Application();
+
+    await app.init({
+      resolution: window.devicePixelRatio,
+      autoDensity: true,
+      antialias: true,
+    });
+
+    appRef.current = app;
+
+    canvasRef.current?.appendChild(app.canvas);
+
+    // @ts-ignore
+    window.__PIXI_DEVTOOLS__ = {
+      app,
+    };
+
+    // @ts-ignore
+    globalThis.__PIXI_APP__ = app;
+
+    return () => {
+      canvasRef.current?.removeChild(app.canvas);
+    };
+  }
+
   useEffect(() => {
-    async function initApp() {
-      const app = new Application();
-      appRef.current = app;
-      await appRef.current.init({
-        backgroundAlpha: 1,
-      });
-
-      // @ts-ignore
-      window.__PIXI_DEVTOOLS__ = {
-        app,
-      };
-
-      // @ts-ignore
-      globalThis.__PIXI_APP__ = app;
-    }
-
-    initApp();
+    (async () => {
+      await initApp();
+      await loadImage();
+    })();
   }, []);
 
   async function loadImage() {
-    if (!appRef.current) return;
+    if (!appRef.current) {
+      return;
+    }
 
     const img = new Image();
 
     img.onload = async () => {
       if (!appRef.current) return;
-
-      await appRef.current.init();
+      console.log("teszt");
 
       const source = new ImageSource({ resource: img });
-      source.scaleMode = "nearest";
       const texture = new Texture({ source });
       const overlay = new Container();
 
@@ -163,8 +176,10 @@ export default function WebGlComponent() {
       )[0];
 
       if (prevStage) appRef.current.stage.removeChild(prevStage);
+
       appRef.current.stage.addChild(sprite);
       appRef.current.stage.addChild(overlay);
+
       spriteRef.current = sprite;
       overlayRef.current = overlay;
 
@@ -181,7 +196,7 @@ export default function WebGlComponent() {
   }
 
   useEffect(() => {
-    if (!canvasRef.current) return;
+    if (!canvasRef.current && !appRef.current) return;
 
     const container = new Container();
     filtersRef.current = container;
@@ -262,7 +277,7 @@ export default function WebGlComponent() {
 
       webglFilterRef.current.padding = 0;
 
-      spriteRef.current.roundPixels = false;
+      spriteRef.current.roundPixels = true;
 
       if (lutFilter) {
         if (spriteRef.current)
@@ -327,8 +342,7 @@ export default function WebGlComponent() {
     const areaH = workPlaceRef.current.offsetHeight;
 
     if (expandMode === "expand" && expandSize) {
-      if (!textAndImagePlaceRef.current || !textureRef.current || !imageSize)
-        return;
+      if (!canvasRef.current || !textureRef.current || !imageSize) return;
 
       const h = expandSize.height;
       const w = expandSize.width;
@@ -355,15 +369,15 @@ export default function WebGlComponent() {
       spriteRef.current.width = scaledImageW * scale;
       spriteRef.current.height = scaledImageH * scale;
 
-      spriteRef.current.x = appRef.current.canvas.width / 2;
-      spriteRef.current.y = appRef.current.canvas.height / 2;
+      spriteRef.current.x = (Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0) / 2;
+      spriteRef.current.y = (Number(appRef.current.canvas.style.height.replace("px", "")) ?? 0) / 2;
 
       setSelectedScale({
         image: { height: h, width: w },
         scale: canvasScale,
         position: {
-          x: appRef.current.canvas.width / 2,
-          y: appRef.current.canvas.height / 2,
+          x:(Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0) / 2,
+          y: (Number(appRef.current.canvas.style.height.replace("px", "")) ?? 0) / 2,
         },
       });
 
@@ -395,7 +409,7 @@ export default function WebGlComponent() {
           !box.y ||
           !box.height ||
           !box.width ||
-          !textAndImagePlaceRef.current
+          !canvasRef.current
         )
           return;
 
@@ -449,8 +463,7 @@ export default function WebGlComponent() {
 
         const appW = Math.floor(targetW * scale);
         const appH = Math.floor(targetH * scale);
-        console.log("target");
-        console.log(targetW, targetH);
+
         appRef.current.renderer.resize(appW, appH);
 
         appRef.current.renderer.background.color =
@@ -459,10 +472,9 @@ export default function WebGlComponent() {
         spriteRef.current.height = canvasH * scale;
         spriteRef.current.width = canvasW * scale;
         spriteRef.current.anchor = 0.5;
-        spriteRef.current.x = appRef.current.canvas.width / 2;
-        spriteRef.current.y = appRef.current.canvas.height / 2;
+        spriteRef.current.x = (Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0) / 2;
+        spriteRef.current.y =  (Number(appRef.current.canvas.style.height.replace("px", "")) ?? 0) / 2;
 
-        console.log(borderSize);
         setSelectedScale({
           image: {
             height: targetH,
@@ -470,8 +482,8 @@ export default function WebGlComponent() {
           },
           scale: scale,
           position: {
-            x: appRef.current.canvas.width / 2,
-            y: appRef.current.canvas.height / 2,
+            x:  (Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0) / 2,
+            y:  (Number(appRef.current.canvas.style.height.replace("px", "")) ?? 0) / 2,
           },
         });
       }
@@ -516,9 +528,6 @@ export default function WebGlComponent() {
         const canvasW = w * canvasScale;
         const canvasH = h * canvasScale;
 
-        console.log("Image size ( H - W)");
-        console.log(h, w);
-
         appRef.current.renderer.background.color =
           parseColor(expandBackground).toString("rgba");
         appRef.current.renderer.resize(canvasW, canvasH);
@@ -528,29 +537,33 @@ export default function WebGlComponent() {
 
         spriteRef.current.width = spW;
         spriteRef.current.height = spH;
-
-        spriteRef.current.x = appRef.current.canvas.width / 2;
-        spriteRef.current.y = appRef.current.canvas.height / 2;
+        
+        spriteRef.current.x =
+          (Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0) /
+          2;
+        spriteRef.current.y =
+          (Number(appRef.current.canvas.style.height.replace("px", "")) ?? 0) /
+          2;
 
         let scale = Math.min(
           workPlaceRef.current.clientHeight / (h ?? 0),
           workPlaceRef.current.clientWidth / (w ?? 0),
         );
 
-        console.log("Bordersize");
-        console.log(borderSizeX);
-
         setSelectedScale({
           image: { height: imgH, width: imgW },
           scale: scale,
           position: {
-            x: appRef.current.canvas.width / 2,
-            y: appRef.current.canvas.height / 2,
+            x:
+              (Number(appRef.current.canvas.style.width.replace("px", "")) ??
+                0) / 2,
+            y:
+              (Number(appRef.current.canvas.style.height.replace("px", "")) ??
+                0) / 2,
           },
         });
-
-        applyFilters();
       }
+      applyFilters();
     }
   };
 
@@ -564,8 +577,8 @@ export default function WebGlComponent() {
     selectedImg,
     box,
     cropSaved,
-    lutFilter,
     borderSize,
+    lutFilter,
   ]);
 
   useEffect(() => {
@@ -583,8 +596,8 @@ export default function WebGlComponent() {
   useEffect(() => {
     if (!appRef.current || !imageSize) return;
 
-    const maxH = Math.max(0, textAndImagePlaceRef.current?.clientHeight ?? 0);
-    const maxW = Math.max(0, textAndImagePlaceRef.current?.clientWidth ?? 0);
+    const maxH = Math.max(0, canvasRef.current?.clientHeight ?? 0);
+    const maxW = Math.max(0, canvasRef.current?.clientWidth ?? 0);
 
     let imageScale = Math.min(
       maxH / (selectedScale?.image.height ?? 1),

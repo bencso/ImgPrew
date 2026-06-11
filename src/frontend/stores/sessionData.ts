@@ -227,14 +227,14 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     addTexts: (
       imageId: number,
       text: string,
-      textAndImagePlaceRef: RefObject<HTMLDivElement | null>,
+      referenceElement: RefObject<HTMLCanvasElement | null>,
     ) =>
       set((state) => {
         const image = state.sessionData.find((img: any) => img.id === imageId);
         const imageScale = Math.min(
-          (textAndImagePlaceRef.current?.clientHeight ?? 0) /
+          (referenceElement.current?.clientHeight ?? 0) /
             (image?.dimesions?.height ?? 0),
-          (textAndImagePlaceRef.current?.clientWidth ?? 0) /
+          (referenceElement.current?.clientWidth ?? 0) /
             (image?.dimesions?.width ?? 0),
         );
 
@@ -243,10 +243,10 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
 
           const textId = uuidv4();
 
-          const element: DraggableImageEvent = {
+          const newText: DraggableImageEvent = {
             id: textId,
             text,
-            position: { x: XPositions.LEFT, y: YPositions.TOP },
+            position: { x: 0, y: 0},
             enabled: true,
             fontSize: 20 / imageScale,
             fontFamily: "Roboto",
@@ -255,7 +255,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
             opacity: 1,
           };
 
-          image.texts.push(element);
+          image.texts = [...image.texts, newText];
         }
       }),
     deleteText: (imageId: number, textId: string) => {
@@ -263,10 +263,15 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         const image = state.sessionData.find((img: any) => img.id === imageId);
         if (!image?.texts) return;
 
-        const removedText = image.texts.filter(
-          (text: any) => text.id != textId,
+        const textIndex = image.texts.findIndex(
+          (text: any) => text.id === textId,
         );
-        image.texts = removedText.length > 0 ? [...removedText] : [];
+        if (textIndex === -1) return;
+
+        image.texts = [
+          ...image.texts.slice(0, textIndex),
+          ...image.texts.slice(textIndex + 1),
+        ];
       });
     },
     editText: (imageId: number, textId: string, text: string) => {
@@ -571,7 +576,9 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           haldImage = await appRef.current.renderer.extract.base64({
             target: image.haldSprite,
             format: "png",
+            resolution: 1
           });
+          console.log(appRef.current.renderer);
         }
 
         if (image.haldSprite) returnData.hald = haldImage;
@@ -601,7 +608,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
             haldImage = await appRef.current.renderer.extract.image({
               target: image.haldSprite,
               format: "png",
-              resolution: 2,
+              resolution: window.devicePixelRatio,
             });
             returnData.hald = haldImage?.src;
           }

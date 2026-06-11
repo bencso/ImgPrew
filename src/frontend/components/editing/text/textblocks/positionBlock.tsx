@@ -38,7 +38,7 @@ interface TextBlockPositionProps {
 
 function TextPositionInputs(props: TextBlockPositionProps) {
   const { setTextPosition } = useSessionStore();
-  const { selectedImg, textAndImagePlaceRef, selectedScale } =
+  const { selectedImg, canvasRef, selectedScale } =
     useWorkSession();
 
   const text = useSessionStore((state) =>
@@ -71,7 +71,7 @@ function TextPositionInputs(props: TextBlockPositionProps) {
             onValueChange={(e) => {
               if (e.value === "-") return;
 
-              const imageWCP = textAndImagePlaceRef?.current?.offsetWidth ?? 0;
+              const imageWCP = canvasRef?.current?.offsetWidth ?? 0;
               const maxX = Math.round(imageWCP - (textFont?.width ?? 0));
 
               setTextPosition(
@@ -106,7 +106,7 @@ function TextPositionInputs(props: TextBlockPositionProps) {
             onValueChange={(e) => {
               if (e.value === "-") return;
 
-              const imageHCP = textAndImagePlaceRef?.current?.offsetHeight ?? 0;
+              const imageHCP = canvasRef?.current?.offsetHeight ?? 0;
               const maxY = Math.round(
                 imageHCP - (textFont?.fontBoundingBoxAscent ?? 0),
               );
@@ -133,7 +133,7 @@ function TextPositionInputs(props: TextBlockPositionProps) {
 
 export function TextBlockPosition(props: TextBlockPositionProps) {
   const { setTextPosition, setTextRelativePosition } = useSessionStore();
-  const { selectedImg, textAndImagePlaceRef, textElements, selectedScale } =
+  const { selectedImg, canvasRef, selectedScale } =
     useWorkSession();
 
   const borderSize = useSessionStore(
@@ -187,14 +187,11 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
               positionX: XPositions.LEFT,
               positionY: YPositions.TOP,
               elementRef: textSize,
-              textAndImagePlaceRef: textAndImagePlaceRef,
+              referenceElement: canvasRef,
               imageScale: selectedScale?.scale ?? 0,
               borderSize: borderSize,
             });
-            setTextRelativePosition(selectedImg, props.id, {
-              x: XPositions.LEFT,
-              y: YPositions.TOP,
-            });
+            
             setTextPosition(
               selectedImg,
               props.id,
@@ -219,14 +216,11 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
               positionX: XPositions.CENTER,
               positionY: YPositions.TOP,
               elementRef: textSize,
-              textAndImagePlaceRef: textAndImagePlaceRef,
+              referenceElement: canvasRef,
               imageScale: selectedScale?.scale ?? 0,
               borderSize: borderSize,
             });
-            setTextRelativePosition(selectedImg, props.id, {
-              x: XPositions.CENTER,
-              y: YPositions.TOP,
-            });
+
             setTextPosition(
               selectedImg,
               props.id,
@@ -251,14 +245,11 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
               positionX: XPositions.RIGHT,
               positionY: YPositions.TOP,
               elementRef: textSize,
-              textAndImagePlaceRef: textAndImagePlaceRef,
+              referenceElement: canvasRef,
               imageScale: selectedScale?.scale ?? 0,
               borderSize: borderSize,
             });
-            setTextRelativePosition(selectedImg, props.id, {
-              x: XPositions.RIGHT,
-              y: YPositions.TOP,
-            });
+
             setTextPosition(
               selectedImg,
               props.id,
@@ -284,14 +275,11 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
               positionX: XPositions.LEFT,
               positionY: YPositions.CENTER,
               elementRef: textSize,
-              textAndImagePlaceRef: textAndImagePlaceRef,
+              referenceElement: canvasRef,
               imageScale: selectedScale?.scale ?? 0,
               borderSize: borderSize,
             });
-            setTextRelativePosition(selectedImg, props.id, {
-              x: XPositions.LEFT,
-              y: YPositions.CENTER,
-            });
+
             setTextPosition(
               selectedImg,
               props.id,
@@ -316,14 +304,11 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
               positionX: XPositions.CENTER,
               positionY: YPositions.CENTER,
               elementRef: textSize,
-              textAndImagePlaceRef: textAndImagePlaceRef,
+              referenceElement: canvasRef,
               imageScale: selectedScale?.scale ?? 0,
               borderSize: borderSize,
             });
-            setTextRelativePosition(selectedImg, props.id, {
-              x: XPositions.CENTER,
-              y: YPositions.CENTER,
-            });
+   
             setTextPosition(
               selectedImg,
               props.id,
@@ -348,14 +333,11 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
               positionX: XPositions.RIGHT,
               positionY: YPositions.CENTER,
               elementRef: textSize,
-              textAndImagePlaceRef: textAndImagePlaceRef,
+              referenceElement: canvasRef,
               imageScale: selectedScale?.scale ?? 0,
               borderSize: borderSize,
             });
-            setTextRelativePosition(selectedImg, props.id, {
-              x: XPositions.RIGHT,
-              y: YPositions.CENTER,
-            });
+
             setTextPosition(
               selectedImg,
               props.id,
@@ -381,14 +363,11 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
               positionX: XPositions.LEFT,
               positionY: YPositions.BOTTOM,
               elementRef: textSize,
-              textAndImagePlaceRef: textAndImagePlaceRef,
+              referenceElement: canvasRef,
               imageScale: selectedScale?.scale ?? 0,
               borderSize: borderSize,
             });
-            setTextRelativePosition(selectedImg, props.id, {
-              x: XPositions.LEFT,
-              y: YPositions.BOTTOM,
-            });
+
             setTextPosition(
               selectedImg,
               props.id,
@@ -413,14 +392,11 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
               positionX: XPositions.CENTER,
               positionY: YPositions.BOTTOM,
               elementRef: textSize,
-              textAndImagePlaceRef: textAndImagePlaceRef,
+              referenceElement: canvasRef,
               imageScale: selectedScale?.scale ?? 0,
               borderSize: borderSize,
             });
-            setTextRelativePosition(selectedImg, props.id, {
-              x: XPositions.CENTER,
-              y: YPositions.BOTTOM,
-            });
+
             setTextPosition(
               selectedImg,
               props.id,
@@ -445,14 +421,11 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
               positionX: XPositions.RIGHT,
               positionY: YPositions.BOTTOM,
               elementRef: textSize,
-              textAndImagePlaceRef: textAndImagePlaceRef,
+              referenceElement: canvasRef,
               imageScale: selectedScale?.scale ?? 0,
               borderSize: borderSize,
             });
-            setTextRelativePosition(selectedImg, props.id, {
-              x: XPositions.RIGHT,
-              y: YPositions.BOTTOM,
-            });
+  
             setTextPosition(
               selectedImg,
               props.id,

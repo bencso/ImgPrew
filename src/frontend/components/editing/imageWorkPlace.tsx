@@ -10,9 +10,8 @@ import WebGlComponent from "../webGlComponent";
 import { Rnd } from "react-rnd";
 import { minMaxValidation } from "@/helper/errorHelper";
 import { CropGrid } from "../ui/cropgrid";
-import { isXPositions, isYPositions } from "@/helper/checkXYPositions";
 import { calculatePosition } from "@/helper/calculationPosition";
-import { Text } from "pixi.js";
+import { BitmapText, Text } from "pixi.js";
 
 export default function ImageWorkPlace() {
   const {
@@ -20,12 +19,12 @@ export default function ImageWorkPlace() {
     setCopyrightImageRef,
     selectedScale,
     workPlaceRef,
-    textAndImagePlaceRef,
+    canvasRef,
     overlayRef,
     appRef,
   } = useWorkSession();
   const { setCropBox, setTextPosition } = useSessionStore();
-  //TODO: Refaktorálás -> a sok különböző usesessionstore helyett egy is elég hisz mindegyik image
+
   const image = useSessionStore((state) =>
     state.sessionData.find((si) => si.id === selectedImg),
   );
@@ -40,15 +39,13 @@ export default function ImageWorkPlace() {
   const cropSaved = image?.cropSave ?? false;
 
   const cropboxScale = Math.min(
-    (textAndImagePlaceRef.current?.clientWidth ?? 0) /
-      (image?.dimesions?.width ?? 1),
-    (textAndImagePlaceRef.current?.clientHeight ?? 0) /
-      (image?.dimesions?.height ?? 1),
+    (canvasRef.current?.clientWidth ?? 0) / (image?.dimesions?.width ?? 1),
+    (canvasRef.current?.clientHeight ?? 0) / (image?.dimesions?.height ?? 1),
   );
 
-  texts.forEach((text) => {
-    overlayRef.current?.removeChildren();
+  overlayRef.current?.removeChildren();
 
+  texts.forEach((text) => {
     if (appRef.current) {
       appRef.current.stage.hitArea = appRef.current.screen;
       appRef.current.stage.eventMode = "static";
@@ -62,7 +59,7 @@ export default function ImageWorkPlace() {
     const textPosition = text.position;
     const scale = selectedScale?.scale ?? 1;
 
-    const textElement = new Text({
+    const textElement = new BitmapText({
       text: text.text,
       style: {
         fontFamily: text.fontFamily,
@@ -71,6 +68,7 @@ export default function ImageWorkPlace() {
       },
     });
 
+    textElement.roundPixels = true;
     textElement.x = Number(textPosition.x) * (selectedScale?.scale ?? 1);
     textElement.y = Number(textPosition.y) * (selectedScale?.scale ?? 1);
 
@@ -88,7 +86,7 @@ export default function ImageWorkPlace() {
       if (draggableText === text.id) {
         const newPosition = event.global;
         textElement.position.set(newPosition.x, newPosition.y);
-        console.log(newPosition);
+
         setTextPosition(
           selectedImg,
           text.id,
@@ -120,95 +118,85 @@ export default function ImageWorkPlace() {
       mx={"auto"}
       className="workPlaceRef"
     >
-      <Box
-        position={"relative"}
-        display={"flex"}
-        alignItems={"center"}
-        justifyContent={"center"}
-        className="manipulalhato"
-        ref={textAndImagePlaceRef}
-      >
-        
-          {copyrightImage && copyrightImage.blob && (
-            <Image
-              ref={(el) => {
-                if (el) setCopyrightImageRef(el);
-              }}
-              src={copyrightImage.blob}
-              alt="copyright"
-              w={`${(copyrightImage?.size ?? 0) * (selectedScale?.scale ?? 0)}px`}
-              position={"relative"}
-              left={Number(cpPosition?.x ?? 0) + "px"}
-              top={Number(cpPosition?.y ?? 0) + "px"}
-              opacity={Number(copyrightImage.opacity) / 100}
-              draggable={false}
-              userSelect={"none"}
-              zIndex={10}
-            />
-          )}
-          {expandMode === "crop" && !cropSaved && (
-            <Rnd
-              size={{
-                width: (box?.width ?? 1080) * cropboxScale,
-                height: (box?.height ?? 1080) * cropboxScale,
-              }}
-              position={{
-                x: (box?.x ?? 0) * cropboxScale,
-                y: (box?.y ?? 0) * cropboxScale,
-              }}
-              minHeight={300 * cropboxScale}
-              minWidth={300 * cropboxScale}
-              maxHeight={textAndImagePlaceRef.current?.clientHeight}
-              maxWidth={textAndImagePlaceRef.current?.clientWidth}
-              bounds={".manipulalhato"}
-              enableResizing
-              style={{
-                zIndex: 1000,
-              }}
-              onDragStop={(_e, d) => {
-                setCropBox({
-                  id: selectedImg,
-                  box: {
-                    x: parseFloat(d.x.toString()) / cropboxScale,
-                    y: parseFloat(d.y.toString()) / cropboxScale,
-                    height:
-                      (parseFloat(d.node.style.height) ?? 300) / cropboxScale,
-                    width:
-                      (parseFloat(d.node.style.width) ?? 300) / cropboxScale,
-                    currentHeight: textAndImagePlaceRef.current?.clientHeight,
-                    currentWidth: textAndImagePlaceRef.current?.clientWidth,
-                  },
-                });
-              }}
-              onResizeStop={(_e, _direction, ref, _delta, position) => {
-                const minH = 300;
-                const minW = 300;
-                const h = parseFloat(ref.style.height) ?? minH;
-                const w = parseFloat(ref.style.width) ?? minW;
-                setCropBox({
-                  id: selectedImg,
-                  box: {
-                    x: parseFloat(position.x.toString()) / cropboxScale,
-                    y: parseFloat(position.y.toString()) / cropboxScale,
-                    height: minMaxValidation(
-                      Number.isNaN(h) ? minH : h / cropboxScale,
-                      minH * cropboxScale,
-                    ),
-                    width: minMaxValidation(
-                      Number.isNaN(h) ? minW : w / cropboxScale,
-                      minW * cropboxScale,
-                    ),
-                    currentHeight: textAndImagePlaceRef.current?.clientHeight,
-                    currentWidth: textAndImagePlaceRef.current?.clientWidth,
-                  },
-                });
-              }}
-            >
-              <CropGrid />
-            </Rnd>
-          )}
-        </Box>
-        <WebGlComponent />
+
+        {copyrightImage && copyrightImage.blob && (
+          <Image
+            ref={(el) => {
+              if (el) setCopyrightImageRef(el);
+            }}
+            src={copyrightImage.blob}
+            alt="copyright"
+            w={`${(copyrightImage?.size ?? 0) * (selectedScale?.scale ?? 0)}px`}
+            position={"relative"}
+            left={Number(cpPosition?.x ?? 0) + "px"}
+            top={Number(cpPosition?.y ?? 0) + "px"}
+            opacity={Number(copyrightImage.opacity) / 100}
+            draggable={false}
+            userSelect={"none"}
+            zIndex={10}
+          />
+        )}
+        {expandMode === "crop" && !cropSaved && (
+          <Rnd
+            size={{
+              width: (box?.width ?? 1080) * cropboxScale,
+              height: (box?.height ?? 1080) * cropboxScale,
+            }}
+            position={{
+              x: (box?.x ?? 0) * cropboxScale,
+              y: (box?.y ?? 0) * cropboxScale,
+            }}
+            minHeight={300 * cropboxScale}
+            minWidth={300 * cropboxScale}
+            maxHeight={canvasRef.current?.clientHeight}
+            maxWidth={canvasRef.current?.clientWidth}
+            bounds={canvasRef.current?.firstElementChild ?? ""}
+            enableResizing
+            style={{
+              zIndex: 1000,
+            }}
+            onDragStop={(_e, d) => {
+              setCropBox({
+                id: selectedImg,
+                box: {
+                  x: parseFloat(d.x.toString()) / cropboxScale,
+                  y: parseFloat(d.y.toString()) / cropboxScale,
+                  height:
+                    (parseFloat(d.node.style.height) ?? 300) / cropboxScale,
+                  width: (parseFloat(d.node.style.width) ?? 300) / cropboxScale,
+                  currentHeight: canvasRef.current?.clientHeight,
+                  currentWidth: canvasRef.current?.clientWidth,
+                },
+              });
+            }}
+            onResizeStop={(_e, _direction, ref, _delta, position) => {
+              const minH = 300;
+              const minW = 300;
+              const h = parseFloat(ref.style.height) ?? minH;
+              const w = parseFloat(ref.style.width) ?? minW;
+              setCropBox({
+                id: selectedImg,
+                box: {
+                  x: parseFloat(position.x.toString()) / cropboxScale,
+                  y: parseFloat(position.y.toString()) / cropboxScale,
+                  height: minMaxValidation(
+                    Number.isNaN(h) ? minH : h / cropboxScale,
+                    minH * cropboxScale,
+                  ),
+                  width: minMaxValidation(
+                    Number.isNaN(h) ? minW : w / cropboxScale,
+                    minW * cropboxScale,
+                  ),
+                  currentHeight: canvasRef.current?.clientHeight,
+                  currentWidth: canvasRef.current?.clientWidth,
+                },
+              });
+            }}
+          >
+            <CropGrid />
+          </Rnd>
+        )}
+      <WebGlComponent />
     </Flex>
   );
 }

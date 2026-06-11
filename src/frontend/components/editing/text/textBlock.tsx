@@ -20,7 +20,7 @@ import { TextBlockWeight } from "./textblocks/weightBlock";
 import { TextBlockFamily } from "./textblocks/fontFamilyBlock";
 
 export default function TextBlock() {
-  const { selectedImg, textElements, textAndImagePlaceRef } = useWorkSession();
+  const { selectedImg, textElements, canvasRef } = useWorkSession();
   const { addTexts, deleteText, getTextPosition, editText } = useSessionStore();
   const [editId, setEditId] = useState<string | null>(null);
   const [text, setText] = useState("");
@@ -57,7 +57,7 @@ export default function TextBlock() {
           onClick={() => {
             if (!text) return;
             if (!editId) {
-              addTexts(selectedImg, text, textAndImagePlaceRef);
+              addTexts(selectedImg, text, canvasRef);
             } else {
               editText(selectedImg, editId, text);
             }

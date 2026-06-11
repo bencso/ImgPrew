@@ -147,7 +147,7 @@ export interface CalculationReFixPositionProps {
   positionX: XPositions;
   positionY: YPositions;
   elementRef: {offsetWidth: number, offsetHeight: number};
-  textAndImagePlaceRef: RefObject<HTMLDivElement | null>;
+  referenceElement: RefObject<HTMLCanvasElement | null>;
   imageScale: number;
   borderSize:
     | {
@@ -262,7 +262,7 @@ export interface SessionStore {
   addTexts: (
     imageId: number,
     text: string,
-    textAndImagePlaceRef: RefObject<HTMLDivElement | null>,
+    referenceElement: RefObject<HTMLCanvasElement | null>,
   ) => void;
   deleteText: (imageId: number, textId: string) => void;
   editText: (imageId: number, textId: string, text: string) => void;

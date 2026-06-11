@@ -34,7 +34,7 @@ export const CopyrightImageSettingBlock = () => {
   const {
     selectedImg,
     copyrightImageRef,
-    textAndImagePlaceRef,
+    canvasRef,
     imageScale,
     selectedScale,
   } = useWorkSession();
@@ -69,7 +69,7 @@ export const CopyrightImageSettingBlock = () => {
       positionX: relativePosition?.x,
       positionY: relativePosition?.y,
       elementRef: copyrightImageRef,
-      textAndImagePlaceRef: textAndImagePlaceRef,
+      referenceElement: canvasRef,
       imageScale: imageScale,
       borderSize: borderSize,
     });
@@ -136,7 +136,7 @@ export const CopyrightImageSettingBlock = () => {
                   if (e.value === "-") return;
 
                   const imageWCP =
-                    textAndImagePlaceRef?.current?.clientWidth ?? 0;
+                    canvasRef?.current?.clientWidth ?? 0;
                   const maxX = Math.round(
                     imageWCP - (copyrightImageRef.width ?? 0),
                   );
@@ -171,7 +171,7 @@ export const CopyrightImageSettingBlock = () => {
                   if (e.value === "-") return;
 
                   const imageHCP =
-                    textAndImagePlaceRef?.current?.clientWidth ?? 0;
+                    canvasRef?.current?.clientWidth ?? 0;
                   const maxY = Math.round(
                     imageHCP - (copyrightImageRef.width ?? 0),
                   );
@@ -214,7 +214,7 @@ export const CopyrightImageSettingBlock = () => {
                 positionX: XPositions.LEFT,
                 positionY: YPositions.TOP,
                 elementRef: copyrightImageRef,
-                textAndImagePlaceRef: textAndImagePlaceRef,
+                referenceElement: canvasRef,
                 imageScale: imageScale,
                 borderSize: borderSize,
               });
@@ -245,7 +245,7 @@ export const CopyrightImageSettingBlock = () => {
                 positionX: XPositions.CENTER,
                 positionY: YPositions.TOP,
                 elementRef: copyrightImageRef,
-                textAndImagePlaceRef: textAndImagePlaceRef,
+                referenceElement: canvasRef,
                 imageScale: imageScale,
                 borderSize: borderSize,
               });
@@ -276,7 +276,7 @@ export const CopyrightImageSettingBlock = () => {
                 positionX: XPositions.RIGHT,
                 positionY: YPositions.TOP,
                 elementRef: copyrightImageRef,
-                textAndImagePlaceRef: textAndImagePlaceRef,
+                referenceElement: canvasRef,
                 imageScale: imageScale,
                 borderSize: borderSize,
               });
@@ -308,7 +308,7 @@ export const CopyrightImageSettingBlock = () => {
                 positionX: XPositions.LEFT,
                 positionY: YPositions.CENTER,
                 elementRef: copyrightImageRef,
-                textAndImagePlaceRef: textAndImagePlaceRef,
+                referenceElement: canvasRef,
                 imageScale: imageScale,
                 borderSize: borderSize,
               });
@@ -339,7 +339,7 @@ export const CopyrightImageSettingBlock = () => {
                 positionX: XPositions.CENTER,
                 positionY: YPositions.CENTER,
                 elementRef: copyrightImageRef,
-                textAndImagePlaceRef: textAndImagePlaceRef,
+                referenceElement: canvasRef,
                 imageScale: selectedScale?.scale ?? 0,
                 borderSize: borderSize,
               });
@@ -370,7 +370,7 @@ export const CopyrightImageSettingBlock = () => {
                 positionX: XPositions.RIGHT,
                 positionY: YPositions.CENTER,
                 elementRef: copyrightImageRef,
-                textAndImagePlaceRef: textAndImagePlaceRef,
+                referenceElement: canvasRef,
                 imageScale: imageScale,
                 borderSize: borderSize,
               });
@@ -402,7 +402,7 @@ export const CopyrightImageSettingBlock = () => {
                 positionX: XPositions.LEFT,
                 positionY: YPositions.BOTTOM,
                 elementRef: copyrightImageRef,
-                textAndImagePlaceRef: textAndImagePlaceRef,
+                referenceElement: canvasRef,
                 imageScale: imageScale,
                 borderSize: borderSize,
               });
@@ -433,7 +433,7 @@ export const CopyrightImageSettingBlock = () => {
                 positionX: XPositions.CENTER,
                 positionY: YPositions.BOTTOM,
                 elementRef: copyrightImageRef,
-                textAndImagePlaceRef: textAndImagePlaceRef,
+                referenceElement: canvasRef,
                 imageScale: imageScale,
                 borderSize: borderSize,
               });
@@ -464,7 +464,7 @@ export const CopyrightImageSettingBlock = () => {
                 positionX: XPositions.RIGHT,
                 positionY: YPositions.BOTTOM,
                 elementRef: copyrightImageRef,
-                textAndImagePlaceRef: textAndImagePlaceRef,
+                referenceElement: canvasRef,
                 imageScale: imageScale,
                 borderSize: borderSize,
               });
