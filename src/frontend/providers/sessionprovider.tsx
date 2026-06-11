@@ -8,7 +8,7 @@ import {
 } from "@/interfaces/interface";
 import { useFunctionsStore } from "@/stores/functionsStore";
 import { ColorMapFilter } from "pixi-filters";
-import { Application, Filter, Sprite, Texture } from "pixi.js";
+import { Application, Container, Filter, Sprite, Texture } from "pixi.js";
 import { createContext, useContext, useMemo, useRef, useState } from "react";
 import { Rnd } from "react-rnd";
 
@@ -33,6 +33,7 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
   const workPlaceRef = useRef<HTMLDivElement | null>(null);
   const textAndImagePlaceRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const overlayRef = useRef<Container | null>(null);
   const [selectedChannel, setSelectedChannel] = useState<string>("red");
   const { functions, editFunction } = useFunctionsStore();
   const webglFilterRef = useRef<Filter | null>(null);
@@ -75,7 +76,8 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       imageScale,
       setImageScale,
       textPositions,
-      setTextPositions
+      setTextPositions,
+      overlayRef
     }),
     [
       step,
@@ -96,7 +98,8 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       selectedChannel,
       lutFilterRef,
       imageScale,
-      textPositions
+      textPositions,
+      overlayRef
     ],
   );
 

@@ -8,6 +8,8 @@ import { UUID } from "crypto";
 import { ColorMapFilter } from "pixi-filters";
 import {
   Application,
+  Container,
+  ContainerChild,
   Filter,
   Renderer,
   Sprite,
@@ -144,7 +146,7 @@ export interface CalculationReFixPositionProps {
   front?: boolean;
   positionX: XPositions;
   positionY: YPositions;
-  elementRef: HTMLElement;
+  elementRef: {offsetWidth: number, offsetHeight: number};
   textAndImagePlaceRef: RefObject<HTMLDivElement | null>;
   imageScale: number;
   borderSize:
@@ -433,6 +435,7 @@ export interface WorkSessionContextProps {
       >
     >
   >;
+  overlayRef: RefObject<Container<ContainerChild> | null>
 }
 //#endregion
 

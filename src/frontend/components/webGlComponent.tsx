@@ -55,7 +55,7 @@ export default function WebGlComponent() {
     webglFilterRef,
     selectedScale,
     setImageScale,
-    imageScale,
+    overlayRef,
   } = useWorkSession();
   const { sessionData, setImageSize } = useSessionStore();
 
@@ -124,8 +124,6 @@ export default function WebGlComponent() {
       appRef.current = app;
       await appRef.current.init({
         backgroundAlpha: 1,
-        antialias: true,
-        premultipliedAlpha: true
       });
 
       // @ts-ignore
@@ -153,7 +151,8 @@ export default function WebGlComponent() {
       const source = new ImageSource({ resource: img });
       source.scaleMode = "nearest";
       const texture = new Texture({ source });
-      
+      const overlay = new Container();
+
       textureRef.current = texture;
       const sprite = new Sprite(texture);
 
@@ -165,7 +164,9 @@ export default function WebGlComponent() {
 
       if (prevStage) appRef.current.stage.removeChild(prevStage);
       appRef.current.stage.addChild(sprite);
+      appRef.current.stage.addChild(overlay);
       spriteRef.current = sprite;
+      overlayRef.current = overlay;
 
       if (canvasRef.current) {
         canvasRef.current.replaceChildren(appRef.current.canvas);
@@ -191,6 +192,11 @@ export default function WebGlComponent() {
       if (spriteRef.current) {
         spriteRef.current.destroy();
         spriteRef.current = null;
+      }
+
+      if (overlayRef.current) {
+        overlayRef.current.destroy();
+        overlayRef.current = null;
       }
 
       if (textureRef.current) {
@@ -320,7 +326,7 @@ export default function WebGlComponent() {
     const areaW = workPlaceRef.current.offsetWidth;
     const areaH = workPlaceRef.current.offsetHeight;
 
-      if (expandMode === "expand" && expandSize) {
+    if (expandMode === "expand" && expandSize) {
       if (!textAndImagePlaceRef.current || !textureRef.current || !imageSize)
         return;
 
@@ -331,7 +337,7 @@ export default function WebGlComponent() {
 
       const canvasW = w * canvasScale;
       const canvasH = h * canvasScale;
-      const padding = (expandPadding ?? 0)*canvasScale;
+      const padding = (expandPadding ?? 0) * canvasScale;
 
       appRef.current.renderer.background.color =
         parseColor(expandBackground).toString("rgba");
@@ -341,15 +347,16 @@ export default function WebGlComponent() {
 
       const scaledImageW = imageSize.width * scale;
       const scaledImageH = imageSize.height * scale;
-      scale = Math.min((canvasW-padding) / scaledImageW, (canvasH-padding) / scaledImageH);
+      scale = Math.min(
+        (canvasW - padding) / scaledImageW,
+        (canvasH - padding) / scaledImageH,
+      );
 
       spriteRef.current.width = scaledImageW * scale;
       spriteRef.current.height = scaledImageH * scale;
 
       spriteRef.current.x = appRef.current.canvas.width / 2;
       spriteRef.current.y = appRef.current.canvas.height / 2;
-
-      console.log(h,w);
 
       setSelectedScale({
         image: { height: h, width: w },
@@ -406,8 +413,8 @@ export default function WebGlComponent() {
           ? (workPlaceRef.current?.clientHeight ?? 0) / imageSize.height
           : 1;
 
-          console.log("box");
-          console.log( box.height, box.width);
+        console.log("box");
+        console.log(box.height, box.width);
 
         const h = box.height * scaleY;
         const w = box.width * scaleX;
@@ -432,8 +439,8 @@ export default function WebGlComponent() {
         appRef.current.stage.addChild(spriteCopy);
         spriteRef.current = spriteCopy;
 
-        const targetH =  Math.floor(canvasH + (borderSize?.y ?? 0));
-        const targetW =  Math.floor(canvasW + (borderSize?.x ?? 0));
+        const targetH = Math.floor(canvasH + (borderSize?.y ?? 0));
+        const targetW = Math.floor(canvasW + (borderSize?.x ?? 0));
 
         const scale = Math.min(
           workPlaceRef.current.clientHeight / (targetH ?? 0),
@@ -443,7 +450,7 @@ export default function WebGlComponent() {
         const appW = Math.floor(targetW * scale);
         const appH = Math.floor(targetH * scale);
         console.log("target");
-        console.log(targetW,targetH);
+        console.log(targetW, targetH);
         appRef.current.renderer.resize(appW, appH);
 
         appRef.current.renderer.background.color =

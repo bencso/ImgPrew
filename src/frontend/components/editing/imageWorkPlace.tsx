@@ -4,7 +4,7 @@ import { DraggableImageEvent } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { Box, Flex, Grid, GridItem, Image, Span } from "@chakra-ui/react";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { shallow } from "zustand/shallow";
 import WebGlComponent from "../webGlComponent";
 import { Rnd } from "react-rnd";
@@ -12,64 +12,32 @@ import { minMaxValidation } from "@/helper/errorHelper";
 import { CropGrid } from "../ui/cropgrid";
 import { isXPositions, isYPositions } from "@/helper/checkXYPositions";
 import { calculatePosition } from "@/helper/calculationPosition";
+import { Text } from "pixi.js";
 
 export default function ImageWorkPlace() {
   const {
     selectedImg,
-    textElements,
-    setTextElements,
     setCopyrightImageRef,
     selectedScale,
     workPlaceRef,
     textAndImagePlaceRef,
+    overlayRef,
+    appRef,
   } = useWorkSession();
-  const { setCropBox, setTextPosition, getTextPosition } = useSessionStore();
+  const { setCropBox, setTextPosition } = useSessionStore();
   //TODO: Refaktorálás -> a sok különböző usesessionstore helyett egy is elég hisz mindegyik image
   const image = useSessionStore((state) =>
     state.sessionData.find((si) => si.id === selectedImg),
   );
 
+  const [draggableText, setDraggable] = useState<string | null>(null);
+
   const box = image?.box;
   const cpPosition = image?.copyrightImage?.position;
   const expandMode = image?.expandMode;
   const copyrightImage = image?.copyrightImage;
-  const borderSize = image?.borderSize;
   const texts = image?.texts ?? [];
   const cropSaved = image?.cropSave ?? false;
-
-  const setTextRef = useCallback(
-    (textId: string) => (el: any) => {
-      if (el && textElements[textId] !== el) {
-        setTextElements((prev) => ({ ...prev, [textId]: el }));
-      }
-    },
-    [textElements],
-  );
-
-  useEffect(() => {
-    if (!texts) return;
-    texts.forEach((text) => {
-      const textPosition = text.relativePosition;
-      if (!isXPositions(textPosition?.x) || !isYPositions(textPosition?.y)) {
-        return;
-      }
-
-      const position = calculatePosition({
-        positionX: textPosition.x,
-        positionY: textPosition.y,
-        elementRef: textElements[text.id],
-        textAndImagePlaceRef: textAndImagePlaceRef,
-        imageScale: selectedScale?.scale ?? 0,
-        borderSize: borderSize,
-      });
-      setTextPosition(
-        selectedImg,
-        text.id,
-        position,
-        selectedScale?.scale ?? 0,
-      );
-    });
-  }, [selectedScale]);
 
   const cropboxScale = Math.min(
     (textAndImagePlaceRef.current?.clientWidth ?? 0) /
@@ -77,6 +45,69 @@ export default function ImageWorkPlace() {
     (textAndImagePlaceRef.current?.clientHeight ?? 0) /
       (image?.dimesions?.height ?? 1),
   );
+
+  texts.forEach((text) => {
+    overlayRef.current?.removeChildren();
+
+    if (appRef.current) {
+      appRef.current.stage.hitArea = appRef.current.screen;
+      appRef.current.stage.eventMode = "static";
+      appRef.current.stage.interactiveChildren = true;
+      appRef.current.stage.off("pointerdown");
+      appRef.current.stage.off("pointermove");
+      appRef.current.stage.off("pointerup");
+      appRef.current.stage.off("pointerupoutside");
+    }
+
+    const textPosition = text.position;
+    const scale = selectedScale?.scale ?? 1;
+
+    const textElement = new Text({
+      text: text.text,
+      style: {
+        fontFamily: text.fontFamily,
+        fontSize: text.fontSize * scale,
+        fill: text.color,
+      },
+    });
+
+    textElement.x = Number(textPosition.x) * (selectedScale?.scale ?? 1);
+    textElement.y = Number(textPosition.y) * (selectedScale?.scale ?? 1);
+
+    textElement.eventMode = "static";
+    textElement.cursor = "pointer";
+    textElement.interactive = true;
+
+    textElement.on("pointerdown", (event) => {
+      setDraggable(text.id);
+      textElement.anchor = 0.5;
+    });
+
+    appRef.current?.stage.on("pointermove", (event) => {
+      console.log(draggableText);
+      if (draggableText === text.id) {
+        const newPosition = event.global;
+        textElement.position.set(newPosition.x, newPosition.y);
+        console.log(newPosition);
+        setTextPosition(
+          selectedImg,
+          text.id,
+          {
+            x: newPosition.x,
+            y: newPosition.y,
+          },
+          selectedScale?.scale ?? 1,
+        );
+      }
+    });
+
+    appRef.current?.stage.on("pointerup", () => {
+      console.log("Elengedve");
+      setDraggable(null);
+    });
+
+    overlayRef.current?.addChild(textElement);
+  });
 
   return (
     <Flex
@@ -95,99 +126,9 @@ export default function ImageWorkPlace() {
         alignItems={"center"}
         justifyContent={"center"}
         className="manipulalhato"
+        ref={textAndImagePlaceRef}
       >
-        <Box
-          zIndex={100}
-          ref={textAndImagePlaceRef}
-          position={"absolute"}
-          top={0}
-          left={0}
-          h={"full"}
-          w={"full"}
-          className="3"
-          border={0}
-          overflow={"hidden"}
-        >
-          {texts.map((element: DraggableImageEvent, index: number) => {
-            const textPosition = getTextPosition(selectedImg, element.id);
-
-            const canvas = document.createElement("canvas");
-            const ctx = canvas.getContext("2d");
-            if (!ctx) return;
-            ctx.font = `${element.fontSize * (selectedScale?.scale ?? 0)}px ${element.fontFamily}`;
-
-            const textFont = ctx.measureText(element.text);
-
-            return (
-              <Rnd
-                key={element.id}
-                bounds={".manipulalhato"}
-                style={{
-                  zIndex: 11 + index,
-                }}
-                enableResizing={false}
-                onDragStop={(_e, d) => {
-                  const x = d.lastX;
-                  const y = d.lastY;
-
-                  setTextPosition(
-                    selectedImg,
-                    element.id,
-                    {
-                      x,
-                      y,
-                    },
-                    selectedScale?.scale ?? 0,
-                  );
-                }}
-                position={{
-                  x:
-                    typeof textPosition.x === "number"
-                      ? Math.round(textPosition.x * (selectedScale?.scale ?? 0))
-                      : 0,
-                  y:
-                    typeof textPosition.y === "number"
-                      ? Math.round(textPosition.y * (selectedScale?.scale ?? 0))
-                      : 0,
-                }}
-              >
-                {
-                  //TODO: Font méretezés néha nem lehet olyan kicsi mint kéne, erre valami megoldás?!
-                }
-                <Span
-                  id={element.id}
-                  w={"auto"}
-                  h={"auto"}
-                  ref={setTextRef(element.id)}
-                  cursor={"pointer"}
-                  textWrap={"balance"}
-                  border={0}
-                  boxSizing={"border-box"}
-                  lineClamp={"none"}
-                  style={{
-                    fontSize: Math.round(
-                      element.fontSize * (selectedScale?.scale ?? 0),
-                    ),
-                    fontFamily: element.fontFamily || "Roboto",
-                    fontWeight: element.fontWeight || 500,
-                    color: element.color || "#ffff",
-                    opacity: element.opacity || 100,
-                    display: "block",
-                    height: `${Math.round(textFont.fontBoundingBoxAscent + textFont.fontBoundingBoxDescent)}px`,
-                    width: "auto",
-                    lineHeight: `${Math.round(textFont.fontBoundingBoxAscent + textFont.fontBoundingBoxDescent)}px`,
-                    padding: 0,
-                    margin: 0,
-                    textRendering: "optimizeLegibility",
-                    WebkitFontSmoothing: "antialiased",
-                    MozOsxFontSmoothing: "grayscale",
-                  }}
-                >
-                  {element.text}
-                </Span>
-              </Rnd>
-            );
-          })}
+        
           {copyrightImage && copyrightImage.blob && (
             <Image
               ref={(el) => {
@@ -268,7 +209,6 @@ export default function ImageWorkPlace() {
           )}
         </Box>
         <WebGlComponent />
-      </Box>
     </Flex>
   );
 }

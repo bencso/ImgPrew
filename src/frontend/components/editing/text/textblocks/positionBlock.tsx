@@ -38,15 +38,20 @@ interface TextBlockPositionProps {
 
 function TextPositionInputs(props: TextBlockPositionProps) {
   const { setTextPosition } = useSessionStore();
-  const {
-    selectedImg,
-    imageScale,
-    textAndImagePlaceRef,
-    textElements,
-    selectedScale,
-  } = useWorkSession();
+  const { selectedImg, textAndImagePlaceRef, selectedScale } =
+    useWorkSession();
 
-  const textElementRef = textElements[props.id];
+  const text = useSessionStore((state) =>
+    state.sessionData.find((img) => img.id === selectedImg),
+  )?.texts?.find((text) => text.id === props.id);
+  if (!text) return;
+
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+  ctx.font = `${text.fontSize * (selectedScale?.scale ?? 0)}px ${text.fontFamily}`;
+
+  const textFont = ctx.measureText(text.text);
 
   return (
     <Flex gap={4} width="full" alignItems="center">
@@ -67,9 +72,7 @@ function TextPositionInputs(props: TextBlockPositionProps) {
               if (e.value === "-") return;
 
               const imageWCP = textAndImagePlaceRef?.current?.offsetWidth ?? 0;
-              const maxX = Math.round(
-                imageWCP - (textElementRef?.offsetWidth ?? 0),
-              );
+              const maxX = Math.round(imageWCP - (textFont?.width ?? 0));
 
               setTextPosition(
                 selectedImg,
@@ -105,7 +108,7 @@ function TextPositionInputs(props: TextBlockPositionProps) {
 
               const imageHCP = textAndImagePlaceRef?.current?.offsetHeight ?? 0;
               const maxY = Math.round(
-                imageHCP - (textElementRef?.offsetHeight ?? 0),
+                imageHCP - (textFont?.fontBoundingBoxAscent ?? 0),
               );
 
               setTextPosition(
@@ -138,6 +141,23 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
     shallow,
   );
 
+  const text = useSessionStore((state) =>
+    state.sessionData.find((img) => img.id === selectedImg),
+  )?.texts?.find((text) => text.id === props.id);
+  if (!text) return;
+
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+  ctx.font = `${text.fontSize * (selectedScale?.scale ?? 0)}px ${text.fontFamily}`;
+
+  const textFont = ctx.measureText(text.text);
+
+  const textSize = {
+    offsetHeight: textFont.fontBoundingBoxAscent,
+    offsetWidth: textFont.width,
+  };
+
   return (
     <Flex gap={4} flexDir={"column"}>
       <TextPositionInputs
@@ -166,7 +186,7 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
             const position = calculatePosition({
               positionX: XPositions.LEFT,
               positionY: YPositions.TOP,
-              elementRef: textElements[props.id],
+              elementRef: textSize,
               textAndImagePlaceRef: textAndImagePlaceRef,
               imageScale: selectedScale?.scale ?? 0,
               borderSize: borderSize,
@@ -198,7 +218,7 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
             const position = calculatePosition({
               positionX: XPositions.CENTER,
               positionY: YPositions.TOP,
-              elementRef: textElements[props.id],
+              elementRef: textSize,
               textAndImagePlaceRef: textAndImagePlaceRef,
               imageScale: selectedScale?.scale ?? 0,
               borderSize: borderSize,
@@ -230,7 +250,7 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
             const position = calculatePosition({
               positionX: XPositions.RIGHT,
               positionY: YPositions.TOP,
-              elementRef: textElements[props.id],
+              elementRef: textSize,
               textAndImagePlaceRef: textAndImagePlaceRef,
               imageScale: selectedScale?.scale ?? 0,
               borderSize: borderSize,
@@ -263,7 +283,7 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
             const position = calculatePosition({
               positionX: XPositions.LEFT,
               positionY: YPositions.CENTER,
-              elementRef: textElements[props.id],
+              elementRef: textSize,
               textAndImagePlaceRef: textAndImagePlaceRef,
               imageScale: selectedScale?.scale ?? 0,
               borderSize: borderSize,
@@ -295,7 +315,7 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
             const position = calculatePosition({
               positionX: XPositions.CENTER,
               positionY: YPositions.CENTER,
-              elementRef: textElements[props.id],
+              elementRef: textSize,
               textAndImagePlaceRef: textAndImagePlaceRef,
               imageScale: selectedScale?.scale ?? 0,
               borderSize: borderSize,
@@ -327,7 +347,7 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
             const position = calculatePosition({
               positionX: XPositions.RIGHT,
               positionY: YPositions.CENTER,
-              elementRef: textElements[props.id],
+              elementRef: textSize,
               textAndImagePlaceRef: textAndImagePlaceRef,
               imageScale: selectedScale?.scale ?? 0,
               borderSize: borderSize,
@@ -360,12 +380,12 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
             const position = calculatePosition({
               positionX: XPositions.LEFT,
               positionY: YPositions.BOTTOM,
-              elementRef: textElements[props.id],
+              elementRef: textSize,
               textAndImagePlaceRef: textAndImagePlaceRef,
               imageScale: selectedScale?.scale ?? 0,
               borderSize: borderSize,
             });
-             setTextRelativePosition(selectedImg, props.id, {
+            setTextRelativePosition(selectedImg, props.id, {
               x: XPositions.LEFT,
               y: YPositions.BOTTOM,
             });
@@ -392,12 +412,12 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
             const position = calculatePosition({
               positionX: XPositions.CENTER,
               positionY: YPositions.BOTTOM,
-              elementRef: textElements[props.id],
+              elementRef: textSize,
               textAndImagePlaceRef: textAndImagePlaceRef,
               imageScale: selectedScale?.scale ?? 0,
               borderSize: borderSize,
             });
-             setTextRelativePosition(selectedImg, props.id, {
+            setTextRelativePosition(selectedImg, props.id, {
               x: XPositions.CENTER,
               y: YPositions.BOTTOM,
             });
@@ -424,12 +444,12 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
             const position = calculatePosition({
               positionX: XPositions.RIGHT,
               positionY: YPositions.BOTTOM,
-              elementRef: textElements[props.id],
+              elementRef: textSize,
               textAndImagePlaceRef: textAndImagePlaceRef,
               imageScale: selectedScale?.scale ?? 0,
               borderSize: borderSize,
             });
-             setTextRelativePosition(selectedImg, props.id, {
+            setTextRelativePosition(selectedImg, props.id, {
               x: XPositions.RIGHT,
               y: YPositions.BOTTOM,
             });
