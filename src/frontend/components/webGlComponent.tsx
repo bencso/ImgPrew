@@ -160,7 +160,6 @@ export default function WebGlComponent() {
 
     img.onload = async () => {
       if (!appRef.current) return;
-      console.log("teszt");
 
       const source = new ImageSource({ resource: img });
       const texture = new Texture({ source });
@@ -427,9 +426,6 @@ export default function WebGlComponent() {
           ? (workPlaceRef.current?.clientHeight ?? 0) / imageSize.height
           : 1;
 
-        console.log("box");
-        console.log(box.height, box.width);
-
         const h = box.height * scaleY;
         const w = box.width * scaleX;
 
@@ -448,6 +444,8 @@ export default function WebGlComponent() {
           frame: new Rectangle(box.x, box.y, canvasW, canvasH),
         });
 
+        const overlay = new Container();
+        
         const spriteCopy = new Sprite(textureRef.current);
         appRef.current.stage.removeChildren();
         appRef.current.stage.addChild(spriteCopy);
@@ -457,14 +455,17 @@ export default function WebGlComponent() {
         const targetW = Math.floor(canvasW + (borderSize?.x ?? 0));
 
         const scale = Math.min(
-          workPlaceRef.current.clientHeight / (targetH ?? 0),
-          workPlaceRef.current.clientWidth / (targetW ?? 0),
+          canvasRef.current.clientHeight / (targetH ?? 0),
+          canvasRef.current.clientWidth / (targetW ?? 0),
         );
 
         const appW = Math.floor(targetW * scale);
         const appH = Math.floor(targetH * scale);
 
         appRef.current.renderer.resize(appW, appH);
+        appRef.current.stage.addChild(overlay);
+        overlayRef.current = overlay;
+        console.log(overlay.height);
 
         appRef.current.renderer.background.color =
           parseColor(expandBackground).toString("rgba");

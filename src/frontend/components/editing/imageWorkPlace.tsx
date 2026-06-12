@@ -69,8 +69,8 @@ export default function ImageWorkPlace() {
     });
 
     textElement.roundPixels = true;
-    textElement.x = Number(textPosition.x) * (selectedScale?.scale ?? 1);
-    textElement.y = Number(textPosition.y) * (selectedScale?.scale ?? 1);
+    textElement.x = Number(textPosition.x) * scale;
+    textElement.y = Number(textPosition.y) * scale;
 
     textElement.eventMode = "static";
     textElement.cursor = "pointer";
@@ -118,7 +118,12 @@ export default function ImageWorkPlace() {
       mx={"auto"}
       className="workPlaceRef"
     >
-
+      <Box
+        h={canvasRef.current?.clientHeight ?? 1080}
+        w={canvasRef.current?.clientWidth ?? 1080}
+        position={"absolute"}
+        zIndex={ expandMode === "crop" && !cropSaved ?  "overlay" :"-100"}
+      >
         {copyrightImage && copyrightImage.blob && (
           <Image
             ref={(el) => {
@@ -156,6 +161,14 @@ export default function ImageWorkPlace() {
               zIndex: 1000,
             }}
             onDragStop={(_e, d) => {
+              console.log({
+                x: parseFloat(d.x.toString()),
+                y: parseFloat(d.y.toString()),
+                height: (parseFloat(d.node.style.height) ?? 300) / cropboxScale,
+                width: (parseFloat(d.node.style.width) ?? 300) / cropboxScale,
+                currentHeight: canvasRef.current?.clientHeight,
+                currentWidth: canvasRef.current?.clientWidth,
+              });
               setCropBox({
                 id: selectedImg,
                 box: {
@@ -196,6 +209,7 @@ export default function ImageWorkPlace() {
             <CropGrid />
           </Rnd>
         )}
+      </Box>
       <WebGlComponent />
     </Flex>
   );
