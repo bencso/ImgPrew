@@ -3,7 +3,6 @@ import { CalculationReFixPositionProps } from "@/interfaces/interface";
 export const calculatePosition = (props: CalculationReFixPositionProps) => {
   const imageScale = props.imageScale;
 
-
   if (!props.referenceElement.current) return;
   let x, y;
 

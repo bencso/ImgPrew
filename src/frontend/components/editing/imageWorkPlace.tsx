@@ -145,24 +145,23 @@ export default function ImageWorkPlace() {
   //COPYRIGHT IMAGE
 
   if (copyrightImage?.blob) {
-    const copyrightImageImage = new Image();
-    if (copyrightImage?.blob) copyrightImageImage.src = copyrightImage?.blob;
+    const imageElement = new Image();
+    if (copyrightImage?.blob) imageElement.src = copyrightImage?.blob;
 
     const copyrightImageSource = new ImageSource({
-      resource: copyrightImageImage,
+      resource: imageElement,
     });
-    const textcopyrightImageTexture = new Texture({
+    const copyrightImageTexture = new Texture({
       source: copyrightImageSource,
     });
 
-    const textcopyrightImageSprite = new Sprite(textcopyrightImageTexture);
-
-    const cpScale =
-      (copyrightImage.size?.height ?? 0) / (copyrightImageImage.height ?? 0);
-    textcopyrightImageSprite.scale.set(cpScale);
+    const copyrightImageSprite = new Sprite(copyrightImageTexture);
 
     let position = copyrightImage?.position;
     const relativePosition = copyrightImage?.relativePosition;
+
+    copyrightImageSprite.height = copyrightImage.size?.height ?? 300;
+    copyrightImageSprite.width = copyrightImage.size?.width ?? 300;
 
     if (
       isXPositions(relativePosition?.x) &&
@@ -172,8 +171,9 @@ export default function ImageWorkPlace() {
         positionX: relativePosition?.x,
         positionY: relativePosition?.y,
         elementRef: {
-          offsetHeight: textcopyrightImageSprite.height,
-          offsetWidth: textcopyrightImageSprite.width,
+          offsetHeight:
+            copyrightImage.size?.height ?? copyrightImageSprite.height,
+          offsetWidth: copyrightImage.size?.width ?? copyrightImageSprite.width,
         },
         referenceElement: canvasRef,
         imageScale: scale,
@@ -181,11 +181,10 @@ export default function ImageWorkPlace() {
       });
     }
 
+    copyrightImageSprite.x = position?.x ? Number(position.x) : 0;
+    copyrightImageSprite.y = position?.y ? Number(position.y) : 0;
 
-    textcopyrightImageSprite.x = position?.x ? Number(position.x) : 0;
-    textcopyrightImageSprite.y = position?.y ? Number(position.y) : 0;
-
-    overlayRef.current?.addChild(textcopyrightImageSprite);
+    overlayRef.current?.addChild(copyrightImageSprite);
   }
 
   return (

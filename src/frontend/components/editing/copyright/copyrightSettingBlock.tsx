@@ -52,7 +52,7 @@ export const CopyrightImageSettingBlock = () => {
           <Field.Label>Méret</Field.Label>
           <Input
             placeholder="Méret"
-            value={Math.round(copyrightImage?.size?.height ?? 1)}
+            value={Math.round(copyrightImage?.size?.width ?? 1)}
             onChange={(e) => {
               setCopyrightImageSize(
                 selectedImg,

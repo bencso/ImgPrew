@@ -15,6 +15,7 @@ import { RefObject, useRef } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { immer } from "zustand/middleware/immer";
 import { createWithEqualityFn } from "zustand/traditional";
+import { getImageSize } from "@/helper/getImageSize";
 
 export const useSessionStore = createWithEqualityFn<SessionStore>()(
   immer((set, get) => ({
@@ -64,31 +65,30 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     //#endregion
 
     //#region "Copyright" kép
-    uploadCopyrightImage: (
-      id: number,
-      blob: ArrayBuffer,
-    ) =>
+    uploadCopyrightImage: async (id: number, blob: ArrayBuffer) => {
+      const blobConvert = new Blob([blob], { type: "image/png" });
+      const url = URL.createObjectURL(blobConvert);
+
+      const size = await getImageSize(url);
+
       set((state) => {
         const image = state.sessionData.find((img: any) => img.id === id);
 
-        const blobConvert = new Blob([blob], { type: "image/png" });
-        const url = URL.createObjectURL(blobConvert);
-        
-        const size = state.calculateImageSize(id, 300);
+        if (!image) return;
 
-        if (image && url)
-          image.copyrightImage = {
-            ...image.copyrightImage,
-            blob: url,
-            size: size,
-            defaultSize: size,
-            opacity: 100,
-            position: {
-              x: XPositions.LEFT,
-              y: YPositions.TOP,
-            },
-          };
-      }),
+        image.copyrightImage = {
+          ...image.copyrightImage,
+          blob: url,
+          size,
+          defaultSize: size,
+          opacity: 100,
+          position: {
+            x: XPositions.LEFT,
+            y: YPositions.TOP,
+          },
+        };
+      });
+    },
     clearCopyrightImage: (id: number) =>
       set((state) => {
         const image = state.sessionData.find((img: any) => img.id === id);
@@ -150,17 +150,21 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       set((state) => {
         const image = state.sessionData.find((img: any) => img.id === id);
 
+        console.log("imgSize");
+        const imgSize = state.calculateImageSize(id, size);
+        console.log(imgSize);
+
         if (image)
           image.copyrightImage = {
             ...image.copyrightImage,
-            size: { height: size, width: size },
+            size: imgSize,
           };
       }),
     calculateImageSize: (id: number, width: number) => {
       const image = get().sessionData.find(
         (si) => si.id === id,
       )?.copyrightImage;
-
+      console.log(image?.defaultSize);
       if (!image?.defaultSize) {
         return { width: 0, height: 0 };
       }

@@ -129,8 +129,6 @@ export default function WebGlComponent() {
 
     appRef.current = app;
 
-    canvasRef.current?.appendChild(app.canvas);
-
     // @ts-ignore
     window.__PIXI_DEVTOOLS__ = {
       app,
@@ -138,10 +136,6 @@ export default function WebGlComponent() {
 
     // @ts-ignore
     globalThis.__PIXI_APP__ = app;
-
-    return () => {
-      canvasRef.current?.removeChild(app.canvas);
-    };
   }
 
   useEffect(() => {
