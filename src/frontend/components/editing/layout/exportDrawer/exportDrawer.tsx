@@ -19,6 +19,8 @@ import { useWorkSession } from "@/providers/sessionprovider";
 import { SuccessfullDialog } from "./successfullDialog";
 import Loader from "@/components/loader";
 import { BeatLoader } from "react-spinners";
+import { calculatePosition } from "@/helper/calculationPosition";
+import { isXPositions, isYPositions } from "@/helper/checkXYPositions";
 
 export interface SuccessfullyImagesProps {
   title: string;
@@ -34,7 +36,7 @@ export default function ExportDrawer() {
     setExportAllFileOptimize,
     setExportFileOptimize,
   } = useSessionStore();
-  const { imageScale, selectedScale } = useWorkSession();
+  const { copyrightImageRef, canvasRef, selectedScale } = useWorkSession();
 
   const [successfullyImages, setSuccessfulyImages] = useState<
     SuccessfullyImagesProps[]
@@ -47,14 +49,11 @@ export default function ExportDrawer() {
   const selectedImage = images.find((i) => i.id === selected);
 
   async function exportSelectedImage(id: number) {
-    //TODO: A Hald nem teljes egészében adja vissza a kép eredeti színeit, ezért ezen javitani
     const exportData = await exportImageSettings(id, appRef);
     let selectedImage = images.find((i) => i.id === id);
 
     if (!selectedImage) return;
-    console.log(selectedImage.blob);
     const blob = await fetch(selectedImage.blob).then((res) => res.blob());
-    console.log(blob);
     const haldBlob = await fetch(exportData.hald).then((res) => res.blob());
 
     const imageBlobFile = new File([blob], `image_${selectedImage.id}`);
@@ -71,7 +70,6 @@ export default function ExportDrawer() {
         `copyright_${selectedImage.id}`,
       );
     }
-
 
     const texts = selectedImage.texts?.map((text) => {
       const canvas = document.createElement("canvas");
@@ -90,17 +88,41 @@ export default function ExportDrawer() {
       };
     });
 
+    const cpRelativePosition = selectedImage.copyrightImage?.relativePosition;
+  
+    let cpImagePostion = {
+      x: 0,
+      y: 0,
+    };
+    if (
+      isXPositions(cpRelativePosition?.x) &&
+      isYPositions(cpRelativePosition?.y)
+    ) {
+      console.log(copyrightImageRef);
+      const position = calculatePosition({
+        positionX: cpRelativePosition?.x,
+        positionY: cpRelativePosition?.y,
+        elementRef: {
+          offsetHeight: Number(copyrightImageRef?.height ?? 0),
+          offsetWidth: Number(copyrightImageRef?.width ?? 0),
+        },
+        referenceElement: canvasRef,
+        imageScale: selectedScale?.scale ?? 1,
+        borderSize: selectedImage.borderSize,
+      });
+      
+      cpImagePostion = {
+        x: position.x / (selectedScale?.scale ?? 1),
+        y: position.y / (selectedScale?.scale ?? 1),
+      };
+    }
     const body = {
       extension: selectedImage.exportSettings?.fileExtension ?? "jpg",
       exif_data: selectedImage.exportSettings?.exifDatas ?? [],
       border_size: selectedImage.borderSize?.x ?? 0,
       border_color: selectedImage.expandBackground ?? "#fff",
-      copyright_image_size:
-        (selectedImage.copyrightImage?.size ?? 0),
-      copyright_image_position: {
-        x: (Number(selectedImage.copyrightImage?.position?.x) ?? 0)/ (selectedScale?.scale ?? 0),
-        y: (Number(selectedImage.copyrightImage?.position?.y) ?? 0)/ (selectedScale?.scale ?? 0),
-      },
+      copyright_image_size: selectedImage.copyrightImage?.size?.width ?? 0,
+      copyright_image_position: cpImagePostion,
       copyright_image_opacity: selectedImage.copyrightImage?.opacity,
       texts: texts,
       optimize: selectedImage.exportSettings?.optimize ?? false,
@@ -109,7 +131,7 @@ export default function ExportDrawer() {
         selectedImage.expandMode === "expand"
           ? {
               ...selectedImage.expandSize,
-              padding: (selectedImage.expandSize?.padding ?? 0),
+              padding: selectedImage.expandSize?.padding ?? 0,
             }
           : {
               width: selectedImage.box?.width ?? 0,
@@ -226,7 +248,12 @@ export default function ExportDrawer() {
               display={"flex"}
               flexDir={"column"}
             >
-             { images.length>1 && <ExportImageBlock selected={selected} setSelected={setSelected} />}
+              {images.length > 1 && (
+                <ExportImageBlock
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+              )}
               {selected !== -1 && (
                 <ExportExifBlock
                   selected={selected}

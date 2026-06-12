@@ -3,7 +3,7 @@ import { CalculationReFixPositionProps } from "@/interfaces/interface";
 export const calculatePosition = (props: CalculationReFixPositionProps) => {
   const imageScale = props.imageScale;
 
-  console.log(props.referenceElement.current);
+
   if (!props.referenceElement.current) return;
   let x, y;
 
@@ -16,11 +16,11 @@ export const calculatePosition = (props: CalculationReFixPositionProps) => {
   const imageHCP = height - props.elementRef.offsetHeight / imageScale;
 
   const bX = props.borderSize?.x ?? 30;
-  const bY = props.borderSize?.x ?? 30;
+  const bY = props.borderSize?.y ?? 30;
 
   x = props.positionX ?? bX;
   y = props.positionY ?? bY;
-
+  
   const map: any = {
     left: {
       top: { x: bX * imageScale, y: bY * imageScale },
@@ -47,6 +47,8 @@ export const calculatePosition = (props: CalculationReFixPositionProps) => {
       },
     },
   };
-
+  
+  console.log("calculate");
+console.log(map[x][y]);
   return map[x][y] ?? { x, y };
 };

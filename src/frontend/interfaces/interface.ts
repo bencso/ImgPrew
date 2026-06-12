@@ -66,7 +66,7 @@ export interface DraggableImageEvent {
   id: string;
   text: string;
   position: DraggableImageEventPosition;
-  relativePosition?: DraggableImageEventPosition;
+  relativePosition?: { x: XPositions | number; y: YPositions | number };
   enabled: boolean;
   fontSize: number;
   fontFamily: string;
@@ -79,9 +79,10 @@ export interface DraggableImageEvent {
 export interface CopyrightImage {
   blob?: string;
   position?: DraggableImageEventPosition;
-  size?: number;
+  defaultSize?: { height: number; width: number };
+  size?: { height: number; width: number };
   opacity?: number;
-  relativePosition?: DraggableImageEventPosition;
+  relativePosition?: { x: XPositions | number; y: YPositions | number };
 }
 //#endregion
 
@@ -146,7 +147,7 @@ export interface CalculationReFixPositionProps {
   front?: boolean;
   positionX: XPositions;
   positionY: YPositions;
-  elementRef: {offsetWidth: number, offsetHeight: number};
+  elementRef: { offsetWidth: number; offsetHeight: number };
   referenceElement: RefObject<HTMLCanvasElement | null>;
   imageScale: number;
   borderSize:
@@ -208,7 +209,10 @@ export interface SessionStore {
   //#endregion
 
   //#region Copyright kép
-  uploadCopyrightImage: (id: number, blob: ArrayBuffer) => void;
+  uploadCopyrightImage: (
+    id: number,
+    blob: ArrayBuffer,
+  ) => void;
   clearCopyrightImage: (id: number) => void;
   setCopyrightImagePosition: (
     id: number,
@@ -227,6 +231,13 @@ export interface SessionStore {
   ) => void;
   setCopyrightImageOpacity: (id: number, opacity: number) => void;
   setCopyrightImageSize: (id: number, size: number) => void;
+  calculateImageSize: (
+    id: number,
+    width: number,
+  ) => {
+    height: number;
+    width: number;
+  };
   //#endregion
 
   //#region EXIF
@@ -400,8 +411,8 @@ export interface WorkSessionContextProps {
   editFunction: (props: EditFunctionProps) => void;
   textElements: Record<string, HTMLElement>;
   setTextElements: Dispatch<SetStateAction<Record<UUID, HTMLElement>>>;
-  copyrightImageRef: HTMLImageElement | null;
-  setCopyrightImageRef: Dispatch<SetStateAction<HTMLImageElement | null>>;
+  copyrightImageRef: Sprite | null;
+  setCopyrightImageRef: Dispatch<SetStateAction<Sprite | null>>;
   isLoading: boolean;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
   selectedScale: SelectedScale | undefined;
@@ -435,7 +446,7 @@ export interface WorkSessionContextProps {
       >
     >
   >;
-  overlayRef: RefObject<Container<ContainerChild> | null>
+  overlayRef: RefObject<Container<ContainerChild> | null>;
 }
 //#endregion
 

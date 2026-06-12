@@ -64,18 +64,24 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     //#endregion
 
     //#region "Copyright" kép
-    uploadCopyrightImage: (id: number, blob: ArrayBuffer) =>
+    uploadCopyrightImage: (
+      id: number,
+      blob: ArrayBuffer,
+    ) =>
       set((state) => {
         const image = state.sessionData.find((img: any) => img.id === id);
 
         const blobConvert = new Blob([blob], { type: "image/png" });
         const url = URL.createObjectURL(blobConvert);
+        
+        const size = state.calculateImageSize(id, 300);
 
         if (image && url)
           image.copyrightImage = {
             ...image.copyrightImage,
             blob: url,
-            size: 300,
+            size: size,
+            defaultSize: size,
             opacity: 100,
             position: {
               x: XPositions.LEFT,
@@ -147,9 +153,25 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         if (image)
           image.copyrightImage = {
             ...image.copyrightImage,
-            size: size,
+            size: { height: size, width: size },
           };
       }),
+    calculateImageSize: (id: number, width: number) => {
+      const image = get().sessionData.find(
+        (si) => si.id === id,
+      )?.copyrightImage;
+
+      if (!image?.defaultSize) {
+        return { width: 0, height: 0 };
+      }
+
+      const scale = width / image.defaultSize.width;
+
+      return {
+        width: width,
+        height: Math.round(image.defaultSize.height * scale),
+      };
+    },
     //#region KÉP MÉRETEK
     setImageSize: (id, width, height) =>
       set((state) => ({
@@ -246,7 +268,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           const newText: DraggableImageEvent = {
             id: textId,
             text,
-            position: { x: 0, y: 0},
+            position: { x: 0, y: 0 },
             enabled: true,
             fontSize: 20 / imageScale,
             fontFamily: "Roboto",
@@ -444,11 +466,19 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
 
         if (textIndex === -1) return;
 
-        image.texts = [
-          ...image.texts.slice(0, textIndex),
-          { ...image.texts[textIndex], relativePosition: position },
-          ...image.texts.slice(textIndex + 1),
-        ];
+        if (position.x == null && position.y == null) {
+          image.texts = [
+            ...image.texts.slice(0, textIndex),
+            { ...image.texts[textIndex] },
+            ...image.texts.slice(textIndex + 1),
+          ];
+        } else {
+          image.texts = [
+            ...image.texts.slice(0, textIndex),
+            { ...image.texts[textIndex], relativePosition: position },
+            ...image.texts.slice(textIndex + 1),
+          ];
+        }
       }),
     //#endregion
 
@@ -576,7 +606,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           haldImage = await appRef.current.renderer.extract.base64({
             target: image.haldSprite,
             format: "png",
-            resolution: 1
+            resolution: 1,
           });
           console.log(appRef.current.renderer);
         }

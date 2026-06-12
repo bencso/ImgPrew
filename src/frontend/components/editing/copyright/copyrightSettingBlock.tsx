@@ -1,5 +1,3 @@
-import { calculatePosition } from "@/helper/calculationPosition";
-import { isXPositions, isYPositions } from "@/helper/checkXYPositions";
 import { minMaxValidation } from "@/helper/errorHelper";
 import { XPositions, YPositions } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
@@ -16,7 +14,6 @@ import {
   Stack,
   Text,
 } from "@chakra-ui/react";
-import { useEffect } from "react";
 import {
   LuArrowDown,
   LuArrowDownLeft,
@@ -31,13 +28,8 @@ import {
 import { shallow } from "zustand/shallow";
 
 export const CopyrightImageSettingBlock = () => {
-  const {
-    selectedImg,
-    copyrightImageRef,
-    canvasRef,
-    imageScale,
-    selectedScale,
-  } = useWorkSession();
+  const { selectedImg, canvasRef, selectedScale, copyrightImageRef } =
+    useWorkSession();
   const {
     setCopyrightImageSize,
     setCopyrightImagePosition,
@@ -50,41 +42,17 @@ export const CopyrightImageSettingBlock = () => {
     shallow,
   );
 
-  const borderSize = image?.borderSize;
   const copyrightImage = image?.copyrightImage;
   const imagePosition = copyrightImage?.position;
 
-  useEffect(() => {
-    if (!copyrightImageRef) return;
-    const relativePosition = copyrightImage?.relativePosition;
-
-    if (
-      !isXPositions(relativePosition?.x) ||
-      !isYPositions(relativePosition?.y)
-    ) {
-      return;
-    }
-
-    const position = calculatePosition({
-      positionX: relativePosition?.x,
-      positionY: relativePosition?.y,
-      elementRef: copyrightImageRef,
-      referenceElement: canvasRef,
-      imageScale: imageScale,
-      borderSize: borderSize,
-    });
-
-    setCopyrightImagePosition(selectedImg, position, selectedScale?.scale ?? 0);
-  }, [selectedScale, copyrightImage?.size]);
-
-  if (copyrightImageRef) {
+  if (copyrightImage?.blob) {
     return (
       <Stack gap={5}>
         <Field.Root>
           <Field.Label>Méret</Field.Label>
           <Input
             placeholder="Méret"
-            value={Math.round(copyrightImage?.size ?? 1)}
+            value={Math.round(copyrightImage?.size?.height ?? 1)}
             onChange={(e) => {
               setCopyrightImageSize(
                 selectedImg,
@@ -135,10 +103,9 @@ export const CopyrightImageSettingBlock = () => {
                 onValueChange={(e) => {
                   if (e.value === "-") return;
 
-                  const imageWCP =
-                    canvasRef?.current?.clientWidth ?? 0;
+                  const imageWCP = canvasRef?.current?.clientWidth ?? 0;
                   const maxX = Math.round(
-                    imageWCP - (copyrightImageRef.width ?? 0),
+                    imageWCP - (copyrightImage.size?.width ?? 0),
                   );
 
                   setCopyrightImagePosition(
@@ -170,10 +137,9 @@ export const CopyrightImageSettingBlock = () => {
                 onValueChange={(e) => {
                   if (e.value === "-") return;
 
-                  const imageHCP =
-                    canvasRef?.current?.clientWidth ?? 0;
+                  const imageHCP = canvasRef?.current?.clientWidth ?? 0;
                   const maxY = Math.round(
-                    imageHCP - (copyrightImageRef.width ?? 0),
+                    imageHCP - (copyrightImage.size?.height ?? 0),
                   );
 
                   setCopyrightImagePosition(
@@ -210,23 +176,10 @@ export const CopyrightImageSettingBlock = () => {
               imagePosition.y === YPositions.TOP
             }
             onClick={() => {
-              const position = calculatePosition({
-                positionX: XPositions.LEFT,
-                positionY: YPositions.TOP,
-                elementRef: copyrightImageRef,
-                referenceElement: canvasRef,
-                imageScale: imageScale,
-                borderSize: borderSize,
-              });
               setCopyrightImageRelativePosition(selectedImg, {
                 x: XPositions.LEFT,
                 y: YPositions.TOP,
               });
-              setCopyrightImagePosition(
-                selectedImg,
-                position,
-                selectedScale?.scale ?? 0,
-              );
             }}
           >
             <LuArrowUpLeft />
@@ -241,23 +194,10 @@ export const CopyrightImageSettingBlock = () => {
               imagePosition.y === YPositions.TOP
             }
             onClick={() => {
-              const position = calculatePosition({
-                positionX: XPositions.CENTER,
-                positionY: YPositions.TOP,
-                elementRef: copyrightImageRef,
-                referenceElement: canvasRef,
-                imageScale: imageScale,
-                borderSize: borderSize,
-              });
               setCopyrightImageRelativePosition(selectedImg, {
                 x: XPositions.CENTER,
                 y: YPositions.TOP,
               });
-              setCopyrightImagePosition(
-                selectedImg,
-                position,
-                selectedScale?.scale ?? 0,
-              );
             }}
           >
             <LuArrowUp />
@@ -272,23 +212,10 @@ export const CopyrightImageSettingBlock = () => {
               imagePosition.y === YPositions.TOP
             }
             onClick={() => {
-              const position = calculatePosition({
-                positionX: XPositions.RIGHT,
-                positionY: YPositions.TOP,
-                elementRef: copyrightImageRef,
-                referenceElement: canvasRef,
-                imageScale: imageScale,
-                borderSize: borderSize,
-              });
               setCopyrightImageRelativePosition(selectedImg, {
                 x: XPositions.RIGHT,
                 y: YPositions.TOP,
               });
-              setCopyrightImagePosition(
-                selectedImg,
-                position,
-                selectedScale?.scale ?? 0,
-              );
             }}
           >
             <LuArrowUpRight />
@@ -304,23 +231,10 @@ export const CopyrightImageSettingBlock = () => {
               imagePosition.y === YPositions.CENTER
             }
             onClick={() => {
-              const position = calculatePosition({
-                positionX: XPositions.LEFT,
-                positionY: YPositions.CENTER,
-                elementRef: copyrightImageRef,
-                referenceElement: canvasRef,
-                imageScale: imageScale,
-                borderSize: borderSize,
-              });
               setCopyrightImageRelativePosition(selectedImg, {
                 x: XPositions.LEFT,
                 y: YPositions.CENTER,
               });
-              setCopyrightImagePosition(
-                selectedImg,
-                position,
-                selectedScale?.scale ?? 0,
-              );
             }}
           >
             <LuArrowLeft />
@@ -335,23 +249,10 @@ export const CopyrightImageSettingBlock = () => {
               imagePosition.y === YPositions.CENTER
             }
             onClick={() => {
-              const position = calculatePosition({
-                positionX: XPositions.CENTER,
-                positionY: YPositions.CENTER,
-                elementRef: copyrightImageRef,
-                referenceElement: canvasRef,
-                imageScale: selectedScale?.scale ?? 0,
-                borderSize: borderSize,
-              });
               setCopyrightImageRelativePosition(selectedImg, {
                 x: XPositions.CENTER,
                 y: YPositions.CENTER,
               });
-              setCopyrightImagePosition(
-                selectedImg,
-                position,
-                selectedScale?.scale ?? 0,
-              );
             }}
           >
             <LuDot />
@@ -366,23 +267,10 @@ export const CopyrightImageSettingBlock = () => {
               imagePosition.y === YPositions.CENTER
             }
             onClick={() => {
-              const position = calculatePosition({
-                positionX: XPositions.RIGHT,
-                positionY: YPositions.CENTER,
-                elementRef: copyrightImageRef,
-                referenceElement: canvasRef,
-                imageScale: imageScale,
-                borderSize: borderSize,
-              });
               setCopyrightImageRelativePosition(selectedImg, {
                 x: XPositions.RIGHT,
                 y: YPositions.CENTER,
               });
-              setCopyrightImagePosition(
-                selectedImg,
-                position,
-                selectedScale?.scale ?? 0,
-              );
             }}
           >
             <LuArrowRight />
@@ -398,23 +286,10 @@ export const CopyrightImageSettingBlock = () => {
               imagePosition.y === YPositions.BOTTOM
             }
             onClick={() => {
-              const position = calculatePosition({
-                positionX: XPositions.LEFT,
-                positionY: YPositions.BOTTOM,
-                elementRef: copyrightImageRef,
-                referenceElement: canvasRef,
-                imageScale: imageScale,
-                borderSize: borderSize,
-              });
               setCopyrightImageRelativePosition(selectedImg, {
                 x: XPositions.LEFT,
                 y: YPositions.BOTTOM,
               });
-              setCopyrightImagePosition(
-                selectedImg,
-                position,
-                selectedScale?.scale ?? 0,
-              );
             }}
           >
             <LuArrowDownLeft />
@@ -429,23 +304,10 @@ export const CopyrightImageSettingBlock = () => {
               imagePosition.y === YPositions.BOTTOM
             }
             onClick={() => {
-              const position = calculatePosition({
-                positionX: XPositions.CENTER,
-                positionY: YPositions.BOTTOM,
-                elementRef: copyrightImageRef,
-                referenceElement: canvasRef,
-                imageScale: imageScale,
-                borderSize: borderSize,
-              });
               setCopyrightImageRelativePosition(selectedImg, {
                 x: XPositions.CENTER,
                 y: YPositions.BOTTOM,
               });
-              setCopyrightImagePosition(
-                selectedImg,
-                position,
-                selectedScale?.scale ?? 0,
-              );
             }}
           >
             <LuArrowDown />
@@ -460,23 +322,10 @@ export const CopyrightImageSettingBlock = () => {
               imagePosition.y === YPositions.BOTTOM
             }
             onClick={() => {
-              const position = calculatePosition({
-                positionX: XPositions.RIGHT,
-                positionY: YPositions.BOTTOM,
-                elementRef: copyrightImageRef,
-                referenceElement: canvasRef,
-                imageScale: imageScale,
-                borderSize: borderSize,
-              });
               setCopyrightImageRelativePosition(selectedImg, {
                 x: XPositions.RIGHT,
                 y: YPositions.BOTTOM,
               });
-              setCopyrightImagePosition(
-                selectedImg,
-                position,
-                selectedScale?.scale ?? 0,
-              );
             }}
           >
             <LuArrowDownRight />

@@ -16,7 +16,7 @@ import { shallow } from "zustand/shallow";
 import { CopyrightImageSettingBlock } from "./copyrightSettingBlock";
 
 export default function CopyrightBlock() {
-  const { selectedImg, setCopyrightImageRef } = useWorkSession();
+  const { selectedImg, setCopyrightImageRef,canvasRef } = useWorkSession();
   const { uploadCopyrightImage, clearCopyrightImage } = useSessionStore();
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 

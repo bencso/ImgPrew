@@ -38,8 +38,7 @@ interface TextBlockPositionProps {
 
 function TextPositionInputs(props: TextBlockPositionProps) {
   const { setTextPosition } = useSessionStore();
-  const { selectedImg, canvasRef, selectedScale } =
-    useWorkSession();
+  const { selectedImg, canvasRef, selectedScale } = useWorkSession();
 
   const text = useSessionStore((state) =>
     state.sessionData.find((img) => img.id === selectedImg),
@@ -133,8 +132,7 @@ function TextPositionInputs(props: TextBlockPositionProps) {
 
 export function TextBlockPosition(props: TextBlockPositionProps) {
   const { setTextPosition, setTextRelativePosition } = useSessionStore();
-  const { selectedImg, canvasRef, selectedScale } =
-    useWorkSession();
+  const { selectedImg, canvasRef, selectedScale } = useWorkSession();
 
   const borderSize = useSessionStore(
     (s) => s.sessionData.find((img) => img.id === selectedImg)?.borderSize,
@@ -152,6 +150,7 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
   ctx.font = `${text.fontSize * (selectedScale?.scale ?? 0)}px ${text.fontFamily}`;
 
   const textFont = ctx.measureText(text.text);
+  const scale = selectedScale?.scale ?? 1;
 
   const textSize = {
     offsetHeight: textFont.fontBoundingBoxAscent,
@@ -183,21 +182,10 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
             props.textPosition.y === YPositions.TOP
           }
           onClick={() => {
-            const position = calculatePosition({
-              positionX: XPositions.LEFT,
-              positionY: YPositions.TOP,
-              elementRef: textSize,
-              referenceElement: canvasRef,
-              imageScale: selectedScale?.scale ?? 0,
-              borderSize: borderSize,
+            setTextRelativePosition(selectedImg, props.id, {
+              x: XPositions.LEFT,
+              y: YPositions.TOP,
             });
-            
-            setTextPosition(
-              selectedImg,
-              props.id,
-              position,
-              selectedScale?.scale ?? 0,
-            );
           }}
         >
           <LuArrowUpLeft />
@@ -212,21 +200,10 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
             props.textPosition.y === YPositions.TOP
           }
           onClick={() => {
-            const position = calculatePosition({
-              positionX: XPositions.CENTER,
-              positionY: YPositions.TOP,
-              elementRef: textSize,
-              referenceElement: canvasRef,
-              imageScale: selectedScale?.scale ?? 0,
-              borderSize: borderSize,
+            setTextRelativePosition(selectedImg, props.id, {
+              x: XPositions.CENTER,
+              y: YPositions.TOP,
             });
-
-            setTextPosition(
-              selectedImg,
-              props.id,
-              position,
-              selectedScale?.scale ?? 0,
-            );
           }}
         >
           <LuArrowUp />
@@ -241,21 +218,10 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
             props.textPosition.y === YPositions.TOP
           }
           onClick={() => {
-            const position = calculatePosition({
-              positionX: XPositions.RIGHT,
-              positionY: YPositions.TOP,
-              elementRef: textSize,
-              referenceElement: canvasRef,
-              imageScale: selectedScale?.scale ?? 0,
-              borderSize: borderSize,
+            setTextRelativePosition(selectedImg, props.id, {
+              x: XPositions.RIGHT,
+              y: YPositions.TOP,
             });
-
-            setTextPosition(
-              selectedImg,
-              props.id,
-              position,
-              selectedScale?.scale ?? 0,
-            );
           }}
         >
           <LuArrowUpRight />
@@ -271,21 +237,10 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
             props.textPosition.y === YPositions.CENTER
           }
           onClick={() => {
-            const position = calculatePosition({
-              positionX: XPositions.LEFT,
-              positionY: YPositions.CENTER,
-              elementRef: textSize,
-              referenceElement: canvasRef,
-              imageScale: selectedScale?.scale ?? 0,
-              borderSize: borderSize,
+            setTextRelativePosition(selectedImg, props.id, {
+              x: XPositions.LEFT,
+              y: YPositions.CENTER,
             });
-
-            setTextPosition(
-              selectedImg,
-              props.id,
-              position,
-              selectedScale?.scale ?? 0,
-            );
           }}
         >
           <LuArrowLeft />
@@ -300,21 +255,10 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
             props.textPosition.y === YPositions.CENTER
           }
           onClick={() => {
-            const position = calculatePosition({
-              positionX: XPositions.CENTER,
-              positionY: YPositions.CENTER,
-              elementRef: textSize,
-              referenceElement: canvasRef,
-              imageScale: selectedScale?.scale ?? 0,
-              borderSize: borderSize,
+            setTextRelativePosition(selectedImg, props.id, {
+              x: XPositions.CENTER,
+              y: YPositions.CENTER,
             });
-   
-            setTextPosition(
-              selectedImg,
-              props.id,
-              position,
-              selectedScale?.scale ?? 0,
-            );
           }}
         >
           <LuDot />
@@ -329,21 +273,10 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
             props.textPosition.y === YPositions.CENTER
           }
           onClick={() => {
-            const position = calculatePosition({
-              positionX: XPositions.RIGHT,
-              positionY: YPositions.CENTER,
-              elementRef: textSize,
-              referenceElement: canvasRef,
-              imageScale: selectedScale?.scale ?? 0,
-              borderSize: borderSize,
+            setTextRelativePosition(selectedImg, props.id, {
+              x: XPositions.RIGHT,
+              y: YPositions.CENTER,
             });
-
-            setTextPosition(
-              selectedImg,
-              props.id,
-              position,
-              selectedScale?.scale ?? 0,
-            );
           }}
         >
           <LuArrowRight />
@@ -359,21 +292,10 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
             props.textPosition.y === YPositions.BOTTOM
           }
           onClick={() => {
-            const position = calculatePosition({
-              positionX: XPositions.LEFT,
-              positionY: YPositions.BOTTOM,
-              elementRef: textSize,
-              referenceElement: canvasRef,
-              imageScale: selectedScale?.scale ?? 0,
-              borderSize: borderSize,
+            setTextRelativePosition(selectedImg, props.id, {
+              x: XPositions.LEFT,
+              y: YPositions.BOTTOM,
             });
-
-            setTextPosition(
-              selectedImg,
-              props.id,
-              position,
-              selectedScale?.scale ?? 0,
-            );
           }}
         >
           <LuArrowDownLeft />
@@ -388,21 +310,10 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
             props.textPosition.y === YPositions.BOTTOM
           }
           onClick={() => {
-            const position = calculatePosition({
-              positionX: XPositions.CENTER,
-              positionY: YPositions.BOTTOM,
-              elementRef: textSize,
-              referenceElement: canvasRef,
-              imageScale: selectedScale?.scale ?? 0,
-              borderSize: borderSize,
+            setTextRelativePosition(selectedImg, props.id, {
+              x: XPositions.CENTER,
+              y: YPositions.BOTTOM,
             });
-
-            setTextPosition(
-              selectedImg,
-              props.id,
-              position,
-              selectedScale?.scale ?? 0,
-            );
           }}
         >
           <LuArrowDown />
@@ -417,21 +328,10 @@ export function TextBlockPosition(props: TextBlockPositionProps) {
             props.textPosition.y === YPositions.BOTTOM
           }
           onClick={() => {
-            const position = calculatePosition({
-              positionX: XPositions.RIGHT,
-              positionY: YPositions.BOTTOM,
-              elementRef: textSize,
-              referenceElement: canvasRef,
-              imageScale: selectedScale?.scale ?? 0,
-              borderSize: borderSize,
+            setTextRelativePosition(selectedImg, props.id, {
+              x: XPositions.RIGHT,
+              y: YPositions.BOTTOM,
             });
-  
-            setTextPosition(
-              selectedImg,
-              props.id,
-              position,
-              selectedScale?.scale ?? 0,
-            );
           }}
         >
           <LuArrowDownRight />

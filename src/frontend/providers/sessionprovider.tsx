@@ -25,7 +25,7 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
     {},
   );
   const [copyrightImageRef, setCopyrightImageRef] =
-    useState<HTMLImageElement | null>(null);
+    useState<Sprite | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const spriteRef = useRef<Sprite | null>(null);
   const textureRef = useRef<Texture | null>(null);

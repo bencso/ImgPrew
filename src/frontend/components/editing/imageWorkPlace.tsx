@@ -1,29 +1,30 @@
 //TODO: Refaktorálni
 
-import { DraggableImageEvent } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
-import { Box, Flex, Grid, GridItem, Image, Span } from "@chakra-ui/react";
-import { useCallback, useEffect, useState } from "react";
-import { shallow } from "zustand/shallow";
+import { Box, Flex } from "@chakra-ui/react";
+import { useState } from "react";
 import WebGlComponent from "../webGlComponent";
 import { Rnd } from "react-rnd";
 import { minMaxValidation } from "@/helper/errorHelper";
 import { CropGrid } from "../ui/cropgrid";
 import { calculatePosition } from "@/helper/calculationPosition";
-import { BitmapText, Text } from "pixi.js";
+import { BitmapText, ImageSource, Sprite, Texture } from "pixi.js";
+import { isXPositions, isYPositions } from "@/helper/checkXYPositions";
 
 export default function ImageWorkPlace() {
   const {
     selectedImg,
-    setCopyrightImageRef,
     selectedScale,
     workPlaceRef,
     canvasRef,
     overlayRef,
+    setCopyrightImageRef,
     appRef,
+    copyrightImageRef,
   } = useWorkSession();
-  const { setCropBox, setTextPosition } = useSessionStore();
+  const { setCropBox, setTextPosition, setTextRelativePosition } =
+    useSessionStore();
 
   const image = useSessionStore((state) =>
     state.sessionData.find((si) => si.id === selectedImg),
@@ -32,18 +33,23 @@ export default function ImageWorkPlace() {
   const [draggableText, setDraggable] = useState<string | null>(null);
 
   const box = image?.box;
-  const cpPosition = image?.copyrightImage?.position;
   const expandMode = image?.expandMode;
   const copyrightImage = image?.copyrightImage;
   const texts = image?.texts ?? [];
   const cropSaved = image?.cropSave ?? false;
+  const borderSize = image?.borderSize;
 
   const cropboxScale = Math.min(
     (canvasRef.current?.clientWidth ?? 0) / (image?.dimesions?.width ?? 1),
     (canvasRef.current?.clientHeight ?? 0) / (image?.dimesions?.height ?? 1),
   );
+  const scale = selectedScale?.scale ?? 1;
 
   overlayRef.current?.removeChildren();
+
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
 
   texts.forEach((text) => {
     if (appRef.current) {
@@ -56,8 +62,35 @@ export default function ImageWorkPlace() {
       appRef.current.stage.off("pointerupoutside");
     }
 
-    const textPosition = text.position;
-    const scale = selectedScale?.scale ?? 1;
+    let textPosition = text.position;
+    const relativePosition = text.relativePosition;
+
+    ctx.font = `${text.fontSize * (selectedScale?.scale ?? 0)}px ${text.fontFamily}`;
+
+    const textFont = ctx.measureText(text.text);
+    const textSize = {
+      offsetHeight: textFont.fontBoundingBoxAscent,
+      offsetWidth: textFont.width,
+    };
+
+    textPosition = {
+      x: Number(textPosition.x) * scale,
+      y: Number(textPosition.y) * scale,
+    };
+
+    if (
+      isXPositions(relativePosition?.x) &&
+      isYPositions(relativePosition?.y)
+    ) {
+      textPosition = calculatePosition({
+        positionX: relativePosition?.x,
+        positionY: relativePosition?.y,
+        elementRef: textSize,
+        referenceElement: canvasRef,
+        imageScale: scale,
+        borderSize: borderSize,
+      });
+    }
 
     const textElement = new BitmapText({
       text: text.text,
@@ -69,14 +102,14 @@ export default function ImageWorkPlace() {
     });
 
     textElement.roundPixels = true;
-    textElement.x = Number(textPosition.x) * scale;
-    textElement.y = Number(textPosition.y) * scale;
+    textElement.x = Number(textPosition.x) ?? 0;
+    textElement.y = Number(textPosition.y) ?? 0;
 
     textElement.eventMode = "static";
     textElement.cursor = "pointer";
     textElement.interactive = true;
 
-    textElement.on("pointerdown", (event) => {
+    textElement.on("pointerdown", (_event) => {
       setDraggable(text.id);
       textElement.anchor = 0.5;
     });
@@ -86,26 +119,74 @@ export default function ImageWorkPlace() {
       if (draggableText === text.id) {
         const newPosition = event.global;
         textElement.position.set(newPosition.x, newPosition.y);
-
-        setTextPosition(
-          selectedImg,
-          text.id,
-          {
-            x: newPosition.x,
-            y: newPosition.y,
-          },
-          selectedScale?.scale ?? 1,
-        );
       }
     });
 
     appRef.current?.stage.on("pointerup", () => {
-      console.log("Elengedve");
       setDraggable(null);
+      setTextPosition(
+        selectedImg,
+        text.id,
+        {
+          x: textElement.x,
+          y: textElement.y,
+        },
+        scale,
+      );
+      setTextRelativePosition(selectedImg, text.id, {
+        x: 0,
+        y: 0,
+      });
     });
 
     overlayRef.current?.addChild(textElement);
   });
+
+  //COPYRIGHT IMAGE
+
+  if (copyrightImage?.blob) {
+    const copyrightImageImage = new Image();
+    if (copyrightImage?.blob) copyrightImageImage.src = copyrightImage?.blob;
+
+    const copyrightImageSource = new ImageSource({
+      resource: copyrightImageImage,
+    });
+    const textcopyrightImageTexture = new Texture({
+      source: copyrightImageSource,
+    });
+
+    const textcopyrightImageSprite = new Sprite(textcopyrightImageTexture);
+
+    const cpScale =
+      (copyrightImage.size?.height ?? 0) / (copyrightImageImage.height ?? 0);
+    textcopyrightImageSprite.scale.set(cpScale);
+
+    let position = copyrightImage?.position;
+    const relativePosition = copyrightImage?.relativePosition;
+
+    if (
+      isXPositions(relativePosition?.x) &&
+      isYPositions(relativePosition?.y)
+    ) {
+      position = calculatePosition({
+        positionX: relativePosition?.x,
+        positionY: relativePosition?.y,
+        elementRef: {
+          offsetHeight: textcopyrightImageSprite.height,
+          offsetWidth: textcopyrightImageSprite.width,
+        },
+        referenceElement: canvasRef,
+        imageScale: scale,
+        borderSize: borderSize,
+      });
+    }
+
+
+    textcopyrightImageSprite.x = position?.x ? Number(position.x) : 0;
+    textcopyrightImageSprite.y = position?.y ? Number(position.y) : 0;
+
+    overlayRef.current?.addChild(textcopyrightImageSprite);
+  }
 
   return (
     <Flex
@@ -122,25 +203,8 @@ export default function ImageWorkPlace() {
         h={canvasRef.current?.clientHeight ?? 1080}
         w={canvasRef.current?.clientWidth ?? 1080}
         position={"absolute"}
-        zIndex={ expandMode === "crop" && !cropSaved ?  "overlay" :"-100"}
+        zIndex={expandMode === "crop" && !cropSaved ? "overlay" : "-100"}
       >
-        {copyrightImage && copyrightImage.blob && (
-          <Image
-            ref={(el) => {
-              if (el) setCopyrightImageRef(el);
-            }}
-            src={copyrightImage.blob}
-            alt="copyright"
-            w={`${(copyrightImage?.size ?? 0) * (selectedScale?.scale ?? 0)}px`}
-            position={"relative"}
-            left={Number(cpPosition?.x ?? 0) + "px"}
-            top={Number(cpPosition?.y ?? 0) + "px"}
-            opacity={Number(copyrightImage.opacity) / 100}
-            draggable={false}
-            userSelect={"none"}
-            zIndex={10}
-          />
-        )}
         {expandMode === "crop" && !cropSaved && (
           <Rnd
             size={{
@@ -161,14 +225,6 @@ export default function ImageWorkPlace() {
               zIndex: 1000,
             }}
             onDragStop={(_e, d) => {
-              console.log({
-                x: parseFloat(d.x.toString()),
-                y: parseFloat(d.y.toString()),
-                height: (parseFloat(d.node.style.height) ?? 300) / cropboxScale,
-                width: (parseFloat(d.node.style.width) ?? 300) / cropboxScale,
-                currentHeight: canvasRef.current?.clientHeight,
-                currentWidth: canvasRef.current?.clientWidth,
-              });
               setCropBox({
                 id: selectedImg,
                 box: {

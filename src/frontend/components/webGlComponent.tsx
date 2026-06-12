@@ -368,15 +368,21 @@ export default function WebGlComponent() {
       spriteRef.current.width = scaledImageW * scale;
       spriteRef.current.height = scaledImageH * scale;
 
-      spriteRef.current.x = (Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0) / 2;
-      spriteRef.current.y = (Number(appRef.current.canvas.style.height.replace("px", "")) ?? 0) / 2;
+      spriteRef.current.x =
+        (Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0) / 2;
+      spriteRef.current.y =
+        (Number(appRef.current.canvas.style.height.replace("px", "")) ?? 0) / 2;
 
       setSelectedScale({
         image: { height: h, width: w },
         scale: canvasScale,
         position: {
-          x:(Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0) / 2,
-          y: (Number(appRef.current.canvas.style.height.replace("px", "")) ?? 0) / 2,
+          x:
+            (Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0) /
+            2,
+          y:
+            (Number(appRef.current.canvas.style.height.replace("px", "")) ??
+              0) / 2,
         },
       });
 
@@ -445,7 +451,7 @@ export default function WebGlComponent() {
         });
 
         const overlay = new Container();
-        
+
         const spriteCopy = new Sprite(textureRef.current);
         appRef.current.stage.removeChildren();
         appRef.current.stage.addChild(spriteCopy);
@@ -473,8 +479,12 @@ export default function WebGlComponent() {
         spriteRef.current.height = canvasH * scale;
         spriteRef.current.width = canvasW * scale;
         spriteRef.current.anchor = 0.5;
-        spriteRef.current.x = (Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0) / 2;
-        spriteRef.current.y =  (Number(appRef.current.canvas.style.height.replace("px", "")) ?? 0) / 2;
+        spriteRef.current.x =
+          (Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0) /
+          2;
+        spriteRef.current.y =
+          (Number(appRef.current.canvas.style.height.replace("px", "")) ?? 0) /
+          2;
 
         setSelectedScale({
           image: {
@@ -483,8 +493,12 @@ export default function WebGlComponent() {
           },
           scale: scale,
           position: {
-            x:  (Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0) / 2,
-            y:  (Number(appRef.current.canvas.style.height.replace("px", "")) ?? 0) / 2,
+            x:
+              (Number(appRef.current.canvas.style.width.replace("px", "")) ??
+                0) / 2,
+            y:
+              (Number(appRef.current.canvas.style.height.replace("px", "")) ??
+                0) / 2,
           },
         });
       }
@@ -538,7 +552,7 @@ export default function WebGlComponent() {
 
         spriteRef.current.width = spW;
         spriteRef.current.height = spH;
-        
+
         spriteRef.current.x =
           (Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0) /
           2;
