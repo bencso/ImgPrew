@@ -36,7 +36,7 @@ export default function ExportDrawer() {
     setExportAllFileOptimize,
     setExportFileOptimize,
   } = useSessionStore();
-  const { copyrightImageRef, canvasRef, selectedScale } = useWorkSession();
+  const { canvasRef, selectedScale } = useWorkSession();
 
   const [successfullyImages, setSuccessfulyImages] = useState<
     SuccessfullyImagesProps[]
@@ -98,13 +98,12 @@ export default function ExportDrawer() {
       isXPositions(cpRelativePosition?.x) &&
       isYPositions(cpRelativePosition?.y)
     ) {
-      console.log(copyrightImageRef);
       const position = calculatePosition({
         positionX: cpRelativePosition?.x,
         positionY: cpRelativePosition?.y,
         elementRef: {
-          offsetHeight: Number(copyrightImageRef?.height ?? 0),
-          offsetWidth: Number(copyrightImageRef?.width ?? 0),
+          offsetHeight: Number(selectedImage.copyrightImage?.size?.height ?? 0)  ,
+          offsetWidth: Number(selectedImage.copyrightImage?.size?.width?? 0) ,
         },
         referenceElement: canvasRef,
         imageScale: selectedScale?.scale ?? 1,
@@ -112,8 +111,8 @@ export default function ExportDrawer() {
       });
       
       cpImagePostion = {
-        x: position.x / (selectedScale?.scale ?? 1),
-        y: position.y / (selectedScale?.scale ?? 1),
+        x: position.x ,
+        y: position.y ,
       };
     }
     const body = {
@@ -121,7 +120,7 @@ export default function ExportDrawer() {
       exif_data: selectedImage.exportSettings?.exifDatas ?? [],
       border_size: selectedImage.borderSize?.x ?? 0,
       border_color: selectedImage.expandBackground ?? "#fff",
-      copyright_image_size: selectedImage.copyrightImage?.size?.width ?? 0,
+      copyright_image_size: (selectedImage.copyrightImage?.size?.width ?? 0),
       copyright_image_position: cpImagePostion,
       copyright_image_opacity: selectedImage.copyrightImage?.opacity,
       texts: texts,

@@ -146,13 +146,11 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
             opacity: opacity,
           };
       }),
-    setCopyrightImageSize: (id: number, size: number) =>
+    setCopyrightImageSize: (id: number, size: number, imageScale?: number) =>
       set((state) => {
         const image = state.sessionData.find((img: any) => img.id === id);
 
-        console.log("imgSize");
-        const imgSize = state.calculateImageSize(id, size);
-        console.log(imgSize);
+        const imgSize = state.calculateImageSize(id, size, imageScale);
 
         if (image)
           image.copyrightImage = {
@@ -160,7 +158,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
             size: imgSize,
           };
       }),
-    calculateImageSize: (id: number, width: number) => {
+    calculateImageSize: (id: number, width: number, imageScale?: number) => {
       const image = get().sessionData.find(
         (si) => si.id === id,
       )?.copyrightImage;
@@ -172,8 +170,9 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       const scale = width / image.defaultSize.width;
 
       return {
-        width: width,
-        height: Math.round(image.defaultSize.height * scale),
+        width: width / (imageScale ?? 1),
+        height:
+          Math.round(image.defaultSize.height * scale) / (imageScale ?? 1),
       };
     },
     //#region KÉP MÉRETEK

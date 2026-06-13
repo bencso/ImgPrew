@@ -230,10 +230,11 @@ export interface SessionStore {
     },
   ) => void;
   setCopyrightImageOpacity: (id: number, opacity: number) => void;
-  setCopyrightImageSize: (id: number, size: number) => void;
+  setCopyrightImageSize: (id: number, size: number, imageScale?: number) => void;
   calculateImageSize: (
     id: number,
     width: number,
+    imageScale?: number
   ) => {
     height: number;
     width: number;

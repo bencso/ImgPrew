@@ -160,8 +160,8 @@ export default function ImageWorkPlace() {
     let position = copyrightImage?.position;
     const relativePosition = copyrightImage?.relativePosition;
 
-    copyrightImageSprite.height = copyrightImage.size?.height ?? 300;
-    copyrightImageSprite.width = copyrightImage.size?.width ?? 300;
+    copyrightImageSprite.height = (copyrightImage.size?.height ?? 300) * scale;
+    copyrightImageSprite.width = (copyrightImage.size?.width ?? 300) * scale;
 
     if (
       isXPositions(relativePosition?.x) &&
@@ -181,8 +181,8 @@ export default function ImageWorkPlace() {
       });
     }
 
-    copyrightImageSprite.x = position?.x ? Number(position.x) : 0;
-    copyrightImageSprite.y = position?.y ? Number(position.y) : 0;
+    copyrightImageSprite.x = position?.x ? Number(position.x) * scale : 0;
+    copyrightImageSprite.y = position?.y ? Number(position.y) * scale : 0;
 
     overlayRef.current?.addChild(copyrightImageSprite);
   }
