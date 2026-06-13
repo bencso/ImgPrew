@@ -1,6 +1,6 @@
 "use client";
 
-import keyboardShortcuts from "@/providers/keyboardShortCuts";
+import keyboardShortcuts from "@/handlers/shortcuts/keyboardShortcuts";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import dynamic from "next/dynamic";

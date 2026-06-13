@@ -13,7 +13,7 @@ import {
 import { LuFileUp } from "react-icons/lu";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
-import { convertCubeToFilter } from "@/handlers/lutFunctions";
+import { convertCubeToFilter } from "@/handlers/lut/lutFunctions";
 import { ColorMapFilter } from "pixi-filters";
 //@ts-ignore
 import parseCubeLUT from "parse-cube-lut";

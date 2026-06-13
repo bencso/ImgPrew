@@ -1,4 +1,4 @@
-import { calculatePosition } from "@/helper/calculationPosition";
+import { calculatePosition } from "@/helper/positions/calculationPosition";
 import { minMaxValidation } from "@/helper/errorHelper";
 import {
   DraggableImageEventPosition,

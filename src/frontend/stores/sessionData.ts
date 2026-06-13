@@ -1,6 +1,5 @@
-import { toaster } from "@/components/ui/toaster";
 import { minMaxValidation } from "@/helper/errorHelper";
-import { generateHald } from "@/handlers/lutFunctions";
+import { generateHald } from "@/handlers/lut/lutFunctions";
 import {
   CropBox,
   CustomImage,
@@ -11,11 +10,11 @@ import {
 } from "@/interfaces/interface";
 import { ColorMapFilter } from "pixi-filters";
 import { Application, Renderer, Sprite, Texture } from "pixi.js";
-import { RefObject, useRef } from "react";
+import { RefObject } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { immer } from "zustand/middleware/immer";
 import { createWithEqualityFn } from "zustand/traditional";
-import { getImageSize } from "@/helper/getImageSize";
+import { getImageSize } from "@/helper/sizes/getImageSize";
 
 export const useSessionStore = createWithEqualityFn<SessionStore>()(
   immer((set, get) => ({
@@ -277,7 +276,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
             fontFamily: "Roboto",
             fontWeight: 500,
             color: "#ffff",
-            opacity: 1,
+            opacity: 100,
           };
 
           image.texts = [...image.texts, newText];
@@ -400,7 +399,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
 
         image.texts = [
           ...image.texts.slice(0, textIndex),
-          { ...image.texts[textIndex], opacity: opacity / 100 },
+          { ...image.texts[textIndex], opacity: opacity },
           ...image.texts.slice(textIndex + 1),
         ];
       }),

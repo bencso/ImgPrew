@@ -2,7 +2,7 @@
 
 import { toaster } from "@/components/ui/toaster";
 import { FileUploadList } from "@/components/upload/fileuploadlist";
-import { uploadFile } from "@/handlers/fileUpload";
+import { uploadFile } from "@/handlers/imageUpload/fileUpload";
 import {
   UPLOAD_ACCEPTED_FILES,
   UPLOAD_MAX_FILES,

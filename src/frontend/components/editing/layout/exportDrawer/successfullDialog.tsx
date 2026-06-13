@@ -1,12 +1,10 @@
-import { CustomImage } from "@/interfaces/interface";
+import { SuccessfullDialogProps } from "@/interfaces/export.interface";
 import {
   Button,
-  DialogActionTrigger,
   DialogBody,
   DialogFooter,
   DialogHeader,
   Image,
-  DialogCloseTrigger,
   DialogContent,
   DialogRoot,
   DialogTitle,
@@ -14,24 +12,10 @@ import {
   IconButton,
   HStack,
   Text,
-  DialogContext,
-  useDialogContext,
 } from "@chakra-ui/react";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { LuChevronLeft, LuChevronRight, LuDownload } from "react-icons/lu";
 
-interface SuccessfullDialogProps {
-  successfullyImageShow: boolean;
-  setSuccessfullyImageShow: Dispatch<SetStateAction<boolean>>;
-  successfullyImages: SuccessfullyImagesProps[];
-  selectedImage?: CustomImage | undefined;
-}
-
-export interface SuccessfullyImagesProps {
-  title: string;
-  data: string;
-  extension: string;
-}
 
 export const SuccessfullDialog = (props: SuccessfullDialogProps) => {
   let images = props.successfullyImages ?? [];

@@ -16,7 +16,7 @@ export default function keyboardShortcuts({
   setSelectedImage: any;
   setStep: any;
 }) {
-  const {clearSessionData} = useSessionStore();
+  const { clearSessionData } = useSessionStore();
   //#region SHORTCUTS
   useKeyboardShortcut({
     key: "ArrowLeft",

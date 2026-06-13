@@ -1,3 +1,5 @@
+//TODO: Refaktorálás
+
 import { minMaxValidation } from "@/helper/errorHelper";
 import { XPositions, YPositions } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
@@ -28,8 +30,7 @@ import {
 import { shallow } from "zustand/shallow";
 
 export const CopyrightImageSettingBlock = () => {
-  const { selectedImg, canvasRef, selectedScale, copyrightImageRef } =
-    useWorkSession();
+  const { selectedImg, canvasRef, selectedScale } = useWorkSession();
   const {
     setCopyrightImageSize,
     setCopyrightImagePosition,
@@ -45,6 +46,21 @@ export const CopyrightImageSettingBlock = () => {
   const copyrightImage = image?.copyrightImage;
   const imagePosition = copyrightImage?.position;
 
+  const scale = selectedScale?.scale ?? 1;
+
+  const copyRightSize = Math.round((copyrightImage?.size?.width ?? 1) * scale);
+  const copyRightOpacity = (
+    Number.isNaN(copyrightImage?.opacity ?? 100)
+      ? "100"
+      : copyrightImage?.opacity
+  )?.toString();
+  const copyRightX = Math.round(
+    typeof imagePosition?.x == "number" ? (imagePosition?.x ?? 0) * scale : 0,
+  ).toString();
+  const copyRightY = Math.round(
+    typeof imagePosition?.y == "number" ? (imagePosition?.y ?? 0) * scale : 0,
+  ).toString();
+
   if (copyrightImage?.blob) {
     return (
       <Stack gap={5}>
@@ -52,14 +68,12 @@ export const CopyrightImageSettingBlock = () => {
           <Field.Label>Méret</Field.Label>
           <Input
             placeholder="Méret"
-            value={Math.round(
-              (copyrightImage?.size?.width ?? 1) * (selectedScale?.scale ?? 1),
-            )}
+            value={copyRightSize}
             onChange={(e) => {
               setCopyrightImageSize(
                 selectedImg,
                 minMaxValidation(Math.round(Number(e.target.value ?? 1)), 0),
-                selectedScale?.scale ?? 1,
+                scale,
               );
             }}
             min={200}
@@ -71,10 +85,7 @@ export const CopyrightImageSettingBlock = () => {
 
           <HStack flex="1">
             <NumberInput.Root
-              value={(Number.isNaN(copyrightImage?.opacity ?? 100)
-                ? "100"
-                : copyrightImage?.opacity
-              )?.toString()}
+              value={copyRightOpacity}
               min={0}
               max={100}
               w={"full"}
@@ -97,11 +108,7 @@ export const CopyrightImageSettingBlock = () => {
 
             <HStack flex="1">
               <NumberInput.Root
-                value={Math.round(
-                  typeof imagePosition?.x == "number"
-                    ? (imagePosition?.x ?? 0) * (selectedScale?.scale ?? 0)
-                    : 0,
-                ).toString()}
+                value={copyRightX}
                 min={0}
                 onValueChange={(e) => {
                   if (e.value === "-") return;
@@ -117,7 +124,7 @@ export const CopyrightImageSettingBlock = () => {
                       x: minMaxValidation(Number(e.value), 0, maxX),
                       y: imagePosition?.y ?? 0,
                     },
-                    selectedScale?.scale ?? 1,
+                    scale,
                   );
                 }}
               >
@@ -131,11 +138,7 @@ export const CopyrightImageSettingBlock = () => {
 
             <HStack flex="1">
               <NumberInput.Root
-                value={Math.round(
-                  typeof imagePosition?.y == "number"
-                    ? (imagePosition?.y ?? 0) * (selectedScale?.scale ?? 0)
-                    : 0,
-                ).toString()}
+                value={copyRightY}
                 min={0}
                 onValueChange={(e) => {
                   if (e.value === "-") return;
@@ -151,7 +154,7 @@ export const CopyrightImageSettingBlock = () => {
                       x: imagePosition?.x ?? 0,
                       y: minMaxValidation(Number(e.value), 0, maxY),
                     },
-                    selectedScale?.scale ?? 1,
+                    scale,
                   );
                 }}
               >

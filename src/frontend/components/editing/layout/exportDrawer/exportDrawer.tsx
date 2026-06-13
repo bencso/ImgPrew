@@ -1,15 +1,16 @@
+//TODO: Refaktorálás
+//TODO: Az exportálásnál ha több kép van, akkor néha összezavarodik a rendszer és nem a megfelelő képnek a beállításaival exportál (Ennek javítása)
 import {
   Drawer,
   Box,
   Button,
-  Portal,
   Flex,
   Text,
   HStack,
   Switch,
 } from "@chakra-ui/react";
 import { FaFileExport, FaFileImage } from "react-icons/fa";
-import { LuFileBox, LuLoader } from "react-icons/lu";
+import { LuFileBox } from "react-icons/lu";
 import { ExportExifBlock } from "./exportExifBlock";
 import { ExportImageBlock } from "./exportImageSelect";
 import { useState } from "react";
@@ -19,14 +20,12 @@ import { useWorkSession } from "@/providers/sessionprovider";
 import { SuccessfullDialog } from "./successfullDialog";
 import Loader from "@/components/loader";
 import { BeatLoader } from "react-spinners";
-import { calculatePosition } from "@/helper/calculationPosition";
-import { isXPositions, isYPositions } from "@/helper/checkXYPositions";
-
-export interface SuccessfullyImagesProps {
-  title: string;
-  data: string;
-  extension: string;
-}
+import { calculatePosition } from "@/helper/positions/calculationPosition";
+import {
+  isXPositions,
+  isYPositions,
+} from "@/helper/positions/checkXYPositions";
+import { SuccessfullyImagesProps } from "@/interfaces/export.interface";
 
 export default function ExportDrawer() {
   const images = useSessionStore((s) => s.sessionData);
@@ -47,19 +46,27 @@ export default function ExportDrawer() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const selectedImage = images.find((i) => i.id === selected);
+  const scale = selectedScale?.scale ?? 1;
 
   async function exportSelectedImage(id: number) {
     const exportData = await exportImageSettings(id, appRef);
-    let selectedImage = images.find((i) => i.id === id);
 
+    let selectedImage = images.find((i) => i.id === id);
     if (!selectedImage) return;
+
+    let copyrightImage = null;
+    let cpImagePostion = {
+      x: 0,
+      y: 0,
+    };
+
+    const cpRelativePosition = selectedImage.copyrightImage?.relativePosition;
+
     const blob = await fetch(selectedImage.blob).then((res) => res.blob());
     const haldBlob = await fetch(exportData.hald).then((res) => res.blob());
 
     const imageBlobFile = new File([blob], `image_${selectedImage.id}`);
     const haldFile = new File([haldBlob], `hald_${selectedImage.id}`);
-
-    let copyrightImage = null;
 
     if (selectedImage.copyrightImage?.blob) {
       let copyrightBlob = await fetch(selectedImage.copyrightImage.blob).then(
@@ -71,29 +78,49 @@ export default function ExportDrawer() {
       );
     }
 
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
     const texts = selectedImage.texts?.map((text) => {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
       if (!ctx) return;
-      ctx.font = `${text.fontSize * (selectedScale?.scale ?? 0)}px ${text.fontFamily}`;
+      ctx.font = `${text.fontSize * scale}px ${text.fontFamily}`;
 
       const textFont = ctx.measureText(text.text);
+      const textSize = {
+        offsetHeight: textFont.fontBoundingBoxAscent / scale,
+        offsetWidth: textFont.width / scale,
+      };
+
+      let textPosition = text.position;
+      const relativePosition = text.relativePosition;
+
+      textPosition = {
+        x: Number(textPosition.x),
+        y: Number(textPosition.y),
+      };
+
+      if (
+        isXPositions(relativePosition?.x) &&
+        isYPositions(relativePosition?.y)
+      ) {
+        textPosition = calculatePosition({
+          positionX: relativePosition?.x,
+          positionY: relativePosition?.y,
+          elementRef: textSize,
+          referenceElement: canvasRef,
+          imageScale: scale,
+          borderSize: selectedImage.borderSize,
+        });
+      }
 
       return {
         ...text,
-        uiWidth: textFont.width / (selectedScale?.scale ?? 0),
-        uiAscent: textFont.fontBoundingBoxAscent / (selectedScale?.scale ?? 0),
-        uiDescent:
-          textFont.fontBoundingBoxDescent / (selectedScale?.scale ?? 0),
+        uiWidth: textFont.width / scale,
+        uiAscent: textFont.fontBoundingBoxAscent / scale,
+        uiDescent: textFont.fontBoundingBoxDescent / scale,
       };
     });
 
-    const cpRelativePosition = selectedImage.copyrightImage?.relativePosition;
-  
-    let cpImagePostion = {
-      x: 0,
-      y: 0,
-    };
     if (
       isXPositions(cpRelativePosition?.x) &&
       isYPositions(cpRelativePosition?.y)
@@ -102,57 +129,64 @@ export default function ExportDrawer() {
         positionX: cpRelativePosition?.x,
         positionY: cpRelativePosition?.y,
         elementRef: {
-          offsetHeight: Number(selectedImage.copyrightImage?.size?.height ?? 0)  ,
-          offsetWidth: Number(selectedImage.copyrightImage?.size?.width?? 0) ,
+          offsetHeight: Number(selectedImage.copyrightImage?.size?.height ?? 0),
+          offsetWidth: Number(selectedImage.copyrightImage?.size?.width ?? 0),
         },
         referenceElement: canvasRef,
-        imageScale: selectedScale?.scale ?? 1,
+        imageScale: scale,
         borderSize: selectedImage.borderSize,
       });
-      
+
       cpImagePostion = {
-        x: position.x ,
-        y: position.y ,
+        x: position.x,
+        y: position.y,
       };
     }
+
+    const expandSize =
+      selectedImage.expandMode === "expand"
+        ? {
+            ...selectedImage.expandSize,
+            padding: selectedImage.expandSize?.padding ?? 0,
+          }
+        : {
+            width: selectedImage.box?.width ?? 0,
+            height: selectedImage.box?.height ?? 0,
+            padding: 0,
+          };
+
+    const expandPosition =
+      selectedImage.expandMode === "crop"
+        ? {
+            x: selectedImage.box?.x ?? 0,
+            y: selectedImage.box?.y ?? 0,
+          }
+        : { x: 0, y: 0 };
+
     const body = {
       extension: selectedImage.exportSettings?.fileExtension ?? "jpg",
       exif_data: selectedImage.exportSettings?.exifDatas ?? [],
       border_size: selectedImage.borderSize?.x ?? 0,
       border_color: selectedImage.expandBackground ?? "#fff",
-      copyright_image_size: (selectedImage.copyrightImage?.size?.width ?? 0),
+      copyright_image_size: selectedImage.copyrightImage?.size?.width ?? 0,
       copyright_image_position: cpImagePostion,
       copyright_image_opacity: selectedImage.copyrightImage?.opacity,
       texts: texts,
       optimize: selectedImage.exportSettings?.optimize ?? false,
       expand_mode: selectedImage.expandMode ?? "no",
-      expand_size:
-        selectedImage.expandMode === "expand"
-          ? {
-              ...selectedImage.expandSize,
-              padding: selectedImage.expandSize?.padding ?? 0,
-            }
-          : {
-              width: selectedImage.box?.width ?? 0,
-              height: selectedImage.box?.height ?? 0,
-              padding: 0,
-            },
-      expand_position:
-        selectedImage.expandMode === "crop"
-          ? {
-              x: selectedImage.box?.x ?? 0,
-              y: selectedImage.box?.y ?? 0,
-            }
-          : { x: 0, y: 0 },
+      expand_size: expandSize,
+      expand_position: expandPosition,
       expand_color: selectedImage.expandBackground ?? "#fff",
     };
 
     const formData = new FormData();
+
     formData.append("file", imageBlobFile);
     formData.append("lut", haldFile, "hald.png");
-    if (copyrightImage) {
+
+    if (copyrightImage)
       formData.append("copyright_image", copyrightImage, "copyright.png");
-    }
+
     formData.append("body", JSON.stringify(body));
 
     await fetch("/api/images/export", {
