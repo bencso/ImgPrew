@@ -26,6 +26,7 @@ import {
   isYPositions,
 } from "@/helper/positions/checkXYPositions";
 import { SuccessfullyImagesProps } from "@/interfaces/export.interface";
+import { calcScale } from "@/helper/sizes/calcScale";
 
 export default function ExportDrawer() {
   const images = useSessionStore((s) => s.sessionData);
@@ -35,7 +36,7 @@ export default function ExportDrawer() {
     setExportAllFileOptimize,
     setExportFileOptimize,
   } = useSessionStore();
-  const { canvasRef, selectedScale } = useWorkSession();
+  const { canvasRef, workPlaceRef, textureRef, spriteRef } = useWorkSession();
 
   const [successfullyImages, setSuccessfulyImages] = useState<
     SuccessfullyImagesProps[]
@@ -46,13 +47,26 @@ export default function ExportDrawer() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const selectedImage = images.find((i) => i.id === selected);
-  const scale = selectedScale?.scale ?? 1;
 
   async function exportSelectedImage(id: number) {
     const exportData = await exportImageSettings(id, appRef);
 
     let selectedImage = images.find((i) => i.id === id);
     if (!selectedImage) return;
+
+    const scale = calcScale({
+      workPlaceRef,
+      appRef,
+      textureRef,
+      spriteRef,
+      expandMode: selectedImage.expandMode,
+      expandSize: selectedImage.expandSize,
+      canvasRef,
+      cropSaved: selectedImage.cropSave,
+      box: selectedImage.box,
+      borderSize: selectedImage.borderSize,
+      imageSize: selectedImage.dimesions,
+    });
 
     let copyrightImage = null;
     let cpImagePostion = {
@@ -353,9 +367,10 @@ export default function ExportDrawer() {
                       setSuccessfulyImages([]);
 
                       try {
-                        const exportPromises = images.map((image) =>
-                          exportSelectedImage(image.id),
-                        );
+                        const exportPromises = images.map((image) => {
+                          console.log(image.id);
+                          exportSelectedImage(image.id);
+                        });
                         await Promise.all(exportPromises);
                       } catch (error) {
                         console.error("Hiba az exportáláskor:", error);

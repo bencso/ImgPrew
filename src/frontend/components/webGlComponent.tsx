@@ -1,6 +1,7 @@
 //TODO: Refaktorálás
 //TODO: Jelenleg a croppolás a nagyobb resolution miatt elcsúszik ennek javítása
 import { allFiltersFragment } from "@/handlers/filters/allFiltersFragment";
+import { calcScale } from "@/helper/sizes/calcScale";
 import { calculationTypeEnum, ParamProps } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
@@ -69,54 +70,20 @@ export default function WebGlComponent() {
 
   //! shallow: nem generál le újra az objektumot hanem mintha cachelte volna mindig az adott objektumot irja felül / ÖSSZEHASONLÍT
   const filters = useSessionStore((s) => s.getFilters(selectedImg), shallow);
-
-  const expandMode =
-    useSessionStore(
-      (state) =>
-        state.sessionData.find((si) => si.id === selectedImg)?.expandMode,
-    ) ?? "no";
-
-  const expandSize = useSessionStore(
-    (state) =>
-      state.sessionData.find((si) => si.id === selectedImg)?.expandSize,
-  );
-
-  const borderSize = useSessionStore(
-    (state) =>
-      state.sessionData.find((si) => si.id === selectedImg)?.borderSize,
-  );
-
-  const expandBackground =
-    useSessionStore(
-      (state) =>
-        state.sessionData.find((si) => si.id === selectedImg)?.expandBackground,
-    ) ?? "#fffff";
-
-  const imageSize = useSessionStore(
-    (state) => state.sessionData.find((si) => si.id === selectedImg)?.dimesions,
-  );
-
-  const box = useSessionStore(
-    (state) => state.sessionData.find((si) => si.id === selectedImg)?.box,
-  );
-
-  const cropSaved = useSessionStore(
-    (state) => state.sessionData.find((si) => si.id === selectedImg)?.cropSave,
+  const image = useSessionStore(
+    (state) => state.sessionData.find((si) => si.id === selectedImg),
     shallow,
   );
 
-  const expandPadding = useSessionStore(
-    (state) =>
-      state.sessionData.find((si) => si.id === selectedImg)?.expandSize
-        ?.padding,
-    shallow,
-  );
-
-  const haldSprite = useSessionStore(
-    (state) =>
-      state.sessionData.find((si) => si.id === selectedImg)?.haldSprite,
-    shallow,
-  );
+  const expandMode = image?.expandMode ?? "no";
+  const expandSize = image?.expandSize;
+  const borderSize = image?.borderSize;
+  const expandBackground = image?.expandBackground ?? "#fff";
+  const imageSize = image?.dimesions;
+  const box = image?.box;
+  const cropSaved = image?.cropSave;
+  const expandPadding = image?.expandSize?.padding;
+  const haldSprite = image?.haldSprite;
 
   async function initApp() {
     const app = new Application();
@@ -331,6 +298,20 @@ export default function WebGlComponent() {
       setImageSize(selectedImg, imgW, imgH);
     }
 
+    const returnScale = calcScale({
+      workPlaceRef,
+      appRef,
+      textureRef,
+      spriteRef,
+      imageSize,
+      expandMode,
+      expandSize,
+      canvasRef,
+      cropSaved,
+      box,
+      borderSize,
+    });
+
     const areaW = workPlaceRef.current.offsetWidth;
     const areaH = workPlaceRef.current.offsetHeight;
 
@@ -340,7 +321,7 @@ export default function WebGlComponent() {
       const h = expandSize.height;
       const w = expandSize.width;
 
-      const canvasScale = Math.min(areaW / w, areaH / h);
+      const canvasScale = returnScale;
 
       const canvasW = w * canvasScale;
       const canvasH = h * canvasScale;
@@ -369,7 +350,7 @@ export default function WebGlComponent() {
 
       setSelectedScale({
         image: { height: h, width: w },
-        scale: canvasScale,
+        scale: returnScale,
         position: {
           x:
             (Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0) /
@@ -454,10 +435,7 @@ export default function WebGlComponent() {
         const targetH = Math.floor(canvasH + (borderSize?.y ?? 0));
         const targetW = Math.floor(canvasW + (borderSize?.x ?? 0));
 
-        const scale = Math.min(
-          canvasRef.current.clientHeight / (targetH ?? 0),
-          canvasRef.current.clientWidth / (targetW ?? 0),
-        );
+        const scale = returnScale;
 
         const appW = Math.floor(targetW * scale);
         const appH = Math.floor(targetH * scale);
@@ -513,7 +491,7 @@ export default function WebGlComponent() {
             height: imageSize?.height ?? 0,
             width: imageSize?.width ?? 0,
           },
-          scale: scale,
+          scale: returnScale,
           position: { x: spX, y: spY },
         });
       }
@@ -554,14 +532,9 @@ export default function WebGlComponent() {
           (Number(appRef.current.canvas.style.height.replace("px", "")) ?? 0) /
           2;
 
-        let scale = Math.min(
-          workPlaceRef.current.clientHeight / (h ?? 0),
-          workPlaceRef.current.clientWidth / (w ?? 0),
-        );
-
         setSelectedScale({
           image: { height: imgH, width: imgW },
-          scale: scale,
+          scale: returnScale,
           position: {
             x:
               (Number(appRef.current.canvas.style.width.replace("px", "")) ??

@@ -600,17 +600,18 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       appRef: RefObject<Application<Renderer> | null>,
     ) => {
       const image = get().sessionData.find((img) => img.id === id);
+
       if (image && appRef.current) {
         let returnData = {} as any;
         let haldImage;
 
+        //TODO: Ez nem jó mert itt tulajdonképpen mindig az utolsó szerint lesz akkor exportálva
         if (image && appRef.current) {
           haldImage = await appRef.current.renderer.extract.base64({
             target: image.haldSprite,
             format: "png",
             resolution: 1,
           });
-          console.log(appRef.current.renderer);
         }
 
         if (image.haldSprite) returnData.hald = haldImage;
