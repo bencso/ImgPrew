@@ -61,19 +61,17 @@ const sidebarElements = (
   ) => void,
   selectedScale: SelectedScale | undefined,
   setExpandBackground: (id: number, rgba: string) => void,
-  expandBackground: string,
-  expandMode: string,
   filters: FilterProps,
   selectedChannel: string | undefined,
-  captionSamples: string[],
   webglFilterRef: RefObject<Filter | null>,
   uniforms: any,
   imageScale: any,
+  image: any,
 ) => {
   return [
     {
       function: "Kép szöveg",
-      hide: captionSamples.length <= 0,
+      hide: image.captionSamples.length <= 0,
       icon: <LuTag />,
       inputs: [
         {
@@ -676,6 +674,7 @@ const sidebarElements = (
         {
           name: "Képkeret méret",
           inputType: "number",
+          value: image.borderSize,
           onChange: (e: any) => {
             const number = e.target.valueAsNumber;
             if (
@@ -687,16 +686,16 @@ const sidebarElements = (
 
             if (typeof number === "number") {
               if (number > 0) {
-                if (expandMode !== "crop") setExpandMode(selectedImg, "border");
-                const scale = (imageScale);
-                const border = minMaxValidation(number,0,200)
-                
+                if (image.expandMode !== "crop") setExpandMode(selectedImg, "border");
+                const scale = imageScale;
+                const border = minMaxValidation(number, 0, 200);
+
                 setBorderSize(selectedImg, {
-                  x: Math.round( border/ scale),
+                  x: Math.round(border / scale),
                   y: Math.round(border / scale),
                 });
               } else {
-                if (expandMode !== "crop") {
+                if (image.expandMode !== "crop") {
                   setExpandMode(selectedImg, "no");
                 }
                 setBorderSize(selectedImg, {
@@ -705,7 +704,7 @@ const sidebarElements = (
                 });
               }
             } else {
-              if (expandMode !== "crop") {
+              if (image.expandMode !== "crop") {
                 setExpandMode(selectedImg, "no");
               }
               setBorderSize(selectedImg, {
@@ -722,8 +721,8 @@ const sidebarElements = (
             <ColorPicker.Root
               zIndex={1000}
               defaultValue={
-                expandBackground
-                  ? parseColor(expandBackground)
+                image.expandBackground
+                  ? parseColor(image.expandBackground)
                   : parseColor("#ffff")
               }
               onValueChange={(e: any) => {
@@ -789,28 +788,12 @@ export default function SideBar() {
   //#endregion
 
   //#region sidebar funkciók
-  const selectedExtension =
-    useSessionStore(
-      (s) =>
-        s.sessionData.find((si) => si.id === selectedImg)?.exportSettings
-          ?.fileExtension,
-    ) || "";
+  const image = useSessionStore((s) =>
+    s.sessionData.find((si) => si.id === selectedImg),
+  );
 
-  const expandBackground =
-    useSessionStore(
-      (s) =>
-        s.sessionData.find((si) => si.id === selectedImg)?.expandBackground,
-    ) || "";
+  const selectedExtension = image?.exportSettings?.fileExtension;
 
-  const expandMode =
-    useSessionStore(
-      (s) => s.sessionData.find((si) => si.id === selectedImg)?.expandMode,
-    ) || "no";
-
-  const captionSamples =
-    useSessionStore(
-      (s) => s.sessionData.find((si) => si.id === selectedImg)?.captionSamples,
-    ) || [];
 
   const filters = useSessionStore((s) => s.getFilters(selectedImg), shallow);
   const uniforms = webglFilterRef.current
@@ -834,26 +817,20 @@ export default function SideBar() {
       setBorderSize,
       selectedScale,
       setExpandBackground,
-      expandBackground,
-      expandMode,
       filters,
       selectedChannel,
-      captionSamples,
       webglFilterRef,
       uniforms,
       imageScale,
+      image,
     );
   }, [
     selectedImg,
-    selectedExtension,
-    expandBackground,
-    expandMode,
+    selectedExtension, 
     filters,
-    captionSamples,
     webglFilterRef,
-    selectedChannel,
     uniforms,
-    imageScale,
+    image
   ]);
 
   //#endregion

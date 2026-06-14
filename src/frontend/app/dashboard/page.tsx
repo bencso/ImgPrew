@@ -1,6 +1,6 @@
 "use client";
 
-import keyboardShortcuts from "@/providers/keyboardShortCuts";
+import keyboardShortcuts from "@/handlers/shortcuts/keyboardShortcuts";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import dynamic from "next/dynamic";
@@ -18,17 +18,19 @@ const ImageWorkPlace = dynamic(
 
 export default function Page() {
   //#region contextek
-  const { step, setStep, setSelectedImg, selectedImg } = useWorkSession();
-  const { sessionData } = useSessionStore();
+  const { step, setStep, setSelectedImg, selectedImg, appRef } =
+    useWorkSession();
+  const { sessionData, setHaldImage } = useSessionStore();
   const [selectedImage, setSelectedImage] = useState<string>();
 
   keyboardShortcuts({
     selectedImg,
     setSelectedImage,
     setSelectedImg,
-    sessionData,
     setStep,
     step,
+    setHaldImage,
+    appRef,
   });
 
   useEffect(() => {

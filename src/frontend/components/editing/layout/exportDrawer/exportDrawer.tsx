@@ -1,15 +1,15 @@
+//TODO: Refaktorálás
 import {
   Drawer,
   Box,
   Button,
-  Portal,
   Flex,
   Text,
   HStack,
   Switch,
 } from "@chakra-ui/react";
 import { FaFileExport, FaFileImage } from "react-icons/fa";
-import { LuFileBox, LuLoader } from "react-icons/lu";
+import { LuFileBox } from "react-icons/lu";
 import { ExportExifBlock } from "./exportExifBlock";
 import { ExportImageBlock } from "./exportImageSelect";
 import { useState } from "react";
@@ -19,12 +19,18 @@ import { useWorkSession } from "@/providers/sessionprovider";
 import { SuccessfullDialog } from "./successfullDialog";
 import Loader from "@/components/loader";
 import { BeatLoader } from "react-spinners";
-
-export interface SuccessfullyImagesProps {
-  title: string;
-  data: string;
-  extension: string;
-}
+import { calculatePosition } from "@/helper/positions/calculationPosition";
+import {
+  isXPositions,
+  isYPositions,
+} from "@/helper/positions/checkXYPositions";
+import { SuccessfullyImagesProps } from "@/interfaces/export.interface";
+import { calcScale } from "@/helper/sizes/calcScale";
+import {
+  DraggableImageEventPosition,
+  XPositions,
+  YPositions,
+} from "@/interfaces/interface";
 
 export default function ExportDrawer() {
   const images = useSessionStore((s) => s.sessionData);
@@ -34,7 +40,8 @@ export default function ExportDrawer() {
     setExportAllFileOptimize,
     setExportFileOptimize,
   } = useSessionStore();
-  const { imageScale, selectedScale } = useWorkSession();
+  const { canvasRef, workPlaceRef, textureRef, spriteRef, selectedImg, setSelectedImg } =
+    useWorkSession();
 
   const [successfullyImages, setSuccessfulyImages] = useState<
     SuccessfullyImagesProps[]
@@ -47,91 +54,203 @@ export default function ExportDrawer() {
   const selectedImage = images.find((i) => i.id === selected);
 
   async function exportSelectedImage(id: number) {
-    //TODO: A Hald nem teljes egészében adja vissza a kép eredeti színeit, ezért ezen javitani
-    const exportData = await exportImageSettings(id, appRef);
-    let selectedImage = images.find((i) => i.id === id);
+    const exportData = await exportImageSettings(id);
 
+    let selectedImage = images.find((i) => i.id === id);
     if (!selectedImage) return;
-    console.log(selectedImage.blob);
+
+    let haldImage = exportData.hald ?? "";
+
+    if (id === selectedImg) {
+      if (selectedImage && appRef.current) {
+        haldImage = await appRef.current.renderer.extract.base64({
+          target: selectedImage.haldSprite,
+          format: "png",
+          resolution: 1,
+        });
+      }
+    }
+
+    if(exportData.hald === undefined && appRef.current){
+      setSelectedImg(id);
+        haldImage = await appRef.current.renderer.extract.base64({
+          target: selectedImage.haldSprite,
+          format: "png",
+          resolution: 1,
+        });
+    }
+
+    const scale = calcScale({
+      workPlaceRef,
+      appRef,
+      textureRef,
+      spriteRef,
+      expandMode: selectedImage.expandMode,
+      expandSize: selectedImage.expandSize,
+      canvasRef,
+      cropSaved: selectedImage.cropSave,
+      box: selectedImage.box,
+      borderSize: selectedImage.borderSize,
+      imageSize: selectedImage.dimesions,
+    });
+
+    let copyrightImage = null;
+    let cpImagePostion = {
+      x: 0,
+      y: 0,
+    };
+
+    const cpRelativePosition = selectedImage.copyrightImage?.relativePosition;
+
     const blob = await fetch(selectedImage.blob).then((res) => res.blob());
-    console.log(blob);
-    const haldBlob = await fetch(exportData.hald).then((res) => res.blob());
+    const haldBlob = await fetch(haldImage).then((res) => res.blob());
 
     const imageBlobFile = new File([blob], `image_${selectedImage.id}`);
     const haldFile = new File([haldBlob], `hald_${selectedImage.id}`);
-
-    let copyrightImage = null;
 
     if (selectedImage.copyrightImage?.blob) {
       let copyrightBlob = await fetch(selectedImage.copyrightImage.blob).then(
         (res) => res.blob(),
       );
+
       copyrightImage = new File(
         [copyrightBlob],
         `copyright_${selectedImage.id}`,
       );
+
+      if (
+        isXPositions(cpRelativePosition?.x) &&
+        isYPositions(cpRelativePosition?.y)
+      ) {
+        const position = calculatePosition({
+          positionX: cpRelativePosition?.x,
+          positionY: cpRelativePosition?.y,
+          elementRef: {
+            offsetHeight: Number(
+              selectedImage.copyrightImage?.size?.height ?? 0,
+            ),
+            offsetWidth: Number(selectedImage.copyrightImage?.size?.width ?? 0),
+          },
+          referenceElement: canvasRef,
+          imageScale: scale,
+          borderSize: selectedImage.borderSize,
+        });
+
+        cpImagePostion = {
+          x: position.x,
+          y: position.y,
+        };
+      }
     }
 
+    let texts: (
+      | {
+          uiWidth: number;
+          uiAscent: number;
+          uiDescent: number;
+          id: string;
+          text: string;
+          position: DraggableImageEventPosition;
+          relativePosition?: { x: XPositions | number; y: YPositions | number };
+          enabled: boolean;
+          fontSize: number;
+          fontFamily: string;
+          fontWeight: number;
+          color: string;
+          opacity: number;
+        }
+      | undefined
+    )[] = [];
 
-    const texts = selectedImage.texts?.map((text) => {
+    if (selectedImage.texts && selectedImage.texts.length > 0) {
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-      ctx.font = `${text.fontSize * (selectedScale?.scale ?? 0)}px ${text.fontFamily}`;
 
-      const textFont = ctx.measureText(text.text);
+      texts = selectedImage.texts?.map((text) => {
+        if (!ctx) return;
+        ctx.font = `${text.fontSize * scale}px ${text.fontFamily}`;
 
-      return {
-        ...text,
-        uiWidth: textFont.width / (selectedScale?.scale ?? 0),
-        uiAscent: textFont.fontBoundingBoxAscent / (selectedScale?.scale ?? 0),
-        uiDescent:
-          textFont.fontBoundingBoxDescent / (selectedScale?.scale ?? 0),
-      };
-    });
+        const textFont = ctx.measureText(text.text);
+        const textSize = {
+          offsetHeight: textFont.fontBoundingBoxAscent / scale,
+          offsetWidth: textFont.width / scale,
+        };
+
+        let textPosition = text.position;
+        const relativePosition = text.relativePosition;
+
+        textPosition = {
+          x: Number(textPosition.x),
+          y: Number(textPosition.y),
+        };
+
+        if (
+          isXPositions(relativePosition?.x) &&
+          isYPositions(relativePosition?.y)
+        ) {
+          textPosition = calculatePosition({
+            positionX: relativePosition?.x,
+            positionY: relativePosition?.y,
+            elementRef: textSize,
+            referenceElement: canvasRef,
+            imageScale: scale,
+            borderSize: selectedImage.borderSize,
+          });
+        }
+
+        return {
+          ...text,
+          uiWidth: textFont.width / scale,
+          uiAscent: textFont.fontBoundingBoxAscent / scale,
+          uiDescent: textFont.fontBoundingBoxDescent / scale,
+        };
+      });
+    }
+
+    const expandSize =
+      selectedImage.expandMode === "expand"
+        ? {
+            ...selectedImage.expandSize,
+            padding: selectedImage.expandSize?.padding ?? 0,
+          }
+        : {
+            width: selectedImage.box?.width ?? 0,
+            height: selectedImage.box?.height ?? 0,
+            padding: 0,
+          };
+
+    const expandPosition =
+      selectedImage.expandMode === "crop"
+        ? {
+            x: selectedImage.box?.x ?? 0,
+            y: selectedImage.box?.y ?? 0,
+          }
+        : { x: 0, y: 0 };
 
     const body = {
       extension: selectedImage.exportSettings?.fileExtension ?? "jpg",
       exif_data: selectedImage.exportSettings?.exifDatas ?? [],
       border_size: selectedImage.borderSize?.x ?? 0,
       border_color: selectedImage.expandBackground ?? "#fff",
-      copyright_image_size:
-        (selectedImage.copyrightImage?.size ?? 0),
-      copyright_image_position: {
-        x: (Number(selectedImage.copyrightImage?.position?.x) ?? 0)/ (selectedScale?.scale ?? 0),
-        y: (Number(selectedImage.copyrightImage?.position?.y) ?? 0)/ (selectedScale?.scale ?? 0),
-      },
+      copyright_image_size: selectedImage.copyrightImage?.size?.width ?? 0,
+      copyright_image_position: cpImagePostion,
       copyright_image_opacity: selectedImage.copyrightImage?.opacity,
       texts: texts,
       optimize: selectedImage.exportSettings?.optimize ?? false,
       expand_mode: selectedImage.expandMode ?? "no",
-      expand_size:
-        selectedImage.expandMode === "expand"
-          ? {
-              ...selectedImage.expandSize,
-              padding: (selectedImage.expandSize?.padding ?? 0),
-            }
-          : {
-              width: selectedImage.box?.width ?? 0,
-              height: selectedImage.box?.height ?? 0,
-              padding: 0,
-            },
-      expand_position:
-        selectedImage.expandMode === "crop"
-          ? {
-              x: selectedImage.box?.x ?? 0,
-              y: selectedImage.box?.y ?? 0,
-            }
-          : { x: 0, y: 0 },
+      expand_size: expandSize,
+      expand_position: expandPosition,
       expand_color: selectedImage.expandBackground ?? "#fff",
     };
 
     const formData = new FormData();
+
     formData.append("file", imageBlobFile);
     formData.append("lut", haldFile, "hald.png");
-    if (copyrightImage) {
+
+    if (copyrightImage)
       formData.append("copyright_image", copyrightImage, "copyright.png");
-    }
+
     formData.append("body", JSON.stringify(body));
 
     await fetch("/api/images/export", {
@@ -226,7 +345,12 @@ export default function ExportDrawer() {
               display={"flex"}
               flexDir={"column"}
             >
-             { images.length>1 && <ExportImageBlock selected={selected} setSelected={setSelected} />}
+              {images.length > 1 && (
+                <ExportImageBlock
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+              )}
               {selected !== -1 && (
                 <ExportExifBlock
                   selected={selected}
@@ -293,10 +417,11 @@ export default function ExportDrawer() {
                       setSuccessfulyImages([]);
 
                       try {
-                        const exportPromises = images.map((image) =>
-                          exportSelectedImage(image.id),
-                        );
-                        await Promise.all(exportPromises);
+                        for (const image of images) {
+                          console.log("kezd" + image.id);
+                          await exportSelectedImage(image.id);
+                          console.log("vége!" + image.id);
+                        }
                       } catch (error) {
                         console.error("Hiba az exportáláskor:", error);
                       } finally {

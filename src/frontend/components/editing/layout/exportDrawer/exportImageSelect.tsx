@@ -1,17 +1,9 @@
+import { ExportImageBlockProp, ImageRadioProp } from "@/interfaces/export.interface";
 import { useSessionStore } from "@/stores/sessionData";
 import { RadioCard, HStack } from "@chakra-ui/react";
 import { Dispatch, SetStateAction, useState } from "react";
 
-interface ExportImageBlockProp {
-  selected: number;
-  setSelected: Dispatch<SetStateAction<number>>;
-}
 
-interface ImageRadioProp {
-  id: number;
-  blob?: string;
-  title?: string;
-}
 
 export const ExportImageBlock = (props: ExportImageBlockProp) => {
   let images = [

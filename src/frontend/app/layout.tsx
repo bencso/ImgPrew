@@ -7,7 +7,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { LangugeProvider } from "@/providers/languageprovider";
 import { WorkSessionProvider } from "@/providers/sessionprovider";
 import { Suspense } from "react";
-import { appFonts } from "../helper/appFonts";
+import { appFonts } from "../interfaces/appFonts.interface";
 
 export default function RootLayout({
   children,

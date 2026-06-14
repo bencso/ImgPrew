@@ -1,12 +1,7 @@
 "use client";
 
+import { UseKeyboardShortcutArgs } from "@/interfaces/keyboardShortcut.interface";
 import { useEffect } from "react";
-
-interface UseKeyboardShortcutArgs {
-  key: string;
-  onKeyPressed: () => void;
-  disabled?: boolean;
-}
 
 export function useKeyboardShortcut({
   key,

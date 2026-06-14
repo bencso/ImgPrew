@@ -1,13 +1,12 @@
+import { ExportFileExtensionProp } from "@/interfaces/export.interface";
 import { useSessionStore } from "@/stores/sessionData";
 import {
   Grid,
   GridItem,
-  HStack,
   Icon,
   RadioCard,
   Text,
 } from "@chakra-ui/react";
-import { Dispatch, SetStateAction } from "react";
 import {
   BsFiletypeJpg,
   BsFiletypePng,
@@ -17,10 +16,6 @@ import {
   BsFileEarmark,
 } from "react-icons/bs";
 
-interface ExportFileExtensionProp {
-  selected: number;
-  setSelected: Dispatch<SetStateAction<number>>;
-}
 
 export const ExportFileExtension = (props: ExportFileExtensionProp) => {
   const { setExportFileExtension, setExportAllFileExtension } =

@@ -35,8 +35,18 @@ export default function ChannelMixerBlock() {
       >
         <Select.HiddenSelect />
         <Select.Control>
-          <Select.Trigger display={"flex"} gap={4} flexDir={"row"} justifyContent={"left"}>
-              <Box h={2} w={2} rounded={"full"} backgroundColor={`${selectedChannel}.400`} />
+          <Select.Trigger
+            display={"flex"}
+            gap={4}
+            flexDir={"row"}
+            justifyContent={"left"}
+          >
+            <Box
+              h={2}
+              w={2}
+              rounded={"full"}
+              backgroundColor={`${selectedChannel}.400`}
+            />
             <Select.ValueText placeholder="Válasszon színcsatornát" />
           </Select.Trigger>
           <Select.IndicatorGroup>
@@ -56,9 +66,6 @@ export default function ChannelMixerBlock() {
           </Select.Positioner>
         </Portal>
       </Select.Root>
-      {
-        // ----
-      }
     </>
   );
 }

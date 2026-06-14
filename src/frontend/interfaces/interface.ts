@@ -8,6 +8,8 @@ import { UUID } from "crypto";
 import { ColorMapFilter } from "pixi-filters";
 import {
   Application,
+  Container,
+  ContainerChild,
   Filter,
   Renderer,
   Sprite,
@@ -64,7 +66,7 @@ export interface DraggableImageEvent {
   id: string;
   text: string;
   position: DraggableImageEventPosition;
-  relativePosition?: DraggableImageEventPosition;
+  relativePosition?: { x: XPositions | number; y: YPositions | number };
   enabled: boolean;
   fontSize: number;
   fontFamily: string;
@@ -77,9 +79,10 @@ export interface DraggableImageEvent {
 export interface CopyrightImage {
   blob?: string;
   position?: DraggableImageEventPosition;
-  size?: number;
+  defaultSize?: { height: number; width: number };
+  size?: { height: number; width: number };
   opacity?: number;
-  relativePosition?: DraggableImageEventPosition;
+  relativePosition?: { x: XPositions | number; y: YPositions | number };
 }
 //#endregion
 
@@ -99,6 +102,7 @@ export interface ExportSettings {
   fileExtension?: string;
   exifDatas?: string[];
   optimize?: boolean;
+  haldImage?: string | undefined ;
 }
 //#endregion
 
@@ -144,8 +148,8 @@ export interface CalculationReFixPositionProps {
   front?: boolean;
   positionX: XPositions;
   positionY: YPositions;
-  elementRef: HTMLElement;
-  textAndImagePlaceRef: RefObject<HTMLDivElement | null>;
+  elementRef: { offsetWidth: number; offsetHeight: number };
+  referenceElement: RefObject<HTMLCanvasElement | null>;
   imageScale: number;
   borderSize:
     | {
@@ -224,7 +228,19 @@ export interface SessionStore {
     },
   ) => void;
   setCopyrightImageOpacity: (id: number, opacity: number) => void;
-  setCopyrightImageSize: (id: number, size: number) => void;
+  setCopyrightImageSize: (
+    id: number,
+    size: number,
+    imageScale?: number,
+  ) => void;
+  calculateImageSize: (
+    id: number,
+    width: number,
+    imageScale?: number,
+  ) => {
+    height: number;
+    width: number;
+  };
   //#endregion
 
   //#region EXIF
@@ -249,18 +265,17 @@ export interface SessionStore {
   setExportFileExtension: (id: number, extension: string) => void;
   setExportAllFileExtension: (extension: string) => void;
   setExportExifs: (id: number, exifs: string[]) => void;
+  setHaldImage: (id: number, haldImage: string) => void
   exportImageSettings: (
     id: number,
-    appRef: RefObject<Application<Renderer> | null>,
   ) => Promise<any>;
-  exportAllImageSettings: (appRef: RefObject<any>) => Promise<any[]>;
   //#endregion
 
   //#region TEXT
   addTexts: (
     imageId: number,
     text: string,
-    textAndImagePlaceRef: RefObject<HTMLDivElement | null>,
+    referenceElement: RefObject<HTMLCanvasElement | null>,
   ) => void;
   deleteText: (imageId: number, textId: string) => void;
   editText: (imageId: number, textId: string, text: string) => void;
@@ -379,7 +394,7 @@ export interface SelectedScale {
 
 //#region EditFunction Props
 export interface EditFunctionProps {
-  selectedImg: number;
+selectedImg: number;
   functionName: string;
   inputName: string;
   value: any;
@@ -398,8 +413,8 @@ export interface WorkSessionContextProps {
   editFunction: (props: EditFunctionProps) => void;
   textElements: Record<string, HTMLElement>;
   setTextElements: Dispatch<SetStateAction<Record<UUID, HTMLElement>>>;
-  copyrightImageRef: HTMLImageElement | null;
-  setCopyrightImageRef: Dispatch<SetStateAction<HTMLImageElement | null>>;
+  copyrightImageRef: Sprite | null;
+  setCopyrightImageRef: Dispatch<SetStateAction<Sprite | null>>;
   isLoading: boolean;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
   selectedScale: SelectedScale | undefined;
@@ -433,6 +448,7 @@ export interface WorkSessionContextProps {
       >
     >
   >;
+  overlayRef: RefObject<Container<ContainerChild> | null>;
 }
 //#endregion
 

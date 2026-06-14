@@ -1,9 +1,6 @@
 import {
   EditFunctionProps,
-  FunctionProp,
-  FunctionsInputs,
   FunctionsState,
-  InputTypes,
 } from "@/interfaces/interface";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";

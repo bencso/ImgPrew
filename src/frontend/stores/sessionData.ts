@@ -1,6 +1,5 @@
-import { toaster } from "@/components/ui/toaster";
 import { minMaxValidation } from "@/helper/errorHelper";
-import { generateHald } from "@/handlers/lutFunctions";
+import { generateHald } from "@/handlers/lut/lutFunctions";
 import {
   CropBox,
   CustomImage,
@@ -11,10 +10,11 @@ import {
 } from "@/interfaces/interface";
 import { ColorMapFilter } from "pixi-filters";
 import { Application, Renderer, Sprite, Texture } from "pixi.js";
-import { RefObject, useRef } from "react";
+import { RefObject } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { immer } from "zustand/middleware/immer";
 import { createWithEqualityFn } from "zustand/traditional";
+import { getImageSize } from "@/helper/sizes/getImageSize";
 
 export const useSessionStore = createWithEqualityFn<SessionStore>()(
   immer((set, get) => ({
@@ -53,6 +53,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           lut: null,
           exportSettings: {
             fileExtension: "jpg",
+            haldImage: undefined,
           },
           haldSprite: haldSprite,
         } as CustomImage;
@@ -64,25 +65,30 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     //#endregion
 
     //#region "Copyright" kép
-    uploadCopyrightImage: (id: number, blob: ArrayBuffer) =>
+    uploadCopyrightImage: async (id: number, blob: ArrayBuffer) => {
+      const blobConvert = new Blob([blob], { type: "image/png" });
+      const url = URL.createObjectURL(blobConvert);
+
+      const size = await getImageSize(url);
+
       set((state) => {
         const image = state.sessionData.find((img: any) => img.id === id);
 
-        const blobConvert = new Blob([blob], { type: "image/png" });
-        const url = URL.createObjectURL(blobConvert);
+        if (!image) return;
 
-        if (image && url)
-          image.copyrightImage = {
-            ...image.copyrightImage,
-            blob: url,
-            size: 300,
-            opacity: 100,
-            position: {
-              x: XPositions.LEFT,
-              y: YPositions.TOP,
-            },
-          };
-      }),
+        image.copyrightImage = {
+          ...image.copyrightImage,
+          blob: url,
+          size,
+          defaultSize: size,
+          opacity: 100,
+          position: {
+            x: XPositions.LEFT,
+            y: YPositions.TOP,
+          },
+        };
+      });
+    },
     clearCopyrightImage: (id: number) =>
       set((state) => {
         const image = state.sessionData.find((img: any) => img.id === id);
@@ -140,16 +146,35 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
             opacity: opacity,
           };
       }),
-    setCopyrightImageSize: (id: number, size: number) =>
+    setCopyrightImageSize: (id: number, size: number, imageScale?: number) =>
       set((state) => {
         const image = state.sessionData.find((img: any) => img.id === id);
+
+        const imgSize = state.calculateImageSize(id, size, imageScale);
 
         if (image)
           image.copyrightImage = {
             ...image.copyrightImage,
-            size: size,
+            size: imgSize,
           };
       }),
+    calculateImageSize: (id: number, width: number, imageScale?: number) => {
+      const image = get().sessionData.find(
+        (si) => si.id === id,
+      )?.copyrightImage;
+      console.log(image?.defaultSize);
+      if (!image?.defaultSize) {
+        return { width: 0, height: 0 };
+      }
+
+      const scale = width / image.defaultSize.width;
+
+      return {
+        width: width / (imageScale ?? 1),
+        height:
+          Math.round(image.defaultSize.height * scale) / (imageScale ?? 1),
+      };
+    },
     //#region KÉP MÉRETEK
     setImageSize: (id, width, height) =>
       set((state) => ({
@@ -227,14 +252,14 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     addTexts: (
       imageId: number,
       text: string,
-      textAndImagePlaceRef: RefObject<HTMLDivElement | null>,
+      referenceElement: RefObject<HTMLCanvasElement | null>,
     ) =>
       set((state) => {
         const image = state.sessionData.find((img: any) => img.id === imageId);
         const imageScale = Math.min(
-          (textAndImagePlaceRef.current?.clientHeight ?? 0) /
+          (referenceElement.current?.clientHeight ?? 0) /
             (image?.dimesions?.height ?? 0),
-          (textAndImagePlaceRef.current?.clientWidth ?? 0) /
+          (referenceElement.current?.clientWidth ?? 0) /
             (image?.dimesions?.width ?? 0),
         );
 
@@ -243,19 +268,19 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
 
           const textId = uuidv4();
 
-          const element: DraggableImageEvent = {
+          const newText: DraggableImageEvent = {
             id: textId,
             text,
-            position: { x: XPositions.LEFT, y: YPositions.TOP },
+            position: { x: 0, y: 0 },
             enabled: true,
             fontSize: 20 / imageScale,
             fontFamily: "Roboto",
             fontWeight: 500,
             color: "#ffff",
-            opacity: 1,
+            opacity: 100,
           };
 
-          image.texts.push(element);
+          image.texts = [...image.texts, newText];
         }
       }),
     deleteText: (imageId: number, textId: string) => {
@@ -263,10 +288,15 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         const image = state.sessionData.find((img: any) => img.id === imageId);
         if (!image?.texts) return;
 
-        const removedText = image.texts.filter(
-          (text: any) => text.id != textId,
+        const textIndex = image.texts.findIndex(
+          (text: any) => text.id === textId,
         );
-        image.texts = removedText.length > 0 ? [...removedText] : [];
+        if (textIndex === -1) return;
+
+        image.texts = [
+          ...image.texts.slice(0, textIndex),
+          ...image.texts.slice(textIndex + 1),
+        ];
       });
     },
     editText: (imageId: number, textId: string, text: string) => {
@@ -370,7 +400,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
 
         image.texts = [
           ...image.texts.slice(0, textIndex),
-          { ...image.texts[textIndex], opacity: opacity / 100 },
+          { ...image.texts[textIndex], opacity: opacity },
           ...image.texts.slice(textIndex + 1),
         ];
       }),
@@ -439,11 +469,19 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
 
         if (textIndex === -1) return;
 
-        image.texts = [
-          ...image.texts.slice(0, textIndex),
-          { ...image.texts[textIndex], relativePosition: position },
-          ...image.texts.slice(textIndex + 1),
-        ];
+        if (position.x == null && position.y == null) {
+          image.texts = [
+            ...image.texts.slice(0, textIndex),
+            { ...image.texts[textIndex] },
+            ...image.texts.slice(textIndex + 1),
+          ];
+        } else {
+          image.texts = [
+            ...image.texts.slice(0, textIndex),
+            { ...image.texts[textIndex], relativePosition: position },
+            ...image.texts.slice(textIndex + 1),
+          ];
+        }
       }),
     //#endregion
 
@@ -558,21 +596,20 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         ),
       }));
     },
-    exportImageSettings: async (
-      id: number,
-      appRef: RefObject<Application<Renderer> | null>,
-    ) => {
-      const image = get().sessionData.find((img) => img.id === id);
-      if (image && appRef.current) {
-        let returnData = {} as any;
-        let haldImage;
+    setHaldImage: (id: number, haldImage: string) => {
+      set((state) => {
+        const image = state.sessionData.find((img: any) => img.id === id);
+        if (!image || !image.exportSettings) return;
 
-        if (image && appRef.current) {
-          haldImage = await appRef.current.renderer.extract.base64({
-            target: image.haldSprite,
-            format: "png",
-          });
-        }
+        image.exportSettings.haldImage = haldImage;
+      });
+    },
+    exportImageSettings: async (id: number) => {
+      const image = get().sessionData.find((img) => img.id === id);
+
+      if (image) {
+        let returnData = {} as any;
+        let haldImage = image.exportSettings?.haldImage;
 
         if (image.haldSprite) returnData.hald = haldImage;
         if (image.exportSettings)
@@ -588,38 +625,6 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
 
         return returnData;
       }
-    },
-    exportAllImageSettings: async (
-      appRef: RefObject<Application<Renderer> | null>,
-    ) => {
-      const returnDatas = await Promise.all(
-        get().sessionData.map(async (image) => {
-          let returnData = {} as any;
-          let haldImage;
-
-          if (image && appRef.current) {
-            haldImage = await appRef.current.renderer.extract.image({
-              target: image.haldSprite,
-              format: "png",
-              resolution: 2,
-            });
-            returnData.hald = haldImage?.src;
-          }
-
-          returnData.id = image.id;
-          if (image.exportSettings)
-            returnData.exportSettings = image.exportSettings;
-          if (image.box) returnData.cropBox = image.box;
-          if (image.expandSize)
-            returnData.expand = {
-              size: image.expandSize,
-              background: image.expandBackground,
-            };
-          if (image.borderSize) returnData.borderSize = image.borderSize;
-          return returnData;
-        }),
-      );
-      return returnDatas;
     },
     //#endregion
 
@@ -754,11 +759,13 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       borderSize.x = minMaxValidation(borderSize.x, 0);
       borderSize.y = minMaxValidation(borderSize.y, 0);
 
-      set((state) => ({
-        sessionData: state.sessionData.map((img: any) =>
-          img.id === id ? { ...img, borderSize: borderSize } : img,
-        ),
-      }));
+      set((state) => {
+        const image = state.sessionData.find((img) => img.id === id);
+
+        if (!image) return;
+
+        image.borderSize = borderSize;
+      });
     },
     //#endregion
     //#region LUT
@@ -767,13 +774,13 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       lutFilter: ColorMapFilter | null,
       lutFile: File | null,
     ) => {
-      set((state) => ({
-        sessionData: state.sessionData.map((img: any) =>
-          img.id === id
-            ? { ...img, lutFilter: lutFilter, lutFile: lutFile }
-            : img,
-        ),
-      }));
+      set((state) => {
+        const image = state.sessionData.find((img: any) => img.id === id);
+        if (!image) return;
+
+        image.lutFile = lutFile;
+        image.lutFilter = lutFilter;
+      });
     },
     //#endregion
   })),

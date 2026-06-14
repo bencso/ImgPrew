@@ -104,7 +104,7 @@ export default function ResizeBlock() {
     workPlaceRef,
     selectedImg,
     imageScale,
-    textAndImagePlaceRef,
+    canvasRef,
     selectedScale,
   } = useWorkSession();
 
@@ -176,7 +176,7 @@ export default function ResizeBlock() {
               appRef.current &&
               textureRef.current &&
               spriteRef.current &&
-              textAndImagePlaceRef.current
+              canvasRef.current
             ) {
               setExpandSize(
                 selectedImg,
