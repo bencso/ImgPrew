@@ -5,25 +5,43 @@ export default function keyboardShortcuts({
   setSelectedImg,
   selectedImg,
   step,
-  sessionData,
   setSelectedImage,
   setStep,
+  appRef,
+  setHaldImage,
 }: {
   setSelectedImg: any;
   selectedImg: any;
   step: number;
-  sessionData: any;
   setSelectedImage: any;
   setStep: any;
+  appRef: any;
+  setHaldImage: any;
 }) {
-  const { clearSessionData } = useSessionStore();
+  const { clearSessionData, sessionData } = useSessionStore();
+
   //#region SHORTCUTS
   useKeyboardShortcut({
     key: "ArrowLeft",
     onKeyPressed: () => {
       if (step === 1) {
         if (selectedImg - 1 >= 0) {
-          setSelectedImg(selectedImg - 1);
+          setSelectedImg((prev: number) => {
+            const prevImg = sessionData.find((si) => si.id == prev);
+
+            (async () => {
+              if (prevImg && appRef.current) {
+                const haldImage = await appRef.current.renderer.extract.base64({
+                  target: prevImg.haldSprite,
+                  format: "png",
+                  resolution: 1,
+                });
+                setHaldImage(prev, haldImage);
+              }
+            })();
+
+            return prev - 1;
+          });
         }
       }
     },
@@ -34,7 +52,21 @@ export default function keyboardShortcuts({
     onKeyPressed: () => {
       if (step === 1) {
         if (selectedImg + 1 < sessionData.length) {
-          setSelectedImg(selectedImg + 1);
+          setSelectedImg((prev: number) => {
+            const prevImg = sessionData.find((si) => si.id == prev);
+            (async () => {
+              if (prevImg && appRef.current) {
+                const haldImage = await appRef.current.renderer.extract.base64({
+                  target: prevImg.haldSprite,
+                  format: "png",
+                  resolution: 1,
+                });
+                setHaldImage(prev, haldImage);
+              }
+            })();
+
+            return prev + 1;
+          });
         }
       }
     },

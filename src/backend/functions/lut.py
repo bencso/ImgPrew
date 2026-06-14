@@ -2,7 +2,6 @@ import re
 from PIL import ImageFilter, Image
 from dependencies import LUT_SIZE_REGEX, LUT_DATA_REGEX
 import io
-import imageio.v3 as iio
 import numpy as np
 
 class Lut:
@@ -10,6 +9,7 @@ class Lut:
         self.hald = hald
         self.image = image
         self.cube = cube
+        self.hald_np = np.asarray(self.hald.convert('RGB')).astype(np.float32) / 255.0
 
     def __enter__(self):
         return self
@@ -20,16 +20,17 @@ class Lut:
         self.buffer.seek(0)
         
     def apply_hald(self):
-        img_datas = np.array(self.hald.convert('RGB'))
-        lut_size,_,_ = img_datas.shape
-        print(lut_size)
+        lut = self.hald_np
+        lut_size = lut.shape[0]
         
-        lut_table = img_datas.reshape((lut_size, lut_size, lut_size, 3))
-        lut_table = lut_table.transpose((1, 0,2, 3)).reshape(-1, 3) / 255.0
-        lut_table = list(map(tuple, lut_table))
+        lut = (
+            lut.reshape((lut_size, lut_size, lut_size, 3))
+            .transpose((1, 0,2, 3))
+            .reshape(-1, 3)
+        )
         
-        lut = ImageFilter.Color3DLUT(lut_size, lut_table)
-        return self.image.convert('RGB').filter(lut)
+        lut = ImageFilter.Color3DLUT(lut_size, lut)
+        return self.image.filter(lut)
 
     def apply(self):
         with open(self.cube) as f:

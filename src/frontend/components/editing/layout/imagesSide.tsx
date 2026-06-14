@@ -9,10 +9,11 @@ import {
   ScrollArea,
   useBreakpointValue,
 } from "@chakra-ui/react";
+import { useEffect } from "react";
 
 export default function ImagesSide() {
-  const { setSelectedImg, selectedImg, isLoading } = useWorkSession();
-  const { sessionData } = useSessionStore();
+  const { setSelectedImg, selectedImg, isLoading, appRef } = useWorkSession();
+  const { sessionData, setHaldImage, } = useSessionStore();
 
   //#region breakPoint beállíátoks (isMd)
   const isMd = useBreakpointValue(
@@ -30,19 +31,19 @@ export default function ImagesSide() {
         h={"full"}
         my={isMd ? 0 : 2}
         gap={2}
->
-        <ScrollArea.Root
-        >
-          <ScrollArea.Viewport h={"full"} justifyContent={"center"}
-              alignItems={"center"}
-              >
+      >
+        <ScrollArea.Root>
+          <ScrollArea.Viewport
+            h={"full"}
+            justifyContent={"center"}
+            alignItems={"center"}
+          >
             <ScrollArea.Content
               display={"flex"}
               flexDir={isMd ? "column" : "row"}
               w={isMd ? "fit" : "full"}
               justifyContent={"center"}
               alignItems={"center"}
-              
             >
               {Array.from(sessionData, (img, index) => (
                 <Box
@@ -54,7 +55,26 @@ export default function ImagesSide() {
                   opacity={selectedImg === img.id ? 1 : 0.4}
                   transition="opacity 0.2s"
                   _hover={{ opacity: 0.8 }}
-                  onClick={() => setSelectedImg(index)}
+                  onClick={async () =>
+                    setSelectedImg((prev) => {
+                      const prevImg = sessionData.find((si) => si.id == prev);
+
+                      (async () => {
+                        if (prevImg && appRef.current) {
+                          const haldImage =
+                            await appRef.current.renderer.extract.base64({
+                              target: prevImg.haldSprite,
+                              format: "png",
+                              resolution: 1,
+                            });
+                            console.log(haldImage);
+                          setHaldImage(prev, haldImage);
+                        }
+                      })();
+
+                      return index;
+                    })
+                  }
                   backgroundColor={"bg.emphasized"}
                   mb={isMd ? 3 : 0}
                   ms={!isMd ? 3 : 0}

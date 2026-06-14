@@ -6,7 +6,7 @@ import piexif
 import logging
 import io
 from typing import Optional
-import uuid
+import time
 from io import BytesIO
 
 class Export:
@@ -42,20 +42,24 @@ class Export:
     def apply(self) -> dict | None:
         try:
             exif_bytes = None
-            if len(self.exif_data) > 0:
+            pixeif_tags = piexif.TAGS
+            if self.exif_data:
                 allowed_set = set(self.allowed_info)
                 filtered_exif = {}
                 for ifd in ("0th", "Exif", "GPS", "1st"):
                     filtered_exif[ifd] = {}
-                    for tag in self.exif_data.get(ifd, {}):
-                        tag_name = piexif.TAGS[ifd][tag]["name"]
-                        if tag_name in allowed_set:
-                            filtered_exif[ifd][tag] = self.exif_data[ifd][tag]
-                for ifd in ("thumbnail",):
-                    if ifd in allowed_set:
-                        filtered_exif[ifd] = self.exif_data.get(ifd, None)
+                    tags = self.exif_data[ifd]
+                    piexif_tag_ifd = pixeif_tags[ifd]
+                    for tag in tags:
+                        pixief_tag = piexif_tag_ifd[tag]
+                        if pixief_tag:
+                            tag_name = pixief_tag["name"]
+                            if tag_name in allowed_set:
+                                filtered_exif[ifd][tag] = tags[tag]
+                if "thumbnail" in allowed_set:
+                    filtered_exif["thumbnail"] = self.exif_data.get("thumbnail", None)
                 exif_bytes = piexif.dump(filtered_exif)
-            
+                
             ext = self.output_extension or self.f_ext
             ext = ext.lstrip(".")
             if ext == "jpg": ext = "jpeg"
@@ -66,14 +70,13 @@ class Export:
             # if not os.path.exists(UPLOAD_DIR): os.mkdir(UPLOAD_DIR)
             # file_name = f"{uuid.uuid4().hex}.{ext}"
             
-            if exif_bytes:
+            if exif_bytes and self.optimized is not True:
                 exif = exif_bytes
             else:
                 exif=piexif.dump({})
             
             buffer = BytesIO()
             if self.optimized is True:
-                exif=piexif.dump({})
                 self.image.save(buffer, exif=exif, format=ext, quality=40)
             else: 
                 self.image.save(buffer, exif=exif, format=ext)

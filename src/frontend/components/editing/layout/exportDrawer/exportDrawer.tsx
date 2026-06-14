@@ -1,5 +1,4 @@
 //TODO: Refaktorálás
-//TODO: Az exportálásnál ha több kép van, akkor néha összezavarodik a rendszer és nem a megfelelő képnek a beállításaival exportál (Ennek javítása)
 import {
   Drawer,
   Box,
@@ -27,6 +26,11 @@ import {
 } from "@/helper/positions/checkXYPositions";
 import { SuccessfullyImagesProps } from "@/interfaces/export.interface";
 import { calcScale } from "@/helper/sizes/calcScale";
+import {
+  DraggableImageEventPosition,
+  XPositions,
+  YPositions,
+} from "@/interfaces/interface";
 
 export default function ExportDrawer() {
   const images = useSessionStore((s) => s.sessionData);
@@ -36,7 +40,8 @@ export default function ExportDrawer() {
     setExportAllFileOptimize,
     setExportFileOptimize,
   } = useSessionStore();
-  const { canvasRef, workPlaceRef, textureRef, spriteRef } = useWorkSession();
+  const { canvasRef, workPlaceRef, textureRef, spriteRef, selectedImg, setSelectedImg } =
+    useWorkSession();
 
   const [successfullyImages, setSuccessfulyImages] = useState<
     SuccessfullyImagesProps[]
@@ -49,10 +54,31 @@ export default function ExportDrawer() {
   const selectedImage = images.find((i) => i.id === selected);
 
   async function exportSelectedImage(id: number) {
-    const exportData = await exportImageSettings(id, appRef);
+    const exportData = await exportImageSettings(id);
 
     let selectedImage = images.find((i) => i.id === id);
     if (!selectedImage) return;
+
+    let haldImage = exportData.hald ?? "";
+
+    if (id === selectedImg) {
+      if (selectedImage && appRef.current) {
+        haldImage = await appRef.current.renderer.extract.base64({
+          target: selectedImage.haldSprite,
+          format: "png",
+          resolution: 1,
+        });
+      }
+    }
+
+    if(exportData.hald === undefined && appRef.current){
+      setSelectedImg(id);
+        haldImage = await appRef.current.renderer.extract.base64({
+          target: selectedImage.haldSprite,
+          format: "png",
+          resolution: 1,
+        });
+    }
 
     const scale = calcScale({
       workPlaceRef,
@@ -77,7 +103,7 @@ export default function ExportDrawer() {
     const cpRelativePosition = selectedImage.copyrightImage?.relativePosition;
 
     const blob = await fetch(selectedImage.blob).then((res) => res.blob());
-    const haldBlob = await fetch(exportData.hald).then((res) => res.blob());
+    const haldBlob = await fetch(haldImage).then((res) => res.blob());
 
     const imageBlobFile = new File([blob], `image_${selectedImage.id}`);
     const haldFile = new File([haldBlob], `hald_${selectedImage.id}`);
@@ -86,75 +112,99 @@ export default function ExportDrawer() {
       let copyrightBlob = await fetch(selectedImage.copyrightImage.blob).then(
         (res) => res.blob(),
       );
+
       copyrightImage = new File(
         [copyrightBlob],
         `copyright_${selectedImage.id}`,
       );
-    }
-
-    const canvas = document.createElement("canvas");
-    const ctx = canvas.getContext("2d");
-
-    const texts = selectedImage.texts?.map((text) => {
-      if (!ctx) return;
-      ctx.font = `${text.fontSize * scale}px ${text.fontFamily}`;
-
-      const textFont = ctx.measureText(text.text);
-      const textSize = {
-        offsetHeight: textFont.fontBoundingBoxAscent / scale,
-        offsetWidth: textFont.width / scale,
-      };
-
-      let textPosition = text.position;
-      const relativePosition = text.relativePosition;
-
-      textPosition = {
-        x: Number(textPosition.x),
-        y: Number(textPosition.y),
-      };
 
       if (
-        isXPositions(relativePosition?.x) &&
-        isYPositions(relativePosition?.y)
+        isXPositions(cpRelativePosition?.x) &&
+        isYPositions(cpRelativePosition?.y)
       ) {
-        textPosition = calculatePosition({
-          positionX: relativePosition?.x,
-          positionY: relativePosition?.y,
-          elementRef: textSize,
+        const position = calculatePosition({
+          positionX: cpRelativePosition?.x,
+          positionY: cpRelativePosition?.y,
+          elementRef: {
+            offsetHeight: Number(
+              selectedImage.copyrightImage?.size?.height ?? 0,
+            ),
+            offsetWidth: Number(selectedImage.copyrightImage?.size?.width ?? 0),
+          },
           referenceElement: canvasRef,
           imageScale: scale,
           borderSize: selectedImage.borderSize,
         });
+
+        cpImagePostion = {
+          x: position.x,
+          y: position.y,
+        };
       }
+    }
 
-      return {
-        ...text,
-        uiWidth: textFont.width / scale,
-        uiAscent: textFont.fontBoundingBoxAscent / scale,
-        uiDescent: textFont.fontBoundingBoxDescent / scale,
-      };
-    });
+    let texts: (
+      | {
+          uiWidth: number;
+          uiAscent: number;
+          uiDescent: number;
+          id: string;
+          text: string;
+          position: DraggableImageEventPosition;
+          relativePosition?: { x: XPositions | number; y: YPositions | number };
+          enabled: boolean;
+          fontSize: number;
+          fontFamily: string;
+          fontWeight: number;
+          color: string;
+          opacity: number;
+        }
+      | undefined
+    )[] = [];
 
-    if (
-      isXPositions(cpRelativePosition?.x) &&
-      isYPositions(cpRelativePosition?.y)
-    ) {
-      const position = calculatePosition({
-        positionX: cpRelativePosition?.x,
-        positionY: cpRelativePosition?.y,
-        elementRef: {
-          offsetHeight: Number(selectedImage.copyrightImage?.size?.height ?? 0),
-          offsetWidth: Number(selectedImage.copyrightImage?.size?.width ?? 0),
-        },
-        referenceElement: canvasRef,
-        imageScale: scale,
-        borderSize: selectedImage.borderSize,
+    if (selectedImage.texts && selectedImage.texts.length > 0) {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      texts = selectedImage.texts?.map((text) => {
+        if (!ctx) return;
+        ctx.font = `${text.fontSize * scale}px ${text.fontFamily}`;
+
+        const textFont = ctx.measureText(text.text);
+        const textSize = {
+          offsetHeight: textFont.fontBoundingBoxAscent / scale,
+          offsetWidth: textFont.width / scale,
+        };
+
+        let textPosition = text.position;
+        const relativePosition = text.relativePosition;
+
+        textPosition = {
+          x: Number(textPosition.x),
+          y: Number(textPosition.y),
+        };
+
+        if (
+          isXPositions(relativePosition?.x) &&
+          isYPositions(relativePosition?.y)
+        ) {
+          textPosition = calculatePosition({
+            positionX: relativePosition?.x,
+            positionY: relativePosition?.y,
+            elementRef: textSize,
+            referenceElement: canvasRef,
+            imageScale: scale,
+            borderSize: selectedImage.borderSize,
+          });
+        }
+
+        return {
+          ...text,
+          uiWidth: textFont.width / scale,
+          uiAscent: textFont.fontBoundingBoxAscent / scale,
+          uiDescent: textFont.fontBoundingBoxDescent / scale,
+        };
       });
-
-      cpImagePostion = {
-        x: position.x,
-        y: position.y,
-      };
     }
 
     const expandSize =
@@ -367,11 +417,11 @@ export default function ExportDrawer() {
                       setSuccessfulyImages([]);
 
                       try {
-                        const exportPromises = images.map((image) => {
-                          console.log(image.id);
-                          exportSelectedImage(image.id);
-                        });
-                        await Promise.all(exportPromises);
+                        for (const image of images) {
+                          console.log("kezd" + image.id);
+                          await exportSelectedImage(image.id);
+                          console.log("vége!" + image.id);
+                        }
                       } catch (error) {
                         console.error("Hiba az exportáláskor:", error);
                       } finally {

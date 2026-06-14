@@ -24,8 +24,9 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
   const [textElements, setTextElements] = useState<Record<string, HTMLElement>>(
     {},
   );
-  const [copyrightImageRef, setCopyrightImageRef] =
-    useState<Sprite | null>(null);
+  const [copyrightImageRef, setCopyrightImageRef] = useState<Sprite | null>(
+    null,
+  );
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const spriteRef = useRef<Sprite | null>(null);
   const textureRef = useRef<Texture | null>(null);
@@ -38,7 +39,7 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
   const { functions, editFunction } = useFunctionsStore();
   const webglFilterRef = useRef<Filter | null>(null);
   const lutFilterRef = useRef<ColorMapFilter | null>(null);
-  
+
   const [imageScale, setImageScale] = useState<number>(1);
 
   const [textPositions, setTextPositions] = useState<
@@ -77,7 +78,7 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       setImageScale,
       textPositions,
       setTextPositions,
-      overlayRef
+      overlayRef,
     }),
     [
       step,
@@ -99,7 +100,7 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       lutFilterRef,
       imageScale,
       textPositions,
-      overlayRef
+      overlayRef,
     ],
   );
 

@@ -102,6 +102,7 @@ export interface ExportSettings {
   fileExtension?: string;
   exifDatas?: string[];
   optimize?: boolean;
+  haldImage?: string | undefined ;
 }
 //#endregion
 
@@ -209,10 +210,7 @@ export interface SessionStore {
   //#endregion
 
   //#region Copyright kép
-  uploadCopyrightImage: (
-    id: number,
-    blob: ArrayBuffer,
-  ) => void;
+  uploadCopyrightImage: (id: number, blob: ArrayBuffer) => void;
   clearCopyrightImage: (id: number) => void;
   setCopyrightImagePosition: (
     id: number,
@@ -230,11 +228,15 @@ export interface SessionStore {
     },
   ) => void;
   setCopyrightImageOpacity: (id: number, opacity: number) => void;
-  setCopyrightImageSize: (id: number, size: number, imageScale?: number) => void;
+  setCopyrightImageSize: (
+    id: number,
+    size: number,
+    imageScale?: number,
+  ) => void;
   calculateImageSize: (
     id: number,
     width: number,
-    imageScale?: number
+    imageScale?: number,
   ) => {
     height: number;
     width: number;
@@ -263,11 +265,10 @@ export interface SessionStore {
   setExportFileExtension: (id: number, extension: string) => void;
   setExportAllFileExtension: (extension: string) => void;
   setExportExifs: (id: number, exifs: string[]) => void;
+  setHaldImage: (id: number, haldImage: string) => void
   exportImageSettings: (
     id: number,
-    appRef: RefObject<Application<Renderer> | null>,
   ) => Promise<any>;
-  exportAllImageSettings: (appRef: RefObject<any>) => Promise<any[]>;
   //#endregion
 
   //#region TEXT
@@ -393,7 +394,7 @@ export interface SelectedScale {
 
 //#region EditFunction Props
 export interface EditFunctionProps {
-  selectedImg: number;
+selectedImg: number;
   functionName: string;
   inputName: string;
   value: any;

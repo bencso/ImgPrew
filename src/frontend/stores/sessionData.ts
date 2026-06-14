@@ -53,6 +53,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           lut: null,
           exportSettings: {
             fileExtension: "jpg",
+            haldImage: undefined,
           },
           haldSprite: haldSprite,
         } as CustomImage;
@@ -595,24 +596,20 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         ),
       }));
     },
-    exportImageSettings: async (
-      id: number,
-      appRef: RefObject<Application<Renderer> | null>,
-    ) => {
+    setHaldImage: (id: number, haldImage: string) => {
+      set((state) => {
+        const image = state.sessionData.find((img: any) => img.id === id);
+        if (!image || !image.exportSettings) return;
+
+        image.exportSettings.haldImage = haldImage;
+      });
+    },
+    exportImageSettings: async (id: number) => {
       const image = get().sessionData.find((img) => img.id === id);
 
-      if (image && appRef.current) {
+      if (image) {
         let returnData = {} as any;
-        let haldImage;
-
-        //TODO: Ez nem jó mert itt tulajdonképpen mindig az utolsó szerint lesz akkor exportálva
-        if (image && appRef.current) {
-          haldImage = await appRef.current.renderer.extract.base64({
-            target: image.haldSprite,
-            format: "png",
-            resolution: 1,
-          });
-        }
+        let haldImage = image.exportSettings?.haldImage;
 
         if (image.haldSprite) returnData.hald = haldImage;
         if (image.exportSettings)
@@ -628,38 +625,6 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
 
         return returnData;
       }
-    },
-    exportAllImageSettings: async (
-      appRef: RefObject<Application<Renderer> | null>,
-    ) => {
-      const returnDatas = await Promise.all(
-        get().sessionData.map(async (image) => {
-          let returnData = {} as any;
-          let haldImage;
-
-          if (image && appRef.current) {
-            haldImage = await appRef.current.renderer.extract.image({
-              target: image.haldSprite,
-              format: "png",
-              resolution: window.devicePixelRatio,
-            });
-            returnData.hald = haldImage?.src;
-          }
-
-          returnData.id = image.id;
-          if (image.exportSettings)
-            returnData.exportSettings = image.exportSettings;
-          if (image.box) returnData.cropBox = image.box;
-          if (image.expandSize)
-            returnData.expand = {
-              size: image.expandSize,
-              background: image.expandBackground,
-            };
-          if (image.borderSize) returnData.borderSize = image.borderSize;
-          return returnData;
-        }),
-      );
-      return returnDatas;
     },
     //#endregion
 
@@ -794,11 +759,13 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       borderSize.x = minMaxValidation(borderSize.x, 0);
       borderSize.y = minMaxValidation(borderSize.y, 0);
 
-      set((state) => ({
-        sessionData: state.sessionData.map((img: any) =>
-          img.id === id ? { ...img, borderSize: borderSize } : img,
-        ),
-      }));
+      set((state) => {
+        const image = state.sessionData.find((img) => img.id === id);
+
+        if (!image) return;
+
+        image.borderSize = borderSize;
+      });
     },
     //#endregion
     //#region LUT
@@ -807,13 +774,13 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       lutFilter: ColorMapFilter | null,
       lutFile: File | null,
     ) => {
-      set((state) => ({
-        sessionData: state.sessionData.map((img: any) =>
-          img.id === id
-            ? { ...img, lutFilter: lutFilter, lutFile: lutFile }
-            : img,
-        ),
-      }));
+      set((state) => {
+        const image = state.sessionData.find((img: any) => img.id === id);
+        if (!image) return;
+
+        image.lutFile = lutFile;
+        image.lutFilter = lutFilter;
+      });
     },
     //#endregion
   })),
