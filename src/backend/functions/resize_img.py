@@ -5,7 +5,7 @@ from typing import Optional
 from dependencies import SOCIAL_IMAGES_SIZES
 from PIL import Image, ImageOps
 from functions.valid_colors import validColors
-
+import time
 
 class ResizeImg:
     def __init__(

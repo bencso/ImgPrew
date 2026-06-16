@@ -1,13 +1,13 @@
 from dependencies import CAPTION_REGEX, CAPTIONS_SAMPLES
 import re
 from typing import Optional
-from PIL import Image
-from functions.get_exif_data import GetExifData
+from pyvips import Image
+from functions.get_exif_data import ExifDataHelper
 
 class CaptionGenerator:
-    def __init__(self, img: Image, instagram_caption: Optional[str] = None):
+    def __init__(self, img:Image , instagram_caption: Optional[str] = None):
         self.instagram_caption = instagram_caption
-        self.exif_helper = GetExifData(img, [])
+        self.exif_helper = ExifDataHelper(img, [])
         exif_datas = self.exif_helper.get_exif_datas()
         self.exif_info = (
             list(exif_datas.keys())

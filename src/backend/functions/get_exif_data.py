@@ -1,4 +1,4 @@
-from PIL import Image
+from pyvips import Image
 from dependencies import EXIF_TAG_NAMES_LIST, REPLACEMENTS
 from typing import List, Optional
 import piexif
@@ -6,13 +6,12 @@ import reverse_geocoder
 import logging
 import re
 
-
-class GetExifData:
+class ExifDataHelper:
     image_infos = {}
 
     def __init__(
         self,
-        image: Image.Image,
+        image: Image,
         image_data: Optional[
             List[EXIF_TAG_NAMES_LIST]  # pyright: ignore[reportInvalidTypeForm]
         ] = None,
@@ -27,7 +26,7 @@ class GetExifData:
     def get_exif_datas(self) -> dict | None:
         exif_datas = {}
         try:
-            exif_bytes = self.img.info.get("exif")
+            exif_bytes = self.img.get("exif-data")
             if exif_bytes:
                 exif_dict = piexif.load(exif_bytes)
             else:
