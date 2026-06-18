@@ -15,7 +15,6 @@ from functions.valid_colors import validColors
 import PIL
 from functions.watermark import WaterMarking
 import io
-import time
 
 router = APIRouter(prefix="/images", tags=["images"])
 
@@ -78,7 +77,6 @@ async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[Up
         expand_color  = data.get("expand_color") or "#fff"
         expand_position = data.get("expand_position") or None
         
-        
         img_buffer = await file.read()
 
         image = Image.new_from_buffer(img_buffer, "")
@@ -95,29 +93,19 @@ async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[Up
         
         if lut:
             lut_file_bytes = await lut.read()
-            hald = PIL.Image.open(io.BytesIO(lut_file_bytes))
-            s2 = time.process_time()        
+            hald = PIL.Image.open(io.BytesIO(lut_file_bytes)).convert("RGB")
             lut_helper = Lut(hald, image)
-            # 0.5976027869999996 EZZEL IS KEZDENI VALAMIT = GYORSÍTANI
-            # TODO: FILTER fgv.ny az nagyon költséges, alternatíva vagy gyorsítási lehetőség?!
-            # -> numpyval megcsinálni a vektrizálást -> nem használni a piwllow filtert(), hanem kicserélni a numpyval a lut pixeleire a kép pixeleit, 
-            # majd ezt a tömböt Image.fromarray-vel feldolgozni és visszaadni
             image = lut_helper.apply_hald()  
-            e2= time.process_time()    
-            print("LUT") 
-            print(e2-s2)
-        
+            
         if exif_bytes:
             try:
                 exif_data = piexif.load(exif_bytes)
             except Exception as e:
                 print("EXIF load hiba:", e)        
                 
-        # TODO: Esetleg megoldani hogy ne kettőn menjünk át egy pyvips-es megoldással?
-        # https://libvips.github.io/pyvips/vimage.html#pyvips.Image.gravity -> Gravity ahogy nézem erre potn egy megoldás
         if expand_mode != "no" and expand_mode != "border":
             crop_box = (float(expand_position["x"]), float(expand_position["y"]), float(expand_position["x"]) + expand_size["width"] , float(expand_position["y"])  + expand_size["height"])
-            expand_helper = ResizeImg(image, height=expand_size["height"],width=expand_size["width"], expand=(True if expand_mode=="expand" else False),expand_bg=expand_color,padding=expand_size["padding"], crop_box=crop_box)
+            expand_helper = ResizeImg(image=image, height=expand_size["height"],width=expand_size["width"], expand=(True if expand_mode=="expand" else False),expand_bg=expand_color,padding=expand_size["padding"], crop_box=crop_box)
             image = expand_helper.apply()
         
         if border_size > 0:
@@ -128,11 +116,13 @@ async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[Up
             cp_image = await copyright_image.read()
             cp = base64.b64encode(cp_image).decode("utf-8")
             cp = cp.get_img()
+            
             copyright_image_size = int(data.get("copyright_image_size")) or 0
             copyright_image_position = data.get("copyright_image_position")
             copyright_image_opacity = float(data.get("copyright_image_opacity")) or 100
             copyright_image_position = (round(copyright_image_position["x"]),round(copyright_image_position["y"]))
             copyright_image_opacity = int((copyright_image_opacity / 100.0) * 255)
+            
             image = WaterMarking(image, position=copyright_image_position,border_size=border_size).watermark_with_image(cp, copyright_image_size, copyright_image_opacity, border_size)
         
         if texts and len(texts) > 0:
