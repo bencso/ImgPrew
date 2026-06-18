@@ -7,7 +7,7 @@ import { Texture } from "pixi.js";
 
 export const convertCubeToFilter = (lut: any): ColorMapFilter | null => {
   const flatData = lut.data.flat();
-  const size = lut.size || 32;
+  const size = lut.size || 33;
 
   const colorMap = document.createElement("canvas");
   colorMap.width = Math.pow(size, 2);
@@ -55,7 +55,7 @@ export const convertCubeToFilter = (lut: any): ColorMapFilter | null => {
 };
 
 export const generateHald = (haldSize?: number): HTMLCanvasElement | null => {
-  const size = haldSize || 32;
+  const size = haldSize || 33;
 
   const hald = document.createElement("canvas");
   hald.width = Math.pow(size, 2);

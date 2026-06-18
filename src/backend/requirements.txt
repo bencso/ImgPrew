@@ -54,6 +54,7 @@ pillow
 pillow_heif
 pyparsing
 ImageIO
+pyvips
 
 # ==========================================
 # CLI Tools & Terminal Output

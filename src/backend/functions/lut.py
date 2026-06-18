@@ -3,13 +3,14 @@ from PIL import ImageFilter, Image
 from dependencies import LUT_SIZE_REGEX, LUT_DATA_REGEX
 import io
 import numpy as np
+import time
 
 class Lut:
-    def __init__(self, hald: Image.Image, image=Image.Image, cube: str = None):
+    def __init__(self, hald: Image.Image, image: Image.Image, cube: str = None):
         self.hald = hald
         self.image = image
         self.cube = cube
-        self.hald_np = np.asarray(self.hald.convert('RGB')).astype(np.float32) / 255.0
+        self.hald_np = np.asarray(hald.convert('RGB')).astype(np.float32) / 255.0
 
     def __enter__(self):
         return self
@@ -30,7 +31,10 @@ class Lut:
         )
         
         lut = ImageFilter.Color3DLUT(lut_size, lut)
-        return self.image.filter(lut)
+        
+        self.image =  self.image.filter(lut)
+                
+        return self.image
 
     def apply(self):
         with open(self.cube) as f:

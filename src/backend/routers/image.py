@@ -1,27 +1,23 @@
-# TODO: pyvips-re átváltani a pillow-ról sokkal gyorsabb lesz az egész
-
+import base64
 import json
-from typing import Annotated
-from functions.resize_img import ResizeImg
-from functions.convert_img_file import Export
-from functions.lut import Lut
+from typing import Annotated, Text
 from fastapi import UploadFile, APIRouter, Form, File
 from fastapi.responses import JSONResponse,Response
-from functions.caption_generator import CaptionGenerator
-from functions.border import Border
-from classes.uploadedimage import UploadedImage
-from PIL import ImageOps, ImageCms
-from dependencies import IMAGE_EXTENSIONS
-from functions.watermark import WaterMarking
 import piexif
-import time
+from functions.border import Border
+from functions.caption_generator import CaptionGenerator
+from dependencies import IMAGE_EXTENSIONS
+from pyvips import Image
+from functions.convert_img_file import Export
+from functions.lut import Lut
+from functions.resize_img import ResizeImg
 from functions.valid_colors import validColors
-from functions.customtext import Text
-from io import BytesIO
+import PIL
+from functions.watermark import WaterMarking
+import io
 
 router = APIRouter(prefix="/images", tags=["images"])
 
-# TODO: Itt azt kell csinálni majd, hogy az adatbázisba fel küldjük rögtön a sessionok közé (amit elkezdtünk képeket szerkeszteni ott fogjuk tárolni "automatikus mentés dologgal")
 @router.post("/upload")
 async def uploadImage(file: UploadFile):
     try:
@@ -30,10 +26,10 @@ async def uploadImage(file: UploadFile):
             raise Exception(
                 f"Hibás fájlformátum, az alábbi fájlokat fogadjuk el: {str.join(', ', IMAGE_EXTENSIONS)}"
             )
-        file_bytes = await file.read()
-        img = UploadedImage(file_bytes)
+        img_file_buffer = await file.read()
+        img =  Image.new_from_buffer(img_file_buffer, "")
 
-        caption_helper = CaptionGenerator(img=img.get_img())
+        caption_helper = CaptionGenerator(img=img)
         caption_sample = caption_helper.getSampleForPhoto() or []
         
         data = json.dumps(
@@ -45,10 +41,10 @@ async def uploadImage(file: UploadFile):
                      } for key, item in caption_helper.getExifInfos().items()
                 ],
                 "caption_samples": caption_sample,
-                "byte": img.encode_bytes(),
+                "byte": base64.b64encode(img_file_buffer).decode("utf-8"),
             }
         )
-
+        
         return JSONResponse(
             status_code=200,
             content={
@@ -67,29 +63,7 @@ async def uploadImage(file: UploadFile):
 @router.post("/export")
 async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[UploadFile, File()] = None, lut: Annotated[UploadFile, File()] = None, copyright_image: Annotated[UploadFile, File()] = None):
     try:
-        file_bytes = await file.read()
-        image = UploadedImage(file_bytes)
-        image = image.get_img()
-        t1 = time.time()
-        icc_bytes = image.info.get("icc_profile")
-        image = ImageOps.exif_transpose(image)
-        
-        if icc_bytes:
-            input_profile = ImageCms.ImageCmsProfile(BytesIO(icc_bytes))
-            srgb_profile = ImageCms.createProfile('sRGB')
-            
-            image = ImageCms.profileToProfile(image, input_profile, srgb_profile)
-        print("beolvasás:", time.time() - t1)
-        
-        hald= None
-        
-        if lut:
-            lut_file_bytes = await lut.read()
-            hald = UploadedImage(lut_file_bytes)
-            hald = hald.get_img()
-            lut_helper = Lut(hald, image)
-            image = lut_helper.apply_hald()    
-        
+        print("-----")
         data = json.loads(body)
         file_extension = data.get("extension") or "jpg"
         allowed_infos = data.get("exif_data") or []        
@@ -102,46 +76,64 @@ async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[Up
         expand_size = data.get("expand_size") or None
         expand_color  = data.get("expand_color") or "#fff"
         expand_position = data.get("expand_position") or None
-        exif_bytes = image.info.get("exif")
+        
+        img_buffer = await file.read()
+
+        image = Image.new_from_buffer(img_buffer, "")
+        image = image.autorot()
+        image  = image.icc_transform("sRGB")
+        
+        exif_bytes = None
+        hald= None
+        
+        exif_bytes = image.get("exif-data")
         exif_data = []
         
+        image = PIL.Image.fromarray(image.numpy())
+        
+        if lut:
+            lut_file_bytes = await lut.read()
+            hald = PIL.Image.open(io.BytesIO(lut_file_bytes)).convert("RGB")
+            lut_helper = Lut(hald, image)
+            image = lut_helper.apply_hald()  
+            
         if exif_bytes:
             try:
                 exif_data = piexif.load(exif_bytes)
             except Exception as e:
                 print("EXIF load hiba:", e)        
-        
-        
-        # todo: 0.3 s ezzel valamit optimalizálni
+                
         if expand_mode != "no" and expand_mode != "border":
             crop_box = (float(expand_position["x"]), float(expand_position["y"]), float(expand_position["x"]) + expand_size["width"] , float(expand_position["y"])  + expand_size["height"])
-            expand_helper = ResizeImg(image, height=expand_size["height"],width=expand_size["width"], expand=(True if expand_mode=="expand" else False),expand_bg=expand_color,padding=expand_size["padding"], crop_box=crop_box)
+            expand_helper = ResizeImg(image=image, height=expand_size["height"],width=expand_size["width"], expand=(True if expand_mode=="expand" else False),expand_bg=expand_color,padding=expand_size["padding"], crop_box=crop_box)
             image = expand_helper.apply()
-
+        
         if border_size > 0:
             border_helper = Border(image,border_size, color=border_color)
             image = border_helper.apply()    
-            
+      
         if copyright_image is not None:
             cp_image = await copyright_image.read()
-            cp = UploadedImage(cp_image)
+            cp = base64.b64encode(cp_image).decode("utf-8")
             cp = cp.get_img()
+            
             copyright_image_size = int(data.get("copyright_image_size")) or 0
             copyright_image_position = data.get("copyright_image_position")
             copyright_image_opacity = float(data.get("copyright_image_opacity")) or 100
             copyright_image_position = (round(copyright_image_position["x"]),round(copyright_image_position["y"]))
             copyright_image_opacity = int((copyright_image_opacity / 100.0) * 255)
+            
             image = WaterMarking(image, position=copyright_image_position,border_size=border_size).watermark_with_image(cp, copyright_image_size, copyright_image_opacity, border_size)
-  
+        
         if texts and len(texts) > 0:
             texts_helper = Text(texts, image, border_size)
             image = texts_helper.generate_text()
-    
+        
         exporter = Export(image, output_extension=file_extension, exif_data=exif_data, allowed_infos=allowed_infos, optimized=optimize)
         exporter = exporter.apply()
         
         if(not isinstance(exporter,bytes)):
-            raise Exception("Hiba történt az exportálás közben!")
+            raise Exception("Hiba történt az exportálás közben! Kérjük, próbálja újra")
                 
         return Response(
             content=exporter,
@@ -154,3 +146,4 @@ async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[Up
                 "message": f"{ex}",
             },
         )
+        
