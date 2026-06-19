@@ -449,6 +449,7 @@ export interface WorkSessionContextProps {
     >
   >;
   overlayRef: RefObject<Container<ContainerChild> | null>;
+  maskContainerRef: RefObject<Container<ContainerChild> | null>
 }
 //#endregion
 

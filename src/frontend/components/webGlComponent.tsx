@@ -57,6 +57,7 @@ export default function WebGlComponent() {
     selectedScale,
     setImageScale,
     overlayRef,
+    maskContainerRef,
     canvasRef,
   } = useWorkSession();
   const { sessionData, setImageSize } = useSessionStore();
@@ -125,6 +126,7 @@ export default function WebGlComponent() {
       const source = new ImageSource({ resource: img });
       const texture = new Texture({ source });
       const overlay = new Container();
+      const maskOverlay = new Container();
 
       textureRef.current = texture;
       const sprite = new Sprite(texture);
@@ -139,9 +141,13 @@ export default function WebGlComponent() {
 
       appRef.current.stage.addChild(sprite);
       appRef.current.stage.addChild(overlay);
+      appRef.current.stage.addChild(maskOverlay);
+
+      appRef.current.stage.setChildIndex(maskOverlay, appRef.current.stage.children.length - 1);
 
       spriteRef.current = sprite;
       overlayRef.current = overlay;
+      maskContainerRef.current = maskOverlay;
 
       if (canvasRef.current) {
         canvasRef.current.replaceChildren(appRef.current.canvas);
@@ -172,6 +178,11 @@ export default function WebGlComponent() {
       if (overlayRef.current) {
         overlayRef.current.destroy();
         overlayRef.current = null;
+      }
+
+      if (maskContainerRef.current) {
+        maskContainerRef.current.destroy();
+        maskContainerRef.current = null;
       }
 
       if (textureRef.current) {

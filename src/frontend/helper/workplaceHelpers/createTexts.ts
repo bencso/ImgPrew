@@ -19,16 +19,6 @@ export function createTexts(props: CreateTextsProps) {
   if (!ctx) return;
 
   texts.forEach((text: DraggableImageEvent) => {
-    if (appRef.current) {
-      appRef.current.stage.hitArea = appRef.current.screen;
-      appRef.current.stage.eventMode = "static";
-      appRef.current.stage.interactiveChildren = true;
-      appRef.current.stage.off("pointerdown");
-      appRef.current.stage.off("pointermove");
-      appRef.current.stage.off("pointerup");
-      appRef.current.stage.off("pointerupoutside");
-    }
-
     let textPosition = text.position;
     const relativePosition = text.relativePosition;
 
