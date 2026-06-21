@@ -8,9 +8,8 @@ import {
 } from "@/interfaces/interface";
 import { useFunctionsStore } from "@/stores/functionsStore";
 import { ColorMapFilter } from "pixi-filters";
-import { Application, Container, Filter, Sprite, Texture } from "pixi.js";
+import { Application, Container, Filter, Graphics, Sprite, Texture } from "pixi.js";
 import { createContext, useContext, useMemo, useRef, useState } from "react";
-import { Rnd } from "react-rnd";
 
 export const WorkSessionContext = createContext<WorkSessionContextProps | null>(
   null,
@@ -43,7 +42,12 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
   const webglFilterRef = useRef<Filter | null>(null);
   const lutFilterRef = useRef<ColorMapFilter | null>(null);
   const overlayRef = useRef<Container | null>(null);
+  
   const maskContainerRef = useRef<Container | null>(null);
+  const maskGraphRef = useRef<Graphics | null>(null);
+  const hoverGraph = new Graphics();
+  hoverGraph.label = "hoverGraph";
+  const hoverMaskGraphRef = useRef<Graphics>(hoverGraph);
 
   const [selectedChannel, setSelectedChannel] = useState<string>("red");
   const { functions, editFunction } = useFunctionsStore();
@@ -87,7 +91,9 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       textPositions,
       setTextPositions,
       overlayRef,
-      maskContainerRef
+      maskContainerRef,
+      maskGraphRef,
+      hoverMaskGraphRef
     }),
     [
       step,
@@ -110,6 +116,8 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       imageScale,
       textPositions,
       overlayRef,
+      maskGraphRef,
+      hoverMaskGraphRef
     ],
   );
 

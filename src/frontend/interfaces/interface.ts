@@ -11,6 +11,7 @@ import {
   Container,
   ContainerChild,
   Filter,
+  Graphics,
   Renderer,
   Sprite,
   Texture,
@@ -23,6 +24,7 @@ import {
   RefObject,
   SetStateAction,
 } from "react";
+import { MaskCreateProps, MasksProps, Points } from "./mask.interface";
 
 //#region InputTypes
 export enum InputTypes {
@@ -102,7 +104,7 @@ export interface ExportSettings {
   fileExtension?: string;
   exifDatas?: string[];
   optimize?: boolean;
-  haldImage?: string | undefined ;
+  haldImage?: string | undefined;
 }
 //#endregion
 
@@ -141,6 +143,9 @@ export interface CustomImage {
   // Export settings
   exportSettings?: ExportSettings;
   haldSprite: Sprite | any;
+  //Mask
+  maskGraph?: RefObject<Graphics> | any;
+  masks?: MasksProps[];
 }
 
 //#region CalculationReFixPositionProps
@@ -265,10 +270,8 @@ export interface SessionStore {
   setExportFileExtension: (id: number, extension: string) => void;
   setExportAllFileExtension: (extension: string) => void;
   setExportExifs: (id: number, exifs: string[]) => void;
-  setHaldImage: (id: number, haldImage: string) => void
-  exportImageSettings: (
-    id: number,
-  ) => Promise<any>;
+  setHaldImage: (id: number, haldImage: string) => void;
+  exportImageSettings: (id: number) => Promise<any>;
   //#endregion
 
   //#region TEXT
@@ -353,6 +356,10 @@ export interface SessionStore {
     lutFile: File | null,
   ) => void;
   //#endregion
+
+  //#region Masks
+  addMask: (id: number, type: MaskCreateProps, brushSize: number, point: Points) => void;
+  //#endregion
 }
 //#endregion
 
@@ -394,7 +401,7 @@ export interface SelectedScale {
 
 //#region EditFunction Props
 export interface EditFunctionProps {
-selectedImg: number;
+  selectedImg: number;
   functionName: string;
   inputName: string;
   value: any;
@@ -449,7 +456,9 @@ export interface WorkSessionContextProps {
     >
   >;
   overlayRef: RefObject<Container<ContainerChild> | null>;
-  maskContainerRef: RefObject<Container<ContainerChild> | null>
+  maskContainerRef: RefObject<Container<ContainerChild> | null>;
+  maskGraphRef: RefObject<Graphics | null>;
+  hoverMaskGraphRef: RefObject<Graphics>;
 }
 //#endregion
 

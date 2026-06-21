@@ -59,6 +59,7 @@ export default function WebGlComponent() {
     overlayRef,
     maskContainerRef,
     canvasRef,
+    maskGraphRef,
   } = useWorkSession();
   const { sessionData, setImageSize } = useSessionStore();
 
@@ -85,6 +86,7 @@ export default function WebGlComponent() {
   const cropSaved = image?.cropSave;
   const expandPadding = image?.expandSize?.padding;
   const haldSprite = image?.haldSprite;
+  const maskGraph = image?.maskGraph;
 
   async function initApp() {
     const app = new Application();
@@ -142,12 +144,21 @@ export default function WebGlComponent() {
       appRef.current.stage.addChild(sprite);
       appRef.current.stage.addChild(overlay);
       appRef.current.stage.addChild(maskOverlay);
-
-      appRef.current.stage.setChildIndex(maskOverlay, appRef.current.stage.children.length - 1);
+      appRef.current.stage.setChildIndex(
+        maskOverlay,
+        appRef.current.stage.children.length - 1,
+      );
 
       spriteRef.current = sprite;
       overlayRef.current = overlay;
+
       maskContainerRef.current = maskOverlay;
+
+      if (maskOverlay.children && maskOverlay.children.length > 0)
+        maskOverlay.removeChildren();
+
+      if (maskGraphRef) maskGraphRef.current = maskGraph;
+      maskOverlay.addChild(maskGraph);
 
       if (canvasRef.current) {
         canvasRef.current.replaceChildren(appRef.current.canvas);

@@ -9,12 +9,17 @@ import {
   YPositions,
 } from "@/interfaces/interface";
 import { ColorMapFilter } from "pixi-filters";
-import { Application, Renderer, Sprite, Texture } from "pixi.js";
+import { Application, Graphics, Renderer, Sprite, Texture } from "pixi.js";
 import { RefObject } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { immer } from "zustand/middleware/immer";
 import { createWithEqualityFn } from "zustand/traditional";
 import { getImageSize } from "@/helper/sizes/getImageSize";
+import {
+  MaskCreateProps,
+  MasksProps,
+  Points,
+} from "@/interfaces/mask.interface";
 
 export const useSessionStore = createWithEqualityFn<SessionStore>()(
   immer((set, get) => ({
@@ -37,6 +42,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         if (hald instanceof HTMLCanvasElement !== true) return null;
         const haldTexture = Texture.from(hald);
         const haldSprite = new Sprite(haldTexture);
+        const maskGraph = new Graphics();
 
         const sessionData = {
           id: nextId,
@@ -56,6 +62,8 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
             haldImage: undefined,
           },
           haldSprite: haldSprite,
+          maskGraph: maskGraph,
+          masks: [],
         } as CustomImage;
 
         if (exifData) sessionData.exifDatas = exifData;
@@ -599,7 +607,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     setHaldImage: (id: number, haldImage: string) => {
       set((state) => {
         const image = state.sessionData.find((img: any) => img.id === id);
-        if (!image || !image.exportSettings) return;
+        if (!image || !image.exportSettings) return;
 
         image.exportSettings.haldImage = haldImage;
       });
@@ -780,6 +788,36 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
 
         image.lutFile = lutFile;
         image.lutFilter = lutFilter;
+      });
+    },
+    //#endregion
+    //#region Masks
+    addMask: (
+      id: number,
+      type: MaskCreateProps,
+      brushSize: number,
+      point: Points,
+    ) => {
+      set((state) => {
+        const image = state.sessionData.find((img: any) => img.id === id);
+        if (!image) return;
+
+        const masks = image.masks;
+        if (!masks) return;
+
+        let currentMask = masks.find(
+          (mask) => mask.type === type && mask.brushSize === brushSize,
+        );
+
+        if (currentMask) {
+          currentMask.points.push(point);
+        } else {
+          masks.push({
+            type,
+            brushSize,
+            points: [point],
+          });
+        }
       });
     },
     //#endregion

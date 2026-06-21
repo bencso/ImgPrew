@@ -8,7 +8,7 @@ import { minMaxValidation } from "@/helper/errorHelper";
 import { CropGrid } from "../ui/cropgrid";
 import { createCPImage } from "@/helper/workplaceHelpers/createCPImage";
 import { createTexts } from "@/helper/workplaceHelpers/createTexts";
-import { Container, Graphics, Sprite, Texture } from "pixi.js";
+import { createMask } from "@/helper/mask/createMask";
 
 export default function ImageWorkPlace() {
   const {
@@ -19,8 +19,11 @@ export default function ImageWorkPlace() {
     overlayRef,
     appRef,
     maskContainerRef,
+    maskGraphRef,
+    hoverMaskGraphRef,
   } = useWorkSession();
-  const { setCropBox, setTextPosition, setTextRelativePosition } =
+
+  const { setCropBox, setTextPosition, setTextRelativePosition, addMask } =
     useSessionStore();
 
   const image = useSessionStore((state) =>
@@ -28,6 +31,10 @@ export default function ImageWorkPlace() {
   );
 
   const [draggableText, setDraggable] = useState<string | null>(null);
+  const [isDrawing, setIsDrawing] = useState<boolean>(false);
+  //TODO: Nem usestate mert ugy laggos hanem ref-feljük
+  const [lastX , setLastX] = useState<number | null>(null);
+  const [lastY , setLastY] = useState<number | null>(null);
 
   const box = image?.box;
   const expandMode = image?.expandMode;
@@ -37,6 +44,11 @@ export default function ImageWorkPlace() {
   const borderSize = image?.borderSize;
   const imgW = image?.dimesions?.width ?? 1;
   const imgH = image?.dimesions?.height ?? 1;
+  const masks = image?.masks;
+
+  const maskGraph = maskGraphRef?.current;
+
+  let brushSize = 30;
 
   const cropboxScale = Math.min(
     (canvasRef.current?.clientWidth ?? 0) / imgW,
@@ -85,112 +97,25 @@ export default function ImageWorkPlace() {
     borderSize,
   });
 
+  createMask({
+    appRef,
+    brushSize,
+    maskContainerRef,
+    hoverMaskGraphRef,
+    lastX,
+    lastY,
+    maskGraph,
+    masks,
+    addMask,
+    selectedImg,
+    isDrawing,
+    setIsDrawing,
+    setLastX,
+    setLastY
+  });
+
   const canvasH = canvasRef.current?.clientHeight ?? 1080;
   const canvasW = canvasRef.current?.clientWidth ?? 1080;
-
-  enum MaskCreateProps {
-    DRAW,
-    ERASE,
-  }
-
-  interface Points {
-    x: number;
-    y: number;
-  }
-
-  interface MasksProps {
-    type: MaskCreateProps;
-    brushSize: number;
-    points: Points[];
-  }
-
-  let masks: MasksProps[] = [];
-
-  let isDrawing = false;
-  let lastX = 0;
-  let lastY = 0;
-  let brushSize = 30;
-
-  const maskGraph = new Graphics();
-  maskContainerRef.current?.addChild(maskGraph);
-
-  function drawBrush(x: number, y: number) {
-    maskGraph.circle(x, y, 30);
-    maskGraph.fill({
-      color: 0xff0000,
-    });
-  }
-
-  function maskCreate(
-    brushSize: number,
-    type: MaskCreateProps,
-    point: { x: number; y: number },
-  ) {
-    let currentMask = masks.find(
-      (mask) => mask.type === type && mask.brushSize === brushSize,
-    );
-
-    if (currentMask) {
-      currentMask.points.push(point);
-    } else {
-      masks.push({
-        type,
-        brushSize,
-        points: [point],
-      });
-    }
-  }
-
-  // Linear interpolation : https://hu.wikipedia.org/wiki/Interpol%C3%A1ci%C3%B3
-  function drawLine(x1: number, y1: number, x2: number, y2: number) {
-    // Különbség számítás
-    const dx = x2 - x1;
-    const dy = y2 - y1;
-
-    // Pitagorasz tétel
-    const distance = Math.sqrt(dx * dx + dy * dy);
-
-    // A két pont közötti távolság "megrajzolása"
-    for (let i = 0; i <= distance; i += brushSize) {
-      const a = i / distance;
-
-      const x = x1 + dx * a;
-      const y = y1 + dy * a;
-
-      maskCreate(30, MaskCreateProps.DRAW, {
-        x,
-        y,
-      });
-
-      drawBrush(x, y);
-    }
-  }
-
-  appRef.current?.stage.on("pointerdown", (e) => {
-    isDrawing = true;
-
-    lastX = e.global.x;
-    lastY = e.global.y;
-
-    drawBrush(lastX, lastY);
-  });
-
-  appRef.current?.stage.on("pointermove", (e) => {
-    if (!isDrawing) return;
-
-    const x = e.global.x;
-    const y = e.global.y;
-
-    drawLine(lastX, lastY, x, y);
-
-    lastX = x;
-    lastY = y;
-  });
-
-  appRef.current?.stage.on("pointerup", () => {
-    isDrawing = false;
-    console.log(masks);
-  });
 
   return (
     <Flex
