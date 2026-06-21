@@ -1,6 +1,6 @@
 export enum MaskCreateProps {
-  DRAW,
-  ERASE,
+  DRAW = "normal",
+  ERASE = "erase",
 }
 
 export interface Points {

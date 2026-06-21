@@ -1,7 +1,7 @@
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { Box, Flex } from "@chakra-ui/react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import WebGlComponent from "../webGlComponent";
 import { Rnd } from "react-rnd";
 import { minMaxValidation } from "@/helper/errorHelper";
@@ -21,6 +21,8 @@ export default function ImageWorkPlace() {
     maskContainerRef,
     maskGraphRef,
     hoverMaskGraphRef,
+    maskBrushSize,
+    maskErase
   } = useWorkSession();
 
   const { setCropBox, setTextPosition, setTextRelativePosition, addMask } =
@@ -33,8 +35,8 @@ export default function ImageWorkPlace() {
   const [draggableText, setDraggable] = useState<string | null>(null);
   const [isDrawing, setIsDrawing] = useState<boolean>(false);
   //TODO: Nem usestate mert ugy laggos hanem ref-feljük
-  const [lastX , setLastX] = useState<number | null>(null);
-  const [lastY , setLastY] = useState<number | null>(null);
+  const lastX = useRef<number | null>(null);
+  const lastY = useRef<number | null>(null);
 
   const box = image?.box;
   const expandMode = image?.expandMode;
@@ -45,10 +47,10 @@ export default function ImageWorkPlace() {
   const imgW = image?.dimesions?.width ?? 1;
   const imgH = image?.dimesions?.height ?? 1;
   const masks = image?.masks;
+  const brushSize = maskBrushSize;
 
   const maskGraph = maskGraphRef?.current;
 
-  let brushSize = 30;
 
   const cropboxScale = Math.min(
     (canvasRef.current?.clientWidth ?? 0) / imgW,
@@ -110,8 +112,7 @@ export default function ImageWorkPlace() {
     selectedImg,
     isDrawing,
     setIsDrawing,
-    setLastX,
-    setLastY
+    maskErase
   });
 
   const canvasH = canvasRef.current?.clientHeight ?? 1080;

@@ -32,6 +32,7 @@ import {
   LuImageUpscale,
   LuTag,
   LuType,
+  LuVenetianMask,
 } from "react-icons/lu";
 import { shallow } from "zustand/shallow";
 import CaptionBlock from "../caption/captionBlock";
@@ -45,6 +46,7 @@ import { HiAdjustments } from "react-icons/hi";
 import LutBlock from "../lut/lutBlock";
 import ExportDrawer from "./exportDrawer/exportDrawer";
 import { minMaxValidation } from "@/helper/errorHelper";
+import MaskBlock from "../mask/maskBlock";
 
 const sidebarElements = (
   selectedImg: any,
@@ -78,6 +80,17 @@ const sidebarElements = (
           name: "",
           inputType: "customElement",
           options: <CaptionBlock />,
+        },
+      ],
+    },
+      {
+      function: "Maszkolás",
+      icon: <LuVenetianMask />,
+      inputs: [
+        {
+          name: "",
+          inputType: "customElement",
+          options: <MaskBlock />,
         },
       ],
     },
@@ -776,6 +789,10 @@ export default function SideBar() {
     selectedChannel,
     webglFilterRef,
     imageScale,
+    setMaskBrushSize,
+    setMaskEraseMode,
+    maskBrushSize,
+    maskErase
   } = useWorkSession();
 
   const {
@@ -783,7 +800,7 @@ export default function SideBar() {
     getFilterValue,
     setExpandMode,
     setBorderSize,
-    setExpandBackground,
+    setExpandBackground,    
   } = useSessionStore();
   //#endregion
 
@@ -793,7 +810,6 @@ export default function SideBar() {
   );
 
   const selectedExtension = image?.exportSettings?.fileExtension;
-
 
   const filters = useSessionStore((s) => s.getFilters(selectedImg), shallow);
   const uniforms = webglFilterRef.current
@@ -823,6 +839,7 @@ export default function SideBar() {
       uniforms,
       imageScale,
       image,
+
     );
   }, [
     selectedImg,
@@ -830,7 +847,7 @@ export default function SideBar() {
     filters,
     webglFilterRef,
     uniforms,
-    image
+    image,
   ]);
 
   //#endregion

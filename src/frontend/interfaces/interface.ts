@@ -145,7 +145,7 @@ export interface CustomImage {
   haldSprite: Sprite | any;
   //Mask
   maskGraph?: RefObject<Graphics> | any;
-  masks?: MasksProps[];
+  masks?: any[];
 }
 
 //#region CalculationReFixPositionProps
@@ -358,7 +358,7 @@ export interface SessionStore {
   //#endregion
 
   //#region Masks
-  addMask: (id: number, type: MaskCreateProps, brushSize: number, point: Points) => void;
+  addMask: (id: number, type: string, brushSize: number, point: Points) => void;
   //#endregion
 }
 //#endregion
@@ -459,6 +459,10 @@ export interface WorkSessionContextProps {
   maskContainerRef: RefObject<Container<ContainerChild> | null>;
   maskGraphRef: RefObject<Graphics | null>;
   hoverMaskGraphRef: RefObject<Graphics>;
+  maskErase: boolean;
+  setMaskEraseMode: Dispatch<SetStateAction<boolean>>;
+  maskBrushSize: number;
+  setMaskBrushSize: Dispatch<SetStateAction<number>>;
 }
 //#endregion
 

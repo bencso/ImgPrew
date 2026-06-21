@@ -794,7 +794,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     //#region Masks
     addMask: (
       id: number,
-      type: MaskCreateProps,
+      type: string,
       brushSize: number,
       point: Points,
     ) => {

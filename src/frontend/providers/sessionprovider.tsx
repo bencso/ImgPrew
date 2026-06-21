@@ -33,6 +33,8 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  
+
   const spriteRef = useRef<Sprite | null>(null);
   const textureRef = useRef<Texture | null>(null);
   const appRef = useRef<Application | null>(null);
@@ -45,6 +47,9 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
   
   const maskContainerRef = useRef<Container | null>(null);
   const maskGraphRef = useRef<Graphics | null>(null);
+  const [maskErase, setMaskEraseMode] = useState<boolean>(false);
+  const [maskBrushSize, setMaskBrushSize] = useState<number>(20);
+  
   const hoverGraph = new Graphics();
   hoverGraph.label = "hoverGraph";
   const hoverMaskGraphRef = useRef<Graphics>(hoverGraph);
@@ -93,7 +98,11 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       overlayRef,
       maskContainerRef,
       maskGraphRef,
-      hoverMaskGraphRef
+      hoverMaskGraphRef,
+      maskErase,
+      setMaskEraseMode,
+      maskBrushSize,
+      setMaskBrushSize
     }),
     [
       step,
@@ -117,7 +126,9 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       textPositions,
       overlayRef,
       maskGraphRef,
-      hoverMaskGraphRef
+      hoverMaskGraphRef,
+      maskErase,
+      maskBrushSize
     ],
   );
 

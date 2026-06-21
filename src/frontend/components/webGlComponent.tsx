@@ -60,6 +60,8 @@ export default function WebGlComponent() {
     maskContainerRef,
     canvasRef,
     maskGraphRef,
+    setMaskBrushSize,
+    setMaskEraseMode
   } = useWorkSession();
   const { sessionData, setImageSize } = useSessionStore();
 
@@ -151,6 +153,9 @@ export default function WebGlComponent() {
 
       spriteRef.current = sprite;
       overlayRef.current = overlay;
+
+      setMaskBrushSize(30);
+      setMaskEraseMode(false);
 
       maskContainerRef.current = maskOverlay;
 
