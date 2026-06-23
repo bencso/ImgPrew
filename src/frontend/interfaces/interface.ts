@@ -145,6 +145,7 @@ export interface CustomImage {
   haldSprite: Sprite | any;
   //Mask
   maskGraph?: RefObject<Graphics> | any;
+  maskDeleteGraph?: RefObject<Graphics> | any;
   masks?: any[];
 }
 
@@ -457,7 +458,9 @@ export interface WorkSessionContextProps {
   >;
   overlayRef: RefObject<Container<ContainerChild> | null>;
   maskContainerRef: RefObject<Container<ContainerChild> | null>;
+  maskDeleteContainerRef: RefObject<Container<ContainerChild> | null>;
   maskGraphRef: RefObject<Graphics | null>;
+  maskDeleteGraphRef: RefObject<Graphics | null>;
   hoverMaskGraphRef: RefObject<Graphics>;
   maskErase: boolean;
   setMaskEraseMode: Dispatch<SetStateAction<boolean>>;

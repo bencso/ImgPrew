@@ -39,7 +39,7 @@ export function drawLine(
     const x = x1 + dx * a;
     const y = y1 + dy * a;
 
-    drawBrush(maskGraph, x, y, type,brushSize);
+    drawBrush(maskGraph, x, y,brushSize);
     //TODO: Ez miatt laggy lesz a folyamat
     addMask(selectedImg, type, brushSize, {
       x,

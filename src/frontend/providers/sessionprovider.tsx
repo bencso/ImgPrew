@@ -8,7 +8,14 @@ import {
 } from "@/interfaces/interface";
 import { useFunctionsStore } from "@/stores/functionsStore";
 import { ColorMapFilter } from "pixi-filters";
-import { Application, Container, Filter, Graphics, Sprite, Texture } from "pixi.js";
+import {
+  Application,
+  Container,
+  Filter,
+  Graphics,
+  Sprite,
+  Texture,
+} from "pixi.js";
 import { createContext, useContext, useMemo, useRef, useState } from "react";
 
 export const WorkSessionContext = createContext<WorkSessionContextProps | null>(
@@ -33,23 +40,25 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  
-
   const spriteRef = useRef<Sprite | null>(null);
   const textureRef = useRef<Texture | null>(null);
   const appRef = useRef<Application | null>(null);
   const workPlaceRef = useRef<HTMLDivElement | null>(null);
   const textAndImagePlaceRef = useRef<HTMLDivElement | null>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);  
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const webglFilterRef = useRef<Filter | null>(null);
   const lutFilterRef = useRef<ColorMapFilter | null>(null);
   const overlayRef = useRef<Container | null>(null);
-  
+
   const maskContainerRef = useRef<Container | null>(null);
-  const maskGraphRef = useRef<Graphics | null>(null);
+  const maskDeleteContainerRef = useRef<Container | null>(null);
+  
+  const maskGraphRef = useRef<Graphics | null>(null);
+  const maskDeleteGraphRef = useRef<Graphics | null>(null);
+  
   const [maskErase, setMaskEraseMode] = useState<boolean>(false);
   const [maskBrushSize, setMaskBrushSize] = useState<number>(20);
-  
+
   const hoverGraph = new Graphics();
   hoverGraph.label = "hoverGraph";
   const hoverMaskGraphRef = useRef<Graphics>(hoverGraph);
@@ -102,7 +111,9 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       maskErase,
       setMaskEraseMode,
       maskBrushSize,
-      setMaskBrushSize
+      setMaskBrushSize,
+      maskDeleteContainerRef,
+      maskDeleteGraphRef
     }),
     [
       step,
@@ -126,9 +137,11 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       textPositions,
       overlayRef,
       maskGraphRef,
+      maskDeleteGraphRef,
       hoverMaskGraphRef,
       maskErase,
-      maskBrushSize
+      maskBrushSize,
+      maskDeleteContainerRef,
     ],
   );
 

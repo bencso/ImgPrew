@@ -9,15 +9,13 @@ import {
   YPositions,
 } from "@/interfaces/interface";
 import { ColorMapFilter } from "pixi-filters";
-import { Application, Graphics, Renderer, Sprite, Texture } from "pixi.js";
+import { Graphics, Sprite, Texture } from "pixi.js";
 import { RefObject } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { immer } from "zustand/middleware/immer";
 import { createWithEqualityFn } from "zustand/traditional";
 import { getImageSize } from "@/helper/sizes/getImageSize";
 import {
-  MaskCreateProps,
-  MasksProps,
   Points,
 } from "@/interfaces/mask.interface";
 
@@ -43,6 +41,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         const haldTexture = Texture.from(hald);
         const haldSprite = new Sprite(haldTexture);
         const maskGraph = new Graphics();
+        const maskDeleteGraph = new Graphics();
 
         const sessionData = {
           id: nextId,
@@ -63,6 +62,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           },
           haldSprite: haldSprite,
           maskGraph: maskGraph,
+          maskDeleteGraph: maskDeleteGraph,
           masks: [],
         } as CustomImage;
 

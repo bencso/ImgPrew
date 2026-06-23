@@ -3,12 +3,10 @@ import { Box, Flex, HStack, Input, RadioCard, VStack } from "@chakra-ui/react";
 
 export default function MaskBlock() {
   const {
-    selectedImg,
     maskBrushSize,
     maskErase,
     setMaskBrushSize,
     setMaskEraseMode,
-    canvasRef,
   } = useWorkSession();
 
   const items = [

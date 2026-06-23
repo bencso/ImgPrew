@@ -61,7 +61,9 @@ export default function WebGlComponent() {
     canvasRef,
     maskGraphRef,
     setMaskBrushSize,
-    setMaskEraseMode
+    setMaskEraseMode,
+    maskDeleteContainerRef,
+    maskDeleteGraphRef,
   } = useWorkSession();
   const { sessionData, setImageSize } = useSessionStore();
 
@@ -89,6 +91,7 @@ export default function WebGlComponent() {
   const expandPadding = image?.expandSize?.padding;
   const haldSprite = image?.haldSprite;
   const maskGraph = image?.maskGraph;
+  const maskDeleteGraph = image?.maskDeleteGraph;
 
   async function initApp() {
     const app = new Application();
@@ -97,6 +100,7 @@ export default function WebGlComponent() {
       resolution: window.devicePixelRatio,
       autoDensity: true,
       antialias: true,
+      backgroundAlpha: 0,
     });
 
     appRef.current = app;
@@ -130,7 +134,6 @@ export default function WebGlComponent() {
       const source = new ImageSource({ resource: img });
       const texture = new Texture({ source });
       const overlay = new Container();
-      const maskOverlay = new Container();
 
       textureRef.current = texture;
       const sprite = new Sprite(texture);
@@ -145,11 +148,12 @@ export default function WebGlComponent() {
 
       appRef.current.stage.addChild(sprite);
       appRef.current.stage.addChild(overlay);
-      appRef.current.stage.addChild(maskOverlay);
-      appRef.current.stage.setChildIndex(
-        maskOverlay,
-        appRef.current.stage.children.length - 1,
-      );
+
+      const maskGroup = new Container({
+        isRenderGroup: true,
+      });
+      
+      appRef.current.stage.addChild(maskGroup);
 
       spriteRef.current = sprite;
       overlayRef.current = overlay;
@@ -157,13 +161,16 @@ export default function WebGlComponent() {
       setMaskBrushSize(30);
       setMaskEraseMode(false);
 
-      maskContainerRef.current = maskOverlay;
+      if (maskDeleteGraph) maskDeleteGraph.blendMode = "erase";
+      
+      maskGroup.addChild(maskGraph);
+      maskGroup.addChild(maskDeleteGraph);
 
-      if (maskOverlay.children && maskOverlay.children.length > 0)
-        maskOverlay.removeChildren();
+      maskContainerRef.current = maskGraph;
+      maskDeleteContainerRef.current = maskDeleteGraph;
 
       if (maskGraphRef) maskGraphRef.current = maskGraph;
-      maskOverlay.addChild(maskGraph);
+      if (maskDeleteGraphRef) maskDeleteGraphRef.current = maskDeleteGraph;
 
       if (canvasRef.current) {
         canvasRef.current.replaceChildren(appRef.current.canvas);
@@ -199,6 +206,11 @@ export default function WebGlComponent() {
       if (maskContainerRef.current) {
         maskContainerRef.current.destroy();
         maskContainerRef.current = null;
+      }
+
+      if (maskDeleteContainerRef.current) {
+        maskDeleteContainerRef.current.destroy();
+        maskDeleteContainerRef.current = null;
       }
 
       if (textureRef.current) {

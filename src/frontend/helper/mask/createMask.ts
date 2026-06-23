@@ -18,6 +18,7 @@ import { drawLine } from "./drawLine";
 interface createMaskProps {
   appRef: RefObject<Application<Renderer> | null>;
   maskGraph: Graphics | null;
+  maskDeleteGraph: Graphics | null;
   isDrawing: boolean;
   setIsDrawing: Dispatch<SetStateAction<boolean>>;
   lastY: RefObject<number | null>;
@@ -34,12 +35,13 @@ interface createMaskProps {
 export const createMask = (props: createMaskProps) => {
   const appRef = props.appRef;
   const hoverMaskGraphRef = props.hoverMaskGraphRef;
-  const maskGraph = props.maskGraph;
   const brushSize = props.brushSize;
   const maskContainerRef = props.maskContainerRef;
   const addMask = props.addMask;
   const selectedImg = props.selectedImg;
   const maskErase = props.maskErase;
+  console.log(maskErase);
+  const maskGraph = maskErase == true ? props.maskDeleteGraph : props.maskGraph;
 
   const type = maskErase ? MaskCreateProps.ERASE : MaskCreateProps.DRAW;
 
@@ -70,7 +72,6 @@ export const createMask = (props: createMaskProps) => {
         maskGraph,
         props.lastX.current,
         props.lastY.current,
-        type,
         brushSize,
       );
   });

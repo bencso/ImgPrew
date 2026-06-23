@@ -22,7 +22,8 @@ export default function ImageWorkPlace() {
     maskGraphRef,
     hoverMaskGraphRef,
     maskBrushSize,
-    maskErase
+    maskErase,
+    maskDeleteGraphRef,
   } = useWorkSession();
 
   const { setCropBox, setTextPosition, setTextRelativePosition, addMask } =
@@ -50,7 +51,7 @@ export default function ImageWorkPlace() {
   const brushSize = maskBrushSize;
 
   const maskGraph = maskGraphRef?.current;
-
+  const maskDeleteGraph = maskDeleteGraphRef?.current;
 
   const cropboxScale = Math.min(
     (canvasRef.current?.clientWidth ?? 0) / imgW,
@@ -112,7 +113,8 @@ export default function ImageWorkPlace() {
     selectedImg,
     isDrawing,
     setIsDrawing,
-    maskErase
+    maskErase,
+    maskDeleteGraph,
   });
 
   const canvasH = canvasRef.current?.clientHeight ?? 1080;
