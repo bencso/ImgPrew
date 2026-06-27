@@ -13,6 +13,7 @@ import {
   Filter,
   Graphics,
   Renderer,
+  RenderTexture,
   Sprite,
   Texture,
   TextureSource,
@@ -144,9 +145,8 @@ export interface CustomImage {
   exportSettings?: ExportSettings;
   haldSprite: Sprite | any;
   //Mask
-  maskGraph?: RefObject<Graphics> | any;
-  maskDeleteGraph?: RefObject<Graphics> | any;
   masks?: any[];
+  maskContainer?: Container<ContainerChild> | any;
 }
 
 //#region CalculationReFixPositionProps
@@ -457,15 +457,14 @@ export interface WorkSessionContextProps {
     >
   >;
   overlayRef: RefObject<Container<ContainerChild> | null>;
-  maskContainerRef: RefObject<Container<ContainerChild> | null>;
-  maskDeleteContainerRef: RefObject<Container<ContainerChild> | null>;
-  maskGraphRef: RefObject<Graphics | null>;
-  maskDeleteGraphRef: RefObject<Graphics | null>;
   hoverMaskGraphRef: RefObject<Graphics>;
   maskErase: boolean;
   setMaskEraseMode: Dispatch<SetStateAction<boolean>>;
   maskBrushSize: number;
   setMaskBrushSize: Dispatch<SetStateAction<number>>;
+  renderTextureRef: RefObject<RenderTexture | null>;
+  outputSpriteRef: RefObject<Sprite | null>;
+  brushRef: RefObject<Graphics | null>;
 }
 //#endregion
 

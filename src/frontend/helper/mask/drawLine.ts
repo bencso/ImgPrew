@@ -1,12 +1,3 @@
-
-import {
-  MaskCreateProps,
-  MasksProps,
-  Points,
-} from "@/interfaces/mask.interface";
-import { drawBrush } from "./drawBrush";
-import { BLEND_MODES, Graphics } from "pixi.js";
-
 // Linear interpolation : https://hu.wikipedia.org/wiki/Interpol%C3%A1ci%C3%B3
 export function drawLine(
   x1: number,
@@ -14,17 +5,8 @@ export function drawLine(
   x2: number,
   y2: number,
   brushSize: number,
-  maskGraph: Graphics,
-  selectedImg: number,
-  addMask: (
-    id: number,
-    type: string,
-    brushSize: number,
-    point: Points,
-  ) => void,
-  type: BLEND_MODES,
+  paint: any,
 ) {
-     
   // Különbség számítás
   const dx = x2 - x1;
   const dy = y2 - y1;
@@ -39,11 +21,6 @@ export function drawLine(
     const x = x1 + dx * a;
     const y = y1 + dy * a;
 
-    drawBrush(maskGraph, x, y,brushSize);
-    //TODO: Ez miatt laggy lesz a folyamat
-    addMask(selectedImg, type, brushSize, {
-      x,
-      y,
-    });
+    paint(x, y);
   }
 }

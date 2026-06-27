@@ -12,8 +12,10 @@ import {
   Container,
   defaultFilterVert,
   Filter,
+  Graphics,
   ImageSource,
   Rectangle,
+  RenderTexture,
   Sprite,
   Texture,
   UniformGroup,
@@ -57,13 +59,13 @@ export default function WebGlComponent() {
     selectedScale,
     setImageScale,
     overlayRef,
-    maskContainerRef,
     canvasRef,
-    maskGraphRef,
     setMaskBrushSize,
     setMaskEraseMode,
-    maskDeleteContainerRef,
-    maskDeleteGraphRef,
+    brushRef,
+    outputSpriteRef,
+    renderTextureRef,
+    hoverMaskGraphRef
   } = useWorkSession();
   const { sessionData, setImageSize } = useSessionStore();
 
@@ -90,8 +92,7 @@ export default function WebGlComponent() {
   const cropSaved = image?.cropSave;
   const expandPadding = image?.expandSize?.padding;
   const haldSprite = image?.haldSprite;
-  const maskGraph = image?.maskGraph;
-  const maskDeleteGraph = image?.maskDeleteGraph;
+  const maskContainer = image?.maskContainer;
 
   async function initApp() {
     const app = new Application();
@@ -134,6 +135,7 @@ export default function WebGlComponent() {
       const source = new ImageSource({ resource: img });
       const texture = new Texture({ source });
       const overlay = new Container();
+      const hoverGraph = new Graphics();
 
       textureRef.current = texture;
       const sprite = new Sprite(texture);
@@ -145,32 +147,29 @@ export default function WebGlComponent() {
       )[0];
 
       if (prevStage) appRef.current.stage.removeChild(prevStage);
-
       appRef.current.stage.addChild(sprite);
       appRef.current.stage.addChild(overlay);
-
-      const maskGroup = new Container({
-        isRenderGroup: true,
-      });
       
-      appRef.current.stage.addChild(maskGroup);
+      const width = appRef.current?.canvas.width;
+      const height = appRef.current?.canvas.height;
 
+      const renderTexture = RenderTexture.create({ width, height });
+      const outputSprite = new Sprite(renderTexture);
+      appRef.current.stage.addChild(outputSprite);
+      appRef.current.stage.addChild(hoverGraph);
+
+      const brush = new Graphics();
+      maskContainer.addChild(brush);
+
+      brushRef.current = brush;
+      renderTextureRef.current = renderTexture;
+      outputSpriteRef.current = outputSprite;
       spriteRef.current = sprite;
       overlayRef.current = overlay;
+      hoverMaskGraphRef.current = hoverGraph
 
       setMaskBrushSize(30);
       setMaskEraseMode(false);
-
-      if (maskDeleteGraph) maskDeleteGraph.blendMode = "erase";
-      
-      maskGroup.addChild(maskGraph);
-      maskGroup.addChild(maskDeleteGraph);
-
-      maskContainerRef.current = maskGraph;
-      maskDeleteContainerRef.current = maskDeleteGraph;
-
-      if (maskGraphRef) maskGraphRef.current = maskGraph;
-      if (maskDeleteGraphRef) maskDeleteGraphRef.current = maskDeleteGraph;
 
       if (canvasRef.current) {
         canvasRef.current.replaceChildren(appRef.current.canvas);
@@ -201,16 +200,6 @@ export default function WebGlComponent() {
       if (overlayRef.current) {
         overlayRef.current.destroy();
         overlayRef.current = null;
-      }
-
-      if (maskContainerRef.current) {
-        maskContainerRef.current.destroy();
-        maskContainerRef.current = null;
-      }
-
-      if (maskDeleteContainerRef.current) {
-        maskDeleteContainerRef.current.destroy();
-        maskDeleteContainerRef.current = null;
       }
 
       if (textureRef.current) {

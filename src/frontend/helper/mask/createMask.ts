@@ -1,80 +1,66 @@
 //TODO: Egy külön réteg hogy a blendmode erase jó legyen (szerintem ugy lesz jó...)
-import {
-  MaskCreateProps,
-  MasksProps,
-  Points,
-} from "@/interfaces/mask.interface";
+import { MasksProps, Points } from "@/interfaces/mask.interface";
 import {
   Application,
   Container,
   ContainerChild,
   Graphics,
   Renderer,
+  RenderTexture,
 } from "pixi.js";
-import { drawBrush } from "./drawBrush";
-import { Dispatch, RefObject, SetStateAction, use, useEffect } from "react";
+import { Dispatch, RefObject, SetStateAction, useEffect } from "react";
 import { drawLine } from "./drawLine";
 
 interface createMaskProps {
   appRef: RefObject<Application<Renderer> | null>;
-  maskGraph: Graphics | null;
-  maskDeleteGraph: Graphics | null;
   isDrawing: boolean;
   setIsDrawing: Dispatch<SetStateAction<boolean>>;
   lastY: RefObject<number | null>;
   lastX: RefObject<number | null>;
   brushSize: number;
   hoverMaskGraphRef: RefObject<Graphics>;
-  maskContainerRef: RefObject<Container<ContainerChild> | null>;
   masks: MasksProps[] | undefined;
   selectedImg: number;
   addMask: (id: number, type: string, brushSize: number, point: Points) => void;
   maskErase: boolean;
+  maskContainer: Container<ContainerChild>;
+  brushRef: RefObject<Graphics | null>;
+  renderTextureRef: RefObject<RenderTexture | null>;
 }
 
 export const createMask = (props: createMaskProps) => {
   const appRef = props.appRef;
   const hoverMaskGraphRef = props.hoverMaskGraphRef;
   const brushSize = props.brushSize;
-  const maskContainerRef = props.maskContainerRef;
-  const addMask = props.addMask;
   const selectedImg = props.selectedImg;
   const maskErase = props.maskErase;
-  console.log(maskErase);
-  const maskGraph = maskErase == true ? props.maskDeleteGraph : props.maskGraph;
+  const maskContainer = props.maskContainer;
+  const brushRef = props.brushRef.current;
+  const renderTexture = props.renderTextureRef.current;
 
-  const type = maskErase ? MaskCreateProps.ERASE : MaskCreateProps.DRAW;
+  function paint(x: number, y: number) {
+    if (!brushRef) return;
 
-  useEffect(() => {
-    const child = maskContainerRef.current?.getChildByLabel(
-      hoverMaskGraphRef.current.label,
-    );
+    brushRef.clear();
 
-    if (child) maskContainerRef.current?.removeChild(child);
-    maskContainerRef.current?.addChild(hoverMaskGraphRef.current);
-    hoverMaskGraphRef.current.clear();
-    hoverMaskGraphRef.current.circle(0, 0, brushSize);
-    hoverMaskGraphRef.current.fill({
-      color: 0xff0000,
-      alpha: 0.3,
-    });
-  }, [selectedImg, brushSize]);
+    if (maskErase === false) {
+      brushRef.blendMode = "normal";
+      brushRef.circle(x, y, brushSize );
+      brushRef.fill({ color: 0x0000ff, alpha: 1 });
+    } else {
+      brushRef.blendMode = "erase";
+      brushRef.circle(x, y, brushSize);
+      brushRef.fill({ color: 0xffffff, alpha: 1 });
+    }
 
-  appRef.current?.stage.on("pointerdown", (e) => {
-    props.setIsDrawing(true);
-    if (!maskGraph) return;
-
-    props.lastX.current = e.global.x;
-    props.lastY.current = e.global.y;
-
-    if (props.lastX && props.lastY)
-      drawBrush(
-        maskGraph,
-        props.lastX.current,
-        props.lastY.current,
-        brushSize,
-      );
-  });
+    if (appRef.current && renderTexture) {
+      appRef.current.renderer.render({
+        container: maskContainer,
+        target: renderTexture,
+        clear: false,
+      });
+    }
+  }
 
   appRef.current?.stage.on("pointermove", (e) => {
     const x = e.global.x;
@@ -85,29 +71,46 @@ export const createMask = (props: createMaskProps) => {
 
     if (
       props.isDrawing === false ||
-      !maskGraph ||
       !props.lastX.current ||
       !props.lastY.current
     )
       return;
 
-    drawLine(
-      props.lastX.current,
-      props.lastY.current,
-      x,
-      y,
-      brushSize,
-      maskGraph,
-      selectedImg,
-      addMask,
-      type,
-    );
+    drawLine(props.lastX.current, props.lastY.current, x, y, brushSize, paint);
 
     props.lastX.current = e.global.x;
     props.lastY.current = e.global.y;
   });
 
   appRef.current?.stage.on("pointerup", () => {
+    if (!brushRef) return;
+    
+    
     props.setIsDrawing(false);
   });
+
+  appRef.current?.stage.on("pointerdown", (e) => {
+    props.setIsDrawing(true);
+
+    props.lastX.current = e.global.x;
+    props.lastY.current = e.global.y;
+
+    if (
+      props.lastX &&
+      typeof props.lastX === "number" &&
+      props.lastY &&
+      typeof props.lastY === "number"
+    ) {
+      paint(props.lastX, props.lastY);
+    }
+  });
+
+  useEffect(() => {
+    hoverMaskGraphRef.current.clear();
+    hoverMaskGraphRef.current.circle(0, 0, brushSize);
+    hoverMaskGraphRef.current.fill({
+      color: 0xff0000,
+      alpha: 0.3,
+    });
+  }, [selectedImg, brushSize]);
 };

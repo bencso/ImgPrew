@@ -13,6 +13,7 @@ import {
   Container,
   Filter,
   Graphics,
+  RenderTexture,
   Sprite,
   Texture,
 } from "pixi.js";
@@ -49,13 +50,11 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
   const webglFilterRef = useRef<Filter | null>(null);
   const lutFilterRef = useRef<ColorMapFilter | null>(null);
   const overlayRef = useRef<Container | null>(null);
+  
+  const renderTextureRef = useRef<RenderTexture | null>(null);
+  const outputSpriteRef = useRef<Sprite | null>(null);
+  const brushRef = useRef<Graphics | null>(null);
 
-  const maskContainerRef = useRef<Container | null>(null);
-  const maskDeleteContainerRef = useRef<Container | null>(null);
-  
-  const maskGraphRef = useRef<Graphics | null>(null);
-  const maskDeleteGraphRef = useRef<Graphics | null>(null);
-  
   const [maskErase, setMaskEraseMode] = useState<boolean>(false);
   const [maskBrushSize, setMaskBrushSize] = useState<number>(20);
 
@@ -105,15 +104,14 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       textPositions,
       setTextPositions,
       overlayRef,
-      maskContainerRef,
-      maskGraphRef,
       hoverMaskGraphRef,
       maskErase,
       setMaskEraseMode,
       maskBrushSize,
       setMaskBrushSize,
-      maskDeleteContainerRef,
-      maskDeleteGraphRef
+      renderTextureRef,
+      outputSpriteRef,
+      brushRef
     }),
     [
       step,
@@ -136,12 +134,12 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       imageScale,
       textPositions,
       overlayRef,
-      maskGraphRef,
-      maskDeleteGraphRef,
       hoverMaskGraphRef,
       maskErase,
       maskBrushSize,
-      maskDeleteContainerRef,
+      renderTextureRef,
+      outputSpriteRef,
+      brushRef
     ],
   );
 

@@ -9,15 +9,13 @@ import {
   YPositions,
 } from "@/interfaces/interface";
 import { ColorMapFilter } from "pixi-filters";
-import { Graphics, Sprite, Texture } from "pixi.js";
+import { Container, Sprite, Texture } from "pixi.js";
 import { RefObject } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { immer } from "zustand/middleware/immer";
 import { createWithEqualityFn } from "zustand/traditional";
 import { getImageSize } from "@/helper/sizes/getImageSize";
-import {
-  Points,
-} from "@/interfaces/mask.interface";
+import { Points } from "@/interfaces/mask.interface";
 
 export const useSessionStore = createWithEqualityFn<SessionStore>()(
   immer((set, get) => ({
@@ -40,8 +38,8 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         if (hald instanceof HTMLCanvasElement !== true) return null;
         const haldTexture = Texture.from(hald);
         const haldSprite = new Sprite(haldTexture);
-        const maskGraph = new Graphics();
-        const maskDeleteGraph = new Graphics();
+
+        const contentContainer = new Container();
 
         const sessionData = {
           id: nextId,
@@ -61,9 +59,8 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
             haldImage: undefined,
           },
           haldSprite: haldSprite,
-          maskGraph: maskGraph,
-          maskDeleteGraph: maskDeleteGraph,
           masks: [],
+          maskContainer: contentContainer,
         } as CustomImage;
 
         if (exifData) sessionData.exifDatas = exifData;
@@ -792,12 +789,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     },
     //#endregion
     //#region Masks
-    addMask: (
-      id: number,
-      type: string,
-      brushSize: number,
-      point: Points,
-    ) => {
+    addMask: (id: number, type: string, brushSize: number, point: Points) => {
       set((state) => {
         const image = state.sessionData.find((img: any) => img.id === id);
         if (!image) return;

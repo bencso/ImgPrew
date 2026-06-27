@@ -18,12 +18,11 @@ export default function ImageWorkPlace() {
     canvasRef,
     overlayRef,
     appRef,
-    maskContainerRef,
-    maskGraphRef,
     hoverMaskGraphRef,
     maskBrushSize,
     maskErase,
-    maskDeleteGraphRef,
+    brushRef,
+    renderTextureRef
   } = useWorkSession();
 
   const { setCropBox, setTextPosition, setTextRelativePosition, addMask } =
@@ -35,7 +34,6 @@ export default function ImageWorkPlace() {
 
   const [draggableText, setDraggable] = useState<string | null>(null);
   const [isDrawing, setIsDrawing] = useState<boolean>(false);
-  //TODO: Nem usestate mert ugy laggos hanem ref-feljük
   const lastX = useRef<number | null>(null);
   const lastY = useRef<number | null>(null);
 
@@ -49,9 +47,7 @@ export default function ImageWorkPlace() {
   const imgH = image?.dimesions?.height ?? 1;
   const masks = image?.masks;
   const brushSize = maskBrushSize;
-
-  const maskGraph = maskGraphRef?.current;
-  const maskDeleteGraph = maskDeleteGraphRef?.current;
+  const maskContainer = image?.maskContainer;
 
   const cropboxScale = Math.min(
     (canvasRef.current?.clientWidth ?? 0) / imgW,
@@ -61,11 +57,6 @@ export default function ImageWorkPlace() {
   const scale = selectedScale?.scale ?? 1;
 
   overlayRef.current?.removeChildren();
-
-  if (maskContainerRef.current) {
-    maskContainerRef.current.eventMode = "static";
-    maskContainerRef.current.interactive = true;
-  }
 
   if (appRef.current) {
     appRef.current.stage.hitArea = appRef.current.screen;
@@ -103,18 +94,18 @@ export default function ImageWorkPlace() {
   createMask({
     appRef,
     brushSize,
-    maskContainerRef,
     hoverMaskGraphRef,
     lastX,
     lastY,
-    maskGraph,
     masks,
     addMask,
     selectedImg,
     isDrawing,
     setIsDrawing,
     maskErase,
-    maskDeleteGraph,
+    maskContainer,
+    brushRef,
+    renderTextureRef
   });
 
   const canvasH = canvasRef.current?.clientHeight ?? 1080;
