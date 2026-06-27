@@ -9,7 +9,7 @@ import {
   YPositions,
 } from "@/interfaces/interface";
 import { ColorMapFilter } from "pixi-filters";
-import { Container, Sprite, Texture } from "pixi.js";
+import { Container, RenderTexture, Sprite, Texture } from "pixi.js";
 import { RefObject } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { immer } from "zustand/middleware/immer";
@@ -39,8 +39,6 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         const haldTexture = Texture.from(hald);
         const haldSprite = new Sprite(haldTexture);
 
-        const contentContainer = new Container();
-
         const sessionData = {
           id: nextId,
           blob: blob,
@@ -60,13 +58,21 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           },
           haldSprite: haldSprite,
           masks: [],
-          maskContainer: contentContainer,
         } as CustomImage;
 
         if (exifData) sessionData.exifDatas = exifData;
         if (captionSamples) sessionData.captionSamples = captionSamples;
         state.sessionData.push(sessionData);
       }),
+    setRenderTexture: (id: number, renderTexture: RenderTexture) => {
+      set((state) => {
+        const image = state.sessionData.find((img: any) => img.id === id);
+
+        if (!image) return;
+
+        image.renderTexture = renderTexture;
+      });
+    },
     //#endregion
 
     //#region "Copyright" kép
@@ -167,7 +173,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       const image = get().sessionData.find(
         (si) => si.id === id,
       )?.copyrightImage;
-      console.log(image?.defaultSize);
+
       if (!image?.defaultSize) {
         return { width: 0, height: 0 };
       }

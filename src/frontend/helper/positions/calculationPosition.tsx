@@ -47,7 +47,6 @@ export const calculatePosition = (props: CalculationReFixPositionProps) => {
     },
   };
 
-  console.log("calculate");
-  console.log(map[x][y]);
+  
   return map[x][y] ?? { x, y };
 };

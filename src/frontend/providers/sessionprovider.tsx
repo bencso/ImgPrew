@@ -54,6 +54,7 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
   const renderTextureRef = useRef<RenderTexture | null>(null);
   const outputSpriteRef = useRef<Sprite | null>(null);
   const brushRef = useRef<Graphics | null>(null);
+  const maskContainerRef = useRef<Container | null>(null);
 
   const [maskErase, setMaskEraseMode] = useState<boolean>(false);
   const [maskBrushSize, setMaskBrushSize] = useState<number>(20);
@@ -111,7 +112,8 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       setMaskBrushSize,
       renderTextureRef,
       outputSpriteRef,
-      brushRef
+      brushRef,
+      maskContainerRef
     }),
     [
       step,
@@ -139,7 +141,8 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       maskBrushSize,
       renderTextureRef,
       outputSpriteRef,
-      brushRef
+      brushRef,
+      maskContainerRef
     ],
   );
 

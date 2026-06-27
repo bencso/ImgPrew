@@ -146,7 +146,7 @@ export interface CustomImage {
   haldSprite: Sprite | any;
   //Mask
   masks?: any[];
-  maskContainer?: Container<ContainerChild> | any;
+  renderTexture?: RenderTexture | any;
 }
 
 //#region CalculationReFixPositionProps
@@ -360,6 +360,7 @@ export interface SessionStore {
 
   //#region Masks
   addMask: (id: number, type: string, brushSize: number, point: Points) => void;
+  setRenderTexture: (id: number, renderTexture: RenderTexture) => void
   //#endregion
 }
 //#endregion
@@ -465,6 +466,7 @@ export interface WorkSessionContextProps {
   renderTextureRef: RefObject<RenderTexture | null>;
   outputSpriteRef: RefObject<Sprite | null>;
   brushRef: RefObject<Graphics | null>;
+  maskContainerRef: RefObject<Container<ContainerChild> | null>
 }
 //#endregion
 

@@ -22,7 +22,8 @@ export default function ImageWorkPlace() {
     maskBrushSize,
     maskErase,
     brushRef,
-    renderTextureRef
+    renderTextureRef,
+    maskContainerRef
   } = useWorkSession();
 
   const { setCropBox, setTextPosition, setTextRelativePosition, addMask } =
@@ -47,7 +48,7 @@ export default function ImageWorkPlace() {
   const imgH = image?.dimesions?.height ?? 1;
   const masks = image?.masks;
   const brushSize = maskBrushSize;
-  const maskContainer = image?.maskContainer;
+  const maskContainer = maskContainerRef.current;
 
   const cropboxScale = Math.min(
     (canvasRef.current?.clientWidth ?? 0) / imgW,

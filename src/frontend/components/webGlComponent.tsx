@@ -1,5 +1,4 @@
 //TODO: Refaktorálás
-//TODO: Jelenleg a croppolás a nagyobb resolution miatt elcsúszik ennek javítása
 import { allFiltersFragment } from "@/handlers/filters/allFiltersFragment";
 import { calcScale } from "@/helper/sizes/calcScale";
 import { calculationTypeEnum, ParamProps } from "@/interfaces/interface";
@@ -65,9 +64,10 @@ export default function WebGlComponent() {
     brushRef,
     outputSpriteRef,
     renderTextureRef,
-    hoverMaskGraphRef
+    hoverMaskGraphRef,
+    maskContainerRef,
   } = useWorkSession();
-  const { sessionData, setImageSize } = useSessionStore();
+  const { sessionData, setImageSize, setRenderTexture } = useSessionStore();
 
   const filtersRef = useRef<Container | null>(null);
 
@@ -92,7 +92,7 @@ export default function WebGlComponent() {
   const cropSaved = image?.cropSave;
   const expandPadding = image?.expandSize?.padding;
   const haldSprite = image?.haldSprite;
-  const maskContainer = image?.maskContainer;
+  let renderTexture = image?.renderTexture;
 
   async function initApp() {
     const app = new Application();
@@ -149,24 +149,39 @@ export default function WebGlComponent() {
       if (prevStage) appRef.current.stage.removeChild(prevStage);
       appRef.current.stage.addChild(sprite);
       appRef.current.stage.addChild(overlay);
-      
-      const width = appRef.current?.canvas.width;
-      const height = appRef.current?.canvas.height;
 
-      const renderTexture = RenderTexture.create({ width, height });
+      if (!renderTexture) {
+        const width = appRef.current?.canvas.width;
+        const height = appRef.current?.canvas.height;
+        renderTexture = RenderTexture.create({ width, height });
+        setRenderTexture(selectedImg, renderTexture);
+      }
+
       const outputSprite = new Sprite(renderTexture);
+      const maskContainer = new Container();
+
       appRef.current.stage.addChild(outputSprite);
+
+      renderTextureRef.current = renderTexture;
+      outputSpriteRef.current = outputSprite;
+
       appRef.current.stage.addChild(hoverGraph);
 
       const brush = new Graphics();
       maskContainer.addChild(brush);
+      maskContainerRef.current = maskContainer;
 
       brushRef.current = brush;
-      renderTextureRef.current = renderTexture;
-      outputSpriteRef.current = outputSprite;
+
       spriteRef.current = sprite;
       overlayRef.current = overlay;
-      hoverMaskGraphRef.current = hoverGraph
+      hoverMaskGraphRef.current = hoverGraph;
+
+      appRef.current.renderer.render({
+        container: maskContainer,
+        target: renderTexture,
+        clear: false,
+      });
 
       setMaskBrushSize(30);
       setMaskEraseMode(false);
@@ -471,7 +486,6 @@ export default function WebGlComponent() {
         appRef.current.renderer.resize(appW, appH);
         appRef.current.stage.addChild(overlay);
         overlayRef.current = overlay;
-        console.log(overlay.height);
 
         appRef.current.renderer.background.color =
           parseColor(expandBackground).toString("rgba");

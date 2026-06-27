@@ -418,9 +418,7 @@ export default function ExportDrawer() {
 
                       try {
                         for (const image of images) {
-                          console.log("kezd" + image.id);
                           await exportSelectedImage(image.id);
-                          console.log("vége!" + image.id);
                         }
                       } catch (error) {
                         console.error("Hiba az exportáláskor:", error);

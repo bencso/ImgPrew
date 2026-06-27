@@ -67,7 +67,6 @@ export default function ImagesSide() {
                               format: "png",
                               resolution: 1,
                             });
-                            console.log(haldImage);
                           setHaldImage(prev, haldImage);
                         }
                       })();

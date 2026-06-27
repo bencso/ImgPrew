@@ -38,10 +38,9 @@ export default function MaskBlock() {
           
         </RadioCard.Root>
         <Input
-          placeholder="Masz ecset méret"
+          placeholder="Maszk ecset méret"
           value={maskBrushSize}
           onChange={(e) => {
-            console.log(e.target.value);
             setMaskBrushSize(Number(e.target.value));
           }}
           variant="outline"

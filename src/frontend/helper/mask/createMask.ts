@@ -23,7 +23,7 @@ interface createMaskProps {
   selectedImg: number;
   addMask: (id: number, type: string, brushSize: number, point: Points) => void;
   maskErase: boolean;
-  maskContainer: Container<ContainerChild>;
+  maskContainer: Container<ContainerChild> | null;
   brushRef: RefObject<Graphics | null>;
   renderTextureRef: RefObject<RenderTexture | null>;
 }
@@ -45,15 +45,14 @@ export const createMask = (props: createMaskProps) => {
 
     if (maskErase === false) {
       brushRef.blendMode = "normal";
-      brushRef.circle(x, y, brushSize );
+      brushRef.circle(x, y, brushSize);
       brushRef.fill({ color: 0x0000ff, alpha: 1 });
     } else {
       brushRef.blendMode = "erase";
       brushRef.circle(x, y, brushSize);
       brushRef.fill({ color: 0xffffff, alpha: 1 });
     }
-
-    if (appRef.current && renderTexture) {
+    if (appRef.current && renderTexture && maskContainer) {
       appRef.current.renderer.render({
         container: maskContainer,
         target: renderTexture,
@@ -84,8 +83,7 @@ export const createMask = (props: createMaskProps) => {
 
   appRef.current?.stage.on("pointerup", () => {
     if (!brushRef) return;
-    
-    
+
     props.setIsDrawing(false);
   });
 
