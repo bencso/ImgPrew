@@ -58,9 +58,9 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
 
   const [maskErase, setMaskEraseMode] = useState<boolean>(false);
   const [maskBrushSize, setMaskBrushSize] = useState<number>(20);
+  const [maskSharpness, setMaskSharpness] = useState<number>(0);
 
   const hoverGraph = new Graphics();
-  hoverGraph.label = "hoverGraph";
   const hoverMaskGraphRef = useRef<Graphics>(hoverGraph);
 
   const [selectedChannel, setSelectedChannel] = useState<string>("red");
@@ -113,7 +113,9 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       renderTextureRef,
       outputSpriteRef,
       brushRef,
-      maskContainerRef
+      maskContainerRef,
+      maskSharpness,
+      setMaskSharpness
     }),
     [
       step,
@@ -142,7 +144,8 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       renderTextureRef,
       outputSpriteRef,
       brushRef,
-      maskContainerRef
+      maskContainerRef,
+      maskSharpness
     ],
   );
 

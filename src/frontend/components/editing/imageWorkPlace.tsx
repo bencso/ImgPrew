@@ -23,7 +23,8 @@ export default function ImageWorkPlace() {
     maskErase,
     brushRef,
     renderTextureRef,
-    maskContainerRef
+    maskContainerRef,
+    maskSharpness
   } = useWorkSession();
 
   const { setCropBox, setTextPosition, setTextRelativePosition, addMask } =
@@ -106,7 +107,8 @@ export default function ImageWorkPlace() {
     maskErase,
     maskContainer,
     brushRef,
-    renderTextureRef
+    renderTextureRef,
+    sharpness: maskSharpness
   });
 
   const canvasH = canvasRef.current?.clientHeight ?? 1080;

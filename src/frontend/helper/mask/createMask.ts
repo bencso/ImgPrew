@@ -4,6 +4,7 @@ import {
   Application,
   Container,
   ContainerChild,
+  FillGradient,
   Graphics,
   Renderer,
   RenderTexture,
@@ -26,6 +27,7 @@ interface createMaskProps {
   maskContainer: Container<ContainerChild> | null;
   brushRef: RefObject<Graphics | null>;
   renderTextureRef: RefObject<RenderTexture | null>;
+  sharpness: number;
 }
 
 export const createMask = (props: createMaskProps) => {
@@ -37,6 +39,21 @@ export const createMask = (props: createMaskProps) => {
   const maskContainer = props.maskContainer;
   const brushRef = props.brushRef.current;
   const renderTexture = props.renderTextureRef.current;
+  const sharpness = props.sharpness ?? 0;
+
+  const gradient = new FillGradient({
+    type: "radial",
+    center: { x: 0.5, y: 0.5 },
+    innerRadius: 0,
+    outerCenter: { x: 0.5, y: 0.5 },
+    outerRadius: 0.5,
+    colorStops: [
+      { offset: 0, color: "#ff0000" },
+      { offset: sharpness, color: "#ff0000" },
+      { offset: 1, color: "#ff000000" },
+    ],
+    textureSpace: "local",
+  });
 
   function paint(x: number, y: number) {
     if (!brushRef) return;
@@ -46,11 +63,11 @@ export const createMask = (props: createMaskProps) => {
     if (maskErase === false) {
       brushRef.blendMode = "normal";
       brushRef.circle(x, y, brushSize);
-      brushRef.fill({ color: 0x0000ff, alpha: 1 });
+      brushRef.fill(gradient);
     } else {
       brushRef.blendMode = "erase";
       brushRef.circle(x, y, brushSize);
-      brushRef.fill({ color: 0xffffff, alpha: 1 });
+      brushRef.fill(gradient);
     }
     if (appRef.current && renderTexture && maskContainer) {
       appRef.current.renderer.render({
@@ -106,9 +123,6 @@ export const createMask = (props: createMaskProps) => {
   useEffect(() => {
     hoverMaskGraphRef.current.clear();
     hoverMaskGraphRef.current.circle(0, 0, brushSize);
-    hoverMaskGraphRef.current.fill({
-      color: 0xff0000,
-      alpha: 0.3,
-    });
-  }, [selectedImg, brushSize]);
+    hoverMaskGraphRef.current.fill(gradient);
+  }, [selectedImg, brushSize, sharpness]);
 };

@@ -10,6 +10,7 @@ import {
   Application,
   Container,
   defaultFilterVert,
+  FillGradient,
   Filter,
   Graphics,
   ImageSource,

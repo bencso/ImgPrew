@@ -466,7 +466,9 @@ export interface WorkSessionContextProps {
   renderTextureRef: RefObject<RenderTexture | null>;
   outputSpriteRef: RefObject<Sprite | null>;
   brushRef: RefObject<Graphics | null>;
-  maskContainerRef: RefObject<Container<ContainerChild> | null>
+  maskContainerRef: RefObject<Container<ContainerChild> | null>;
+  maskSharpness: number;
+  setMaskSharpness: Dispatch<SetStateAction<number>>;
 }
 //#endregion
 
