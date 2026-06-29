@@ -788,12 +788,7 @@ export default function SideBar() {
     selectedScale,
     selectedChannel,
     webglFilterRef,
-    imageScale,
-    setMaskBrushSize,
-    setMaskEraseMode,
-    maskBrushSize,
-    maskErase
-  } = useWorkSession();
+    imageScale  } = useWorkSession();
 
   const {
     editFilters,
