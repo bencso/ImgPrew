@@ -10,7 +10,7 @@ import {
 } from "@/interfaces/interface";
 import { ColorMapFilter } from "pixi-filters";
 import { Container, RenderTexture, Sprite, Texture } from "pixi.js";
-import { RefObject } from "react";
+import { Ref, RefObject } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { immer } from "zustand/middleware/immer";
 import { createWithEqualityFn } from "zustand/traditional";
@@ -58,19 +58,34 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           },
           haldSprite: haldSprite,
           masks: [],
+          renderTextures: [],
         } as CustomImage;
 
         if (exifData) sessionData.exifDatas = exifData;
         if (captionSamples) sessionData.captionSamples = captionSamples;
         state.sessionData.push(sessionData);
       }),
-    setRenderTexture: (id: number, renderTexture: RenderTexture) => {
+    addNewRenderTexture: (id: number, renderTexture: RenderTexture) => {
       set((state) => {
         const image = state.sessionData.find((img: any) => img.id === id);
 
         if (!image) return;
+        const prevTextures = image.renderTextures ?? [];
+        
+        let currentId =
+          image.renderTextures && image.renderTextures.length > 0
+            ? image.renderTextures.length
+            : 0;
 
-        image.renderTexture = renderTexture;
+        if (renderTexture) {
+          image.renderTextures = [
+            ...prevTextures,
+            {
+              id: currentId++,
+              mask: renderTexture,
+            },
+          ];
+        }
       });
     },
     //#endregion
@@ -795,29 +810,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     },
     //#endregion
     //#region Masks
-    addMask: (id: number, type: string, brushSize: number, point: Points) => {
-      set((state) => {
-        const image = state.sessionData.find((img: any) => img.id === id);
-        if (!image) return;
 
-        const masks = image.masks;
-        if (!masks) return;
-
-        let currentMask = masks.find(
-          (mask) => mask.type === type && mask.brushSize === brushSize,
-        );
-
-        if (currentMask) {
-          currentMask.points.push(point);
-        } else {
-          masks.push({
-            type,
-            brushSize,
-            points: [point],
-          });
-        }
-      });
-    },
     //#endregion
   })),
 );

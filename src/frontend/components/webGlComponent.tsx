@@ -68,7 +68,7 @@ export default function WebGlComponent() {
     hoverMaskGraphRef,
     maskContainerRef,
   } = useWorkSession();
-  const { sessionData, setImageSize, setRenderTexture } = useSessionStore();
+  const { sessionData, setImageSize, addNewRenderTexture } = useSessionStore();
 
   const filtersRef = useRef<Container | null>(null);
 
@@ -155,7 +155,7 @@ export default function WebGlComponent() {
         const width = appRef.current?.canvas.width;
         const height = appRef.current?.canvas.height;
         renderTexture = RenderTexture.create({ width, height });
-        setRenderTexture(selectedImg, renderTexture);
+        addNewRenderTexture(selectedImg, renderTexture);
       }
 
       const outputSprite = new Sprite(renderTexture);
@@ -168,6 +168,7 @@ export default function WebGlComponent() {
 
       appRef.current.stage.addChild(hoverGraph);
 
+      //TODO: Az új maszk esetén még nem rajzolja ki amit rajzolunk, ezt javitsuk
       const brush = new Graphics();
       maskContainer.addChild(brush);
       maskContainerRef.current = maskContainer;

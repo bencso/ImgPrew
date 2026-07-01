@@ -25,7 +25,6 @@ import {
   RefObject,
   SetStateAction,
 } from "react";
-import { MaskCreateProps, MasksProps, Points } from "./mask.interface";
 
 //#region InputTypes
 export enum InputTypes {
@@ -109,6 +108,13 @@ export interface ExportSettings {
 }
 //#endregion
 
+//#region MasksLayers
+export interface MasksLayers {
+  id: number;
+  mask: RenderTexture;
+}
+//#endregion
+
 //#region CustomImage
 export interface CustomImage {
   //DEFAULT IMAGE SETTINGS
@@ -146,6 +152,7 @@ export interface CustomImage {
   haldSprite: Sprite | any;
   //Mask
   masks?: any[];
+  renderTextures?: MasksLayers[];
   renderTexture?: RenderTexture | any;
 }
 
@@ -359,8 +366,10 @@ export interface SessionStore {
   //#endregion
 
   //#region Masks
-  addMask: (id: number, type: string, brushSize: number, point: Points) => void;
-  setRenderTexture: (id: number, renderTexture: RenderTexture) => void
+  addNewRenderTexture: (
+    id: number,
+    renderTextureRef: RenderTexture,
+  ) => void;
   //#endregion
 }
 //#endregion

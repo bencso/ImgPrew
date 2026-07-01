@@ -7,9 +7,12 @@ import {
   Portal,
   useBreakpointValue,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LuLayers, LuTrash } from "react-icons/lu";
 import { Accordion, Avatar, HStack } from "@chakra-ui/react";
+import { useSessionStore } from "@/stores/sessionData";
+import { useWorkSession } from "@/providers/sessionprovider";
+import { Container, Graphics, RenderTexture } from "pixi.js";
 
 //#region SIDEBAR ITEM
 export const MaskLayerBlock = () => {
@@ -74,57 +77,102 @@ const LayersAccordion = () => {
     { base: false, sm: false, md: false, lg: true, xl: true },
     { ssr: false },
   );
+  const [selectedLayer, setSelectLayer] = useState(0);
+
+  const { sessionData, addNewRenderTexture } = useSessionStore();
+  const { appRef, renderTextureRef, selectedImg, maskContainerRef } =
+    useWorkSession();
+
+  const image = sessionData.find((i) => i.id == selectedImg);
+  const renderTextures = image?.renderTextures;
+
+  function createNew() {
+    const width = appRef.current?.canvas.width;
+    const height = appRef.current?.canvas.height;
+    let renderTexture = RenderTexture.create({ width, height });
+
+    renderTextureRef.current = renderTexture;
+
+    if (
+      renderTextures &&
+      !renderTextures.find((i) => i.mask === renderTexture)
+    ) {
+      addNewRenderTexture(selectedImg, renderTexture);
+    }
+
+    if (appRef.current && maskContainerRef.current)
+      appRef.current.renderer.render({
+        container: maskContainerRef.current,
+        target: renderTexture,
+        clear: false,
+      });
+  }
+
+  const activeLayer = renderTextures?.find(
+    (r) => r.mask == renderTextureRef.current,
+  );
+
+  useEffect(() => {
+    if (activeLayer?.id) setSelectLayer(activeLayer.id);
+  }, [activeLayer]);
 
   return (
-    <Accordion.Root collapsible defaultValue={["b"]}>
-      {items.map((item, index) => (
-        <Accordion.Item key={index} value={item.name}>
-          <Accordion.ItemTrigger>
-            <Avatar.Root shape="rounded">
-              <Avatar.Image src={item.image} />
-              <Avatar.Fallback name={item.name} />
-            </Avatar.Root>
-            <HStack flex="1">{item.name}</HStack>
-            <Accordion.ItemIndicator />
-          </Accordion.ItemTrigger>
-          <Accordion.ItemContent>
-            <Accordion.ItemBody>
-              <Grid
-                w={"full"}
-                gap={2}
-                gridTemplateColumns={isMd ? "repeat(2, 1fr)" : ""}
-                gridTemplateRows={!isMd ? "repeat(2, 1fr)" : ""}
-              >
-                <GridItem>
-                  <Button w={"full"} colorPalette="teal" variant="outline">
-                    Kiválasztás
-                  </Button>
-                </GridItem>
-                <GridItem>
-                  <Button w={"full"} colorPalette="red" variant="solid">
-                    <LuTrash /> Törlés
-                  </Button>
-                </GridItem>
-              </Grid>
-            </Accordion.ItemBody>
-          </Accordion.ItemContent>
-        </Accordion.Item>
-      ))}
+    <Accordion.Root
+      collapsible
+      defaultValue={[activeLayer?.id.toString() ?? "0"]}
+    >
+      {renderTextures &&
+        renderTextures.map((layer, index) => (
+          <Accordion.Item key={index} value={layer.id.toString()}>
+            <Accordion.ItemTrigger>
+              <Avatar.Root shape="rounded">
+                <Avatar.Fallback name={layer.id.toString()} />
+              </Avatar.Root>
+              <HStack flex="1">{layer.id}</HStack>
+              <Accordion.ItemIndicator />
+            </Accordion.ItemTrigger>
+            <Accordion.ItemContent>
+              <Accordion.ItemBody>
+                <Grid
+                  w={"full"}
+                  gap={2}
+                  gridTemplateColumns={isMd ? "repeat(2, 1fr)" : ""}
+                  gridTemplateRows={!isMd ? "repeat(2, 1fr)" : ""}
+                >
+                  <GridItem>
+                    <Button
+                      w={"full"}
+                      colorPalette="teal"
+                      variant="outline"
+                      disabled={selectedLayer === layer.id}
+                      onClick={() => {
+                        setSelectLayer(layer.id);
+                        renderTextureRef.current = layer.mask;
+                      }}
+                    >
+                      Kiválasztás
+                    </Button>
+                  </GridItem>
+                  <GridItem>
+                    <Button w={"full"} colorPalette="red" variant="solid">
+                      <LuTrash /> Törlés
+                    </Button>
+                  </GridItem>
+                </Grid>
+              </Accordion.ItemBody>
+            </Accordion.ItemContent>
+          </Accordion.Item>
+        ))}
+      <Button
+        w={"full"}
+        colorPalette={"teal"}
+        mt={3}
+        onClick={() => {
+          createNew();
+        }}
+      >
+        Új layer
+      </Button>
     </Accordion.Root>
   );
 };
-
-const items = [
-  {
-    name: "Layer 1",
-    image: "https://i.pravatar.cc/150?u=a",
-  },
-  {
-    name: "Layer 2",
-    image: "https://i.pravatar.cc/150?u=b",
-  },
-  {
-    name: "Layer 3",
-    image: "https://i.pravatar.cc/150?u=c",
-  },
-];

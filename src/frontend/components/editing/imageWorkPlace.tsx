@@ -28,7 +28,7 @@ export default function ImageWorkPlace() {
     maskSharpness,
   } = useWorkSession();
 
-  const { setCropBox, setTextPosition, setTextRelativePosition, addMask } =
+  const { setCropBox, setTextPosition, setTextRelativePosition } =
     useSessionStore();
 
   const image = useSessionStore((state) =>
@@ -101,7 +101,6 @@ export default function ImageWorkPlace() {
     lastX,
     lastY,
     masks,
-    addMask,
     selectedImg,
     isDrawing,
     setIsDrawing,

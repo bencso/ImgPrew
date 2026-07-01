@@ -22,7 +22,6 @@ interface createMaskProps {
   hoverMaskGraphRef: RefObject<Graphics>;
   masks: MasksProps[] | undefined;
   selectedImg: number;
-  addMask: (id: number, type: string, brushSize: number, point: Points) => void;
   maskErase: boolean;
   maskContainer: Container<ContainerChild> | null;
   brushRef: RefObject<Graphics | null>;
@@ -69,6 +68,8 @@ export const createMask = (props: createMaskProps) => {
       brushRef.circle(x, y, brushSize);
       brushRef.fill(gradient);
     }
+
+
     if (appRef.current && renderTexture && maskContainer) {
       appRef.current.renderer.render({
         container: maskContainer,
