@@ -112,6 +112,7 @@ export interface ExportSettings {
 export interface MasksLayers {
   id: number;
   mask: RenderTexture;
+  sprite: Sprite | any;
 }
 //#endregion
 
@@ -369,6 +370,7 @@ export interface SessionStore {
   addNewRenderTexture: (
     id: number,
     renderTextureRef: RenderTexture,
+    outputSprite: Sprite
   ) => void;
   //#endregion
 }
@@ -473,11 +475,12 @@ export interface WorkSessionContextProps {
   maskBrushSize: number;
   setMaskBrushSize: Dispatch<SetStateAction<number>>;
   renderTextureRef: RefObject<RenderTexture | null>;
-  outputSpriteRef: RefObject<Sprite | null>;
   brushRef: RefObject<Graphics | null>;
   maskContainerRef: RefObject<Container<ContainerChild> | null>;
   maskSharpness: number;
   setMaskSharpness: Dispatch<SetStateAction<number>>;
+  selectedLayer: number;
+  setSelectLayer: Dispatch<SetStateAction<number>>
 }
 //#endregion
 

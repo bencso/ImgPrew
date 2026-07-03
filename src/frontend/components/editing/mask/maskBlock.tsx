@@ -44,7 +44,8 @@ export default function MaskBlock() {
       <VStack gap={2}>
         <RadioCard.Root
           w={"full"}
-          defaultValue={maskErase ? "erase" : "normal"}
+          defaultValue={"normal"}
+          value={maskErase ? "erase" : "normal"}
           onChange={(e: any) => {
             const value = e.target.value ?? "normal";
             setMaskEraseMode(value === "erase");

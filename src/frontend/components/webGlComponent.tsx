@@ -1,7 +1,7 @@
 //TODO: Refaktorálás
 import { allFiltersFragment } from "@/handlers/filters/allFiltersFragment";
 import { calcScale } from "@/helper/sizes/calcScale";
-import { calculationTypeEnum, ParamProps } from "@/interfaces/interface";
+import { ParamProps } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { Box, parseColor } from "@chakra-ui/react";
@@ -10,7 +10,6 @@ import {
   Application,
   Container,
   defaultFilterVert,
-  FillGradient,
   Filter,
   Graphics,
   ImageSource,
@@ -20,8 +19,7 @@ import {
   Texture,
   UniformGroup,
 } from "pixi.js";
-import { useEffect, useLayoutEffect, useRef } from "react";
-import { shallow } from "zustand/shallow";
+import { useEffect, useRef } from "react";
 
 export function getChannelOffsets(params: ParamProps) {
   const channels = new Float32Array([
@@ -63,10 +61,10 @@ export default function WebGlComponent() {
     setMaskBrushSize,
     setMaskEraseMode,
     brushRef,
-    outputSpriteRef,
     renderTextureRef,
     hoverMaskGraphRef,
     maskContainerRef,
+    selectedLayer,
   } = useWorkSession();
   const { sessionData, setImageSize, addNewRenderTexture } = useSessionStore();
 
@@ -78,11 +76,10 @@ export default function WebGlComponent() {
   );
 
   //! shallow: nem generál le újra az objektumot hanem mintha cachelte volna mindig az adott objektumot irja felül / ÖSSZEHASONLÍT
-  const filters = useSessionStore((s) => s.getFilters(selectedImg), shallow);
-  const image = useSessionStore(
-    (state) => state.sessionData.find((si) => si.id === selectedImg),
-    shallow,
-  );
+  const filters = useSessionStore.getState().getFilters(selectedImg);
+  let image = useSessionStore
+    .getState()
+    .sessionData.find((si) => si.id === selectedImg);
 
   const expandMode = image?.expandMode ?? "no";
   const expandSize = image?.expandSize;
@@ -93,7 +90,12 @@ export default function WebGlComponent() {
   const cropSaved = image?.cropSave;
   const expandPadding = image?.expandSize?.padding;
   const haldSprite = image?.haldSprite;
-  let renderTexture = image?.renderTexture;
+  let renderTexture = image?.renderTextures
+    ? image.renderTextures[0] && image.renderTextures[0].mask
+    : null;
+  let outputSprite = image?.renderTextures
+    ? image.renderTextures[0] && image.renderTextures[0].sprite
+    : null;
 
   async function initApp() {
     const app = new Application();
@@ -155,20 +157,33 @@ export default function WebGlComponent() {
         const width = appRef.current?.canvas.width;
         const height = appRef.current?.canvas.height;
         renderTexture = RenderTexture.create({ width, height });
-        addNewRenderTexture(selectedImg, renderTexture);
+        outputSprite = new Sprite(renderTexture);
+        addNewRenderTexture(selectedImg, renderTexture, outputSprite);
       }
 
-      const outputSprite = new Sprite(renderTexture);
       const maskContainer = new Container();
 
-      appRef.current.stage.addChild(outputSprite);
+      image = useSessionStore
+        .getState()
+        .sessionData.find((si) => si.id === selectedImg);
+
+      if (!image || !image.renderTextures || image.renderTextures.length <= 0)
+        return;
+
+      const layers = image?.renderTextures;
+      renderTexture = layers[selectedLayer]
+        ? layers[selectedLayer].mask
+        : layers[0].mask;
+
+      for (let index = 0; index < layers.length; index++) {
+        const layer = layers[index];
+        appRef.current.stage.addChild(layer.sprite);
+      }
 
       renderTextureRef.current = renderTexture;
-      outputSpriteRef.current = outputSprite;
 
       appRef.current.stage.addChild(hoverGraph);
 
-      //TODO: Az új maszk esetén még nem rajzolja ki amit rajzolunk, ezt javitsuk
       const brush = new Graphics();
       maskContainer.addChild(brush);
       maskContainerRef.current = maskContainer;
@@ -179,18 +194,8 @@ export default function WebGlComponent() {
       overlayRef.current = overlay;
       hoverMaskGraphRef.current = hoverGraph;
 
-      appRef.current.renderer.render({
-        container: maskContainer,
-        target: renderTexture,
-        clear: false,
-      });
-
-      setMaskBrushSize(30);
-      setMaskEraseMode(false);
-
-      if (canvasRef.current) {
+      if (canvasRef.current)
         canvasRef.current.replaceChildren(appRef.current.canvas);
-      }
 
       updateLayout();
       applyFilters();

@@ -51,8 +51,8 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
   const lutFilterRef = useRef<ColorMapFilter | null>(null);
   const overlayRef = useRef<Container | null>(null);
   
+  const [selectedLayer, setSelectLayer] = useState(0);
   const renderTextureRef = useRef<RenderTexture | null>(null);
-  const outputSpriteRef = useRef<Sprite | null>(null);
   const brushRef = useRef<Graphics | null>(null);
   const maskContainerRef = useRef<Container | null>(null);
 
@@ -111,11 +111,12 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       maskBrushSize,
       setMaskBrushSize,
       renderTextureRef,
-      outputSpriteRef,
       brushRef,
       maskContainerRef,
       maskSharpness,
-      setMaskSharpness
+      setMaskSharpness,
+      selectedLayer,
+      setSelectLayer
     }),
     [
       step,
@@ -142,10 +143,10 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       maskErase,
       maskBrushSize,
       renderTextureRef,
-      outputSpriteRef,
       brushRef,
       maskContainerRef,
-      maskSharpness
+      maskSharpness,
+      selectedLayer
     ],
   );
 

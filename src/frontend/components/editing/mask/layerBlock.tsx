@@ -12,7 +12,7 @@ import { LuLayers, LuTrash } from "react-icons/lu";
 import { Accordion, Avatar, HStack } from "@chakra-ui/react";
 import { useSessionStore } from "@/stores/sessionData";
 import { useWorkSession } from "@/providers/sessionprovider";
-import { Container, Graphics, RenderTexture } from "pixi.js";
+import { Container, Graphics, RenderTexture, Sprite } from "pixi.js";
 
 //#region SIDEBAR ITEM
 export const MaskLayerBlock = () => {
@@ -77,35 +77,43 @@ const LayersAccordion = () => {
     { base: false, sm: false, md: false, lg: true, xl: true },
     { ssr: false },
   );
-  const [selectedLayer, setSelectLayer] = useState(0);
 
   const { sessionData, addNewRenderTexture } = useSessionStore();
-  const { appRef, renderTextureRef, selectedImg, maskContainerRef } =
-    useWorkSession();
+  const {
+    appRef,
+    renderTextureRef,
+    selectedImg,
+    selectedLayer,
+    setSelectLayer,
+  } = useWorkSession();
 
   const image = sessionData.find((i) => i.id == selectedImg);
   const renderTextures = image?.renderTextures;
 
   function createNew() {
-    const width = appRef.current?.canvas.width;
-    const height = appRef.current?.canvas.height;
+    let index = renderTextures?.length ?? 0;
+    const width = appRef.current?.canvas.width ?? 0;
+    const height = appRef.current?.canvas.height ?? 0;
+
     let renderTexture = RenderTexture.create({ width, height });
 
     renderTextureRef.current = renderTexture;
+
+    const outputSprite = new Sprite(renderTexture);
+    outputSprite.height = height;
+    outputSprite.width = width;
+
+    appRef.current?.stage.addChild(outputSprite);
 
     if (
       renderTextures &&
       !renderTextures.find((i) => i.mask === renderTexture)
     ) {
-      addNewRenderTexture(selectedImg, renderTexture);
+      addNewRenderTexture(selectedImg, renderTexture, outputSprite);
     }
 
-    if (appRef.current && maskContainerRef.current)
-      appRef.current.renderer.render({
-        container: maskContainerRef.current,
-        target: renderTexture,
-        clear: false,
-      });
+    index++;
+    setSelectLayer(index);
   }
 
   const activeLayer = renderTextures?.find(
@@ -113,8 +121,19 @@ const LayersAccordion = () => {
   );
 
   useEffect(() => {
-    if (activeLayer?.id) setSelectLayer(activeLayer.id);
-  }, [activeLayer]);
+    const renderText =
+      renderTextures &&
+      (renderTextures?.find((i) => i.id === selectedLayer) ??
+        renderTextures[0]);
+
+    if (!renderText) return;
+
+    renderTextureRef.current = renderText.mask;
+  }, [selectedLayer]);
+
+  useEffect(() => {
+    setSelectLayer(0);
+  }, [selectedImg]);
 
   return (
     <Accordion.Root
@@ -147,7 +166,6 @@ const LayersAccordion = () => {
                       disabled={selectedLayer === layer.id}
                       onClick={() => {
                         setSelectLayer(layer.id);
-                        renderTextureRef.current = layer.mask;
                       }}
                     >
                       Kiválasztás

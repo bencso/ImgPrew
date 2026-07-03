@@ -1,5 +1,4 @@
-//TODO: Egy külön réteg hogy a blendmode erase jó legyen (szerintem ugy lesz jó...)
-import { MasksProps, Points } from "@/interfaces/mask.interface";
+import { MasksProps } from "@/interfaces/mask.interface";
 import {
   Application,
   Container,
@@ -8,6 +7,7 @@ import {
   Graphics,
   Renderer,
   RenderTexture,
+  Sprite,
 } from "pixi.js";
 import { Dispatch, RefObject, SetStateAction, useEffect } from "react";
 import { drawLine } from "./drawLine";
@@ -68,7 +68,6 @@ export const createMask = (props: createMaskProps) => {
       brushRef.circle(x, y, brushSize);
       brushRef.fill(gradient);
     }
-
 
     if (appRef.current && renderTexture && maskContainer) {
       appRef.current.renderer.render({

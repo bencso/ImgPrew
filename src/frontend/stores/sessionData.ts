@@ -65,28 +65,30 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         if (captionSamples) sessionData.captionSamples = captionSamples;
         state.sessionData.push(sessionData);
       }),
-    addNewRenderTexture: (id: number, renderTexture: RenderTexture) => {
-      set((state) => {
-        const image = state.sessionData.find((img: any) => img.id === id);
+    addNewRenderTexture: (
+      id: number,
+      renderTexture: RenderTexture,
+      outputSprite: Sprite,
+    ) => {
+      set((state) => ({
+        sessionData: state.sessionData.map((image) => {
+          if (image.id !== id) return image;
 
-        if (!image) return;
-        const prevTextures = image.renderTextures ?? [];
-        
-        let currentId =
-          image.renderTextures && image.renderTextures.length > 0
-            ? image.renderTextures.length
-            : 0;
+          const prevTextures = image.renderTextures ?? [];
 
-        if (renderTexture) {
-          image.renderTextures = [
-            ...prevTextures,
-            {
-              id: currentId++,
-              mask: renderTexture,
-            },
-          ];
-        }
-      });
+          return {
+            ...image,
+            renderTextures: [
+              ...prevTextures,
+              {
+                id: prevTextures.length,
+                mask: renderTexture,
+                sprite: outputSprite,
+              },
+            ],
+          };
+        }),
+      }));
     },
     //#endregion
 
