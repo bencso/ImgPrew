@@ -58,13 +58,12 @@ export default function WebGlComponent() {
     setImageScale,
     overlayRef,
     canvasRef,
-    setMaskBrushSize,
-    setMaskEraseMode,
     brushRef,
     renderTextureRef,
     hoverMaskGraphRef,
     maskContainerRef,
     selectedLayer,
+    selectedLayerRef,
   } = useWorkSession();
   const { sessionData, setImageSize, addNewRenderTexture } = useSessionStore();
 
@@ -153,15 +152,28 @@ export default function WebGlComponent() {
       appRef.current.stage.addChild(sprite);
       appRef.current.stage.addChild(overlay);
 
+      const maskContainer = new Container();
+
       if (!renderTexture) {
         const width = appRef.current?.canvas.width;
         const height = appRef.current?.canvas.height;
         renderTexture = RenderTexture.create({ width, height });
         outputSprite = new Sprite(renderTexture);
-        addNewRenderTexture(selectedImg, renderTexture, outputSprite);
-      }
 
-      const maskContainer = new Container();
+        const imageSprite = new Sprite(texture);
+        maskContainer.addChild(imageSprite);
+        imageSprite.anchor.set(0.5);
+
+        imageSprite.mask = outputSprite;
+        selectedLayerRef.current = imageSprite;
+
+        addNewRenderTexture(
+          selectedImg,
+          renderTexture,
+          outputSprite,
+          imageSprite,
+        );
+      }
 
       image = useSessionStore
         .getState()
@@ -171,12 +183,13 @@ export default function WebGlComponent() {
         return;
 
       const layers = image?.renderTextures;
-      renderTexture = layers[selectedLayer]
-        ? layers[selectedLayer].mask
+      renderTexture = layers[selectedLayer ?? 0]
+        ? layers[selectedLayer ?? 0].mask
         : layers[0].mask;
 
       for (let index = 0; index < layers.length; index++) {
         const layer = layers[index];
+        appRef.current.stage.addChild(layer.imageSprite);
         appRef.current.stage.addChild(layer.sprite);
       }
 
@@ -244,6 +257,8 @@ export default function WebGlComponent() {
   function applyFilters() {
     if (!spriteRef.current || !appRef.current) return;
 
+    let imageSprite = selectedLayerRef.current;
+
     const channelOffset = getChannelOffsets(filters);
 
     if (!webglFilterRef.current) {
@@ -290,14 +305,22 @@ export default function WebGlComponent() {
       spriteRef.current.roundPixels = true;
 
       if (lutFilter) {
-        if (spriteRef.current)
-          spriteRef.current.filters = [lutFilter, webglFilterRef.current];
-        if (haldSprite)
-          haldSprite.filters = [lutFilter, webglFilterRef.current];
+        if (imageSprite) {
+          imageSprite.filters = [lutFilter, webglFilterRef.current];
+        } else {
+          if (spriteRef.current)
+            spriteRef.current.filters = [lutFilter, webglFilterRef.current];
+          if (haldSprite)
+            haldSprite.filters = [lutFilter, webglFilterRef.current];
+        }
       } else {
-        if (spriteRef.current)
-          spriteRef.current.filters = [webglFilterRef.current];
-        if (haldSprite) haldSprite.filters = [webglFilterRef.current];
+        if (imageSprite) {
+          imageSprite.filters = [webglFilterRef.current];
+        } else {
+          if (spriteRef.current)
+            spriteRef.current.filters = [webglFilterRef.current];
+          if (haldSprite) haldSprite.filters = [webglFilterRef.current];
+        }
       }
     } else {
       const uniforms = webglFilterRef.current.resources.filterUniforms.uniforms;
@@ -320,14 +343,22 @@ export default function WebGlComponent() {
       uniforms.vibrance_input = filters.vibrance / 100.0;
 
       if (lutFilter) {
-        if (spriteRef.current)
-          spriteRef.current.filters = [lutFilter, webglFilterRef.current];
-        if (haldSprite)
-          haldSprite.filters = [lutFilter, webglFilterRef.current];
+        if (imageSprite) {
+          imageSprite.filters = [lutFilter, webglFilterRef.current];
+        } else {
+          if (spriteRef.current)
+            spriteRef.current.filters = [lutFilter, webglFilterRef.current];
+          if (haldSprite)
+            haldSprite.filters = [lutFilter, webglFilterRef.current];
+        }
       } else {
-        if (spriteRef.current)
-          spriteRef.current.filters = [webglFilterRef.current];
-        if (haldSprite) haldSprite.filters = [webglFilterRef.current];
+        if (imageSprite) {
+          imageSprite.filters = [webglFilterRef.current];
+        } else {
+          if (spriteRef.current)
+            spriteRef.current.filters = [webglFilterRef.current];
+          if (haldSprite) haldSprite.filters = [webglFilterRef.current];
+        }
       }
     }
   }
@@ -393,6 +424,21 @@ export default function WebGlComponent() {
       spriteRef.current.width = scaledImageW * scale;
       spriteRef.current.height = scaledImageH * scale;
 
+      if (!image || !image.renderTextures) return;
+
+      let imageSprite = selectedLayerRef.current;
+
+      if (imageSprite) {
+        imageSprite.height = scaledImageH * scale;
+        imageSprite.width = scaledImageW * scale;
+        imageSprite.x =
+          (Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0) /
+          2;
+        imageSprite.y =
+          (Number(appRef.current.canvas.style.height.replace("px", "")) ?? 0) /
+          2;
+      }
+
       spriteRef.current.x =
         (Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0) / 2;
       spriteRef.current.y =
@@ -425,6 +471,7 @@ export default function WebGlComponent() {
       let spY = canvasH / 2;
 
       spriteRef.current.anchor = 0.5;
+      if (selectedLayerRef.current) selectedLayerRef.current.anchor = 0.5;
 
       if (expandMode === "crop" && cropSaved === true) {
         if (
@@ -499,6 +546,24 @@ export default function WebGlComponent() {
 
         spriteRef.current.height = canvasH * scale;
         spriteRef.current.width = canvasW * scale;
+
+        if (!image || !image.renderTextures) return;
+        selectedLayerRef.current = spriteCopy;
+
+        let imageSprite = selectedLayerRef.current;
+
+        if (imageSprite) {
+          imageSprite.height = canvasH * scale;
+          imageSprite.width = canvasW * scale;
+          imageSprite.anchor = 0.5;
+          imageSprite.x =
+            (Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0) /
+            2;
+          imageSprite.y =
+            (Number(appRef.current.canvas.style.height.replace("px", "")) ??
+              0) / 2;
+        }
+
         spriteRef.current.anchor = 0.5;
         spriteRef.current.x =
           (Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0) /
@@ -534,6 +599,15 @@ export default function WebGlComponent() {
         spriteRef.current.height = spH;
         spriteRef.current.x = spX;
         spriteRef.current.y = spY;
+
+        let imageSprite = selectedLayerRef.current;
+
+        if (imageSprite) {
+          imageSprite.height = spH;
+          imageSprite.width = spW;
+          imageSprite.x = spX;
+          imageSprite.y = spY;
+        }
 
         setSelectedScale({
           image: {
@@ -573,6 +647,20 @@ export default function WebGlComponent() {
 
         spriteRef.current.width = spW;
         spriteRef.current.height = spH;
+
+        if (!image || !image.renderTextures) return;
+        let imageSprite = selectedLayerRef.current;
+
+        if (imageSprite) {
+          imageSprite.height = spH;
+          imageSprite.width = spW;
+          imageSprite.x =
+            (Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0) /
+            2;
+          imageSprite.y =
+            (Number(appRef.current.canvas.style.height.replace("px", "")) ??
+              0) / 2;
+        }
 
         spriteRef.current.x =
           (Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0) /
@@ -636,7 +724,14 @@ export default function WebGlComponent() {
     );
 
     setImageScale(imageScale);
-  }, [selectedScale, selectedImg, expandMode, imageSize, borderSize]);
+  }, [
+    selectedScale,
+    selectedImg,
+    expandMode,
+    imageSize,
+    borderSize,
+    selectedLayer,
+  ]);
 
   return (
     <Box

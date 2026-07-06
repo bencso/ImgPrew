@@ -50,11 +50,12 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
   const webglFilterRef = useRef<Filter | null>(null);
   const lutFilterRef = useRef<ColorMapFilter | null>(null);
   const overlayRef = useRef<Container | null>(null);
-  
-  const [selectedLayer, setSelectLayer] = useState(0);
+
+  const [selectedLayer, setSelectLayer] = useState<number | null>(0);
   const renderTextureRef = useRef<RenderTexture | null>(null);
   const brushRef = useRef<Graphics | null>(null);
   const maskContainerRef = useRef<Container | null>(null);
+  const selectedLayerRef = useRef<Sprite | null>(null);
 
   const [maskErase, setMaskEraseMode] = useState<boolean>(false);
   const [maskBrushSize, setMaskBrushSize] = useState<number>(20);
@@ -116,7 +117,8 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       maskSharpness,
       setMaskSharpness,
       selectedLayer,
-      setSelectLayer
+      setSelectLayer,
+      selectedLayerRef,
     }),
     [
       step,
@@ -146,7 +148,8 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       brushRef,
       maskContainerRef,
       maskSharpness,
-      selectedLayer
+      selectedLayer,
+      selectedLayerRef,
     ],
   );
 

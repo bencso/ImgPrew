@@ -85,12 +85,17 @@ const LayersAccordion = () => {
     selectedImg,
     selectedLayer,
     setSelectLayer,
+    textureRef,
+    maskContainerRef,
+    selectedLayerRef,
   } = useWorkSession();
 
   const image = sessionData.find((i) => i.id == selectedImg);
   const renderTextures = image?.renderTextures;
 
   function createNew() {
+    if (!textureRef.current || !maskContainerRef.current) return;
+
     let index = renderTextures?.length ?? 0;
     const width = appRef.current?.canvas.width ?? 0;
     const height = appRef.current?.canvas.height ?? 0;
@@ -103,13 +108,24 @@ const LayersAccordion = () => {
     outputSprite.height = height;
     outputSprite.width = width;
 
+    const imageSprite = new Sprite(textureRef.current);
+    maskContainerRef.current.addChild(imageSprite);
+    selectedLayerRef.current = imageSprite;
+
+    imageSprite.mask = outputSprite;
+
     appRef.current?.stage.addChild(outputSprite);
 
     if (
       renderTextures &&
       !renderTextures.find((i) => i.mask === renderTexture)
     ) {
-      addNewRenderTexture(selectedImg, renderTexture, outputSprite);
+      addNewRenderTexture(
+        selectedImg,
+        renderTexture,
+        outputSprite,
+        imageSprite,
+      );
     }
 
     index++;
@@ -128,6 +144,7 @@ const LayersAccordion = () => {
 
     if (!renderText) return;
 
+    selectedLayerRef.current = renderText.imageSprite;
     renderTextureRef.current = renderText.mask;
   }, [selectedLayer]);
 
@@ -163,12 +180,12 @@ const LayersAccordion = () => {
                       w={"full"}
                       colorPalette="teal"
                       variant="outline"
-                      disabled={selectedLayer === layer.id}
                       onClick={() => {
-                        setSelectLayer(layer.id);
+                        if (selectedLayer === layer.id) setSelectLayer(null);
+                        else setSelectLayer(layer.id);
                       }}
                     >
-                      Kiválasztás
+                      {selectedLayer===layer.id ? "Kiválasztva" : "Kiválasztás"}
                     </Button>
                   </GridItem>
                   <GridItem>

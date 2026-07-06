@@ -9,13 +9,12 @@ import {
   YPositions,
 } from "@/interfaces/interface";
 import { ColorMapFilter } from "pixi-filters";
-import { Container, RenderTexture, Sprite, Texture } from "pixi.js";
-import { Ref, RefObject } from "react";
+import { RenderTexture, Sprite, Texture } from "pixi.js";
+import { RefObject } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { immer } from "zustand/middleware/immer";
 import { createWithEqualityFn } from "zustand/traditional";
 import { getImageSize } from "@/helper/sizes/getImageSize";
-import { Points } from "@/interfaces/mask.interface";
 
 export const useSessionStore = createWithEqualityFn<SessionStore>()(
   immer((set, get) => ({
@@ -69,6 +68,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       id: number,
       renderTexture: RenderTexture,
       outputSprite: Sprite,
+      imageSprite: Sprite
     ) => {
       set((state) => ({
         sessionData: state.sessionData.map((image) => {
@@ -84,6 +84,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
                 id: prevTextures.length,
                 mask: renderTexture,
                 sprite: outputSprite,
+                imageSprite: imageSprite
               },
             ],
           };

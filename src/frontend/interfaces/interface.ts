@@ -113,6 +113,7 @@ export interface MasksLayers {
   id: number;
   mask: RenderTexture;
   sprite: Sprite | any;
+  imageSprite: Sprite | any;
 }
 //#endregion
 
@@ -370,7 +371,8 @@ export interface SessionStore {
   addNewRenderTexture: (
     id: number,
     renderTextureRef: RenderTexture,
-    outputSprite: Sprite
+    outputSprite: Sprite,
+    imageSprite: Sprite
   ) => void;
   //#endregion
 }
@@ -479,8 +481,9 @@ export interface WorkSessionContextProps {
   maskContainerRef: RefObject<Container<ContainerChild> | null>;
   maskSharpness: number;
   setMaskSharpness: Dispatch<SetStateAction<number>>;
-  selectedLayer: number;
-  setSelectLayer: Dispatch<SetStateAction<number>>
+  selectedLayer: number | null;
+  setSelectLayer: Dispatch<SetStateAction<number | null>>;
+  selectedLayerRef: RefObject<Sprite | null>;
 }
 //#endregion
 
