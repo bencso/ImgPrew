@@ -1,6 +1,5 @@
 import {
   Button,
-  Flex,
   Grid,
   GridItem,
   Popover,
@@ -12,7 +11,15 @@ import { LuLayers, LuTrash } from "react-icons/lu";
 import { Accordion, Avatar, HStack } from "@chakra-ui/react";
 import { useSessionStore } from "@/stores/sessionData";
 import { useWorkSession } from "@/providers/sessionprovider";
-import { Container, Graphics, RenderTexture, Sprite } from "pixi.js";
+import {
+  defaultFilterVert,
+  Filter,
+  RenderTexture,
+  Sprite,
+  UniformGroup,
+} from "pixi.js";
+import { allFiltersFragment } from "@/handlers/filters/allFiltersFragment";
+import { getChannelOffsets } from "@/helper/lut/getChannelOffset";
 
 //#region SIDEBAR ITEM
 export const MaskLayerBlock = () => {
@@ -88,10 +95,14 @@ const LayersAccordion = () => {
     textureRef,
     maskContainerRef,
     selectedLayerRef,
+    webglFilterRef,
   } = useWorkSession();
 
   const image = sessionData.find((i) => i.id == selectedImg);
   const renderTextures = image?.renderTextures;
+  const filters = selectedLayer
+    ? useSessionStore.getState().getFilters(selectedImg, selectedLayer)
+    : useSessionStore.getState().getFilters(selectedImg);
 
   function createNew() {
     if (!textureRef.current || !maskContainerRef.current) return;
@@ -115,6 +126,47 @@ const LayersAccordion = () => {
     imageSprite.mask = outputSprite;
 
     appRef.current?.stage.addChild(outputSprite);
+    const channelOffset = getChannelOffsets(filters);
+
+    const filterUniforms = new UniformGroup({
+      exposure_input: { value: filters.exposure / 5.0, type: "f32" },
+      brightness_input: { value: filters.brightness / 100.0, type: "f32" },
+      contrast_input: {
+        value: (filters.contrast / 100.0) * 0.5 + 1.0,
+        type: "f32",
+      },
+      temperature_input: { value: filters.temperature / 100.0, type: "f32" },
+      tint_input: { value: filters.tint / 100.0, type: "f32" },
+      saturation_input: { value: filters.saturation, type: "f32" },
+      hue_input: { value: filters.hue / 180.0, type: "f32" },
+      value_input: { value: filters.value, type: "f32" },
+      black_input: { value: filters.black / 255.0, type: "f32" },
+      white_input: { value: filters.white / 255.0, type: "f32" },
+      outblack_input: { value: filters.outblack / 255.0, type: "f32" },
+      outwhite_input: { value: filters.outwhite / 255.0, type: "f32" },
+      gamma_input: { value: filters.gamma, type: "f32" },
+      channel_colorMatrix_input: {
+        value: channelOffset.channels,
+        type: "mat3x3<f32>",
+      },
+      channel_offset_input: {
+        value: channelOffset.offset,
+        type: "vec3<f32>",
+      },
+      vibrance_input: { value: filters.vibrance / 100.0, type: "f32" },
+    });
+
+    const filter = Filter.from({
+      gl: {
+        fragment: allFiltersFragment,
+        vertex: defaultFilterVert,
+      },
+      resources: {
+        filterUniforms: filterUniforms,
+      },
+    });
+
+    webglFilterRef.current = filter;
 
     if (
       renderTextures &&
@@ -125,6 +177,7 @@ const LayersAccordion = () => {
         renderTexture,
         outputSprite,
         imageSprite,
+        filter,
       );
     }
 
@@ -142,14 +195,19 @@ const LayersAccordion = () => {
       (renderTextures?.find((i) => i.id === selectedLayer) ??
         renderTextures[0]);
 
-    if (!renderText) return;
+    if (!renderText || selectedLayer === null) {
+      if (image && image.filter) webglFilterRef.current = image.filter;
+      return;
+    }
 
     selectedLayerRef.current = renderText.imageSprite;
     renderTextureRef.current = renderText.mask;
+
+    webglFilterRef.current = renderText.filter;
   }, [selectedLayer]);
 
   useEffect(() => {
-    setSelectLayer(0);
+    setSelectLayer(null);
   }, [selectedImg]);
 
   return (
@@ -185,7 +243,9 @@ const LayersAccordion = () => {
                         else setSelectLayer(layer.id);
                       }}
                     >
-                      {selectedLayer===layer.id ? "Kiválasztva" : "Kiválasztás"}
+                      {selectedLayer === layer.id
+                        ? "Kiválasztva"
+                        : "Kiválasztás"}
                     </Button>
                   </GridItem>
                   <GridItem>

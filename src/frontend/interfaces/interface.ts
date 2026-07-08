@@ -114,6 +114,8 @@ export interface MasksLayers {
   mask: RenderTexture;
   sprite: Sprite | any;
   imageSprite: Sprite | any;
+  filter: Filter | null;
+  filters?: FilterProps;
 }
 //#endregion
 
@@ -122,7 +124,7 @@ export interface CustomImage {
   //DEFAULT IMAGE SETTINGS
   id: number;
   blob: string;
-  filters?: { name: string; value: number }[];
+  filters?: FilterProps;
   dimesions?: { width: number; height: number };
   //EXIF, CAPTION
   exifDatas?: string[];
@@ -154,6 +156,7 @@ export interface CustomImage {
   haldSprite: Sprite | any;
   //Mask
   masks?: any[];
+  filter?: Filter | null;
   renderTextures?: MasksLayers[];
   renderTexture?: RenderTexture | any;
 }
@@ -354,9 +357,9 @@ export interface SessionStore {
   //#endregion
 
   //#region FILTERS
-  editFilters: (id: number, filterName: string, value: string | number) => void;
-  getFilterValue: (id: number, filterName: string) => number | undefined;
-  getFilters: (id: number) => FilterProps;
+  editFilters: (id: number, filterName: string, value: string | number, selectedLayer?: number | null) => void;
+  getFilterValue: (id: number, filterName:  keyof FilterProps, selectedLayer?: number | null) => number | undefined;
+  getFilters: (id: number,  layerId?: number) => FilterProps;
   //#endregion
 
   //#region LUT
@@ -368,12 +371,7 @@ export interface SessionStore {
   //#endregion
 
   //#region Masks
-  addNewRenderTexture: (
-    id: number,
-    renderTextureRef: RenderTexture,
-    outputSprite: Sprite,
-    imageSprite: Sprite
-  ) => void;
+  addNewRenderTexture: (id: number, renderTexture: RenderTexture, outputSprite: Sprite, imageSprite: Sprite, filter?: Filter) => void;
   //#endregion
 }
 //#endregion

@@ -27,6 +27,7 @@ interface createMaskProps {
   brushRef: RefObject<Graphics | null>;
   renderTextureRef: RefObject<RenderTexture | null>;
   sharpness: number;
+  selectedLayer: number | null;
 }
 
 export const createMask = (props: createMaskProps) => {
@@ -39,6 +40,7 @@ export const createMask = (props: createMaskProps) => {
   const brushRef = props.brushRef.current;
   const renderTexture = props.renderTextureRef.current;
   const sharpness = props.sharpness ?? 0;
+  const selectedLayer = props.selectedLayer ?? null;
 
   const gradient = new FillGradient({
     type: "radial",
@@ -122,7 +124,10 @@ export const createMask = (props: createMaskProps) => {
 
   useEffect(() => {
     hoverMaskGraphRef.current.clear();
-    hoverMaskGraphRef.current.circle(0, 0, brushSize);
-    hoverMaskGraphRef.current.fill(gradient);
-  }, [selectedImg, brushSize, sharpness]);
+
+    if (selectedLayer !== null) {
+      hoverMaskGraphRef.current.circle(0, 0, brushSize);
+      hoverMaskGraphRef.current.fill(gradient);
+    }
+  }, [selectedImg, brushSize, sharpness, selectedLayer]);
 };

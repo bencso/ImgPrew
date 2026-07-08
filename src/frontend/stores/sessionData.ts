@@ -4,17 +4,28 @@ import {
   CropBox,
   CustomImage,
   DraggableImageEvent,
+  FilterProps,
+  MasksLayers,
   SessionStore,
   XPositions,
   YPositions,
 } from "@/interfaces/interface";
 import { ColorMapFilter } from "pixi-filters";
-import { RenderTexture, Sprite, Texture } from "pixi.js";
+import {
+  defaultFilterVert,
+  Filter,
+  RenderTexture,
+  Sprite,
+  Texture,
+  UniformGroup,
+} from "pixi.js";
 import { RefObject } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { immer } from "zustand/middleware/immer";
 import { createWithEqualityFn } from "zustand/traditional";
 import { getImageSize } from "@/helper/sizes/getImageSize";
+import { getChannelOffsets } from "@/helper/lut/getChannelOffset";
+import { allFiltersFragment } from "@/handlers/filters/allFiltersFragment";
 
 export const useSessionStore = createWithEqualityFn<SessionStore>()(
   immer((set, get) => ({
@@ -38,6 +49,78 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         const haldTexture = Texture.from(hald);
         const haldSprite = new Sprite(haldTexture);
 
+        const filters = {
+          brightness: 0,
+          contrast: 0,
+          exposure: 0,
+          temperature: 0,
+          tint: 0,
+          hue: 0,
+          saturation: 0,
+          value: 0,
+          black: 1,
+          white: 255,
+          gamma: 1,
+          outblack: 0,
+          outwhite: 255,
+          red_red_channel: 100,
+          red_green_channel: 0,
+          red_blue_channel: 0,
+          green_red_channel: 0,
+          green_green_channel: 100,
+          green_blue_channel: 0,
+          blue_red_channel: 0,
+          blue_green_channel: 0,
+          blue_blue_channel: 100,
+          red_channel_offset: 0,
+          green_channel_offset: 0,
+          blue_channel_offset: 0,
+          vibrance: 0,
+        };
+
+        const channelOffset = getChannelOffsets(filters);
+
+        const filterUniforms = new UniformGroup({
+          exposure_input: { value: filters.exposure / 5.0, type: "f32" },
+          brightness_input: { value: filters.brightness / 100.0, type: "f32" },
+          contrast_input: {
+            value: (filters.contrast / 100.0) * 0.5 + 1.0,
+            type: "f32",
+          },
+          temperature_input: {
+            value: filters.temperature / 100.0,
+            type: "f32",
+          },
+          tint_input: { value: filters.tint / 100.0, type: "f32" },
+          saturation_input: { value: filters.saturation, type: "f32" },
+          hue_input: { value: filters.hue / 180.0, type: "f32" },
+          value_input: { value: filters.value, type: "f32" },
+          black_input: { value: filters.black / 255.0, type: "f32" },
+          white_input: { value: filters.white / 255.0, type: "f32" },
+          outblack_input: { value: filters.outblack / 255.0, type: "f32" },
+          outwhite_input: { value: filters.outwhite / 255.0, type: "f32" },
+          gamma_input: { value: filters.gamma, type: "f32" },
+          channel_colorMatrix_input: {
+            value: channelOffset.channels,
+            type: "mat3x3<f32>",
+          },
+          channel_offset_input: {
+            value: channelOffset.offset,
+            type: "vec3<f32>",
+          },
+          vibrance_input: { value: filters.vibrance / 100.0, type: "f32" },
+        });
+
+        const filter = Filter.from({
+          gl: {
+            fragment: allFiltersFragment,
+            vertex: defaultFilterVert,
+          },
+          resources: {
+            filterUniforms: filterUniforms,
+          },
+        });
+
         const sessionData = {
           id: nextId,
           blob: blob,
@@ -58,6 +141,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           haldSprite: haldSprite,
           masks: [],
           renderTextures: [],
+          filter: filter,
         } as CustomImage;
 
         if (exifData) sessionData.exifDatas = exifData;
@@ -68,25 +152,27 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       id: number,
       renderTexture: RenderTexture,
       outputSprite: Sprite,
-      imageSprite: Sprite
+      imageSprite: Sprite,
+      filter?: Filter,
     ) => {
       set((state) => ({
         sessionData: state.sessionData.map((image) => {
           if (image.id !== id) return image;
 
           const prevTextures = image.renderTextures ?? [];
+          const currentText = {
+            id: prevTextures.length,
+            mask: renderTexture,
+            sprite: outputSprite,
+            imageSprite: imageSprite,
+            filter: null,
+          } as MasksLayers;
+
+          if (filter) currentText.filter = filter;
 
           return {
             ...image,
-            renderTextures: [
-              ...prevTextures,
-              {
-                id: prevTextures.length,
-                mask: renderTexture,
-                sprite: outputSprite,
-                imageSprite: imageSprite
-              },
-            ],
+            renderTextures: [...prevTextures, currentText],
           };
         }),
       }));
@@ -658,23 +744,47 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     //#endregion
 
     //#region FILTERS
-    editFilters: (id: number, filterName: string, value: string | number) =>
+    editFilters: (
+      id: number,
+      filterName: string,
+      value: string | number,
+      selectedLayer?: number | null,
+    ) =>
+      //TODO: Majd ezeket még átirni
       set((state) => {
         const image = state.sessionData.find((img: any) => img.id === id);
         if (!image) return;
-        if (!image.filters) image.filters = [];
-        const filter = image.filters.find((f: any) => f.name === filterName);
-        if (filter) filter.value = Number(value);
-        else image.filters.push({ name: filterName, value: Number(value) });
+
+        let filterValues =
+          selectedLayer !== null
+            ? state.getFilters(id, selectedLayer)
+            : state.getFilters(id);
+
+        let filters = { ...filterValues, [filterName]: Number(value) };
+
+        return {
+          sessionData: state.sessionData.map((img: any) =>
+            img.id === id ? { ...img, filters } : img,
+          ),
+        };
       }),
-    getFilterValue: (id: number, filterName: string) => {
-      return get()
-        .sessionData.find((img) => img.id === id)
-        ?.filters?.find((f) => f.name === filterName)?.value;
-    },
-    getFilters: (id: number) => {
+    getFilterValue: (
+      id: number,
+      filterName: keyof FilterProps,
+      selectedLayer?: number | null,
+    ) => {
       const img = get().sessionData.find((img) => img.id === id);
 
+      if (selectedLayer && !Number.isNaN(selectedLayer))
+        return (
+          img &&
+          img.renderTextures &&
+          img.renderTextures[selectedLayer]?.filters &&
+          img.renderTextures[selectedLayer]?.filters[filterName]
+        );
+      else return img?.filters && img.filters[filterName];
+    },
+    getFilters: (id: number, layerId?: number | null) => {
       const getValue = (val: any, fallback: number) => {
         const num = Number(val);
         return isNaN(num) ? fallback : num;
@@ -682,103 +792,76 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
 
       return {
         brightness: getValue(
-          img?.filters?.find((f) => f.name === "brightness")?.value,
+          get().getFilterValue(id, "brightness", layerId),
           0,
         ),
-        contrast: getValue(
-          img?.filters?.find((f) => f.name === "contrast")?.value,
-          0,
-        ),
-        exposure: getValue(
-          img?.filters?.find((f) => f.name === "exposure")?.value,
-          0,
-        ),
+        contrast: getValue(get().getFilterValue(id, "contrast", layerId), 0),
+        exposure: getValue(get().getFilterValue(id, "exposure", layerId), 0),
         temperature: getValue(
-          img?.filters?.find((f) => f.name === "temperature")?.value,
+          get().getFilterValue(id, "temperature", layerId),
           0,
         ),
-        tint: getValue(img?.filters?.find((f) => f.name === "tint")?.value, 0),
-        hue: getValue(img?.filters?.find((f) => f.name === "hue")?.value, 0),
+        tint: getValue(get().getFilterValue(id, "tint", layerId), 0),
+        hue: getValue(get().getFilterValue(id, "hue", layerId), 0),
         saturation: getValue(
-          img?.filters?.find((f) => f.name === "saturation")?.value,
+          get().getFilterValue(id, "saturation", layerId),
           0,
         ),
-        value: getValue(
-          img?.filters?.find((f) => f.name === "value")?.value,
-          0,
-        ),
-        black: getValue(
-          img?.filters?.find((f) => f.name === "black")?.value,
-          1,
-        ),
-        white: getValue(
-          img?.filters?.find((f) => f.name === "white")?.value,
-          255,
-        ),
-        gamma: getValue(
-          img?.filters?.find((f) => f.name === "gamma")?.value,
-          1,
-        ),
-        outblack: getValue(
-          img?.filters?.find((f) => f.name === "outblack")?.value,
-          0,
-        ),
-        outwhite: getValue(
-          img?.filters?.find((f) => f.name === "outwhite")?.value,
-          255,
-        ),
+        value: getValue(get().getFilterValue(id, "value", layerId), 0),
+        black: getValue(get().getFilterValue(id, "black", layerId), 1),
+        white: getValue(get().getFilterValue(id, "white", layerId), 255),
+        gamma: getValue(get().getFilterValue(id, "gamma", layerId), 1),
+        outblack: getValue(get().getFilterValue(id, "outblack", layerId), 0),
+        outwhite: getValue(get().getFilterValue(id, "outwhite", layerId), 255),
         red_red_channel: getValue(
-          img?.filters?.find((f) => f.name === "red_red_channel")?.value,
+          get().getFilterValue(id, "red_red_channel", layerId),
           100,
         ),
         red_green_channel: getValue(
-          img?.filters?.find((f) => f.name === "red_green_channel")?.value,
+          get().getFilterValue(id, "red_green_channel", layerId),
           0,
         ),
         red_blue_channel: getValue(
-          img?.filters?.find((f) => f.name === "red_blue_channel")?.value,
+          get().getFilterValue(id, "red_blue_channel", layerId),
           0,
         ),
         green_red_channel: getValue(
-          img?.filters?.find((f) => f.name === "green_red_channel")?.value,
+          get().getFilterValue(id, "green_red_channel", layerId),
           0,
         ),
         green_green_channel: getValue(
-          img?.filters?.find((f) => f.name === "green_green_channel")?.value,
+          get().getFilterValue(id, "green_green_channel", layerId),
           100,
         ),
         green_blue_channel: getValue(
-          img?.filters?.find((f) => f.name === "green_blue_channel")?.value,
+          get().getFilterValue(id, "green_blue_channel", layerId),
           0,
         ),
         blue_red_channel: getValue(
-          img?.filters?.find((f) => f.name === "blue_red_channel")?.value,
+          get().getFilterValue(id, "blue_red_channel", layerId),
           0,
         ),
         blue_green_channel: getValue(
-          img?.filters?.find((f) => f.name === "blue_green_channel")?.value,
+          get().getFilterValue(id, "blue_green_channel", layerId),
           0,
         ),
         blue_blue_channel: getValue(
-          img?.filters?.find((f) => f.name === "blue_blue_channel")?.value,
+          get().getFilterValue(id, "blue_blue_channel", layerId),
           100,
         ),
         red_channel_offset: getValue(
-          img?.filters?.find((f) => f.name === "red_channel_offset")?.value,
+          get().getFilterValue(id, "red_channel_offset", layerId),
           0,
         ),
         green_channel_offset: getValue(
-          img?.filters?.find((f) => f.name === "green_channel_offset")?.value,
+          get().getFilterValue(id, "green_channel_offset", layerId),
           0,
         ),
         blue_channel_offset: getValue(
-          img?.filters?.find((f) => f.name === "blue_channel_offset")?.value,
+          get().getFilterValue(id, "blue_channel_offset", layerId),
           0,
         ),
-        vibrance: getValue(
-          img?.filters?.find((f) => f.name === "vibrance")?.value,
-          0,
-        ),
+        vibrance: getValue(get().getFilterValue(id, "vibrance", layerId), 0),
       };
     },
     //#endregion

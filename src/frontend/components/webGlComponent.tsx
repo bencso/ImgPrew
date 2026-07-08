@@ -1,7 +1,7 @@
 //TODO: Refaktorálás
 import { allFiltersFragment } from "@/handlers/filters/allFiltersFragment";
+import { getChannelOffsets } from "@/helper/lut/getChannelOffset";
 import { calcScale } from "@/helper/sizes/calcScale";
-import { ParamProps } from "@/interfaces/interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { Box, parseColor } from "@chakra-ui/react";
@@ -20,30 +20,6 @@ import {
   UniformGroup,
 } from "pixi.js";
 import { useEffect, useRef } from "react";
-
-export function getChannelOffsets(params: ParamProps) {
-  const channels = new Float32Array([
-    params.red_red_channel / 100.0,
-    params.green_red_channel / 100.0,
-    params.blue_red_channel / 100.0,
-
-    params.red_green_channel / 100.0,
-    params.green_green_channel / 100.0,
-    params.blue_green_channel / 100.0,
-
-    params.red_blue_channel / 100.0,
-    params.green_blue_channel / 100.0,
-    params.blue_blue_channel / 100.0,
-  ]);
-
-  const offset = new Float32Array([
-    params.red_channel_offset / 100.0,
-    params.green_channel_offset / 100.0,
-    params.blue_channel_offset / 100.0,
-  ]);
-
-  return { channels, offset };
-}
 
 export default function WebGlComponent() {
   const {
@@ -75,7 +51,13 @@ export default function WebGlComponent() {
   );
 
   //! shallow: nem generál le újra az objektumot hanem mintha cachelte volna mindig az adott objektumot irja felül / ÖSSZEHASONLÍT
-  const filters = useSessionStore.getState().getFilters(selectedImg);
+  const filters = selectedLayer
+    ? useSessionStore
+        .getState()
+        .getFilters(selectedImg,  selectedLayer)
+    : useSessionStore
+        .getState()
+        .getFilters(selectedImg);
   let image = useSessionStore
     .getState()
     .sessionData.find((si) => si.id === selectedImg);
@@ -167,11 +149,57 @@ export default function WebGlComponent() {
         imageSprite.mask = outputSprite;
         selectedLayerRef.current = imageSprite;
 
+        const channelOffset = getChannelOffsets(filters);
+
+        const filterUniforms = new UniformGroup({
+          exposure_input: { value: filters.exposure / 5.0, type: "f32" },
+          brightness_input: { value: filters.brightness / 100.0, type: "f32" },
+          contrast_input: {
+            value: (filters.contrast / 100.0) * 0.5 + 1.0,
+            type: "f32",
+          },
+          temperature_input: {
+            value: filters.temperature / 100.0,
+            type: "f32",
+          },
+          tint_input: { value: filters.tint / 100.0, type: "f32" },
+          saturation_input: { value: filters.saturation, type: "f32" },
+          hue_input: { value: filters.hue / 180.0, type: "f32" },
+          value_input: { value: filters.value, type: "f32" },
+          black_input: { value: filters.black / 255.0, type: "f32" },
+          white_input: { value: filters.white / 255.0, type: "f32" },
+          outblack_input: { value: filters.outblack / 255.0, type: "f32" },
+          outwhite_input: { value: filters.outwhite / 255.0, type: "f32" },
+          gamma_input: { value: filters.gamma, type: "f32" },
+          channel_colorMatrix_input: {
+            value: channelOffset.channels,
+            type: "mat3x3<f32>",
+          },
+          channel_offset_input: {
+            value: channelOffset.offset,
+            type: "vec3<f32>",
+          },
+          vibrance_input: { value: filters.vibrance / 100.0, type: "f32" },
+        });
+
+        const filter = Filter.from({
+          gl: {
+            fragment: allFiltersFragment,
+            vertex: defaultFilterVert,
+          },
+          resources: {
+            filterUniforms: filterUniforms,
+          },
+        });
+
+        webglFilterRef.current = filter;
+
         addNewRenderTexture(
           selectedImg,
           renderTexture,
           outputSprite,
           imageSprite,
+          filter,
         );
       }
 
@@ -258,107 +286,43 @@ export default function WebGlComponent() {
     if (!spriteRef.current || !appRef.current) return;
 
     let imageSprite = selectedLayerRef.current;
+    let glFilter = webglFilterRef.current;
+    if (!glFilter) return;
 
+    const uniforms = glFilter.resources.filterUniforms.uniforms;
     const channelOffset = getChannelOffsets(filters);
 
-    if (!webglFilterRef.current) {
-      const filterUniforms = new UniformGroup({
-        exposure_input: { value: filters.exposure / 5.0, type: "f32" },
-        brightness_input: { value: filters.brightness / 100.0, type: "f32" },
-        contrast_input: {
-          value: (filters.contrast / 100.0) * 0.5 + 1.0,
-          type: "f32",
-        },
-        temperature_input: { value: filters.temperature / 100.0, type: "f32" },
-        tint_input: { value: filters.tint / 100.0, type: "f32" },
-        saturation_input: { value: filters.saturation, type: "f32" },
-        hue_input: { value: filters.hue / 180.0, type: "f32" },
-        value_input: { value: filters.value, type: "f32" },
-        black_input: { value: filters.black / 255.0, type: "f32" },
-        white_input: { value: filters.white / 255.0, type: "f32" },
-        outblack_input: { value: filters.outblack / 255.0, type: "f32" },
-        outwhite_input: { value: filters.outwhite / 255.0, type: "f32" },
-        gamma_input: { value: filters.gamma, type: "f32" },
-        channel_colorMatrix_input: {
-          value: channelOffset.channels,
-          type: "mat3x3<f32>",
-        },
-        channel_offset_input: {
-          value: channelOffset.offset,
-          type: "vec3<f32>",
-        },
-        vibrance_input: { value: filters.vibrance / 100.0, type: "f32" },
-      });
+    uniforms.exposure_input = filters.exposure / 5.0;
+    uniforms.brightness_input = filters.brightness / 100.0;
+    uniforms.contrast_input = (filters.contrast / 100.0) * 0.5 + 1.0;
+    uniforms.temperature_input = filters.temperature / 100.0;
+    uniforms.tint_input = filters.tint / 100.0;
+    uniforms.saturation_input = filters.saturation;
+    uniforms.hue_input = filters.hue / 180.0;
+    uniforms.value_input = filters.value;
+    uniforms.black_input = filters.black / 255.0;
+    uniforms.white_input = filters.white / 255.0;
+    uniforms.outblack_input = filters.outblack / 255.0;
+    uniforms.outwhite_input = filters.outwhite / 255.0;
+    uniforms.gamma_input = filters.gamma;
+    uniforms.channel_colorMatrix_input = channelOffset.channels;
+    uniforms.channel_offset_input = channelOffset.offset;
+    uniforms.vibrance_input = filters.vibrance / 100.0;
 
-      webglFilterRef.current = Filter.from({
-        gl: {
-          fragment: allFiltersFragment,
-          vertex: defaultFilterVert,
-        },
-        resources: {
-          filterUniforms: filterUniforms,
-        },
-      });
-
-      webglFilterRef.current.padding = 0;
-
-      spriteRef.current.roundPixels = true;
-
-      if (lutFilter) {
-        if (imageSprite) {
-          imageSprite.filters = [lutFilter, webglFilterRef.current];
-        } else {
-          if (spriteRef.current)
-            spriteRef.current.filters = [lutFilter, webglFilterRef.current];
-          if (haldSprite)
-            haldSprite.filters = [lutFilter, webglFilterRef.current];
-        }
+    if (lutFilter) {
+      if (imageSprite) {
+        imageSprite.filters = [lutFilter, glFilter];
       } else {
-        if (imageSprite) {
-          imageSprite.filters = [webglFilterRef.current];
-        } else {
-          if (spriteRef.current)
-            spriteRef.current.filters = [webglFilterRef.current];
-          if (haldSprite) haldSprite.filters = [webglFilterRef.current];
-        }
+        if (spriteRef.current)
+          spriteRef.current.filters = [lutFilter, glFilter];
+        if (haldSprite) haldSprite.filters = [lutFilter, glFilter];
       }
     } else {
-      const uniforms = webglFilterRef.current.resources.filterUniforms.uniforms;
-
-      uniforms.exposure_input = filters.exposure / 5.0;
-      uniforms.brightness_input = filters.brightness / 100.0;
-      uniforms.contrast_input = (filters.contrast / 100.0) * 0.5 + 1.0;
-      uniforms.temperature_input = filters.temperature / 100.0;
-      uniforms.tint_input = filters.tint / 100.0;
-      uniforms.saturation_input = filters.saturation;
-      uniforms.hue_input = filters.hue / 180.0;
-      uniforms.value_input = filters.value;
-      uniforms.black_input = filters.black / 255.0;
-      uniforms.white_input = filters.white / 255.0;
-      uniforms.outblack_input = filters.outblack / 255.0;
-      uniforms.outwhite_input = filters.outwhite / 255.0;
-      uniforms.gamma_input = filters.gamma;
-      uniforms.channel_colorMatrix_input = channelOffset.channels;
-      uniforms.channel_offset_input = channelOffset.offset;
-      uniforms.vibrance_input = filters.vibrance / 100.0;
-
-      if (lutFilter) {
-        if (imageSprite) {
-          imageSprite.filters = [lutFilter, webglFilterRef.current];
-        } else {
-          if (spriteRef.current)
-            spriteRef.current.filters = [lutFilter, webglFilterRef.current];
-          if (haldSprite)
-            haldSprite.filters = [lutFilter, webglFilterRef.current];
-        }
+      if (imageSprite) {
+        imageSprite.filters = [glFilter];
       } else {
-        if (imageSprite) {
-          imageSprite.filters = [webglFilterRef.current];
-        } else {
-          if (spriteRef.current)
-            spriteRef.current.filters = [webglFilterRef.current];
-          if (haldSprite) haldSprite.filters = [webglFilterRef.current];
-        }
+        if (spriteRef.current) spriteRef.current.filters = [glFilter];
+        if (haldSprite) haldSprite.filters = [glFilter];
       }
     }
   }
