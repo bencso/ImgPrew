@@ -159,6 +159,7 @@ export interface CustomImage {
   filter?: Filter | null;
   renderTextures?: MasksLayers[];
   renderTexture?: RenderTexture | any;
+  sprite?: Sprite | null | any;
 }
 
 //#region CalculationReFixPositionProps

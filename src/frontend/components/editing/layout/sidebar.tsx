@@ -70,7 +70,8 @@ const sidebarElements = (
   image: any,
   selectedLayer: number | null,
 ) => {
-
+  console.log("selectedLayer");
+  console.log(selectedLayer);
   return [
     {
       function: "Kép szöveg",
@@ -843,19 +844,15 @@ export default function SideBar() {
   //#endregion
 
   //#region sidebar funkciók
-  const image = useSessionStore((s) =>
-    s.sessionData.find((si) => si.id === selectedImg),
-  );
+  const image = useSessionStore
+    .getState()
+    .sessionData.find((si) => si.id === selectedImg);
 
   const selectedExtension = image?.exportSettings?.fileExtension;
 
   const filters = selectedLayer
-    ? useSessionStore
-        .getState()
-        .getFilters(selectedImg, selectedLayer)
-    : useSessionStore
-        .getState()
-        .getFilters(selectedImg);
+    ? useSessionStore.getState().getFilters(selectedImg, selectedLayer)
+    : useSessionStore.getState().getFilters(selectedImg);
   const uniforms = webglFilterRef.current
     ? webglFilterRef.current.resources.filterUniforms.uniforms
     : null;

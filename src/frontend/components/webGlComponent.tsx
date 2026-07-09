@@ -52,12 +52,8 @@ export default function WebGlComponent() {
 
   //! shallow: nem generál le újra az objektumot hanem mintha cachelte volna mindig az adott objektumot irja felül / ÖSSZEHASONLÍT
   const filters = selectedLayer
-    ? useSessionStore
-        .getState()
-        .getFilters(selectedImg,  selectedLayer)
-    : useSessionStore
-        .getState()
-        .getFilters(selectedImg);
+    ? useSessionStore.getState().getFilters(selectedImg, selectedLayer)
+    : useSessionStore.getState().getFilters(selectedImg);
   let image = useSessionStore
     .getState()
     .sessionData.find((si) => si.id === selectedImg);
@@ -286,6 +282,7 @@ export default function WebGlComponent() {
     if (!spriteRef.current || !appRef.current) return;
 
     let imageSprite = selectedLayerRef.current;
+
     let glFilter = webglFilterRef.current;
     if (!glFilter) return;
 
@@ -308,23 +305,15 @@ export default function WebGlComponent() {
     uniforms.channel_colorMatrix_input = channelOffset.channels;
     uniforms.channel_offset_input = channelOffset.offset;
     uniforms.vibrance_input = filters.vibrance / 100.0;
-
-    if (lutFilter) {
-      if (imageSprite) {
-        imageSprite.filters = [lutFilter, glFilter];
-      } else {
-        if (spriteRef.current)
-          spriteRef.current.filters = [lutFilter, glFilter];
-        if (haldSprite) haldSprite.filters = [lutFilter, glFilter];
-      }
-    } else {
-      if (imageSprite) {
-        imageSprite.filters = [glFilter];
-      } else {
-        if (spriteRef.current) spriteRef.current.filters = [glFilter];
-        if (haldSprite) haldSprite.filters = [glFilter];
-      }
-    }
+    //TODO: Az a baj ugyanazt a filtert használjuk itt a képre és a layerre is ugye
+    if (imageSprite)
+      imageSprite.filters = lutFilter ? [lutFilter, glFilter] : [glFilter];
+    if (spriteRef.current)
+      spriteRef.current.filters = lutFilter
+        ? [lutFilter, glFilter]
+        : [glFilter];
+    if (haldSprite)
+      haldSprite.filters = lutFilter ? [lutFilter, glFilter] : [glFilter];
   }
 
   const updateLayout = () => {

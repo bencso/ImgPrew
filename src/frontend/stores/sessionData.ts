@@ -142,6 +142,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           masks: [],
           renderTextures: [],
           filter: filter,
+          sprite: null,
         } as CustomImage;
 
         if (exifData) sessionData.exifDatas = exifData;
@@ -173,6 +174,17 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           return {
             ...image,
             renderTextures: [...prevTextures, currentText],
+          };
+        }),
+      }));
+    },
+    setSpriteImage: (selectedImg: number, sprite: Sprite) => {
+      set((state) => ({
+        sessionData: state.sessionData.map((image) => {
+          if (image.id !== selectedImg) return image;
+          return {
+            ...image,
+            sprite,
           };
         }),
       }));
@@ -750,23 +762,29 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       value: string | number,
       selectedLayer?: number | null,
     ) =>
-      //TODO: Majd ezeket még átirni
       set((state) => {
-        const image = state.sessionData.find((img: any) => img.id === id);
+        const image = state.sessionData.find((img) => img.id === id);
         if (!image) return;
 
-        let filterValues =
-          selectedLayer !== null
+        const filterValues =
+          selectedLayer != null
             ? state.getFilters(id, selectedLayer)
             : state.getFilters(id);
 
-        let filters = { ...filterValues, [filterName]: Number(value) };
-
-        return {
-          sessionData: state.sessionData.map((img: any) =>
-            img.id === id ? { ...img, filters } : img,
-          ),
+        const filters = {
+          ...filterValues,
+          [filterName]: Number(value),
         };
+
+        if (selectedLayer == null) {
+          image.filters = filters;
+          return;
+        }
+
+        const layer = image.renderTextures?.[selectedLayer];
+        if (!layer) return;
+
+        layer.filters = filters;
       }),
     getFilterValue: (
       id: number,
