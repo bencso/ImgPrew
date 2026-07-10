@@ -40,6 +40,7 @@ export default function WebGlComponent() {
     maskContainerRef,
     selectedLayer,
     selectedLayerRef,
+    setSelectLayer,
   } = useWorkSession();
   const { sessionData, setImageSize, addNewRenderTexture } = useSessionStore();
 
@@ -50,10 +51,18 @@ export default function WebGlComponent() {
       state.sessionData.find((img) => img.id === selectedImg)?.lutFilter,
   );
 
+  const layers = useSessionStore(
+    (state) =>
+      state.sessionData.find((img) => img.id === selectedImg)?.renderTextures,
+  );
+
   //! shallow: nem generál le újra az objektumot hanem mintha cachelte volna mindig az adott objektumot irja felül / ÖSSZEHASONLÍT
-  const filters = selectedLayer
-    ? useSessionStore.getState().getFilters(selectedImg, selectedLayer)
-    : useSessionStore.getState().getFilters(selectedImg);
+  const filters = useSessionStore((state) =>
+    state.getFilters(
+      selectedImg,
+      selectedLayer !== null ? selectedLayer : undefined,
+    ),
+  );
   let image = useSessionStore
     .getState()
     .sessionData.find((si) => si.id === selectedImg);
@@ -144,6 +153,7 @@ export default function WebGlComponent() {
 
         imageSprite.mask = outputSprite;
         selectedLayerRef.current = imageSprite;
+        setSelectLayer(null);
 
         const channelOffset = getChannelOffsets(filters);
 
@@ -267,6 +277,10 @@ export default function WebGlComponent() {
         textureRef.current = null;
       }
 
+      if (appRef.current && appRef.current.stage) {
+        appRef.current.stage.removeChildren();
+      }
+
       if (canvasRef.current) canvasRef.current.innerHTML = "";
     };
   }, [selectedImg]);
@@ -279,41 +293,30 @@ export default function WebGlComponent() {
   }, [expandMode, cropSaved]);
 
   function applyFilters() {
-    if (!spriteRef.current || !appRef.current) return;
+    if (!appRef.current) return;
 
-    let imageSprite = selectedLayerRef.current;
+    const imageFilter = image?.filter;
 
-    let glFilter = webglFilterRef.current;
-    if (!glFilter) return;
-
-    const uniforms = glFilter.resources.filterUniforms.uniforms;
-    const channelOffset = getChannelOffsets(filters);
-
-    uniforms.exposure_input = filters.exposure / 5.0;
-    uniforms.brightness_input = filters.brightness / 100.0;
-    uniforms.contrast_input = (filters.contrast / 100.0) * 0.5 + 1.0;
-    uniforms.temperature_input = filters.temperature / 100.0;
-    uniforms.tint_input = filters.tint / 100.0;
-    uniforms.saturation_input = filters.saturation;
-    uniforms.hue_input = filters.hue / 180.0;
-    uniforms.value_input = filters.value;
-    uniforms.black_input = filters.black / 255.0;
-    uniforms.white_input = filters.white / 255.0;
-    uniforms.outblack_input = filters.outblack / 255.0;
-    uniforms.outwhite_input = filters.outwhite / 255.0;
-    uniforms.gamma_input = filters.gamma;
-    uniforms.channel_colorMatrix_input = channelOffset.channels;
-    uniforms.channel_offset_input = channelOffset.offset;
-    uniforms.vibrance_input = filters.vibrance / 100.0;
-    //TODO: Az a baj ugyanazt a filtert használjuk itt a képre és a layerre is ugye
-    if (imageSprite)
-      imageSprite.filters = lutFilter ? [lutFilter, glFilter] : [glFilter];
-    if (spriteRef.current)
+    if (spriteRef.current && imageFilter) {
       spriteRef.current.filters = lutFilter
-        ? [lutFilter, glFilter]
-        : [glFilter];
-    if (haldSprite)
-      haldSprite.filters = lutFilter ? [lutFilter, glFilter] : [glFilter];
+        ? [lutFilter, imageFilter]
+        : [imageFilter];
+    }
+
+    if (haldSprite && imageFilter) {
+      haldSprite.filters = lutFilter ? [lutFilter, imageFilter] : [imageFilter];
+    }
+
+    let imageMaskLayers = image?.renderTextures;
+    imageMaskLayers?.forEach((layer) => {
+      const layerFilter = layer?.filter;
+
+      if (layer.imageSprite && layerFilter) {
+        layer.imageSprite.filters = lutFilter
+          ? [lutFilter, layerFilter]
+          : [layerFilter];
+      }
+    });
   }
 
   const updateLayout = () => {
@@ -651,6 +654,7 @@ export default function WebGlComponent() {
     cropSaved,
     borderSize,
     lutFilter,
+    layers,
   ]);
 
   useEffect(() => {
@@ -677,14 +681,7 @@ export default function WebGlComponent() {
     );
 
     setImageScale(imageScale);
-  }, [
-    selectedScale,
-    selectedImg,
-    expandMode,
-    imageSize,
-    borderSize,
-    selectedLayer,
-  ]);
+  }, [selectedScale, selectedImg, expandMode, imageSize, borderSize]);
 
   return (
     <Box

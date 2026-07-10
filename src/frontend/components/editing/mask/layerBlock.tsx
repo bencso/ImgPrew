@@ -121,7 +121,6 @@ const LayersAccordion = () => {
 
     const imageSprite = new Sprite(textureRef.current);
     maskContainerRef.current.addChild(imageSprite);
-    selectedLayerRef.current = imageSprite;
 
     imageSprite.mask = outputSprite;
 
@@ -181,8 +180,8 @@ const LayersAccordion = () => {
       );
     }
 
-    index++;
     setSelectLayer(index);
+    index++;
   }
 
   const activeLayer = renderTextures?.find(
@@ -190,25 +189,21 @@ const LayersAccordion = () => {
   );
 
   useEffect(() => {
-    const renderText =
-      renderTextures &&
-      (renderTextures?.find((i) => i.id === selectedLayer) ??
-        renderTextures[0]);
-
-    if (!renderText || selectedLayer === null) {
+    if (selectedLayer === null) {
+      console.log("kép");
+      console.log(image && image.filter);
       if (image && image.filter) webglFilterRef.current = image.filter;
-      return;
+    } else {
+      const renderText =
+        renderTextures && renderTextures?.find((i) => i.id === selectedLayer);
+
+      if (renderText) {
+        renderTextureRef.current = renderText.mask;
+
+        webglFilterRef.current = renderText.filter;
+      }
     }
-
-    selectedLayerRef.current = renderText.imageSprite;
-    renderTextureRef.current = renderText.mask;
-
-    webglFilterRef.current = renderText.filter;
   }, [selectedLayer]);
-
-  useEffect(() => {
-    setSelectLayer(null);
-  }, [selectedImg]);
 
   return (
     <Accordion.Root
@@ -243,7 +238,7 @@ const LayersAccordion = () => {
                         else setSelectLayer(layer.id);
                       }}
                     >
-                      {selectedLayer === layer.id
+                      {selectedLayer !== null && selectedLayer === layer.id
                         ? "Kiválasztva"
                         : "Kiválasztás"}
                     </Button>

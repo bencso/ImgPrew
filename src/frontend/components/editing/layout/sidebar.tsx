@@ -25,7 +25,7 @@ import {
   useBreakpointValue,
 } from "@chakra-ui/react";
 import { Filter, Sprite } from "pixi.js";
-import { RefObject, useMemo } from "react";
+import { RefObject, useEffect, useMemo, useState } from "react";
 import {
   LuFrame,
   LuImages,
@@ -65,13 +65,18 @@ const sidebarElements = (
   filters: FilterProps,
   selectedChannel: string | undefined,
   webglFilterRef: RefObject<Filter | null>,
-  uniforms: any,
   imageScale: any,
   image: any,
   selectedLayer: number | null,
 ) => {
-  console.log("selectedLayer");
-  console.log(selectedLayer);
+  const activeLayerObj =
+    selectedLayer !== null ? image?.renderTextures?.[selectedLayer] : null;
+  const activeFilter = activeLayerObj
+    ? activeLayerObj.filter
+    : webglFilterRef?.current;
+
+  const uniforms = activeFilter?.resources?.filterUniforms?.uniforms;
+
   return [
     {
       function: "Kép szöveg",
@@ -117,22 +122,21 @@ const sidebarElements = (
           max: 100,
           step: 0.001,
           inputType: "slider",
-          defaultValue:
-            getFilterValue(selectedImg, "brightness", selectedLayer) ?? 0,
+          defaultValue: getFilterValue(
+            selectedImg,
+            "brightness",
+            selectedLayer,
+          ),
           resetValue: 0,
           onChangeEnd: (e: SliderValueChangeDetails) => {
             editFilters(selectedImg, "brightness", e.value, selectedLayer);
           },
           onChange: (e: SliderValueChangeDetails) => {
-            if (webglFilterRef.current) {
-              uniforms.brightness_input = Number(e.value) / 100.0;
-            }
+            uniforms.brightness_input = Number(e.value) / 100.0;
           },
           clearFunc: () => {
-            if (webglFilterRef.current) {
-              uniforms.brightness_input = 0;
-              editFilters(selectedImg, "brightness", 0, selectedLayer);
-            }
+            uniforms.brightness_input = 0;
+            editFilters(selectedImg, "brightness", 0, selectedLayer);
           },
         },
         {
@@ -148,15 +152,11 @@ const sidebarElements = (
             editFilters(selectedImg, "exposure", e.value, selectedLayer);
           },
           onChange: (e: SliderValueChangeDetails) => {
-            if (webglFilterRef.current) {
-              uniforms.exposure_input = Number(e.value) / 5.0;
-            }
+            uniforms.exposure_input = Number(e.value) / 5.0;
           },
           clearFunc: () => {
-            if (webglFilterRef.current) {
-              uniforms.exposure_input = 0 / 5.0;
-              editFilters(selectedImg, "exposure", 0, selectedLayer);
-            }
+            uniforms.exposure_input = 0 / 5.0;
+            editFilters(selectedImg, "exposure", 0, selectedLayer);
           },
         },
         {
@@ -172,15 +172,11 @@ const sidebarElements = (
             editFilters(selectedImg, "contrast", e.value, selectedLayer);
           },
           onChange: (e: SliderValueChangeDetails) => {
-            if (webglFilterRef.current) {
-              uniforms.contrast_input = (Number(e.value) / 100.0) * 0.5 + 1.0;
-            }
+            uniforms.contrast_input = (Number(e.value) / 100.0) * 0.5 + 1.0;
           },
           clearFunc: () => {
-            if (webglFilterRef.current) {
-              uniforms.contrast_input = (0 / 100.0) * 0.5 + 1.0;
-              editFilters(selectedImg, "contrast", 0, selectedLayer);
-            }
+            uniforms.contrast_input = (0 / 100.0) * 0.5 + 1.0;
+            editFilters(selectedImg, "contrast", 0, selectedLayer);
           },
         },
       ],
@@ -202,15 +198,11 @@ const sidebarElements = (
             editFilters(selectedImg, "black", e.value, selectedLayer);
           },
           onChange: (e: SliderValueChangeDetails) => {
-            if (webglFilterRef.current) {
-              uniforms.black_input = Number(e.value) / 255.0;
-            }
+            uniforms.black_input = Number(e.value) / 255.0;
           },
           clearFunc: () => {
-            if (webglFilterRef.current) {
-              uniforms.black_input = 0;
-              editFilters(selectedImg, "black", 0, selectedLayer);
-            }
+            uniforms.black_input = 0;
+            editFilters(selectedImg, "black", 0, selectedLayer);
           },
         },
         {
@@ -223,15 +215,11 @@ const sidebarElements = (
           defaultValue:
             getFilterValue(selectedImg, "gamma", selectedLayer) ?? 1,
           onChange: (e: SliderValueChangeDetails) => {
-            if (webglFilterRef.current) {
-              uniforms.gamma_input = Number(e.value);
-            }
+            uniforms.gamma_input = Number(e.value);
           },
           clearFunc: () => {
-            if (webglFilterRef.current) {
-              uniforms.gamma_input = 1;
-              editFilters(selectedImg, "gamma", 1, selectedLayer);
-            }
+            uniforms.gamma_input = 1;
+            editFilters(selectedImg, "gamma", 1, selectedLayer);
           },
         },
         {
@@ -244,15 +232,11 @@ const sidebarElements = (
           defaultValue:
             getFilterValue(selectedImg, "white", selectedLayer) ?? 255,
           onChange: (e: SliderValueChangeDetails) => {
-            if (webglFilterRef.current) {
-              uniforms.white_input = Number(e.value) / 255.0;
-            }
+            uniforms.white_input = Number(e.value) / 255.0;
           },
           clearFunc: () => {
-            if (webglFilterRef.current) {
-              uniforms.white_input = 1;
-              editFilters(selectedImg, "white", 255, selectedLayer);
-            }
+            uniforms.white_input = 1;
+            editFilters(selectedImg, "white", 255, selectedLayer);
           },
         },
         {
@@ -273,10 +257,8 @@ const sidebarElements = (
                   const outBlackValue = e.value[0] ?? 0;
                   const outWhiteValue = e.value[1] ?? 255;
 
-                  if (webglFilterRef.current) {
-                    uniforms.outblack_input = outBlackValue / 255.0;
-                    uniforms.outwhite_input = outWhiteValue / 255.0;
-                  }
+                  uniforms.outblack_input = outBlackValue / 255.0;
+                  uniforms.outwhite_input = outWhiteValue / 255.0;
                 }}
                 onValueChangeEnd={(e) => {
                   const outBlackValue = e.value[0] ?? 0;
@@ -331,15 +313,11 @@ const sidebarElements = (
             editFilters(selectedImg, "hue", e.value, selectedLayer);
           },
           onChange: (e: SliderValueChangeDetails) => {
-            if (webglFilterRef.current) {
-              uniforms.hue_input = Number(e.value) / 180.0;
-            }
+            uniforms.hue_input = Number(e.value) / 180.0;
           },
           clearFunc: () => {
-            if (webglFilterRef.current) {
-              uniforms.hue_input = 0;
-              editFilters(selectedImg, "hue", 0, selectedLayer);
-            }
+            uniforms.hue_input = 0;
+            editFilters(selectedImg, "hue", 0, selectedLayer);
           },
         },
         {
@@ -357,15 +335,11 @@ const sidebarElements = (
             editFilters(selectedImg, "saturation", e.value, selectedLayer);
           },
           onChange: (e: SliderValueChangeDetails) => {
-            if (webglFilterRef.current) {
-              uniforms.saturation_input = Number(e.value);
-            }
+            uniforms.saturation_input = Number(e.value);
           },
           clearFunc: () => {
-            if (webglFilterRef.current) {
-              uniforms.saturation_input = 0;
-              editFilters(selectedImg, "saturation", 0, selectedLayer);
-            }
+            uniforms.saturation_input = 0;
+            editFilters(selectedImg, "saturation", 0, selectedLayer);
           },
         },
         {
@@ -379,15 +353,11 @@ const sidebarElements = (
             editFilters(selectedImg, "value", e.value, selectedLayer);
           },
           onChange: (e: SliderValueChangeDetails) => {
-            if (webglFilterRef.current) {
-              uniforms.value_input = Number(e.value);
-            }
+            uniforms.value_input = Number(e.value);
           },
           clearFunc: () => {
-            if (webglFilterRef.current) {
-              uniforms.value_input = 0;
-              editFilters(selectedImg, "value", 0, selectedLayer);
-            }
+            uniforms.value_input = 0;
+            editFilters(selectedImg, "value", 0, selectedLayer);
           },
         },
       ],
@@ -841,6 +811,7 @@ export default function SideBar() {
     setBorderSize,
     setExpandBackground,
   } = useSessionStore();
+
   //#endregion
 
   //#region sidebar funkciók
@@ -849,13 +820,10 @@ export default function SideBar() {
     .sessionData.find((si) => si.id === selectedImg);
 
   const selectedExtension = image?.exportSettings?.fileExtension;
-
-  const filters = selectedLayer
-    ? useSessionStore.getState().getFilters(selectedImg, selectedLayer)
-    : useSessionStore.getState().getFilters(selectedImg);
-  const uniforms = webglFilterRef.current
-    ? webglFilterRef.current.resources.filterUniforms.uniforms
-    : null;
+  const filters =
+    selectedLayer !== null
+      ? useSessionStore.getState().getFilters(selectedImg, selectedLayer)
+      : useSessionStore.getState().getFilters(selectedImg);
 
   //#region breakPoint beállíátoks (isMd)
   const isMd = useBreakpointValue(
@@ -864,33 +832,22 @@ export default function SideBar() {
   );
   //#endregion
 
-  const editItems = useMemo(() => {
-    return sidebarElements(
-      selectedImg,
-      editFilters,
-      getFilterValue,
-      spriteRef,
-      setExpandMode,
-      setBorderSize,
-      selectedScale,
-      setExpandBackground,
-      filters,
-      selectedChannel,
-      webglFilterRef,
-      uniforms,
-      imageScale,
-      image,
-      selectedLayer,
-    );
-  }, [
+  const sidebar = sidebarElements(
     selectedImg,
-    selectedExtension,
+    editFilters,
+    getFilterValue,
+    spriteRef,
+    setExpandMode,
+    setBorderSize,
+    selectedScale,
+    setExpandBackground,
     filters,
+    selectedChannel,
     webglFilterRef,
-    uniforms,
+    imageScale,
     image,
     selectedLayer,
-  ]);
+  );
 
   //#endregion
   return (
@@ -936,7 +893,7 @@ export default function SideBar() {
         >
           <ScrollArea.Content p={2} boxSizing={"border-box"} w={"fit"}>
             <Flex flexDir={isMd ? "column" : "row"} gap={2}>
-              {editItems.map((item, index) => (
+              {sidebar.map((item, index) => (
                 <EditItem key={index} items={item} />
               ))}
             </Flex>

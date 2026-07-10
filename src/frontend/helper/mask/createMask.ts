@@ -57,7 +57,7 @@ export const createMask = (props: createMaskProps) => {
   });
 
   function paint(x: number, y: number) {
-    if (!brushRef) return;
+    if (!brushRef || selectedLayer === null) return;
 
     brushRef.clear();
 
@@ -90,7 +90,8 @@ export const createMask = (props: createMaskProps) => {
     if (
       props.isDrawing === false ||
       !props.lastX.current ||
-      !props.lastY.current
+      !props.lastY.current || 
+      selectedLayer === null
     )
       return;
 
@@ -101,7 +102,7 @@ export const createMask = (props: createMaskProps) => {
   });
 
   appRef.current?.stage.on("pointerup", () => {
-    if (!brushRef) return;
+    if (!brushRef || selectedLayer === null) return;
 
     props.setIsDrawing(false);
   });
@@ -116,7 +117,8 @@ export const createMask = (props: createMaskProps) => {
       props.lastX &&
       typeof props.lastX === "number" &&
       props.lastY &&
-      typeof props.lastY === "number"
+      typeof props.lastY === "number" && 
+      selectedLayer !== null
     ) {
       paint(props.lastX, props.lastY);
     }

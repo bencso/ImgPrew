@@ -142,6 +142,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           masks: [],
           renderTextures: [],
           filter: filter,
+          filters: filters,
           sprite: null,
         } as CustomImage;
 
@@ -762,30 +763,36 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       value: string | number,
       selectedLayer?: number | null,
     ) =>
-      set((state) => {
-        const image = state.sessionData.find((img) => img.id === id);
-        if (!image) return;
+      set((state) => ({
+        sessionData: state.sessionData.map((img) => {
+          if (img.id !== id) return img;
 
-        const filterValues =
-          selectedLayer != null
-            ? state.getFilters(id, selectedLayer)
-            : state.getFilters(id);
+          if (selectedLayer == null) {
+            return {
+              ...img,
+              filters: {
+                ...img.filters,
+                [filterName]: Number(value),
+              },
+            };
+          }
 
-        const filters = {
-          ...filterValues,
-          [filterName]: Number(value),
-        };
-
-        if (selectedLayer == null) {
-          image.filters = filters;
-          return;
-        }
-
-        const layer = image.renderTextures?.[selectedLayer];
-        if (!layer) return;
-
-        layer.filters = filters;
-      }),
+          return {
+            ...img,
+            renderTextures: img.renderTextures?.map((layer, index) =>
+              index !== selectedLayer
+                ? layer
+                : {
+                    ...layer,
+                    filters: {
+                      ...layer.filters,
+                      [filterName]: Number(value),
+                    },
+                  },
+            ),
+          };
+        }),
+      })),
     getFilterValue: (
       id: number,
       filterName: keyof FilterProps,
@@ -793,14 +800,15 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     ) => {
       const img = get().sessionData.find((img) => img.id === id);
 
-      if (selectedLayer && !Number.isNaN(selectedLayer))
+      if (selectedLayer !== null) {
+        const layer = Number(selectedLayer);
         return (
           img &&
           img.renderTextures &&
-          img.renderTextures[selectedLayer]?.filters &&
-          img.renderTextures[selectedLayer]?.filters[filterName]
+          img.renderTextures[layer]?.filters &&
+          img.renderTextures[layer]?.filters[filterName]
         );
-      else return img?.filters && img.filters[filterName];
+      } else return img?.filters && img.filters[filterName];
     },
     getFilters: (id: number, layerId?: number | null) => {
       const getValue = (val: any, fallback: number) => {
