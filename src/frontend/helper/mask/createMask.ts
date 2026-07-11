@@ -56,6 +56,8 @@ export const createMask = (props: createMaskProps) => {
     textureSpace: "local",
   });
 
+  console.log(maskContainer?.children);
+
   function paint(x: number, y: number) {
     if (!brushRef || selectedLayer === null) return;
 

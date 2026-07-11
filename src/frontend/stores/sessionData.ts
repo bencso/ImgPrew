@@ -26,6 +26,7 @@ import { createWithEqualityFn } from "zustand/traditional";
 import { getImageSize } from "@/helper/sizes/getImageSize";
 import { getChannelOffsets } from "@/helper/lut/getChannelOffset";
 import { allFiltersFragment } from "@/handlers/filters/allFiltersFragment";
+import { filters } from "@/interfaces/filters.interface";
 
 export const useSessionStore = createWithEqualityFn<SessionStore>()(
   immer((set, get) => ({
@@ -48,35 +49,6 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         if (hald instanceof HTMLCanvasElement !== true) return null;
         const haldTexture = Texture.from(hald);
         const haldSprite = new Sprite(haldTexture);
-
-        const filters = {
-          brightness: 0,
-          contrast: 0,
-          exposure: 0,
-          temperature: 0,
-          tint: 0,
-          hue: 0,
-          saturation: 0,
-          value: 0,
-          black: 1,
-          white: 255,
-          gamma: 1,
-          outblack: 0,
-          outwhite: 255,
-          red_red_channel: 100,
-          red_green_channel: 0,
-          red_blue_channel: 0,
-          green_red_channel: 0,
-          green_green_channel: 100,
-          green_blue_channel: 0,
-          blue_red_channel: 0,
-          blue_green_channel: 0,
-          blue_blue_channel: 100,
-          red_channel_offset: 0,
-          green_channel_offset: 0,
-          blue_channel_offset: 0,
-          vibrance: 0,
-        };
 
         const channelOffset = getChannelOffsets(filters);
 

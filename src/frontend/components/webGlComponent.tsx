@@ -223,8 +223,9 @@ export default function WebGlComponent() {
 
       for (let index = 0; index < layers.length; index++) {
         const layer = layers[index];
-        appRef.current.stage.addChild(layer.imageSprite);
-        appRef.current.stage.addChild(layer.sprite);
+
+          appRef.current.stage.addChild(layer.sprite);
+          appRef.current.stage.addChild(layer.imageSprite);
       }
 
       renderTextureRef.current = renderTexture;

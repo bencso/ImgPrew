@@ -12,14 +12,18 @@ import { Accordion, Avatar, HStack } from "@chakra-ui/react";
 import { useSessionStore } from "@/stores/sessionData";
 import { useWorkSession } from "@/providers/sessionprovider";
 import {
+  Container,
   defaultFilterVert,
   Filter,
+  Graphics,
   RenderTexture,
   Sprite,
+  Texture,
   UniformGroup,
 } from "pixi.js";
 import { allFiltersFragment } from "@/handlers/filters/allFiltersFragment";
 import { getChannelOffsets } from "@/helper/lut/getChannelOffset";
+import { filters } from "@/interfaces/filters.interface";
 
 //#region SIDEBAR ITEM
 export const MaskLayerBlock = () => {
@@ -96,35 +100,30 @@ const LayersAccordion = () => {
     maskContainerRef,
     selectedLayerRef,
     webglFilterRef,
+    hoverMaskGraphRef,
   } = useWorkSession();
 
   const image = sessionData.find((i) => i.id == selectedImg);
   const renderTextures = image?.renderTextures;
-  const filters = selectedLayer
-    ? useSessionStore.getState().getFilters(selectedImg, selectedLayer)
-    : useSessionStore.getState().getFilters(selectedImg);
 
   function createNew() {
     if (!textureRef.current || !maskContainerRef.current) return;
 
     let index = renderTextures?.length ?? 0;
-    const width = appRef.current?.canvas.width ?? 0;
-    const height = appRef.current?.canvas.height ?? 0;
 
-    let renderTexture = RenderTexture.create({ width, height });
-
-    renderTextureRef.current = renderTexture;
-
+    const width = appRef.current?.canvas.width;
+    const height = appRef.current?.canvas.height;
+    const renderTexture = RenderTexture.create({ width, height });
     const outputSprite = new Sprite(renderTexture);
-    outputSprite.height = height;
-    outputSprite.width = width;
 
     const imageSprite = new Sprite(textureRef.current);
     maskContainerRef.current.addChild(imageSprite);
+    imageSprite.anchor.set(0.5);
 
     imageSprite.mask = outputSprite;
+    selectedLayerRef.current = imageSprite;
+    setSelectLayer(null);
 
-    appRef.current?.stage.addChild(outputSprite);
     const channelOffset = getChannelOffsets(filters);
 
     const filterUniforms = new UniformGroup({
@@ -134,7 +133,10 @@ const LayersAccordion = () => {
         value: (filters.contrast / 100.0) * 0.5 + 1.0,
         type: "f32",
       },
-      temperature_input: { value: filters.temperature / 100.0, type: "f32" },
+      temperature_input: {
+        value: filters.temperature / 100.0,
+        type: "f32",
+      },
       tint_input: { value: filters.tint / 100.0, type: "f32" },
       saturation_input: { value: filters.saturation, type: "f32" },
       hue_input: { value: filters.hue / 180.0, type: "f32" },
@@ -165,20 +167,29 @@ const LayersAccordion = () => {
       },
     });
 
+    if (appRef.current) {
+      appRef.current.stage.addChild(outputSprite);
+      appRef.current.stage.addChild(imageSprite);
+      
+      const hover = appRef.current.stage.getChildByLabel(
+        hoverMaskGraphRef.current.label,
+      );
+
+      if (hover) {
+        appRef.current.stage.removeChild(hover);
+        appRef.current.stage.addChild(hoverMaskGraphRef.current);
+      }
+    }
+
     webglFilterRef.current = filter;
 
-    if (
-      renderTextures &&
-      !renderTextures.find((i) => i.mask === renderTexture)
-    ) {
-      addNewRenderTexture(
-        selectedImg,
-        renderTexture,
-        outputSprite,
-        imageSprite,
-        filter,
-      );
-    }
+    addNewRenderTexture(
+      selectedImg,
+      renderTexture,
+      outputSprite,
+      imageSprite,
+      filter,
+    );
 
     setSelectLayer(index);
     index++;
@@ -190,13 +201,10 @@ const LayersAccordion = () => {
 
   useEffect(() => {
     if (selectedLayer === null) {
-      console.log("kép");
-      console.log(image && image.filter);
       if (image && image.filter) webglFilterRef.current = image.filter;
     } else {
       const renderText =
         renderTextures && renderTextures?.find((i) => i.id === selectedLayer);
-
       if (renderText) {
         renderTextureRef.current = renderText.mask;
 
