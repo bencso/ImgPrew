@@ -141,94 +141,13 @@ export default function WebGlComponent() {
 
       const maskContainer = new Container();
 
-      if (!renderTexture) {
-        const width = appRef.current?.canvas.width;
-        const height = appRef.current?.canvas.height;
-        renderTexture = RenderTexture.create({ width, height });
-        outputSprite = new Sprite(renderTexture);
-
-        const imageSprite = new Sprite(texture);
-        maskContainer.addChild(imageSprite);
-        imageSprite.anchor.set(0.5);
-
-        imageSprite.mask = outputSprite;
-        selectedLayerRef.current = imageSprite;
-        setSelectLayer(null);
-
-        const channelOffset = getChannelOffsets(filters);
-
-        const filterUniforms = new UniformGroup({
-          exposure_input: { value: filters.exposure / 5.0, type: "f32" },
-          brightness_input: { value: filters.brightness / 100.0, type: "f32" },
-          contrast_input: {
-            value: (filters.contrast / 100.0) * 0.5 + 1.0,
-            type: "f32",
-          },
-          temperature_input: {
-            value: filters.temperature / 100.0,
-            type: "f32",
-          },
-          tint_input: { value: filters.tint / 100.0, type: "f32" },
-          saturation_input: { value: filters.saturation, type: "f32" },
-          hue_input: { value: filters.hue / 180.0, type: "f32" },
-          value_input: { value: filters.value, type: "f32" },
-          black_input: { value: filters.black / 255.0, type: "f32" },
-          white_input: { value: filters.white / 255.0, type: "f32" },
-          outblack_input: { value: filters.outblack / 255.0, type: "f32" },
-          outwhite_input: { value: filters.outwhite / 255.0, type: "f32" },
-          gamma_input: { value: filters.gamma, type: "f32" },
-          channel_colorMatrix_input: {
-            value: channelOffset.channels,
-            type: "mat3x3<f32>",
-          },
-          channel_offset_input: {
-            value: channelOffset.offset,
-            type: "vec3<f32>",
-          },
-          vibrance_input: { value: filters.vibrance / 100.0, type: "f32" },
-        });
-
-        const filter = Filter.from({
-          gl: {
-            fragment: allFiltersFragment,
-            vertex: defaultFilterVert,
-          },
-          resources: {
-            filterUniforms: filterUniforms,
-          },
-        });
-
-        webglFilterRef.current = filter;
-
-        addNewRenderTexture(
-          selectedImg,
-          renderTexture,
-          outputSprite,
-          imageSprite,
-          filter,
-        );
-      }
-
       image = useSessionStore
         .getState()
         .sessionData.find((si) => si.id === selectedImg);
 
-      if (!image || !image.renderTextures || image.renderTextures.length <= 0)
-        return;
+      if (!image) return;
 
-      const layers = image?.renderTextures;
-      renderTexture = layers[selectedLayer ?? 0]
-        ? layers[selectedLayer ?? 0].mask
-        : layers[0].mask;
-
-      for (let index = 0; index < layers.length; index++) {
-        const layer = layers[index];
-
-          appRef.current.stage.addChild(layer.sprite);
-          appRef.current.stage.addChild(layer.imageSprite);
-      }
-
-      renderTextureRef.current = renderTexture;
+      renderTextureRef.current = image.renderTexture;
 
       appRef.current.stage.addChild(hoverGraph);
 
@@ -247,6 +166,7 @@ export default function WebGlComponent() {
 
       updateLayout();
       applyFilters();
+      setSelectLayer(null);
     };
 
     if (sessionData.length > 0 && sessionData[selectedImg].blob)
@@ -317,6 +237,8 @@ export default function WebGlComponent() {
           ? [lutFilter, layerFilter]
           : [layerFilter];
       }
+
+    
     });
   }
 

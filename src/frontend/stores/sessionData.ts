@@ -164,6 +164,26 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     },
     //#endregion
 
+    //#region Layer
+    deleteLayer: (id: number, layerId: number) => {
+      set((state) => {
+        const image = state.sessionData.find((si) => si.id === id);
+
+        if (!image || !image.renderTextures) return;
+
+        const layerIndex = image.renderTextures.findIndex(
+          (layer: any) => layer.id === layerId,
+        );
+        if (layerIndex === -1) return;
+
+        image.renderTextures = [
+          ...image.renderTextures.slice(0, layerIndex),
+          ...image.renderTextures.slice(layerIndex + 1),
+        ];
+      });
+    },
+    //#endregion
+
     //#region "Copyright" kép
     uploadCopyrightImage: async (id: number, blob: ArrayBuffer) => {
       const blobConvert = new Blob([blob], { type: "image/png" });

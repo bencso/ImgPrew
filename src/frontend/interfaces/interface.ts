@@ -222,6 +222,10 @@ export interface SessionStore {
   ) => void;
   //#endregion
 
+  //#region LAYER
+  deleteLayer: (id: number, layerId: number) => void
+//#endregion
+  
   //#region MÉRETEK
   setImageSize: (id: number, width: number, height: number) => void;
   setCropBox: ({ id, box }: { id: number; box: CropBox }) => void;

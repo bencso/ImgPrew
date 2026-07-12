@@ -12,13 +12,10 @@ import { Accordion, Avatar, HStack } from "@chakra-ui/react";
 import { useSessionStore } from "@/stores/sessionData";
 import { useWorkSession } from "@/providers/sessionprovider";
 import {
-  Container,
   defaultFilterVert,
   Filter,
-  Graphics,
   RenderTexture,
   Sprite,
-  Texture,
   UniformGroup,
 } from "pixi.js";
 import { allFiltersFragment } from "@/handlers/filters/allFiltersFragment";
@@ -89,7 +86,7 @@ const LayersAccordion = () => {
     { ssr: false },
   );
 
-  const { sessionData, addNewRenderTexture } = useSessionStore();
+  const { sessionData, addNewRenderTexture, deleteLayer } = useSessionStore();
   const {
     appRef,
     renderTextureRef,
@@ -170,7 +167,7 @@ const LayersAccordion = () => {
     if (appRef.current) {
       appRef.current.stage.addChild(outputSprite);
       appRef.current.stage.addChild(imageSprite);
-      
+
       const hover = appRef.current.stage.getChildByLabel(
         hoverMaskGraphRef.current.label,
       );
@@ -252,7 +249,29 @@ const LayersAccordion = () => {
                     </Button>
                   </GridItem>
                   <GridItem>
-                    <Button w={"full"} colorPalette="red" variant="solid">
+                    <Button
+                      w={"full"}
+                      colorPalette="red"
+                      variant="solid"
+                      onClick={() => {
+                        const layerId = layer.id;
+                        deleteLayer(selectedImg, layerId);
+
+                        const selectedLayer = renderTextures.find(
+                          (ri) => ri.id === layer.id,
+                        );
+
+                        setSelectLayer(null);
+
+                        if (!appRef.current) return;
+                        appRef.current.stage.removeChild(
+                          selectedLayer?.imageSprite,
+                        );
+                        appRef.current.stage.removeChild(selectedLayer?.sprite);
+
+                        setSelectLayer(null);
+                      }}
+                    >
                       <LuTrash /> Törlés
                     </Button>
                   </GridItem>
