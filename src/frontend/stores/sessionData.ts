@@ -742,6 +742,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
             background: image.expandBackground,
           };
         if (image.borderSize) returnData.borderSize = image.borderSize;
+        if (image.renderTextures) returnData.renderTextures = image.renderTextures;
 
         return returnData;
       }

@@ -31,6 +31,7 @@ import {
   XPositions,
   YPositions,
 } from "@/interfaces/interface";
+import { RenderTexture } from "pixi.js";
 
 export default function ExportDrawer() {
   const images = useSessionStore((s) => s.sessionData);
@@ -40,8 +41,14 @@ export default function ExportDrawer() {
     setExportAllFileOptimize,
     setExportFileOptimize,
   } = useSessionStore();
-  const { canvasRef, workPlaceRef, textureRef, spriteRef, selectedImg, setSelectedImg } =
-    useWorkSession();
+  const {
+    canvasRef,
+    workPlaceRef,
+    textureRef,
+    spriteRef,
+    selectedImg,
+    setSelectedImg,
+  } = useWorkSession();
 
   const [successfullyImages, setSuccessfulyImages] = useState<
     SuccessfullyImagesProps[]
@@ -60,6 +67,7 @@ export default function ExportDrawer() {
     if (!selectedImage) return;
 
     let haldImage = exportData.hald ?? "";
+    let masksImages = [];
 
     if (id === selectedImg) {
       if (selectedImage && appRef.current) {
@@ -69,15 +77,29 @@ export default function ExportDrawer() {
           resolution: 1,
         });
       }
+
+      const imageMasks = selectedImage.renderTextures;
+
+      if (imageMasks && imageMasks.length > 0 && appRef.current) {
+        for (const imageMask of imageMasks) {
+          masksImages.push(
+            await appRef.current.renderer.extract.base64({
+              target: imageMask.sprite,
+              format: "png",
+              resolution: 1,
+            }),
+          );
+        }
+      }
     }
 
-    if(exportData.hald === undefined && appRef.current){
+    if (exportData.hald === undefined && appRef.current) {
       setSelectedImg(id);
-        haldImage = await appRef.current.renderer.extract.base64({
-          target: selectedImage.haldSprite,
-          format: "png",
-          resolution: 1,
-        });
+      haldImage = await appRef.current.renderer.extract.base64({
+        target: selectedImage.haldSprite,
+        format: "png",
+        resolution: 1,
+      });
     }
 
     const scale = calcScale({
@@ -250,6 +272,14 @@ export default function ExportDrawer() {
 
     if (copyrightImage)
       formData.append("copyright_image", copyrightImage, "copyright.png");
+
+    if (masksImages.length > 0) {
+      for (let index = 0; index < masksImages.length; index++) {
+        const mask = masksImages[index];
+        const maskFile = new File([mask], `mask_${index}`);
+        formData.append(`mask_${index}`, maskFile, `mask_${index}.png`);
+      }
+    }
 
     formData.append("body", JSON.stringify(body));
 

@@ -1,6 +1,4 @@
 //TODO: Refaktorálás
-import { allFiltersFragment } from "@/handlers/filters/allFiltersFragment";
-import { getChannelOffsets } from "@/helper/lut/getChannelOffset";
 import { calcScale } from "@/helper/sizes/calcScale";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
@@ -9,15 +7,11 @@ import "pixi-filters";
 import {
   Application,
   Container,
-  defaultFilterVert,
-  Filter,
   Graphics,
   ImageSource,
   Rectangle,
-  RenderTexture,
   Sprite,
   Texture,
-  UniformGroup,
 } from "pixi.js";
 import { useEffect, useRef } from "react";
 
@@ -29,7 +23,6 @@ export default function WebGlComponent() {
     spriteRef,
     appRef,
     workPlaceRef,
-    webglFilterRef,
     selectedScale,
     setImageScale,
     overlayRef,
@@ -38,11 +31,10 @@ export default function WebGlComponent() {
     renderTextureRef,
     hoverMaskGraphRef,
     maskContainerRef,
-    selectedLayer,
     selectedLayerRef,
     setSelectLayer,
   } = useWorkSession();
-  const { sessionData, setImageSize, addNewRenderTexture } = useSessionStore();
+  const { sessionData, setImageSize } = useSessionStore();
 
   const filtersRef = useRef<Container | null>(null);
 
@@ -57,12 +49,6 @@ export default function WebGlComponent() {
   );
 
   //! shallow: nem generál le újra az objektumot hanem mintha cachelte volna mindig az adott objektumot irja felül / ÖSSZEHASONLÍT
-  const filters = useSessionStore((state) =>
-    state.getFilters(
-      selectedImg,
-      selectedLayer !== null ? selectedLayer : undefined,
-    ),
-  );
   let image = useSessionStore
     .getState()
     .sessionData.find((si) => si.id === selectedImg);
@@ -76,12 +62,6 @@ export default function WebGlComponent() {
   const cropSaved = image?.cropSave;
   const expandPadding = image?.expandSize?.padding;
   const haldSprite = image?.haldSprite;
-  let renderTexture = image?.renderTextures
-    ? image.renderTextures[0] && image.renderTextures[0].mask
-    : null;
-  let outputSprite = image?.renderTextures
-    ? image.renderTextures[0] && image.renderTextures[0].sprite
-    : null;
 
   async function initApp() {
     const app = new Application();
@@ -237,8 +217,6 @@ export default function WebGlComponent() {
           ? [lutFilter, layerFilter]
           : [layerFilter];
       }
-
-    
     });
   }
 
@@ -303,20 +281,7 @@ export default function WebGlComponent() {
       spriteRef.current.width = scaledImageW * scale;
       spriteRef.current.height = scaledImageH * scale;
 
-      if (!image || !image.renderTextures) return;
-
-      let imageSprite = selectedLayerRef.current;
-
-      if (imageSprite) {
-        imageSprite.height = scaledImageH * scale;
-        imageSprite.width = scaledImageW * scale;
-        imageSprite.x =
-          (Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0) /
-          2;
-        imageSprite.y =
-          (Number(appRef.current.canvas.style.height.replace("px", "")) ?? 0) /
-          2;
-      }
+      if (!image) return;
 
       spriteRef.current.x =
         (Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0) / 2;
@@ -350,7 +315,6 @@ export default function WebGlComponent() {
       let spY = canvasH / 2;
 
       spriteRef.current.anchor = 0.5;
-      if (selectedLayerRef.current) selectedLayerRef.current.anchor = 0.5;
 
       if (expandMode === "crop" && cropSaved === true) {
         if (
@@ -426,22 +390,8 @@ export default function WebGlComponent() {
         spriteRef.current.height = canvasH * scale;
         spriteRef.current.width = canvasW * scale;
 
-        if (!image || !image.renderTextures) return;
+        if (!image) return;
         selectedLayerRef.current = spriteCopy;
-
-        let imageSprite = selectedLayerRef.current;
-
-        if (imageSprite) {
-          imageSprite.height = canvasH * scale;
-          imageSprite.width = canvasW * scale;
-          imageSprite.anchor = 0.5;
-          imageSprite.x =
-            (Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0) /
-            2;
-          imageSprite.y =
-            (Number(appRef.current.canvas.style.height.replace("px", "")) ??
-              0) / 2;
-        }
 
         spriteRef.current.anchor = 0.5;
         spriteRef.current.x =
@@ -478,15 +428,6 @@ export default function WebGlComponent() {
         spriteRef.current.height = spH;
         spriteRef.current.x = spX;
         spriteRef.current.y = spY;
-
-        let imageSprite = selectedLayerRef.current;
-
-        if (imageSprite) {
-          imageSprite.height = spH;
-          imageSprite.width = spW;
-          imageSprite.x = spX;
-          imageSprite.y = spY;
-        }
 
         setSelectedScale({
           image: {
@@ -527,19 +468,7 @@ export default function WebGlComponent() {
         spriteRef.current.width = spW;
         spriteRef.current.height = spH;
 
-        if (!image || !image.renderTextures) return;
-        let imageSprite = selectedLayerRef.current;
-
-        if (imageSprite) {
-          imageSprite.height = spH;
-          imageSprite.width = spW;
-          imageSprite.x =
-            (Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0) /
-            2;
-          imageSprite.y =
-            (Number(appRef.current.canvas.style.height.replace("px", "")) ??
-              0) / 2;
-        }
+        if (!image) return;
 
         spriteRef.current.x =
           (Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0) /
@@ -561,6 +490,27 @@ export default function WebGlComponent() {
           },
         });
       }
+
+      if (image?.renderTextures)
+        image.renderTextures.forEach((rt) => {
+          const imageSprite = rt.imageSprite;
+          const sprite = rt.sprite;
+          if (sprite && appRef.current && imageSprite && spriteRef.current) {
+            sprite.height = appRef.current?.canvas.height;
+            sprite.width = appRef.current?.canvas.width;
+            sprite.anchor = 0;
+
+            sprite.x = 0;
+            sprite.y = 0;
+
+            imageSprite.height = spriteRef.current.height;
+            imageSprite.width = spriteRef.current.width;
+            imageSprite.anchor = 0;
+
+            imageSprite.x = 0;
+            imageSprite.y = 0;
+          }
+        });
       applyFilters();
     }
   };

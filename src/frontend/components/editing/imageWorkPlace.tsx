@@ -1,7 +1,7 @@
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { Box, Flex, useBreakpointValue } from "@chakra-ui/react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import WebGlComponent from "../webGlComponent";
 import { Rnd } from "react-rnd";
 import { minMaxValidation } from "@/helper/errorHelper";
@@ -27,6 +27,7 @@ export default function ImageWorkPlace() {
     maskContainerRef,
     maskSharpness,
     selectedLayer,
+    spriteRef
   } = useWorkSession();
 
   const { setCropBox, setTextPosition, setTextRelativePosition } =
@@ -52,7 +53,6 @@ export default function ImageWorkPlace() {
   const masks = image?.masks;
   const brushSize = maskBrushSize;
   const maskContainer = maskContainerRef.current;
-
   const cropboxScale = Math.min(
     (canvasRef.current?.clientWidth ?? 0) / imgW,
     (canvasRef.current?.clientHeight ?? 0) / imgH,
@@ -111,6 +111,8 @@ export default function ImageWorkPlace() {
     renderTextureRef,
     sharpness: maskSharpness,
     selectedLayer,
+    scale: cropboxScale,
+    spriteRef
   });
 
   const canvasH = canvasRef.current?.clientHeight ?? 1080;

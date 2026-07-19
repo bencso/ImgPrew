@@ -28,12 +28,13 @@ interface createMaskProps {
   renderTextureRef: RefObject<RenderTexture | null>;
   sharpness: number;
   selectedLayer: number | null;
+  scale: number;
+  spriteRef: RefObject<Sprite | null>;
 }
 
 export const createMask = (props: createMaskProps) => {
   const appRef = props.appRef;
   const hoverMaskGraphRef = props.hoverMaskGraphRef;
-  const brushSize = props.brushSize;
   const selectedImg = props.selectedImg;
   const maskErase = props.maskErase;
   const maskContainer = props.maskContainer;
@@ -41,6 +42,9 @@ export const createMask = (props: createMaskProps) => {
   const renderTexture = props.renderTextureRef.current;
   const sharpness = props.sharpness ?? 0;
   const selectedLayer = props.selectedLayer ?? null;
+  const scale = props.scale ?? 1;
+  const brushSize = props.brushSize / scale;
+  const spriteRef = props.spriteRef;
 
   const gradient = new FillGradient({
     type: "radial",
@@ -55,8 +59,6 @@ export const createMask = (props: createMaskProps) => {
     ],
     textureSpace: "local",
   });
-
-  console.log(maskContainer?.children);
 
   function paint(x: number, y: number) {
     if (!brushRef || selectedLayer === null) return;
@@ -83,47 +85,47 @@ export const createMask = (props: createMaskProps) => {
   }
 
   appRef.current?.stage.on("pointermove", (e) => {
-    const x = e.global.x;
-    const y = e.global.y;
+    const localPos = e.global;
+
+    if (!localPos) return;
+
+    const x = localPos.x;
+    const y = localPos.y;
 
     hoverMaskGraphRef.current.x = x;
     hoverMaskGraphRef.current.y = y;
 
+
     if (
       props.isDrawing === false ||
       !props.lastX.current ||
-      !props.lastY.current || 
+      !props.lastY.current ||
       selectedLayer === null
     )
       return;
 
     drawLine(props.lastX.current, props.lastY.current, x, y, brushSize, paint);
 
-    props.lastX.current = e.global.x;
-    props.lastY.current = e.global.y;
+    props.lastX.current = x;
+    props.lastY.current = y;
   });
 
   appRef.current?.stage.on("pointerup", () => {
-    if (!brushRef || selectedLayer === null) return;
+    if (!brushRef || selectedLayer === null) return;
 
     props.setIsDrawing(false);
   });
 
   appRef.current?.stage.on("pointerdown", (e) => {
     props.setIsDrawing(true);
+    const localPos = e.global;
 
-    props.lastX.current = e.global.x;
-    props.lastY.current = e.global.y;
+    if (!localPos) return;
 
-    if (
-      props.lastX &&
-      typeof props.lastX === "number" &&
-      props.lastY &&
-      typeof props.lastY === "number" && 
-      selectedLayer !== null
-    ) {
-      paint(props.lastX, props.lastY);
-    }
+    props.lastX.current = localPos.x;
+    props.lastY.current = localPos.y;
+
+    if (selectedLayer !== null) paint(localPos.x, localPos.y);
   });
 
   useEffect(() => {

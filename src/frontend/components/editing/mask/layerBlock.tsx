@@ -36,9 +36,11 @@ export const MaskLayerBlock = () => {
         asChild
         w="30px"
         h="40px"
-        position={"relative"}
-        left={0}
-        top={0}
+        position={"absolute"}
+        top={{
+          md: 30,
+          mdDown: 100,
+        }}
       >
         <Button
           w={"full"}
@@ -211,75 +213,81 @@ const LayersAccordion = () => {
   }, [selectedLayer]);
 
   return (
-    <Accordion.Root
-      collapsible
-      defaultValue={[activeLayer?.id.toString() ?? "0"]}
-    >
-      {renderTextures &&
-        renderTextures.map((layer, index) => (
-          <Accordion.Item key={index} value={layer.id.toString()}>
-            <Accordion.ItemTrigger>
-              <Avatar.Root shape="rounded">
-                <Avatar.Fallback name={layer.id.toString()} />
-              </Avatar.Root>
-              <HStack flex="1">{layer.id}</HStack>
-              <Accordion.ItemIndicator />
-            </Accordion.ItemTrigger>
-            <Accordion.ItemContent>
-              <Accordion.ItemBody>
-                <Grid
-                  w={"full"}
-                  gap={2}
-                  gridTemplateColumns={isMd ? "repeat(2, 1fr)" : ""}
-                  gridTemplateRows={!isMd ? "repeat(2, 1fr)" : ""}
-                >
-                  <GridItem>
-                    <Button
-                      w={"full"}
-                      colorPalette="teal"
-                      variant="outline"
-                      onClick={() => {
-                        if (selectedLayer === layer.id) setSelectLayer(null);
-                        else setSelectLayer(layer.id);
-                      }}
-                    >
-                      {selectedLayer !== null && selectedLayer === layer.id
-                        ? "Kiválasztva"
-                        : "Kiválasztás"}
-                    </Button>
-                  </GridItem>
-                  <GridItem>
-                    <Button
-                      w={"full"}
-                      colorPalette="red"
-                      variant="solid"
-                      onClick={() => {
-                        const layerId = layer.id;
-                        deleteLayer(selectedImg, layerId);
+    <>
+      {" "}
+      {renderTextures && renderTextures.length > 0 && (
+        <Accordion.Root
+          collapsible
+          defaultValue={[activeLayer?.id.toString() ?? "0"]}
+        >
+          {renderTextures.map((layer, index) => (
+            <Accordion.Item key={index} value={layer.id.toString()}>
+              <Accordion.ItemTrigger>
+                <Avatar.Root shape="rounded">
+                  <Avatar.Fallback name={layer.id.toString()} />
+                </Avatar.Root>
+                <HStack flex="1">{layer.id}</HStack>
+                <Accordion.ItemIndicator />
+              </Accordion.ItemTrigger>
+              <Accordion.ItemContent>
+                <Accordion.ItemBody>
+                  <Grid
+                    w={"full"}
+                    gap={2}
+                    gridTemplateColumns={isMd ? "repeat(2, 1fr)" : ""}
+                    gridTemplateRows={!isMd ? "repeat(2, 1fr)" : ""}
+                  >
+                    <GridItem>
+                      <Button
+                        w={"full"}
+                        colorPalette="teal"
+                        variant="outline"
+                        onClick={() => {
+                          if (selectedLayer === layer.id) setSelectLayer(null);
+                          else setSelectLayer(layer.id);
+                        }}
+                      >
+                        {selectedLayer !== null && selectedLayer === layer.id
+                          ? "Kiválasztva"
+                          : "Kiválasztás"}
+                      </Button>
+                    </GridItem>
+                    <GridItem>
+                      <Button
+                        w={"full"}
+                        colorPalette="red"
+                        variant="solid"
+                        onClick={() => {
+                          const layerId = layer.id;
+                          deleteLayer(selectedImg, layerId);
 
-                        const selectedLayer = renderTextures.find(
-                          (ri) => ri.id === layer.id,
-                        );
+                          const selectedLayer = renderTextures.find(
+                            (ri) => ri.id === layer.id,
+                          );
 
-                        setSelectLayer(null);
+                          setSelectLayer(null);
 
-                        if (!appRef.current) return;
-                        appRef.current.stage.removeChild(
-                          selectedLayer?.imageSprite,
-                        );
-                        appRef.current.stage.removeChild(selectedLayer?.sprite);
+                          if (!appRef.current) return;
+                          appRef.current.stage.removeChild(
+                            selectedLayer?.imageSprite,
+                          );
+                          appRef.current.stage.removeChild(
+                            selectedLayer?.sprite,
+                          );
 
-                        setSelectLayer(null);
-                      }}
-                    >
-                      <LuTrash /> Törlés
-                    </Button>
-                  </GridItem>
-                </Grid>
-              </Accordion.ItemBody>
-            </Accordion.ItemContent>
-          </Accordion.Item>
-        ))}
+                          setSelectLayer(null);
+                        }}
+                      >
+                        <LuTrash /> Törlés
+                      </Button>
+                    </GridItem>
+                  </Grid>
+                </Accordion.ItemBody>
+              </Accordion.ItemContent>
+            </Accordion.Item>
+          ))}
+        </Accordion.Root>
+      )}
       <Button
         w={"full"}
         colorPalette={"teal"}
@@ -290,6 +298,6 @@ const LayersAccordion = () => {
       >
         Új layer
       </Button>
-    </Accordion.Root>
+    </>
   );
 };
