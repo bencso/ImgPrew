@@ -133,12 +133,19 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         sessionData: state.sessionData.map((image) => {
           if (image.id !== id) return image;
 
+          const hald = generateHald(64);
+
+          if (hald instanceof HTMLCanvasElement !== true) return null;
+          const haldTexture = Texture.from(hald);
+          const haldSprite = new Sprite(haldTexture);
+
           const prevTextures = image.renderTextures ?? [];
           const currentText = {
             id: prevTextures.length,
             mask: renderTexture,
             sprite: outputSprite,
-            imageSprite: imageSprite,
+            imageSprite,
+            haldSprite,
             filter: null,
           } as MasksLayers;
 
@@ -742,7 +749,8 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
             background: image.expandBackground,
           };
         if (image.borderSize) returnData.borderSize = image.borderSize;
-        if (image.renderTextures) returnData.renderTextures = image.renderTextures;
+        if (image.renderTextures)
+          returnData.renderTextures = image.renderTextures;
 
         return returnData;
       }

@@ -61,7 +61,13 @@ async def uploadImage(file: UploadFile):
         )
 
 @router.post("/export")
-async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[UploadFile, File()] = None, lut: Annotated[UploadFile, File()] = None, copyright_image: Annotated[UploadFile, File()] = None):
+async def exportImage(
+    body: Annotated[str, Form(...)] = None, 
+    file: Annotated[UploadFile, File()] = None, 
+    lut: Annotated[UploadFile, File()] = None, 
+    copyright_image: Annotated[UploadFile, File()] = None, 
+    masks_files: Annotated[list[UploadFile], File()] = None, 
+    masks_hald_files: Annotated[list[UploadFile], File()] = None):
     try:
         print("-----")
         data = json.loads(body)
@@ -76,7 +82,14 @@ async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[Up
         expand_size = data.get("expand_size") or None
         expand_color  = data.get("expand_color") or "#fff"
         expand_position = data.get("expand_position") or None
+        masks_number = data.get("masks_number") or 0
         
+        if masks_files is not None and  len(masks_files) > 0:
+            masks_files_buffers = [await mask_file.read() for mask_file in masks_files]
+        
+        if masks_hald_files is not None and len(masks_hald_files) > 0:
+            masks_hald_files_buffers = [await mask_hald_file.read() for mask_hald_file in masks_hald_files]            
+                
         img_buffer = await file.read()
 
         image = Image.new_from_buffer(img_buffer, "")
@@ -101,8 +114,34 @@ async def exportImage(body: Annotated[str, Form(...)] = None, file: Annotated[Up
             try:
                 exif_data = piexif.load(exif_bytes)
             except Exception as e:
-                print("EXIF load hiba:", e)        
+                print("EXIF load hiba:", e)  
                 
+        if masks_number > 0:
+            for mask_file, mask_hald_file in zip(masks_files_buffers, masks_hald_files_buffers):
+                _, m_encoded = mask_file.split(b",", 1)
+                _, mh_encoded = mask_hald_file.split(b",", 1)                
+
+                decoded_mask = base64.b64decode(m_encoded)
+                decoded_hald = base64.b64decode(mh_encoded)
+                
+                original = image.copy()
+                original = original.convert("RGBA")
+                
+                mask_hald = PIL.Image.open(io.BytesIO(decoded_hald)).convert("RGB")
+                mask = PIL.Image.open(io.BytesIO(decoded_mask))
+
+                lut_image = Lut(mask_hald, original).apply_hald()
+                lut_image = lut_image.convert("RGBA")
+                
+                mask = mask.resize(original.size, PIL.Image.Resampling.LANCZOS)
+                
+                image = PIL.Image.composite(
+                    lut_image,
+                    image,
+                    mask
+                )
+                image = image.convert("RGB")
+        
         if expand_mode != "no" and expand_mode != "border":
             crop_box = (float(expand_position["x"]), float(expand_position["y"]), float(expand_position["x"]) + expand_size["width"] , float(expand_position["y"])  + expand_size["height"])
             expand_helper = ResizeImg(image=image, height=expand_size["height"],width=expand_size["width"], expand=(True if expand_mode=="expand" else False),expand_bg=expand_color,padding=expand_size["padding"], crop_box=crop_box)

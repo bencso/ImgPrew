@@ -114,6 +114,7 @@ export interface MasksLayers {
   mask: RenderTexture;
   sprite: Sprite | any;
   imageSprite: Sprite | any;
+  haldSprite: Sprite | any;
   filter: Filter | null;
   filters?: FilterProps;
 }

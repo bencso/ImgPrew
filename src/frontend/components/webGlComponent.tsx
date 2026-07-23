@@ -217,6 +217,12 @@ export default function WebGlComponent() {
           ? [lutFilter, layerFilter]
           : [layerFilter];
       }
+
+      if (layer.haldSprite && layerFilter) {
+        layer.haldSprite.filters = lutFilter
+          ? [lutFilter, layerFilter]
+          : [layerFilter];
+      }
     });
   }
 

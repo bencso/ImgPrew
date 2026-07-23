@@ -31,7 +31,6 @@ import {
   XPositions,
   YPositions,
 } from "@/interfaces/interface";
-import { RenderTexture } from "pixi.js";
 
 export default function ExportDrawer() {
   const images = useSessionStore((s) => s.sessionData);
@@ -68,6 +67,7 @@ export default function ExportDrawer() {
 
     let haldImage = exportData.hald ?? "";
     let masksImages = [];
+    let masksImageHalds = [];
 
     if (id === selectedImg) {
       if (selectedImage && appRef.current) {
@@ -85,6 +85,14 @@ export default function ExportDrawer() {
           masksImages.push(
             await appRef.current.renderer.extract.base64({
               target: imageMask.sprite,
+              format: "png",
+              resolution: 1,
+            }),
+          );
+
+          masksImageHalds.push(
+            await appRef.current.renderer.extract.base64({
+              target: imageMask.haldSprite,
               format: "png",
               resolution: 1,
             }),
@@ -263,6 +271,7 @@ export default function ExportDrawer() {
       expand_size: expandSize,
       expand_position: expandPosition,
       expand_color: selectedImage.expandBackground ?? "#fff",
+      masks_number: masksImages.length,
     };
 
     const formData = new FormData();
@@ -276,8 +285,22 @@ export default function ExportDrawer() {
     if (masksImages.length > 0) {
       for (let index = 0; index < masksImages.length; index++) {
         const mask = masksImages[index];
+        
         const maskFile = new File([mask], `mask_${index}`);
-        formData.append(`mask_${index}`, maskFile, `mask_${index}.png`);
+        formData.append(`masks_files`, maskFile, `mask_${index}.png`);
+      }
+    }
+
+    if (masksImageHalds.length > 0) {
+      for (let index = 0; index < masksImageHalds.length; index++) {
+        const haldImage = masksImageHalds[index];
+        
+        const haldImageFile = new File([haldImage], `mask_hald_${index}`);
+        formData.append(
+          `masks_hald_files`,
+          haldImageFile,
+          `mask_hald_${index}.png`,
+        );
       }
     }
 
