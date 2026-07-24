@@ -43,7 +43,7 @@ export const createMask = (props: createMaskProps) => {
   const sharpness = props.sharpness ?? 0;
   const selectedLayer = props.selectedLayer ?? null;
   const scale = props.scale ?? 1;
-  const brushSize = props.brushSize / scale;
+  const brushSize = props.brushSize;
   const spriteRef = props.spriteRef;
 
   const gradient = new FillGradient({
@@ -67,11 +67,11 @@ export const createMask = (props: createMaskProps) => {
 
     if (maskErase === false) {
       brushRef.blendMode = "normal";
-      brushRef.circle(x, y, brushSize);
+      brushRef.circle(x/scale, y/scale, brushSize/scale);
       brushRef.fill(gradient);
     } else {
       brushRef.blendMode = "erase";
-      brushRef.circle(x, y, brushSize);
+      brushRef.circle(x/scale, y/scale, brushSize/scale);
       brushRef.fill(gradient);
     }
 

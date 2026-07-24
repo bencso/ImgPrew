@@ -285,7 +285,7 @@ export default function ExportDrawer() {
     if (masksImages.length > 0) {
       for (let index = 0; index < masksImages.length; index++) {
         const mask = masksImages[index];
-        
+        console.log(mask);
         const maskFile = new File([mask], `mask_${index}`);
         formData.append(`masks_files`, maskFile, `mask_${index}.png`);
       }
@@ -294,7 +294,7 @@ export default function ExportDrawer() {
     if (masksImageHalds.length > 0) {
       for (let index = 0; index < masksImageHalds.length; index++) {
         const haldImage = masksImageHalds[index];
-        
+
         const haldImageFile = new File([haldImage], `mask_hald_${index}`);
         formData.append(
           `masks_hald_files`,

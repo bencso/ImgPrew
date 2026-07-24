@@ -3,7 +3,6 @@ from PIL import ImageFilter, Image
 from dependencies import LUT_SIZE_REGEX, LUT_DATA_REGEX
 import io
 import numpy as np
-import time
 
 class Lut:
     def __init__(self, hald: Image.Image, image: Image.Image, cube: str = None):

@@ -497,26 +497,32 @@ export default function WebGlComponent() {
         });
       }
 
-      if (image?.renderTextures)
+      if (image?.renderTextures) {
         image.renderTextures.forEach((rt) => {
           const imageSprite = rt.imageSprite;
           const sprite = rt.sprite;
+
           if (sprite && appRef.current && imageSprite && spriteRef.current) {
-            sprite.height = appRef.current?.canvas.height;
-            sprite.width = appRef.current?.canvas.width;
+            sprite.height =  (Number(appRef.current.canvas.style.height.replace("px", "")) ?? 0);
+            sprite.width =  (Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0);
+
+            imageSprite.height = (Number(appRef.current.canvas.style.height.replace("px", "")) ?? 0);
+            imageSprite.width = (Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0);
+
+            console.log(sprite.width);
+
             sprite.anchor = 0;
+            imageSprite.anchor = 0;
 
             sprite.x = 0;
             sprite.y = 0;
-
-            imageSprite.height = spriteRef.current.height;
-            imageSprite.width = spriteRef.current.width;
-            imageSprite.anchor = 0;
 
             imageSprite.x = 0;
             imageSprite.y = 0;
           }
         });
+      }
+
       applyFilters();
     }
   };

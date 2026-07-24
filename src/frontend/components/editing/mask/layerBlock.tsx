@@ -110,9 +110,8 @@ const LayersAccordion = () => {
 
     let index = renderTextures?.length ?? 0;
 
-    const width = appRef.current?.canvas.width;
-    const height = appRef.current?.canvas.height;
-    const renderTexture = RenderTexture.create({ width, height });
+    const size = image?.dimesions;
+    const renderTexture = RenderTexture.create({ height: size?.height, width: size?.width });
     const outputSprite = new Sprite(renderTexture);
 
     const imageSprite = new Sprite(textureRef.current);

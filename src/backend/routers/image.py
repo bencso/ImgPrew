@@ -133,7 +133,7 @@ async def exportImage(
                 lut_image = Lut(mask_hald, original).apply_hald()
                 lut_image = lut_image.convert("RGBA")
                 
-                mask = mask.resize(original.size, PIL.Image.Resampling.LANCZOS)
+                mask = PIL.ImageOps.fit(mask,original.size, PIL.Image.Resampling.LANCZOS)
                 
                 image = PIL.Image.composite(
                     lut_image,
