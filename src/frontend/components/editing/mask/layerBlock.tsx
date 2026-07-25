@@ -12,6 +12,7 @@ import { Accordion, Avatar, HStack } from "@chakra-ui/react";
 import { useSessionStore } from "@/stores/sessionData";
 import { useWorkSession } from "@/providers/sessionprovider";
 import {
+  Container,
   defaultFilterVert,
   Filter,
   RenderTexture,
@@ -110,16 +111,26 @@ const LayersAccordion = () => {
 
     let index = renderTextures?.length ?? 0;
 
+    const layer = new Container();
+    layer.label = `layer_${index}`;
+
+
     const size = image?.dimesions;
-    const renderTexture = RenderTexture.create({ height: size?.height, width: size?.width });
+    
+    const renderTexture = RenderTexture.create({
+      height: size?.height,
+      width: size?.width,
+    });
     const outputSprite = new Sprite(renderTexture);
 
     const imageSprite = new Sprite(textureRef.current);
     maskContainerRef.current.addChild(imageSprite);
     imageSprite.anchor.set(0.5);
-
     imageSprite.mask = outputSprite;
+
     selectedLayerRef.current = imageSprite;
+    renderTextureRef.current = renderTexture;
+
     setSelectLayer(null);
 
     const channelOffset = getChannelOffsets(filters);
@@ -166,8 +177,12 @@ const LayersAccordion = () => {
     });
 
     if (appRef.current) {
-      appRef.current.stage.addChild(outputSprite);
-      appRef.current.stage.addChild(imageSprite);
+      layer.addChild(outputSprite);
+      layer.addChild(imageSprite);
+      maskContainerRef.current.addChild(layer);
+
+      if (!appRef.current.stage.getChildByLabel("maskContainer"))
+        appRef.current.stage.addChild(maskContainerRef.current);
 
       const hover = appRef.current.stage.getChildByLabel(
         hoverMaskGraphRef.current.label,

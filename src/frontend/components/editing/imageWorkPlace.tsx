@@ -112,7 +112,7 @@ export default function ImageWorkPlace() {
     sharpness: maskSharpness,
     selectedLayer,
     scale: cropboxScale,
-    spriteRef
+    spriteRef,
   });
 
   const canvasH = canvasRef.current?.clientHeight ?? 1080;

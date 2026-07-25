@@ -120,6 +120,7 @@ export default function WebGlComponent() {
       appRef.current.stage.addChild(overlay);
 
       const maskContainer = new Container();
+      maskContainer.label = "maskContainer";
 
       image = useSessionStore
         .getState()
@@ -508,8 +509,6 @@ export default function WebGlComponent() {
 
             imageSprite.height = (Number(appRef.current.canvas.style.height.replace("px", "")) ?? 0);
             imageSprite.width = (Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0);
-
-            console.log(sprite.width);
 
             sprite.anchor = 0;
             imageSprite.anchor = 0;

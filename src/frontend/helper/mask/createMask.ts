@@ -1,4 +1,4 @@
-import { MasksProps } from "@/interfaces/mask.interface";
+import { MasksProps, RenderLayer } from "@/interfaces/mask.interface";
 import {
   Application,
   Container,
@@ -37,14 +37,12 @@ export const createMask = (props: createMaskProps) => {
   const hoverMaskGraphRef = props.hoverMaskGraphRef;
   const selectedImg = props.selectedImg;
   const maskErase = props.maskErase;
-  const maskContainer = props.maskContainer;
   const brushRef = props.brushRef.current;
   const renderTexture = props.renderTextureRef.current;
   const sharpness = props.sharpness ?? 0;
   const selectedLayer = props.selectedLayer ?? null;
   const scale = props.scale ?? 1;
   const brushSize = props.brushSize;
-  const spriteRef = props.spriteRef;
 
   const gradient = new FillGradient({
     type: "radial",
@@ -53,9 +51,9 @@ export const createMask = (props: createMaskProps) => {
     outerCenter: { x: 0.5, y: 0.5 },
     outerRadius: 0.5,
     colorStops: [
-      { offset: 0, color: "#ff0000" },
-      { offset: sharpness, color: "#ff0000" },
-      { offset: 1, color: "#ff000000" },
+      { offset: 0, color: "rgba(255,255,255,1)" },
+      { offset: sharpness, color: "#fff" },
+      { offset: 1, color: "rgba(255,0,0,0)" },
     ],
     textureSpace: "local",
   });
@@ -67,17 +65,17 @@ export const createMask = (props: createMaskProps) => {
 
     if (maskErase === false) {
       brushRef.blendMode = "normal";
-      brushRef.circle(x/scale, y/scale, brushSize/scale);
+      brushRef.circle(x / scale, y / scale, brushSize / scale);
       brushRef.fill(gradient);
     } else {
       brushRef.blendMode = "erase";
-      brushRef.circle(x/scale, y/scale, brushSize/scale);
+      brushRef.circle(x / scale, y / scale, brushSize / scale);
       brushRef.fill(gradient);
     }
 
-    if (appRef.current && renderTexture && maskContainer) {
+    if (appRef.current && renderTexture && brushRef) {
       appRef.current.renderer.render({
-        container: maskContainer,
+        container: brushRef,
         target: renderTexture,
         clear: false,
       });
@@ -94,7 +92,6 @@ export const createMask = (props: createMaskProps) => {
 
     hoverMaskGraphRef.current.x = x;
     hoverMaskGraphRef.current.y = y;
-
 
     if (
       props.isDrawing === false ||

@@ -10,6 +10,7 @@ from dependencies import IMAGE_EXTENSIONS
 from pyvips import Image
 from functions.convert_img_file import Export
 from functions.lut import Lut
+from functions.mask import Mask
 from functions.resize_img import ResizeImg
 from functions.valid_colors import validColors
 import PIL
@@ -118,29 +119,8 @@ async def exportImage(
                 
         if masks_number > 0:
             for mask_file, mask_hald_file in zip(masks_files_buffers, masks_hald_files_buffers):
-                _, m_encoded = mask_file.split(b",", 1)
-                _, mh_encoded = mask_hald_file.split(b",", 1)                
-
-                decoded_mask = base64.b64decode(m_encoded)
-                decoded_hald = base64.b64decode(mh_encoded)
-                
-                original = image.copy()
-                original = original.convert("RGBA")
-                
-                mask_hald = PIL.Image.open(io.BytesIO(decoded_hald)).convert("RGB")
-                mask = PIL.Image.open(io.BytesIO(decoded_mask))
-
-                lut_image = Lut(mask_hald, original).apply_hald()
-                lut_image = lut_image.convert("RGBA")
-                
-                mask = PIL.ImageOps.fit(mask,original.size, PIL.Image.Resampling.LANCZOS)
-                
-                image = PIL.Image.composite(
-                    lut_image,
-                    image,
-                    mask
-                )
-                image = image.convert("RGB")
+                mask_helper = Mask(image=image)
+                image = mask_helper.apply(mask_file, mask_hald_file)
         
         if expand_mode != "no" and expand_mode != "border":
             crop_box = (float(expand_position["x"]), float(expand_position["y"]), float(expand_position["x"]) + expand_size["width"] , float(expand_position["y"])  + expand_size["height"])
