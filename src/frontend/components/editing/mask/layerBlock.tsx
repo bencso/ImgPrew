@@ -106,6 +106,26 @@ const LayersAccordion = () => {
   const image = sessionData.find((i) => i.id == selectedImg);
   const renderTextures = image?.renderTextures;
 
+// TODO: Layeres adjustment ötletem
+// Minden adjustment egy külön layer lesz.
+//
+// Layer 0 mindig létezik:
+// mask = teljesen fehér
+// settings = a global adjustment
+//
+// Layer 1..N:
+// mask = felhasználó által rajzolt maszk
+// settings = az adott layer adjustment
+//
+//
+// current = originalImage
+//filtered = applyAdjustments(current, layerSettings);
+//current = mix(current, filtered, layerMask);
+//
+// return current;
+//
+// Így minden layer ugyanazt a shadert használja,
+// csak a maszk és a filter beállításai változnak. 
   function createNew() {
     if (!textureRef.current || !maskContainerRef.current) return;
 
@@ -116,7 +136,7 @@ const LayersAccordion = () => {
 
 
     const size = image?.dimesions;
-    
+
     const renderTexture = RenderTexture.create({
       height: size?.height,
       width: size?.width,
