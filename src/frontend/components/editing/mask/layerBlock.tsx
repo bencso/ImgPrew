@@ -15,6 +15,7 @@ import {
   Container,
   defaultFilterVert,
   Filter,
+  Graphics,
   RenderTexture,
   Sprite,
   UniformGroup,
@@ -106,26 +107,6 @@ const LayersAccordion = () => {
   const image = sessionData.find((i) => i.id == selectedImg);
   const renderTextures = image?.renderTextures;
 
-// TODO: Layeres adjustment ötletem
-// Minden adjustment egy külön layer lesz.
-//
-// Layer 0 mindig létezik:
-// mask = teljesen fehér
-// settings = a global adjustment
-//
-// Layer 1..N:
-// mask = felhasználó által rajzolt maszk
-// settings = az adott layer adjustment
-//
-//
-// current = originalImage
-//filtered = applyAdjustments(current, layerSettings);
-//current = mix(current, filtered, layerMask);
-//
-// return current;
-//
-// Így minden layer ugyanazt a shadert használja,
-// csak a maszk és a filter beállításai változnak. 
   function createNew() {
     if (!textureRef.current || !maskContainerRef.current) return;
 
@@ -133,7 +114,6 @@ const LayersAccordion = () => {
 
     const layer = new Container();
     layer.label = `layer_${index}`;
-
 
     const size = image?.dimesions;
 
@@ -144,14 +124,10 @@ const LayersAccordion = () => {
     const outputSprite = new Sprite(renderTexture);
 
     const imageSprite = new Sprite(textureRef.current);
-    maskContainerRef.current.addChild(imageSprite);
     imageSprite.anchor.set(0.5);
-    imageSprite.mask = outputSprite;
 
     selectedLayerRef.current = imageSprite;
     renderTextureRef.current = renderTexture;
-
-    setSelectLayer(null);
 
     const channelOffset = getChannelOffsets(filters);
 
@@ -186,6 +162,13 @@ const LayersAccordion = () => {
       vibrance_input: { value: filters.vibrance / 100.0, type: "f32" },
     });
 
+    const prevLayer =
+      index > 0
+        ? renderTextures?.find((rt) => rt.id === index - 1)?.mask.source
+        : image &&
+          image.renderTexture &&
+          (image.renderTexture as RenderTexture).source;
+
     const filter = Filter.from({
       gl: {
         fragment: allFiltersFragment,
@@ -193,16 +176,16 @@ const LayersAccordion = () => {
       },
       resources: {
         filterUniforms: filterUniforms,
+        layer_mask: renderTexture.source,
+        prev_result: prevLayer,
       },
     });
 
     if (appRef.current) {
       layer.addChild(outputSprite);
       layer.addChild(imageSprite);
-      maskContainerRef.current.addChild(layer);
 
-      if (!appRef.current.stage.getChildByLabel("maskContainer"))
-        appRef.current.stage.addChild(maskContainerRef.current);
+      maskContainerRef.current.addChild(layer);
 
       const hover = appRef.current.stage.getChildByLabel(
         hoverMaskGraphRef.current.label,

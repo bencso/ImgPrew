@@ -133,6 +133,7 @@ const sidebarElements = (
           },
           onChange: (e: SliderValueChangeDetails) => {
             uniforms.brightness_input = Number(e.value) / 100.0;
+            console.log(uniforms);
           },
           clearFunc: () => {
             uniforms.brightness_input = 0;
@@ -819,7 +820,6 @@ export default function SideBar() {
     .getState()
     .sessionData.find((si) => si.id === selectedImg);
 
-  const selectedExtension = image?.exportSettings?.fileExtension;
   const filters =
     selectedLayer !== null
       ? useSessionStore.getState().getFilters(selectedImg, selectedLayer)

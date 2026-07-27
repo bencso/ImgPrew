@@ -221,12 +221,13 @@ export interface SessionStore {
     exifData?: string[] | undefined,
     captionSamples?: string[] | undefined,
   ) => void;
+  setRenderTexture: (id: number, renderTexture: RenderTexture) => void;
   //#endregion
 
   //#region LAYER
-  deleteLayer: (id: number, layerId: number) => void
-//#endregion
-  
+  deleteLayer: (id: number, layerId: number) => void;
+  //#endregion
+
   //#region MÉRETEK
   setImageSize: (id: number, width: number, height: number) => void;
   setCropBox: ({ id, box }: { id: number; box: CropBox }) => void;
@@ -363,9 +364,18 @@ export interface SessionStore {
   //#endregion
 
   //#region FILTERS
-  editFilters: (id: number, filterName: string, value: string | number, selectedLayer?: number | null) => void;
-  getFilterValue: (id: number, filterName:  keyof FilterProps, selectedLayer?: number | null) => number | undefined;
-  getFilters: (id: number,  layerId?: number) => FilterProps;
+  editFilters: (
+    id: number,
+    filterName: string,
+    value: string | number,
+    selectedLayer?: number | null,
+  ) => void;
+  getFilterValue: (
+    id: number,
+    filterName: keyof FilterProps,
+    selectedLayer?: number | null,
+  ) => number | undefined;
+  getFilters: (id: number, layerId?: number) => FilterProps;
   //#endregion
 
   //#region LUT
@@ -377,7 +387,13 @@ export interface SessionStore {
   //#endregion
 
   //#region Masks
-  addNewRenderTexture: (id: number, renderTexture: RenderTexture, outputSprite: Sprite, imageSprite: Sprite, filter?: Filter) => void;
+  addNewRenderTexture: (
+    id: number,
+    renderTexture: RenderTexture,
+    outputSprite: Sprite,
+    imageSprite: Sprite,
+    filter?: Filter,
+  ) => void;
   //#endregion
 }
 //#endregion

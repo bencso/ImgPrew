@@ -1,5 +1,8 @@
 //TODO: Refaktorálás
+import { allFiltersFragment } from "@/handlers/filters/allFiltersFragment";
+import { getChannelOffsets } from "@/helper/lut/getChannelOffset";
 import { calcScale } from "@/helper/sizes/calcScale";
+import { filters } from "@/interfaces/filters.interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { Box, parseColor } from "@chakra-ui/react";
@@ -7,11 +10,15 @@ import "pixi-filters";
 import {
   Application,
   Container,
+  defaultFilterVert,
+  Filter,
   Graphics,
   ImageSource,
   Rectangle,
+  RenderTexture,
   Sprite,
   Texture,
+  UniformGroup,
 } from "pixi.js";
 import { useEffect, useRef } from "react";
 
@@ -33,8 +40,9 @@ export default function WebGlComponent() {
     maskContainerRef,
     selectedLayerRef,
     setSelectLayer,
+    webglFilterRef,
   } = useWorkSession();
-  const { sessionData, setImageSize } = useSessionStore();
+  const { sessionData, setImageSize,setRenderTexture } = useSessionStore();
 
   const filtersRef = useRef<Container | null>(null);
 
@@ -91,6 +99,97 @@ export default function WebGlComponent() {
     })();
   }, []);
 
+  function createFirstLayer(w: number, h: number) {
+    if (!textureRef.current || !appRef.current || !maskContainerRef.current)
+      return;
+
+    const layer = new Container();
+    layer.label = `defaultImageLayer`;
+
+    const renderTexture = RenderTexture.create({
+      height: h,
+      width: w,
+    });
+    const outputSprite = new Sprite(renderTexture);
+
+    const imageSprite = new Sprite(textureRef.current);
+    maskContainerRef.current.addChild(imageSprite);
+    imageSprite.anchor.set(0.5);
+
+    const fill = new Graphics();
+
+    fill.rect(0, 0, w, h).fill({
+      color: "#fff",
+    });
+
+    layer.addChild(fill);
+
+    selectedLayerRef.current = imageSprite;
+    renderTextureRef.current = renderTexture;
+
+    setSelectLayer(null);
+
+    const channelOffset = getChannelOffsets(filters);
+
+    const filterUniforms = new UniformGroup({
+      exposure_input: { value: filters.exposure / 5.0, type: "f32" },
+      brightness_input: { value: filters.brightness / 100.0, type: "f32" },
+      contrast_input: {
+        value: (filters.contrast / 100.0) * 0.5 + 1.0,
+        type: "f32",
+      },
+      temperature_input: {
+        value: filters.temperature / 100.0,
+        type: "f32",
+      },
+      tint_input: { value: filters.tint / 100.0, type: "f32" },
+      saturation_input: { value: filters.saturation, type: "f32" },
+      hue_input: { value: filters.hue / 180.0, type: "f32" },
+      value_input: { value: filters.value, type: "f32" },
+      black_input: { value: filters.black / 255.0, type: "f32" },
+      white_input: { value: filters.white / 255.0, type: "f32" },
+      outblack_input: { value: filters.outblack / 255.0, type: "f32" },
+      outwhite_input: { value: filters.outwhite / 255.0, type: "f32" },
+      gamma_input: { value: filters.gamma, type: "f32" },
+      channel_colorMatrix_input: {
+        value: channelOffset.channels,
+        type: "mat3x3<f32>",
+      },
+      channel_offset_input: {
+        value: channelOffset.offset,
+        type: "vec3<f32>",
+      },
+      vibrance_input: { value: filters.vibrance / 100.0, type: "f32" },
+    });
+
+    const filter = Filter.from({
+      gl: {
+        fragment: allFiltersFragment,
+        vertex: defaultFilterVert,
+      },
+      resources: {
+        filterUniforms: filterUniforms,
+        layer_mask: renderTexture.source,
+        prev_result: textureRef.current.source,
+      },
+    });
+
+    if (appRef.current) {
+      layer.addChild(outputSprite);
+      layer.addChild(imageSprite);
+      maskContainerRef.current.addChild(layer);
+    }
+
+    webglFilterRef.current = filter;
+    setRenderTexture(selectedImg, renderTextureRef.current);
+
+    appRef.current.renderer.render({
+      container: fill,
+      target: renderTexture,
+      clear: false,
+    });
+  }
+
   async function loadImage() {
     if (!appRef.current) {
       return;
@@ -133,7 +232,10 @@ export default function WebGlComponent() {
       appRef.current.stage.addChild(hoverGraph);
 
       const brush = new Graphics();
-      maskContainer.addChild(brush);
+
+      if (!appRef.current.stage.getChildByLabel("maskContainer"))
+        appRef.current.stage.addChild(maskContainer);
+
       maskContainerRef.current = maskContainer;
 
       brushRef.current = brush;
@@ -148,6 +250,7 @@ export default function WebGlComponent() {
       updateLayout();
       applyFilters();
       setSelectLayer(null);
+      createFirstLayer(5000, 5000);
     };
 
     if (sessionData.length > 0 && sessionData[selectedImg].blob)
@@ -504,11 +607,15 @@ export default function WebGlComponent() {
           const sprite = rt.sprite;
 
           if (sprite && appRef.current && imageSprite && spriteRef.current) {
-            sprite.height =  (Number(appRef.current.canvas.style.height.replace("px", "")) ?? 0);
-            sprite.width =  (Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0);
+            sprite.height =
+              Number(appRef.current.canvas.style.height.replace("px", "")) ?? 0;
+            sprite.width =
+              Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0;
 
-            imageSprite.height = (Number(appRef.current.canvas.style.height.replace("px", "")) ?? 0);
-            imageSprite.width = (Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0);
+            imageSprite.height =
+              Number(appRef.current.canvas.style.height.replace("px", "")) ?? 0;
+            imageSprite.width =
+              Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0;
 
             sprite.anchor = 0;
             imageSprite.anchor = 0;

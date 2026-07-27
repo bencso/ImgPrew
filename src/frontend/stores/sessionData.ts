@@ -113,6 +113,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           haldSprite: haldSprite,
           masks: [],
           renderTextures: [],
+          renderTexture: null,
           filter: filter,
           filters: filters,
           sprite: null,
@@ -154,6 +155,18 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           return {
             ...image,
             renderTextures: [...prevTextures, currentText],
+          };
+        }),
+      }));
+    },
+    setRenderTexture: (id: number, renderTexture: RenderTexture) => {
+      set((state) => ({
+        sessionData: state.sessionData.map((image) => {
+          if (image.id !== id) return image;
+
+          return {
+            ...image,
+            renderTexture: renderTexture,
           };
         }),
       }));
