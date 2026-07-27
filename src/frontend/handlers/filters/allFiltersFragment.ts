@@ -58,7 +58,7 @@ export const allFiltersFragment = `#version 300 es
     }
 
     void main() {
-    vec4 color = texture(prev_result, vTextureCoord);
+    vec4 color = texture(uTexture, vTextureCoord);
 
     vec3 rgb = color.rgb;
 
@@ -74,7 +74,7 @@ export const allFiltersFragment = `#version 300 es
     vec4 current = vec4(rgb, color.a);
 
     vec4 previous = texture(prev_result, vTextureCoord);
-    float layer_mask_float = texture(layer_mask, vTextureCoord).r;
+    float layer_mask_float = texture(layer_mask, vTextureCoord).a;
 
     finalColor = mix(previous, current, layer_mask_float);
     }

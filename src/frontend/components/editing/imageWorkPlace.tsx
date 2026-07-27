@@ -27,7 +27,8 @@ export default function ImageWorkPlace() {
     maskContainerRef,
     maskSharpness,
     selectedLayer,
-    spriteRef
+    spriteRef,
+    webglFilterRef
   } = useWorkSession();
 
   const { setCropBox, setTextPosition, setTextRelativePosition } =
@@ -43,6 +44,7 @@ export default function ImageWorkPlace() {
   const lastY = useRef<number | null>(null);
 
   const box = image?.box;
+  const renderTextures = image?.renderTextures;
   const expandMode = image?.expandMode;
   const copyrightImage = image?.copyrightImage;
   const texts = image?.texts ?? [];
@@ -113,6 +115,8 @@ export default function ImageWorkPlace() {
     selectedLayer,
     scale: cropboxScale,
     spriteRef,
+    webglFilterRef,
+    renderTextures
   });
 
   const canvasH = canvasRef.current?.clientHeight ?? 1080;

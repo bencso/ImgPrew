@@ -42,7 +42,7 @@ export default function WebGlComponent() {
     setSelectLayer,
     webglFilterRef,
   } = useWorkSession();
-  const { sessionData, setImageSize,setRenderTexture } = useSessionStore();
+  const { sessionData, setImageSize,setRenderTexture, setFilter } = useSessionStore();
 
   const filtersRef = useRef<Container | null>(null);
 
@@ -169,8 +169,8 @@ export default function WebGlComponent() {
       },
       resources: {
         filterUniforms: filterUniforms,
-        layer_mask: renderTexture.source,
-        prev_result: textureRef.current.source,
+        layer_mask: renderTextureRef.current.source,
+        prev_result: imageSprite.texture.source,
       },
     });
 
@@ -182,6 +182,7 @@ export default function WebGlComponent() {
 
     webglFilterRef.current = filter;
     setRenderTexture(selectedImg, renderTextureRef.current);
+    setFilter(selectedImg, filter);
 
     appRef.current.renderer.render({
       container: fill,
@@ -234,7 +235,7 @@ export default function WebGlComponent() {
       const brush = new Graphics();
 
       if (!appRef.current.stage.getChildByLabel("maskContainer"))
-        appRef.current.stage.addChild(maskContainer);
+        appRef.current.stage.addChildAt(maskContainer,0);
 
       maskContainerRef.current = maskContainer;
 

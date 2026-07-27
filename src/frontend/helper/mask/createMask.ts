@@ -4,6 +4,7 @@ import {
   Container,
   ContainerChild,
   FillGradient,
+  Filter,
   Graphics,
   Renderer,
   RenderTexture,
@@ -11,6 +12,7 @@ import {
 } from "pixi.js";
 import { Dispatch, RefObject, SetStateAction, useEffect } from "react";
 import { drawLine } from "./drawLine";
+import { MasksLayers } from "@/interfaces/interface";
 
 interface createMaskProps {
   appRef: RefObject<Application<Renderer> | null>;
@@ -30,6 +32,8 @@ interface createMaskProps {
   selectedLayer: number | null;
   scale: number;
   spriteRef: RefObject<Sprite | null>;
+  webglFilterRef: RefObject<Filter | null>;
+  renderTextures: MasksLayers[] | undefined;
 }
 
 export const createMask = (props: createMaskProps) => {
@@ -39,6 +43,8 @@ export const createMask = (props: createMaskProps) => {
   const maskErase = props.maskErase;
   const brushRef = props.brushRef.current;
   const renderTexture = props.renderTextureRef.current;
+  const renderTextures = props.renderTextures;
+  const webglFilterRef = props.webglFilterRef.current;
   const sharpness = props.sharpness ?? 0;
   const selectedLayer = props.selectedLayer ?? null;
   const scale = props.scale ?? 1;

@@ -222,6 +222,7 @@ export interface SessionStore {
     captionSamples?: string[] | undefined,
   ) => void;
   setRenderTexture: (id: number, renderTexture: RenderTexture) => void;
+   setFilter: (id: number, filter: Filter) => void;
   //#endregion
 
   //#region LAYER

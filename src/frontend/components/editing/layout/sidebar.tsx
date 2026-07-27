@@ -133,7 +133,6 @@ const sidebarElements = (
           },
           onChange: (e: SliderValueChangeDetails) => {
             uniforms.brightness_input = Number(e.value) / 100.0;
-            console.log(uniforms);
           },
           clearFunc: () => {
             uniforms.brightness_input = 0;

@@ -121,6 +121,7 @@ const LayersAccordion = () => {
       height: size?.height,
       width: size?.width,
     });
+
     const outputSprite = new Sprite(renderTexture);
 
     const imageSprite = new Sprite(textureRef.current);
