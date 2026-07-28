@@ -102,6 +102,7 @@ const LayersAccordion = () => {
     selectedLayerRef,
     webglFilterRef,
     hoverMaskGraphRef,
+    spriteRef,
   } = useWorkSession();
 
   const image = sessionData.find((i) => i.id == selectedImg);
@@ -163,12 +164,29 @@ const LayersAccordion = () => {
       vibrance_input: { value: filters.vibrance / 100.0, type: "f32" },
     });
 
+    //TODO: Márcsak azt kéne megoldani, hogy itt lerendelni a sprite-ot egy renderTextureban, majd minden uniforms változtatásnál le kell futtatni az összes layerre a rendert és az uniformson keresztüli átadást az új layerről
+    /*
+    Valahogy igy:
+    const rtA = RenderTexture.create(...);
+
+    let previous = rtA;
+    let current = rtB;
+
+    for (const layer of layers) {
+        filter.uniforms.prev_result = previous;
+        filter.uniforms.layer_mask = layer.maskTexture;
+
+        renderer.render(layer.sprite, {
+            renderTexture: current
+        });
+
+        [previous, current] = [current, previous];
+    }
+    */
     const prevLayer =
       index > 0
         ? renderTextures?.find((rt) => rt.id === index - 1)?.mask.source
-        : image &&
-          image.renderTexture &&
-          (image.renderTexture as RenderTexture).source;
+        : spriteRef.current;
 
     const filter = Filter.from({
       gl: {
@@ -187,6 +205,7 @@ const LayersAccordion = () => {
       layer.addChild(imageSprite);
 
       maskContainerRef.current.addChild(layer);
+      maskContainerRef.current.zIndex = 10000;
 
       const hover = appRef.current.stage.getChildByLabel(
         hoverMaskGraphRef.current.label,

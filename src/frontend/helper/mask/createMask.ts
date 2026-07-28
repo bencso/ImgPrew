@@ -59,7 +59,7 @@ export const createMask = (props: createMaskProps) => {
     colorStops: [
       { offset: 0, color: "rgba(255,255,255,1)" },
       { offset: sharpness, color: "#fff" },
-      { offset: 1, color: "rgba(255,0,0,0)" },
+      { offset: 1, color: "rgba(255,255,255,0)" },
     ],
     textureSpace: "local",
   });

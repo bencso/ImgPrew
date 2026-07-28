@@ -116,7 +116,7 @@ export default function ImageWorkPlace() {
     scale: cropboxScale,
     spriteRef,
     webglFilterRef,
-    renderTextures
+    renderTextures,
   });
 
   const canvasH = canvasRef.current?.clientHeight ?? 1080;
