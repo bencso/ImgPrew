@@ -27,7 +27,7 @@ interface createMaskProps {
   maskErase: boolean;
   maskContainer: Container<ContainerChild> | null;
   brushRef: RefObject<Graphics | null>;
-  renderTextureRef: RefObject<RenderTexture | null>;
+  maskTextureRef: RefObject<RenderTexture | null>;
   sharpness: number;
   selectedLayer: number | null;
   scale: number;
@@ -42,9 +42,7 @@ export const createMask = (props: createMaskProps) => {
   const selectedImg = props.selectedImg;
   const maskErase = props.maskErase;
   const brushRef = props.brushRef.current;
-  const renderTexture = props.renderTextureRef.current;
-  const renderTextures = props.renderTextures;
-  const webglFilterRef = props.webglFilterRef.current;
+  const renderTexture = props.maskTextureRef.current;
   const sharpness = props.sharpness ?? 0;
   const selectedLayer = props.selectedLayer ?? null;
   const scale = props.scale ?? 1;

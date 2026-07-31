@@ -84,7 +84,7 @@ export default function ExportDrawer() {
         for (const imageMask of imageMasks) {
           masksImages.push(
             await appRef.current.renderer.extract.base64({
-              target: imageMask.sprite,
+              target: imageMask.resultTexture,
               format: "png",
               resolution: 1,
             }),
@@ -285,7 +285,7 @@ export default function ExportDrawer() {
     if (masksImages.length > 0) {
       for (let index = 0; index < masksImages.length; index++) {
         const mask = masksImages[index];
-        console.log(mask);
+
         const maskFile = new File([mask], `mask_${index}`);
         formData.append(`masks_files`, maskFile, `mask_${index}.png`);
       }

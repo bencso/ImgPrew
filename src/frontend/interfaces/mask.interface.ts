@@ -17,7 +17,6 @@ export interface MasksProps {
 }
 
 export interface RenderLayer {
-  imageSprite: Sprite;
   maskSprite: Sprite;
   maskTexture: RenderTexture;
   filter: Filter;

@@ -35,14 +35,17 @@ export default function WebGlComponent() {
     overlayRef,
     canvasRef,
     brushRef,
-    renderTextureRef,
+    maskTextureRef,
     hoverMaskGraphRef,
     maskContainerRef,
     selectedLayerRef,
     setSelectLayer,
     webglFilterRef,
+    renderSpriteRef,
+    isDrawing
   } = useWorkSession();
-  const { sessionData, setImageSize,setRenderTexture, setFilter } = useSessionStore();
+  const { sessionData, setImageSize, setRenderTexture, setFilter } =
+    useSessionStore();
 
   const filtersRef = useRef<Container | null>(null);
 
@@ -106,28 +109,17 @@ export default function WebGlComponent() {
     const layer = new Container();
     layer.label = `defaultImageLayer`;
 
-    const renderTexture = RenderTexture.create({
+    const maskTexture = RenderTexture.create({
       height: h,
       width: w,
     });
-    const outputSprite = new Sprite(renderTexture);
-
-    const imageSprite = new Sprite(textureRef.current);
-    maskContainerRef.current.addChild(imageSprite);
-    imageSprite.anchor.set(0.5);
+    maskTextureRef.current = maskTexture;
 
     const fill = new Graphics();
-
     fill.rect(0, 0, w, h).fill({
       color: "#fff",
     });
-
     layer.addChild(fill);
-
-    selectedLayerRef.current = imageSprite;
-    renderTextureRef.current = renderTexture;
-
-    setSelectLayer(null);
 
     const channelOffset = getChannelOffsets(filters);
 
@@ -169,24 +161,18 @@ export default function WebGlComponent() {
       },
       resources: {
         filterUniforms: filterUniforms,
-        layer_mask: renderTextureRef.current.source,
-        prev_result: imageSprite.texture.source,
+        layer_mask: maskTextureRef.current.source,
       },
     });
-
-    if (appRef.current) {
-      layer.addChild(outputSprite);
-      layer.addChild(imageSprite);
-      maskContainerRef.current.addChild(layer);
-    }
-
     webglFilterRef.current = filter;
-    setRenderTexture(selectedImg, renderTextureRef.current);
+
+    setRenderTexture(selectedImg, maskTextureRef.current);
     setFilter(selectedImg, filter);
+    setSelectLayer(null);
 
     appRef.current.renderer.render({
       container: fill,
-      target: renderTexture,
+      target: maskTexture,
       clear: false,
     });
   }
@@ -207,16 +193,17 @@ export default function WebGlComponent() {
       const hoverGraph = new Graphics();
 
       textureRef.current = texture;
-      const sprite = new Sprite(texture);
+      renderSpriteRef.current.texture = texture;
 
-      sprite.anchor.set(0.5);
+      const renderSprite = new Sprite(texture);
+      renderSprite.anchor.set(0.5);
 
       const prevStage = appRef.current.stage.children.filter(
-        (fs) => fs !== sprite,
+        (fs) => fs !== renderSprite,
       )[0];
 
       if (prevStage) appRef.current.stage.removeChild(prevStage);
-      appRef.current.stage.addChild(sprite);
+      appRef.current.stage.addChild(renderSprite);
       appRef.current.stage.addChild(overlay);
 
       const maskContainer = new Container();
@@ -228,20 +215,16 @@ export default function WebGlComponent() {
 
       if (!image) return;
 
-      renderTextureRef.current = image.renderTexture;
+      maskTextureRef.current = image.renderTexture;
 
       appRef.current.stage.addChild(hoverGraph);
 
       const brush = new Graphics();
 
-      if (!appRef.current.stage.getChildByLabel("maskContainer"))
-        appRef.current.stage.addChildAt(maskContainer,0);
-
       maskContainerRef.current = maskContainer;
-
       brushRef.current = brush;
 
-      spriteRef.current = sprite;
+      spriteRef.current = renderSprite;
       overlayRef.current = overlay;
       hoverMaskGraphRef.current = hoverGraph;
 
@@ -302,33 +285,45 @@ export default function WebGlComponent() {
     if (!appRef.current) return;
 
     const imageFilter = image?.filter;
+    let imageMaskLayers = image?.renderTextures;
 
-    if (spriteRef.current && imageFilter) {
+    if (spriteRef.current && imageFilter && haldSprite) {
       spriteRef.current.filters = lutFilter
         ? [lutFilter, imageFilter]
         : [imageFilter];
-    }
-
-    if (haldSprite && imageFilter) {
       haldSprite.filters = lutFilter ? [lutFilter, imageFilter] : [imageFilter];
     }
 
-    let imageMaskLayers = image?.renderTextures;
-    imageMaskLayers?.forEach((layer) => {
-      const layerFilter = layer?.filter;
+    if (
+      image &&
+      image.renderTextures &&
+      image.renderTextures.length > 0 &&
+      spriteRef.current
+    ) {
+      let input = textureRef.current ?? spriteRef.current.texture;
 
-      if (layer.imageSprite && layerFilter) {
-        layer.imageSprite.filters = lutFilter
-          ? [lutFilter, layerFilter]
-          : [layerFilter];
-      }
+      imageMaskLayers?.forEach((layer) => {
+        if (spriteRef.current) {
+          renderSpriteRef.current.texture = input;
 
-      if (layer.haldSprite && layerFilter) {
-        layer.haldSprite.filters = lutFilter
-          ? [lutFilter, layerFilter]
-          : [layerFilter];
-      }
-    });
+          if (layer.filter && appRef.current) {
+            renderSpriteRef.current.filters = [layer.filter];
+            layer.filter.resources.layer_mask = layer.maskTexture.source;
+
+            appRef.current.renderer.render({
+              container: renderSpriteRef.current,
+              target: layer.resultTexture,
+              clear: true,
+            });
+
+            input = layer.resultTexture;
+          }
+        }
+      });
+
+      spriteRef.current.texture = input;
+      spriteRef.current.filters = [];
+    }
   }
 
   const updateLayout = () => {
@@ -602,34 +597,6 @@ export default function WebGlComponent() {
         });
       }
 
-      if (image?.renderTextures) {
-        image.renderTextures.forEach((rt) => {
-          const imageSprite = rt.imageSprite;
-          const sprite = rt.sprite;
-
-          if (sprite && appRef.current && imageSprite && spriteRef.current) {
-            sprite.height =
-              Number(appRef.current.canvas.style.height.replace("px", "")) ?? 0;
-            sprite.width =
-              Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0;
-
-            imageSprite.height =
-              Number(appRef.current.canvas.style.height.replace("px", "")) ?? 0;
-            imageSprite.width =
-              Number(appRef.current.canvas.style.width.replace("px", "")) ?? 0;
-
-            sprite.anchor = 0;
-            imageSprite.anchor = 0;
-
-            sprite.x = 0;
-            sprite.y = 0;
-
-            imageSprite.x = 0;
-            imageSprite.y = 0;
-          }
-        });
-      }
-
       applyFilters();
     }
   };
@@ -648,6 +615,12 @@ export default function WebGlComponent() {
     lutFilter,
     layers,
   ]);
+
+  useEffect(()=>{
+    applyFilters();
+  },[
+    isDrawing
+  ])
 
   useEffect(() => {
     const handleResize = () => {

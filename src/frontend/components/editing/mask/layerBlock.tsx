@@ -93,16 +93,14 @@ const LayersAccordion = () => {
   const { sessionData, addNewRenderTexture, deleteLayer } = useSessionStore();
   const {
     appRef,
-    renderTextureRef,
+    maskTextureRef,
     selectedImg,
     selectedLayer,
     setSelectLayer,
     textureRef,
     maskContainerRef,
-    selectedLayerRef,
     webglFilterRef,
     hoverMaskGraphRef,
-    spriteRef,
   } = useWorkSession();
 
   const image = sessionData.find((i) => i.id == selectedImg);
@@ -112,26 +110,24 @@ const LayersAccordion = () => {
     if (!textureRef.current || !maskContainerRef.current) return;
 
     let index = renderTextures?.length ?? 0;
+    const channelOffset = getChannelOffsets(filters);
 
     const layer = new Container();
     layer.label = `layer_${index}`;
 
     const size = image?.dimesions;
+    const renderSprite = new Sprite();
 
-    const renderTexture = RenderTexture.create({
-      height: size?.height,
+    const maskTexture = RenderTexture.create({
       width: size?.width,
+      height: size?.height,
     });
+    maskTextureRef.current = maskTexture;
 
-    const outputSprite = new Sprite(renderTexture);
-
-    const imageSprite = new Sprite(textureRef.current);
-    imageSprite.anchor.set(0.5);
-
-    selectedLayerRef.current = imageSprite;
-    renderTextureRef.current = renderTexture;
-
-    const channelOffset = getChannelOffsets(filters);
+    const resultTexture = RenderTexture.create({
+      width: size?.width,
+      height: size?.height,
+    });
 
     const filterUniforms = new UniformGroup({
       exposure_input: { value: filters.exposure / 5.0, type: "f32" },
@@ -164,30 +160,6 @@ const LayersAccordion = () => {
       vibrance_input: { value: filters.vibrance / 100.0, type: "f32" },
     });
 
-    //TODO: Márcsak azt kéne megoldani, hogy itt lerendelni a sprite-ot egy renderTextureban, majd minden uniforms változtatásnál le kell futtatni az összes layerre a rendert és az uniformson keresztüli átadást az új layerről
-    /*
-    Valahogy igy:
-    const rtA = RenderTexture.create(...);
-
-    let previous = rtA;
-    let current = rtB;
-
-    for (const layer of layers) {
-        filter.uniforms.prev_result = previous;
-        filter.uniforms.layer_mask = layer.maskTexture;
-
-        renderer.render(layer.sprite, {
-            renderTexture: current
-        });
-
-        [previous, current] = [current, previous];
-    }
-    */
-    const prevLayer =
-      index > 0
-        ? renderTextures?.find((rt) => rt.id === index - 1)?.mask.source
-        : spriteRef.current;
-
     const filter = Filter.from({
       gl: {
         fragment: allFiltersFragment,
@@ -195,16 +167,11 @@ const LayersAccordion = () => {
       },
       resources: {
         filterUniforms: filterUniforms,
-        layer_mask: renderTexture.source,
-        prev_result: prevLayer,
+        layer_mask: maskTexture.source,
       },
     });
 
     if (appRef.current) {
-      layer.addChild(outputSprite);
-      layer.addChild(imageSprite);
-
-      maskContainerRef.current.addChild(layer);
       maskContainerRef.current.zIndex = 10000;
 
       const hover = appRef.current.stage.getChildByLabel(
@@ -221,10 +188,10 @@ const LayersAccordion = () => {
 
     addNewRenderTexture(
       selectedImg,
-      renderTexture,
-      outputSprite,
-      imageSprite,
+      maskTexture,
       filter,
+      resultTexture,
+      renderSprite,
     );
 
     setSelectLayer(index);
@@ -232,7 +199,7 @@ const LayersAccordion = () => {
   }
 
   const activeLayer = renderTextures?.find(
-    (r) => r.mask == renderTextureRef.current,
+    (r) => r.maskTexture == maskTextureRef.current,
   );
 
   useEffect(() => {
@@ -242,8 +209,7 @@ const LayersAccordion = () => {
       const renderText =
         renderTextures && renderTextures?.find((i) => i.id === selectedLayer);
       if (renderText) {
-        renderTextureRef.current = renderText.mask;
-
+        maskTextureRef.current = renderText.maskTexture;
         webglFilterRef.current = renderText.filter;
       }
     }
@@ -306,10 +272,7 @@ const LayersAccordion = () => {
 
                           if (!appRef.current) return;
                           appRef.current.stage.removeChild(
-                            selectedLayer?.imageSprite,
-                          );
-                          appRef.current.stage.removeChild(
-                            selectedLayer?.sprite,
+                            selectedLayer?.resultTexture,
                           );
 
                           setSelectLayer(null);

@@ -50,7 +50,6 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         const haldTexture = Texture.from(hald);
         const haldSprite = new Sprite(haldTexture);
 
-
         const sessionData = {
           id: nextId,
           blob: blob,
@@ -83,10 +82,10 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       }),
     addNewRenderTexture: (
       id: number,
-      renderTexture: RenderTexture,
-      outputSprite: Sprite,
-      imageSprite: Sprite,
-      filter?: Filter,
+      maskTexture: RenderTexture,
+      filter: Filter,
+      resultTexture: RenderTexture,
+      renderSprite: any,
     ) => {
       set((state) => ({
         sessionData: state.sessionData.map((image) => {
@@ -101,10 +100,10 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           const prevTextures = image.renderTextures ?? [];
           const currentText = {
             id: prevTextures.length,
-            mask: renderTexture,
-            sprite: outputSprite,
-            imageSprite,
+            maskTexture,
+            resultTexture,
             haldSprite,
+            renderSprite,
             filter: null,
           } as MasksLayers;
 

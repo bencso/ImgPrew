@@ -38,7 +38,6 @@ export const allFiltersFragment = `#version 300 es
     
     out vec4 finalColor;
 
-    uniform sampler2D prev_result;
     uniform sampler2D layer_mask;
 
     vec3 rgbToHsv(vec3 color) {
@@ -58,9 +57,9 @@ export const allFiltersFragment = `#version 300 es
     }
 
     void main() {
-    vec4 color = texture(uTexture, vTextureCoord);
+    vec4 current = texture(uTexture, vTextureCoord);
 
-    vec3 rgb = color.rgb;
+    vec3 rgb = current.rgb;
 
     ${temperatureFragment}
     ${channelMixerFragment}
@@ -71,11 +70,10 @@ export const allFiltersFragment = `#version 300 es
 
     rgb = clamp(rgb, 0.0, 1.0);
 
-    vec4 current = vec4(rgb, color.a);
+    vec4 filtered = vec4(rgb, current.a);
 
-    vec4 previous = texture(prev_result, vTextureCoord);
-    float layer_mask_float = texture(layer_mask, vTextureCoord).a;
+    float lm = texture(layer_mask, vTextureCoord).a;
 
-    finalColor = mix(previous, current, layer_mask_float);
+    finalColor = mix(current, filtered, lm);
     }
 `;

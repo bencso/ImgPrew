@@ -23,12 +23,14 @@ export default function ImageWorkPlace() {
     maskBrushSize,
     maskErase,
     brushRef,
-    renderTextureRef,
+    maskTextureRef,
     maskContainerRef,
     maskSharpness,
     selectedLayer,
     spriteRef,
-    webglFilterRef
+    webglFilterRef,
+    isDrawing,
+    setIsDrawing
   } = useWorkSession();
 
   const { setCropBox, setTextPosition, setTextRelativePosition } =
@@ -39,7 +41,6 @@ export default function ImageWorkPlace() {
   );
 
   const [draggableText, setDraggable] = useState<string | null>(null);
-  const [isDrawing, setIsDrawing] = useState<boolean>(false);
   const lastX = useRef<number | null>(null);
   const lastY = useRef<number | null>(null);
 
@@ -110,7 +111,7 @@ export default function ImageWorkPlace() {
     maskErase,
     maskContainer,
     brushRef,
-    renderTextureRef,
+    maskTextureRef,
     sharpness: maskSharpness,
     selectedLayer,
     scale: cropboxScale,

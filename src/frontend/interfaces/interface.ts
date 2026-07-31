@@ -111,10 +111,10 @@ export interface ExportSettings {
 //#region MasksLayers
 export interface MasksLayers {
   id: number;
-  mask: RenderTexture;
-  sprite: Sprite | any;
-  imageSprite: Sprite | any;
+  maskTexture: RenderTexture;
+  resultTexture: RenderTexture | any;
   haldSprite: Sprite | any;
+  renderSprite: Sprite | any;
   filter: Filter | null;
   filters?: FilterProps;
 }
@@ -390,10 +390,10 @@ export interface SessionStore {
   //#region Masks
   addNewRenderTexture: (
     id: number,
-    renderTexture: RenderTexture,
-    outputSprite: Sprite,
-    imageSprite: Sprite,
-    filter?: Filter,
+    maskTexture: RenderTexture,
+    filter: Filter,
+    resultTexture: any,
+    renderSprite: Sprite
   ) => void;
   //#endregion
 }
@@ -497,7 +497,7 @@ export interface WorkSessionContextProps {
   setMaskEraseMode: Dispatch<SetStateAction<boolean>>;
   maskBrushSize: number;
   setMaskBrushSize: Dispatch<SetStateAction<number>>;
-  renderTextureRef: RefObject<RenderTexture | null>;
+  maskTextureRef: RefObject<RenderTexture | null>;
   brushRef: RefObject<Graphics | null>;
   maskContainerRef: RefObject<Container<ContainerChild> | null>;
   maskSharpness: number;
@@ -505,6 +505,9 @@ export interface WorkSessionContextProps {
   selectedLayer: number | null;
   setSelectLayer: Dispatch<SetStateAction<number | null>>;
   selectedLayerRef: RefObject<Sprite | null>;
+  renderSpriteRef: RefObject<Sprite>;
+  isDrawing: boolean;
+  setIsDrawing: Dispatch<SetStateAction<boolean>>;
 }
 //#endregion
 
