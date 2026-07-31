@@ -11,21 +11,12 @@ import {
   YPositions,
 } from "@/interfaces/interface";
 import { ColorMapFilter } from "pixi-filters";
-import {
-  defaultFilterVert,
-  Filter,
-  RenderTexture,
-  Sprite,
-  Texture,
-  UniformGroup,
-} from "pixi.js";
+import { Filter, RenderTexture, Sprite, Texture } from "pixi.js";
 import { RefObject } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { immer } from "zustand/middleware/immer";
 import { createWithEqualityFn } from "zustand/traditional";
 import { getImageSize } from "@/helper/sizes/getImageSize";
-import { getChannelOffsets } from "@/helper/lut/getChannelOffset";
-import { allFiltersFragment } from "@/handlers/filters/allFiltersFragment";
 import { filters } from "@/interfaces/filters.interface";
 
 export const useSessionStore = createWithEqualityFn<SessionStore>()(
@@ -86,13 +77,13 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       filter: Filter,
       resultTexture: RenderTexture,
       renderSprite: any,
+      filterMask: Filter,
     ) => {
       set((state) => ({
         sessionData: state.sessionData.map((image) => {
           if (image.id !== id) return image;
 
           const hald = generateHald(64);
-
           if (hald instanceof HTMLCanvasElement !== true) return null;
           const haldTexture = Texture.from(hald);
           const haldSprite = new Sprite(haldTexture);
@@ -105,9 +96,13 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
             haldSprite,
             renderSprite,
             filter: null,
+            filterMask: null,
           } as MasksLayers;
 
           if (filter) currentText.filter = filter;
+          if (filterMask) currentText.filterMask = filterMask;
+
+          haldSprite.filters = filterMask;
 
           return {
             ...image,

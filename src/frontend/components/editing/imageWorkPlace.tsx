@@ -24,13 +24,14 @@ export default function ImageWorkPlace() {
     maskErase,
     brushRef,
     maskTextureRef,
-    maskContainerRef,
     maskSharpness,
     selectedLayer,
     spriteRef,
     webglFilterRef,
     isDrawing,
-    setIsDrawing
+    setIsDrawing,
+    renderSpriteRef,
+    textureRef,
   } = useWorkSession();
 
   const { setCropBox, setTextPosition, setTextRelativePosition } =
@@ -55,7 +56,6 @@ export default function ImageWorkPlace() {
   const imgH = image?.dimesions?.height ?? 1;
   const masks = image?.masks;
   const brushSize = maskBrushSize;
-  const maskContainer = maskContainerRef.current;
   const cropboxScale = Math.min(
     (canvasRef.current?.clientWidth ?? 0) / imgW,
     (canvasRef.current?.clientHeight ?? 0) / imgH,
@@ -109,7 +109,6 @@ export default function ImageWorkPlace() {
     isDrawing,
     setIsDrawing,
     maskErase,
-    maskContainer,
     brushRef,
     maskTextureRef,
     sharpness: maskSharpness,
@@ -118,6 +117,7 @@ export default function ImageWorkPlace() {
     spriteRef,
     webglFilterRef,
     renderTextures,
+    textureRef,
   });
 
   const canvasH = canvasRef.current?.clientHeight ?? 1080;

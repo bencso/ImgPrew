@@ -37,12 +37,11 @@ export default function WebGlComponent() {
     brushRef,
     maskTextureRef,
     hoverMaskGraphRef,
-    maskContainerRef,
     selectedLayerRef,
     setSelectLayer,
     webglFilterRef,
     renderSpriteRef,
-    isDrawing
+    selectedLayer,
   } = useWorkSession();
   const { sessionData, setImageSize, setRenderTexture, setFilter } =
     useSessionStore();
@@ -103,8 +102,7 @@ export default function WebGlComponent() {
   }, []);
 
   function createFirstLayer(w: number, h: number) {
-    if (!textureRef.current || !appRef.current || !maskContainerRef.current)
-      return;
+    if (!textureRef.current || !appRef.current) return;
 
     const layer = new Container();
     layer.label = `defaultImageLayer`;
@@ -190,6 +188,7 @@ export default function WebGlComponent() {
       const source = new ImageSource({ resource: img });
       const texture = new Texture({ source });
       const overlay = new Container();
+      overlay.label = "overlayContainer";
       const hoverGraph = new Graphics();
 
       textureRef.current = texture;
@@ -204,10 +203,8 @@ export default function WebGlComponent() {
 
       if (prevStage) appRef.current.stage.removeChild(prevStage);
       appRef.current.stage.addChild(renderSprite);
-      appRef.current.stage.addChild(overlay);
-
-      const maskContainer = new Container();
-      maskContainer.label = "maskContainer";
+      if (!appRef.current.stage.getChildByLabel("overlayContainer"))
+        appRef.current.stage.addChild(overlay);
 
       image = useSessionStore
         .getState()
@@ -221,7 +218,6 @@ export default function WebGlComponent() {
 
       const brush = new Graphics();
 
-      maskContainerRef.current = maskContainer;
       brushRef.current = brush;
 
       spriteRef.current = renderSprite;
@@ -281,11 +277,10 @@ export default function WebGlComponent() {
     }
   }, [expandMode, cropSaved]);
 
-  function applyFilters() {
+  function applyFilters(startIndex = 0) {
     if (!appRef.current) return;
 
     const imageFilter = image?.filter;
-    let imageMaskLayers = image?.renderTextures;
 
     if (spriteRef.current && imageFilter && haldSprite) {
       spriteRef.current.filters = lutFilter
@@ -300,15 +295,23 @@ export default function WebGlComponent() {
       image.renderTextures.length > 0 &&
       spriteRef.current
     ) {
-      let input = textureRef.current ?? spriteRef.current.texture;
+      let input =
+        startIndex === 0
+          ? textureRef.current
+          : image.renderTextures[startIndex - 1].resultTexture;
 
-      imageMaskLayers?.forEach((layer) => {
+      const layers = image.renderTextures;
+
+      for (let i = startIndex; i < layers.length; i++) {
+        const layer = image.renderTextures[i];
+
         if (spriteRef.current) {
           renderSpriteRef.current.texture = input;
 
           if (layer.filter && appRef.current) {
-            renderSpriteRef.current.filters = [layer.filter];
+            layer.haldSprite.filters = [layer.filterMask];
             layer.filter.resources.layer_mask = layer.maskTexture.source;
+            renderSpriteRef.current.filters = [layer.filter];
 
             appRef.current.renderer.render({
               container: renderSpriteRef.current,
@@ -319,7 +322,7 @@ export default function WebGlComponent() {
             input = layer.resultTexture;
           }
         }
-      });
+      }
 
       spriteRef.current.texture = input;
       spriteRef.current.filters = [];
@@ -616,11 +619,7 @@ export default function WebGlComponent() {
     layers,
   ]);
 
-  useEffect(()=>{
-    applyFilters();
-  },[
-    isDrawing
-  ])
+  applyFilters();
 
   useEffect(() => {
     const handleResize = () => {

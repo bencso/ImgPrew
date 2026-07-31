@@ -55,7 +55,6 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
   const [selectedLayer, setSelectLayer] = useState<number | null>(0);
   const maskTextureRef = useRef<RenderTexture | null>(null);
   const brushRef = useRef<Graphics | null>(null);
-  const maskContainerRef = useRef<Container | null>(null);
   const selectedLayerRef = useRef<Sprite | null>(null);
 
   const [maskErase, setMaskEraseMode] = useState<boolean>(false);
@@ -115,7 +114,6 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       setMaskBrushSize,
       maskTextureRef,
       brushRef,
-      maskContainerRef,
       maskSharpness,
       setMaskSharpness,
       selectedLayer,
@@ -151,7 +149,6 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       maskBrushSize,
       maskTextureRef,
       brushRef,
-      maskContainerRef,
       maskSharpness,
       selectedLayer,
       selectedLayerRef,

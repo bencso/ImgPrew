@@ -1,4 +1,4 @@
-import { MasksProps, RenderLayer } from "@/interfaces/mask.interface";
+import { MasksProps } from "@/interfaces/mask.interface";
 import {
   Application,
   Container,
@@ -9,6 +9,8 @@ import {
   Renderer,
   RenderTexture,
   Sprite,
+  Texture,
+  TextureSource,
 } from "pixi.js";
 import { Dispatch, RefObject, SetStateAction, useEffect } from "react";
 import { drawLine } from "./drawLine";
@@ -25,7 +27,6 @@ interface createMaskProps {
   masks: MasksProps[] | undefined;
   selectedImg: number;
   maskErase: boolean;
-  maskContainer: Container<ContainerChild> | null;
   brushRef: RefObject<Graphics | null>;
   maskTextureRef: RefObject<RenderTexture | null>;
   sharpness: number;
@@ -34,6 +35,7 @@ interface createMaskProps {
   spriteRef: RefObject<Sprite | null>;
   webglFilterRef: RefObject<Filter | null>;
   renderTextures: MasksLayers[] | undefined;
+  textureRef: RefObject<Texture<TextureSource<any>> | null>;
 }
 
 export const createMask = (props: createMaskProps) => {
@@ -47,6 +49,8 @@ export const createMask = (props: createMaskProps) => {
   const selectedLayer = props.selectedLayer ?? null;
   const scale = props.scale ?? 1;
   const brushSize = props.brushSize;
+  const renderTextures = props.renderTextures;
+  const layer = renderTextures?.find((rt) => rt.id === selectedLayer);
 
   const gradient = new FillGradient({
     type: "radial",
@@ -78,6 +82,9 @@ export const createMask = (props: createMaskProps) => {
     }
 
     if (appRef.current && renderTexture && brushRef) {
+      const renderTexture =
+        renderTextures && renderTextures[selectedLayer].maskTexture;
+
       appRef.current.renderer.render({
         container: brushRef,
         target: renderTexture,
@@ -109,6 +116,9 @@ export const createMask = (props: createMaskProps) => {
 
     props.lastX.current = x;
     props.lastY.current = y;
+
+    if (layer && layer.filter)
+      layer.filter.resources.layer_mask = props.maskTextureRef.current?.source;
   });
 
   appRef.current?.stage.on("pointerup", () => {

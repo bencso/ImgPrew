@@ -117,6 +117,7 @@ export interface MasksLayers {
   renderSprite: Sprite | any;
   filter: Filter | null;
   filters?: FilterProps;
+  filterMask: Filter | null;
 }
 //#endregion
 
@@ -393,7 +394,8 @@ export interface SessionStore {
     maskTexture: RenderTexture,
     filter: Filter,
     resultTexture: any,
-    renderSprite: Sprite
+    renderSprite: Sprite,
+    filterMask: Filter,
   ) => void;
   //#endregion
 }
@@ -499,7 +501,6 @@ export interface WorkSessionContextProps {
   setMaskBrushSize: Dispatch<SetStateAction<number>>;
   maskTextureRef: RefObject<RenderTexture | null>;
   brushRef: RefObject<Graphics | null>;
-  maskContainerRef: RefObject<Container<ContainerChild> | null>;
   maskSharpness: number;
   setMaskSharpness: Dispatch<SetStateAction<number>>;
   selectedLayer: number | null;

@@ -23,6 +23,7 @@ import {
 import { allFiltersFragment } from "@/handlers/filters/allFiltersFragment";
 import { getChannelOffsets } from "@/helper/lut/getChannelOffset";
 import { filters } from "@/interfaces/filters.interface";
+import { maskFiltersFragment } from "@/handlers/filters/maskFiltersFragment";
 
 //#region SIDEBAR ITEM
 export const MaskLayerBlock = () => {
@@ -98,7 +99,6 @@ const LayersAccordion = () => {
     selectedLayer,
     setSelectLayer,
     textureRef,
-    maskContainerRef,
     webglFilterRef,
     hoverMaskGraphRef,
   } = useWorkSession();
@@ -107,7 +107,7 @@ const LayersAccordion = () => {
   const renderTextures = image?.renderTextures;
 
   function createNew() {
-    if (!textureRef.current || !maskContainerRef.current) return;
+    if (!textureRef.current) return;
 
     let index = renderTextures?.length ?? 0;
     const channelOffset = getChannelOffsets(filters);
@@ -171,9 +171,17 @@ const LayersAccordion = () => {
       },
     });
 
-    if (appRef.current) {
-      maskContainerRef.current.zIndex = 10000;
+     const filterMask = Filter.from({
+      gl: {
+        fragment: maskFiltersFragment,
+        vertex: defaultFilterVert,
+      },
+      resources: {
+        filterUniforms: filterUniforms,
+      },
+    });
 
+    if (appRef.current) {
       const hover = appRef.current.stage.getChildByLabel(
         hoverMaskGraphRef.current.label,
       );
@@ -192,6 +200,7 @@ const LayersAccordion = () => {
       filter,
       resultTexture,
       renderSprite,
+      filterMask
     );
 
     setSelectLayer(index);
