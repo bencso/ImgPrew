@@ -15,6 +15,7 @@ import {
   Container,
   defaultFilterVert,
   Filter,
+  Graphics,
   RenderTexture,
   Sprite,
   UniformGroup,
@@ -22,6 +23,7 @@ import {
 import { allFiltersFragment } from "@/handlers/filters/allFiltersFragment";
 import { getChannelOffsets } from "@/helper/lut/getChannelOffset";
 import { filters } from "@/interfaces/filters.interface";
+import { maskFiltersFragment } from "@/handlers/filters/maskFiltersFragment";
 
 //#region SIDEBAR ITEM
 export const MaskLayerBlock = () => {
@@ -92,13 +94,11 @@ const LayersAccordion = () => {
   const { sessionData, addNewRenderTexture, deleteLayer } = useSessionStore();
   const {
     appRef,
-    renderTextureRef,
+    maskTextureRef,
     selectedImg,
     selectedLayer,
     setSelectLayer,
     textureRef,
-    maskContainerRef,
-    selectedLayerRef,
     webglFilterRef,
     hoverMaskGraphRef,
   } = useWorkSession();
@@ -106,54 +106,28 @@ const LayersAccordion = () => {
   const image = sessionData.find((i) => i.id == selectedImg);
   const renderTextures = image?.renderTextures;
 
-// TODO: Layeres adjustment ötletem
-// Minden adjustment egy külön layer lesz.
-//
-// Layer 0 mindig létezik:
-// mask = teljesen fehér
-// settings = a global adjustment
-//
-// Layer 1..N:
-// mask = felhasználó által rajzolt maszk
-// settings = az adott layer adjustment
-//
-//
-// current = originalImage
-//filtered = applyAdjustments(current, layerSettings);
-//current = mix(current, filtered, layerMask);
-//
-// return current;
-//
-// Így minden layer ugyanazt a shadert használja,
-// csak a maszk és a filter beállításai változnak. 
   function createNew() {
-    if (!textureRef.current || !maskContainerRef.current) return;
+    if (!textureRef.current) return;
 
     let index = renderTextures?.length ?? 0;
+    const channelOffset = getChannelOffsets(filters);
 
     const layer = new Container();
     layer.label = `layer_${index}`;
 
-
     const size = image?.dimesions;
+    const renderSprite = new Sprite();
 
-    const renderTexture = RenderTexture.create({
-      height: size?.height,
+    const maskTexture = RenderTexture.create({
       width: size?.width,
+      height: size?.height,
     });
-    const outputSprite = new Sprite(renderTexture);
+    maskTextureRef.current = maskTexture;
 
-    const imageSprite = new Sprite(textureRef.current);
-    maskContainerRef.current.addChild(imageSprite);
-    imageSprite.anchor.set(0.5);
-    imageSprite.mask = outputSprite;
-
-    selectedLayerRef.current = imageSprite;
-    renderTextureRef.current = renderTexture;
-
-    setSelectLayer(null);
-
-    const channelOffset = getChannelOffsets(filters);
+    const resultTexture = RenderTexture.create({
+      width: size?.width,
+      height: size?.height,
+    });
 
     const filterUniforms = new UniformGroup({
       exposure_input: { value: filters.exposure / 5.0, type: "f32" },
@@ -193,17 +167,21 @@ const LayersAccordion = () => {
       },
       resources: {
         filterUniforms: filterUniforms,
+        layer_mask: maskTexture.source,
+      },
+    });
+
+     const filterMask = Filter.from({
+      gl: {
+        fragment: maskFiltersFragment,
+        vertex: defaultFilterVert,
+      },
+      resources: {
+        filterUniforms: filterUniforms,
       },
     });
 
     if (appRef.current) {
-      layer.addChild(outputSprite);
-      layer.addChild(imageSprite);
-      maskContainerRef.current.addChild(layer);
-
-      if (!appRef.current.stage.getChildByLabel("maskContainer"))
-        appRef.current.stage.addChild(maskContainerRef.current);
-
       const hover = appRef.current.stage.getChildByLabel(
         hoverMaskGraphRef.current.label,
       );
@@ -218,10 +196,11 @@ const LayersAccordion = () => {
 
     addNewRenderTexture(
       selectedImg,
-      renderTexture,
-      outputSprite,
-      imageSprite,
+      maskTexture,
       filter,
+      resultTexture,
+      renderSprite,
+      filterMask
     );
 
     setSelectLayer(index);
@@ -229,7 +208,7 @@ const LayersAccordion = () => {
   }
 
   const activeLayer = renderTextures?.find(
-    (r) => r.mask == renderTextureRef.current,
+    (r) => r.maskTexture == maskTextureRef.current,
   );
 
   useEffect(() => {
@@ -239,8 +218,7 @@ const LayersAccordion = () => {
       const renderText =
         renderTextures && renderTextures?.find((i) => i.id === selectedLayer);
       if (renderText) {
-        renderTextureRef.current = renderText.mask;
-
+        maskTextureRef.current = renderText.maskTexture;
         webglFilterRef.current = renderText.filter;
       }
     }
@@ -303,10 +281,7 @@ const LayersAccordion = () => {
 
                           if (!appRef.current) return;
                           appRef.current.stage.removeChild(
-                            selectedLayer?.imageSprite,
-                          );
-                          appRef.current.stage.removeChild(
-                            selectedLayer?.sprite,
+                            selectedLayer?.resultTexture,
                           );
 
                           setSelectLayer(null);

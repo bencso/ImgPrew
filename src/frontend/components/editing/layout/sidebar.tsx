@@ -71,6 +71,7 @@ const sidebarElements = (
 ) => {
   const activeLayerObj =
     selectedLayer !== null ? image?.renderTextures?.[selectedLayer] : null;
+
   const activeFilter = activeLayerObj
     ? activeLayerObj.filter
     : webglFilterRef?.current;
@@ -80,7 +81,7 @@ const sidebarElements = (
   return [
     {
       function: "Kép szöveg",
-      hide: image.captionSamples.length <= 0,
+      hide: image.captionSamples.length <= 0 || selectedLayer !== null,
       icon: <LuTag />,
       inputs: [
         {
@@ -93,6 +94,7 @@ const sidebarElements = (
     {
       function: "Maszkolás",
       icon: <LuVenetianMask />,
+      hide: selectedLayer === null,
       inputs: [
         {
           name: "",
@@ -104,6 +106,7 @@ const sidebarElements = (
     {
       function: "LUT",
       icon: <TbColorSwatch />,
+      hide: selectedLayer !== null,
       inputs: [
         {
           name: "",
@@ -672,6 +675,7 @@ const sidebarElements = (
     {
       function: "Szövegek",
       icon: <LuType />,
+      hide: selectedLayer !== null,
       inputs: [
         {
           name: "",
@@ -683,6 +687,7 @@ const sidebarElements = (
     {
       function: "Overlay kép",
       icon: <LuImages />,
+      hide: selectedLayer !== null,
       inputs: [
         {
           name: "",
@@ -694,6 +699,7 @@ const sidebarElements = (
     {
       function: "Képkeret",
       icon: <LuFrame />,
+      hide: selectedLayer !== null,
       inputs: [
         {
           name: "Képkeret méret",
@@ -780,6 +786,7 @@ const sidebarElements = (
     {
       function: "Méretezés",
       icon: <LuImageUpscale />,
+      hide: selectedLayer !== null,
       inputs: [
         {
           name: "",
@@ -819,7 +826,6 @@ export default function SideBar() {
     .getState()
     .sessionData.find((si) => si.id === selectedImg);
 
-  const selectedExtension = image?.exportSettings?.fileExtension;
   const filters =
     selectedLayer !== null
       ? useSessionStore.getState().getFilters(selectedImg, selectedLayer)

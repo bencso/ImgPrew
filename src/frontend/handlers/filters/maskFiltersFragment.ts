@@ -5,7 +5,7 @@ import { levelsFragment } from "./levels";
 import { temperatureFragment } from "./temperatureFragment";
 import { vibranceFragment } from "./vibranceFragment";
 
-export const allFiltersFragment = `#version 300 es
+export const maskFiltersFragment = `#version 300 es
     precision highp float;
 
     in vec2 vTextureCoord; 
@@ -37,8 +37,6 @@ export const allFiltersFragment = `#version 300 es
     float currentLuminance;
     
     out vec4 finalColor;
-
-    uniform sampler2D layer_mask;
 
     vec3 rgbToHsv(vec3 color) {
       vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
@@ -72,8 +70,6 @@ export const allFiltersFragment = `#version 300 es
 
     vec4 filtered = vec4(rgb, current.a);
 
-    float lm = texture(layer_mask, vTextureCoord).a;
-
-    finalColor = mix(current, filtered, lm);
+    finalColor = filtered;
     }
 `;

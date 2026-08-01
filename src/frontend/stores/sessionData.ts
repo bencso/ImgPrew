@@ -11,21 +11,12 @@ import {
   YPositions,
 } from "@/interfaces/interface";
 import { ColorMapFilter } from "pixi-filters";
-import {
-  defaultFilterVert,
-  Filter,
-  RenderTexture,
-  Sprite,
-  Texture,
-  UniformGroup,
-} from "pixi.js";
+import { Filter, RenderTexture, Sprite, Texture } from "pixi.js";
 import { RefObject } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { immer } from "zustand/middleware/immer";
 import { createWithEqualityFn } from "zustand/traditional";
 import { getImageSize } from "@/helper/sizes/getImageSize";
-import { getChannelOffsets } from "@/helper/lut/getChannelOffset";
-import { allFiltersFragment } from "@/handlers/filters/allFiltersFragment";
 import { filters } from "@/interfaces/filters.interface";
 
 export const useSessionStore = createWithEqualityFn<SessionStore>()(
@@ -50,49 +41,6 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
         const haldTexture = Texture.from(hald);
         const haldSprite = new Sprite(haldTexture);
 
-        const channelOffset = getChannelOffsets(filters);
-
-        const filterUniforms = new UniformGroup({
-          exposure_input: { value: filters.exposure / 5.0, type: "f32" },
-          brightness_input: { value: filters.brightness / 100.0, type: "f32" },
-          contrast_input: {
-            value: (filters.contrast / 100.0) * 0.5 + 1.0,
-            type: "f32",
-          },
-          temperature_input: {
-            value: filters.temperature / 100.0,
-            type: "f32",
-          },
-          tint_input: { value: filters.tint / 100.0, type: "f32" },
-          saturation_input: { value: filters.saturation, type: "f32" },
-          hue_input: { value: filters.hue / 180.0, type: "f32" },
-          value_input: { value: filters.value, type: "f32" },
-          black_input: { value: filters.black / 255.0, type: "f32" },
-          white_input: { value: filters.white / 255.0, type: "f32" },
-          outblack_input: { value: filters.outblack / 255.0, type: "f32" },
-          outwhite_input: { value: filters.outwhite / 255.0, type: "f32" },
-          gamma_input: { value: filters.gamma, type: "f32" },
-          channel_colorMatrix_input: {
-            value: channelOffset.channels,
-            type: "mat3x3<f32>",
-          },
-          channel_offset_input: {
-            value: channelOffset.offset,
-            type: "vec3<f32>",
-          },
-          vibrance_input: { value: filters.vibrance / 100.0, type: "f32" },
-        });
-
-        const filter = Filter.from({
-          gl: {
-            fragment: allFiltersFragment,
-            vertex: defaultFilterVert,
-          },
-          resources: {
-            filterUniforms: filterUniforms,
-          },
-        });
-
         const sessionData = {
           id: nextId,
           blob: blob,
@@ -113,7 +61,8 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           haldSprite: haldSprite,
           masks: [],
           renderTextures: [],
-          filter: filter,
+          renderTexture: null,
+          filter: null,
           filters: filters,
           sprite: null,
         } as CustomImage;
@@ -124,17 +73,17 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
       }),
     addNewRenderTexture: (
       id: number,
-      renderTexture: RenderTexture,
-      outputSprite: Sprite,
-      imageSprite: Sprite,
-      filter?: Filter,
+      maskTexture: RenderTexture,
+      filter: Filter,
+      resultTexture: RenderTexture,
+      renderSprite: any,
+      filterMask: Filter,
     ) => {
       set((state) => ({
         sessionData: state.sessionData.map((image) => {
           if (image.id !== id) return image;
 
           const hald = generateHald(64);
-
           if (hald instanceof HTMLCanvasElement !== true) return null;
           const haldTexture = Texture.from(hald);
           const haldSprite = new Sprite(haldTexture);
@@ -142,18 +91,46 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
           const prevTextures = image.renderTextures ?? [];
           const currentText = {
             id: prevTextures.length,
-            mask: renderTexture,
-            sprite: outputSprite,
-            imageSprite,
+            maskTexture,
+            resultTexture,
             haldSprite,
+            renderSprite,
             filter: null,
+            filterMask: null,
           } as MasksLayers;
 
           if (filter) currentText.filter = filter;
+          if (filterMask) currentText.filterMask = filterMask;
+
+          haldSprite.filters = filterMask;
 
           return {
             ...image,
             renderTextures: [...prevTextures, currentText],
+          };
+        }),
+      }));
+    },
+    setRenderTexture: (id: number, renderTexture: RenderTexture) => {
+      set((state) => ({
+        sessionData: state.sessionData.map((image) => {
+          if (image.id !== id) return image;
+
+          return {
+            ...image,
+            renderTexture: renderTexture,
+          };
+        }),
+      }));
+    },
+    setFilter: (id: number, filter: Filter) => {
+      set((state) => ({
+        sessionData: state.sessionData.map((image) => {
+          if (image.id !== id) return image;
+
+          return {
+            ...image,
+            filter: filter,
           };
         }),
       }));

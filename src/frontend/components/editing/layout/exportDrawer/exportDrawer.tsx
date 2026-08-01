@@ -31,6 +31,7 @@ import {
   XPositions,
   YPositions,
 } from "@/interfaces/interface";
+import PIXI, { Sprite } from "pixi.js";
 
 export default function ExportDrawer() {
   const images = useSessionStore((s) => s.sessionData);
@@ -80,23 +81,24 @@ export default function ExportDrawer() {
 
       const imageMasks = selectedImage.renderTextures;
 
-      if (imageMasks && imageMasks.length > 0 && appRef.current) {
-        for (const imageMask of imageMasks) {
-          masksImages.push(
-            await appRef.current.renderer.extract.base64({
-              target: imageMask.sprite,
-              format: "png",
-              resolution: 1,
-            }),
-          );
+      
+        if (imageMasks && imageMasks.length > 0 && appRef.current) {
+          for (const imageMask of imageMasks) {
+            masksImages.push(
+              await appRef.current.renderer.extract.base64({
+                target: imageMask.maskTexture,
+                format: "png",
+                resolution: 1,
+              }),
+            );
 
-          masksImageHalds.push(
-            await appRef.current.renderer.extract.base64({
-              target: imageMask.haldSprite,
-              format: "png",
-              resolution: 1,
-            }),
-          );
+            masksImageHalds.push(
+              await appRef.current.renderer.extract.base64({
+                target: imageMask.haldSprite,
+                format: "png",
+                resolution: 1,
+              }),
+            );
         }
       }
     }
@@ -285,7 +287,7 @@ export default function ExportDrawer() {
     if (masksImages.length > 0) {
       for (let index = 0; index < masksImages.length; index++) {
         const mask = masksImages[index];
-        console.log(mask);
+
         const maskFile = new File([mask], `mask_${index}`);
         formData.append(`masks_files`, maskFile, `mask_${index}.png`);
       }

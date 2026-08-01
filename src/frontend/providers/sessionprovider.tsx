@@ -50,16 +50,17 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
   const webglFilterRef = useRef<Filter | null>(null);
   const lutFilterRef = useRef<ColorMapFilter | null>(null);
   const overlayRef = useRef<Container | null>(null);
+  const renderSpriteRef = useRef(new Sprite());
 
   const [selectedLayer, setSelectLayer] = useState<number | null>(0);
-  const renderTextureRef = useRef<RenderTexture | null>(null);
+  const maskTextureRef = useRef<RenderTexture | null>(null);
   const brushRef = useRef<Graphics | null>(null);
-  const maskContainerRef = useRef<Container | null>(null);
   const selectedLayerRef = useRef<Sprite | null>(null);
 
   const [maskErase, setMaskEraseMode] = useState<boolean>(false);
   const [maskBrushSize, setMaskBrushSize] = useState<number>(20);
   const [maskSharpness, setMaskSharpness] = useState<number>(0);
+  const [isDrawing, setIsDrawing] = useState<boolean>(false);
 
   const hoverGraph = new Graphics();
   const hoverMaskGraphRef = useRef<Graphics>(hoverGraph);
@@ -111,14 +112,16 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       setMaskEraseMode,
       maskBrushSize,
       setMaskBrushSize,
-      renderTextureRef,
+      maskTextureRef,
       brushRef,
-      maskContainerRef,
       maskSharpness,
       setMaskSharpness,
       selectedLayer,
       setSelectLayer,
       selectedLayerRef,
+      renderSpriteRef,
+      isDrawing,
+      setIsDrawing
     }),
     [
       step,
@@ -144,12 +147,13 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       hoverMaskGraphRef,
       maskErase,
       maskBrushSize,
-      renderTextureRef,
+      maskTextureRef,
       brushRef,
-      maskContainerRef,
       maskSharpness,
       selectedLayer,
       selectedLayerRef,
+      renderSpriteRef,
+      isDrawing,
     ],
   );
 

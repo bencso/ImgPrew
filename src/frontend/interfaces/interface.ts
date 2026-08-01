@@ -111,12 +111,13 @@ export interface ExportSettings {
 //#region MasksLayers
 export interface MasksLayers {
   id: number;
-  mask: RenderTexture;
-  sprite: Sprite | any;
-  imageSprite: Sprite | any;
+  maskTexture: RenderTexture;
+  resultTexture: RenderTexture | any;
   haldSprite: Sprite | any;
+  renderSprite: Sprite | any;
   filter: Filter | null;
   filters?: FilterProps;
+  filterMask: Filter | null;
 }
 //#endregion
 
@@ -221,12 +222,14 @@ export interface SessionStore {
     exifData?: string[] | undefined,
     captionSamples?: string[] | undefined,
   ) => void;
+  setRenderTexture: (id: number, renderTexture: RenderTexture) => void;
+   setFilter: (id: number, filter: Filter) => void;
   //#endregion
 
   //#region LAYER
-  deleteLayer: (id: number, layerId: number) => void
-//#endregion
-  
+  deleteLayer: (id: number, layerId: number) => void;
+  //#endregion
+
   //#region MÉRETEK
   setImageSize: (id: number, width: number, height: number) => void;
   setCropBox: ({ id, box }: { id: number; box: CropBox }) => void;
@@ -363,9 +366,18 @@ export interface SessionStore {
   //#endregion
 
   //#region FILTERS
-  editFilters: (id: number, filterName: string, value: string | number, selectedLayer?: number | null) => void;
-  getFilterValue: (id: number, filterName:  keyof FilterProps, selectedLayer?: number | null) => number | undefined;
-  getFilters: (id: number,  layerId?: number) => FilterProps;
+  editFilters: (
+    id: number,
+    filterName: string,
+    value: string | number,
+    selectedLayer?: number | null,
+  ) => void;
+  getFilterValue: (
+    id: number,
+    filterName: keyof FilterProps,
+    selectedLayer?: number | null,
+  ) => number | undefined;
+  getFilters: (id: number, layerId?: number) => FilterProps;
   //#endregion
 
   //#region LUT
@@ -377,7 +389,14 @@ export interface SessionStore {
   //#endregion
 
   //#region Masks
-  addNewRenderTexture: (id: number, renderTexture: RenderTexture, outputSprite: Sprite, imageSprite: Sprite, filter?: Filter) => void;
+  addNewRenderTexture: (
+    id: number,
+    maskTexture: RenderTexture,
+    filter: Filter,
+    resultTexture: any,
+    renderSprite: Sprite,
+    filterMask: Filter,
+  ) => void;
   //#endregion
 }
 //#endregion
@@ -480,14 +499,16 @@ export interface WorkSessionContextProps {
   setMaskEraseMode: Dispatch<SetStateAction<boolean>>;
   maskBrushSize: number;
   setMaskBrushSize: Dispatch<SetStateAction<number>>;
-  renderTextureRef: RefObject<RenderTexture | null>;
+  maskTextureRef: RefObject<RenderTexture | null>;
   brushRef: RefObject<Graphics | null>;
-  maskContainerRef: RefObject<Container<ContainerChild> | null>;
   maskSharpness: number;
   setMaskSharpness: Dispatch<SetStateAction<number>>;
   selectedLayer: number | null;
   setSelectLayer: Dispatch<SetStateAction<number | null>>;
   selectedLayerRef: RefObject<Sprite | null>;
+  renderSpriteRef: RefObject<Sprite>;
+  isDrawing: boolean;
+  setIsDrawing: Dispatch<SetStateAction<boolean>>;
 }
 //#endregion
 
