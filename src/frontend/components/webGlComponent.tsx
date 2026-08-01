@@ -1,6 +1,7 @@
 //TODO: Refaktorálás
 import { allFiltersFragment } from "@/handlers/filters/allFiltersFragment";
 import { getChannelOffsets } from "@/helper/lut/getChannelOffset";
+import { applyFilters } from "@/helper/mask/applyFilters";
 import { calcScale } from "@/helper/sizes/calcScale";
 import { filters } from "@/interfaces/filters.interface";
 import { useWorkSession } from "@/providers/sessionprovider";
@@ -42,6 +43,7 @@ export default function WebGlComponent() {
     webglFilterRef,
     renderSpriteRef,
     selectedLayer,
+    isDrawing,
   } = useWorkSession();
   const { sessionData, setImageSize, setRenderTexture, setFilter } =
     useSessionStore();
@@ -51,11 +53,6 @@ export default function WebGlComponent() {
   const lutFilter = useSessionStore(
     (state) =>
       state.sessionData.find((img) => img.id === selectedImg)?.lutFilter,
-  );
-
-  const layers = useSessionStore(
-    (state) =>
-      state.sessionData.find((img) => img.id === selectedImg)?.renderTextures,
   );
 
   //! shallow: nem generál le újra az objektumot hanem mintha cachelte volna mindig az adott objektumot irja felül / ÖSSZEHASONLÍT
@@ -71,7 +68,6 @@ export default function WebGlComponent() {
   const box = image?.box;
   const cropSaved = image?.cropSave;
   const expandPadding = image?.expandSize?.padding;
-  const haldSprite = image?.haldSprite;
 
   async function initApp() {
     const app = new Application();
@@ -228,7 +224,13 @@ export default function WebGlComponent() {
         canvasRef.current.replaceChildren(appRef.current.canvas);
 
       updateLayout();
-      applyFilters();
+      applyFilters({
+        image,
+        textureRef,
+        renderSpriteRef,
+        appRef,
+        spriteRef,
+      });
       setSelectLayer(null);
       createFirstLayer(5000, 5000);
     };
@@ -276,58 +278,6 @@ export default function WebGlComponent() {
       loadImage();
     }
   }, [expandMode, cropSaved]);
-
-  function applyFilters(startIndex = 0) {
-    if (!appRef.current) return;
-
-    const imageFilter = image?.filter;
-
-    if (spriteRef.current && imageFilter && haldSprite) {
-      spriteRef.current.filters = lutFilter
-        ? [lutFilter, imageFilter]
-        : [imageFilter];
-      haldSprite.filters = lutFilter ? [lutFilter, imageFilter] : [imageFilter];
-    }
-
-    if (
-      image &&
-      image.renderTextures &&
-      image.renderTextures.length > 0 &&
-      spriteRef.current
-    ) {
-      let input =
-        startIndex === 0
-          ? textureRef.current
-          : image.renderTextures[startIndex - 1].resultTexture;
-
-      const layers = image.renderTextures;
-
-      for (let i = startIndex; i < layers.length; i++) {
-        const layer = image.renderTextures[i];
-
-        if (spriteRef.current) {
-          renderSpriteRef.current.texture = input;
-
-          if (layer.filter && appRef.current) {
-            layer.haldSprite.filters = [layer.filterMask];
-            layer.filter.resources.layer_mask = layer.maskTexture.source;
-            renderSpriteRef.current.filters = [layer.filter];
-
-            appRef.current.renderer.render({
-              container: renderSpriteRef.current,
-              target: layer.resultTexture,
-              clear: true,
-            });
-
-            input = layer.resultTexture;
-          }
-        }
-      }
-
-      spriteRef.current.texture = input;
-      spriteRef.current.filters = [];
-    }
-  }
 
   const updateLayout = () => {
     if (
@@ -410,8 +360,13 @@ export default function WebGlComponent() {
         },
       });
 
-      applyFilters();
-
+      applyFilters({
+        image,
+        textureRef,
+        renderSpriteRef,
+        appRef,
+        spriteRef,
+      });
       return;
     } else {
       const scale = Math.min(areaH / imgH, areaW / imgW);
@@ -600,7 +555,13 @@ export default function WebGlComponent() {
         });
       }
 
-      applyFilters();
+      applyFilters({
+        image,
+        textureRef,
+        renderSpriteRef,
+        appRef,
+        spriteRef,
+      });
     }
   };
 
@@ -616,10 +577,52 @@ export default function WebGlComponent() {
     cropSaved,
     borderSize,
     lutFilter,
-    layers,
   ]);
 
-  applyFilters();
+  applyFilters({
+    image,
+    textureRef,
+    renderSpriteRef,
+    appRef,
+    spriteRef,
+  });
+
+  //! Tickert használunk, mert ez azt csinálja hogy "tick"-enként (frissítési ciklusonként / framenként)
+  //! futtatja a filter frissítését a megadott sprite-tól kezdve. Ez azért előnyös, mert mindig csak azokat az elemeket frissítjük, amelyeknek szükségük van rá.
+
+  //! Ez performance szempontból jó, mert mikor rajzolunk, akkor alapból ha rajzoláshoz kötnénk az applyFilter()-t, akkor létrejönne mondjuk 1000 iteráció, 
+  //! viszont ezzel nem minden iterációkor futtatjuk le az applyFilter()-t, hanem minden egyes tick-nél
+  useEffect(() => {
+    if (!appRef.current) return;
+
+    const update = () => {
+      applyFilters({
+        renderSpriteRef,
+        spriteRef,
+        startIndex: selectedLayer ?? 0,
+        image,
+        appRef,
+        textureRef,
+      });
+    };
+
+    appRef.current.ticker.add(update);
+
+    return () => {
+      appRef.current?.ticker.remove(update);
+    };
+  }, [renderSpriteRef, spriteRef, selectedLayer, image, appRef, textureRef]);
+
+  useEffect(() => {
+    applyFilters({
+      image,
+      textureRef,
+      renderSpriteRef,
+      appRef,
+      spriteRef,
+      startIndex: selectedLayer ?? 0,
+    });
+  }, [isDrawing]);
 
   useEffect(() => {
     const handleResize = () => {

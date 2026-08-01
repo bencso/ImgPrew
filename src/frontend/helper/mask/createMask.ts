@@ -1,8 +1,6 @@
 import { MasksProps } from "@/interfaces/mask.interface";
 import {
   Application,
-  Container,
-  ContainerChild,
   FillGradient,
   Filter,
   Graphics,
@@ -12,9 +10,16 @@ import {
   Texture,
   TextureSource,
 } from "pixi.js";
-import { Dispatch, RefObject, SetStateAction, useEffect } from "react";
+import {
+  Dispatch,
+  RefObject,
+  SetStateAction,
+  useCallback,
+  useEffect,
+} from "react";
 import { drawLine } from "./drawLine";
-import { MasksLayers } from "@/interfaces/interface";
+import { CustomImage, MasksLayers } from "@/interfaces/interface";
+import { applyFilters } from "./applyFilters";
 
 interface createMaskProps {
   appRef: RefObject<Application<Renderer> | null>;
@@ -24,7 +29,6 @@ interface createMaskProps {
   lastX: RefObject<number | null>;
   brushSize: number;
   hoverMaskGraphRef: RefObject<Graphics>;
-  masks: MasksProps[] | undefined;
   selectedImg: number;
   maskErase: boolean;
   brushRef: RefObject<Graphics | null>;
@@ -34,13 +38,20 @@ interface createMaskProps {
   scale: number;
   spriteRef: RefObject<Sprite | null>;
   webglFilterRef: RefObject<Filter | null>;
-  renderTextures: MasksLayers[] | undefined;
   textureRef: RefObject<Texture<TextureSource<any>> | null>;
+  image: CustomImage | undefined;
 }
 
 export const createMask = (props: createMaskProps) => {
+  const image = props.image;
+  if (!image) return;
+
   const appRef = props.appRef;
+  const spriteRef = props.spriteRef;
+  const renderSpriteRef = props.spriteRef;
   const hoverMaskGraphRef = props.hoverMaskGraphRef;
+  const textureRef = props.textureRef;
+
   const selectedImg = props.selectedImg;
   const maskErase = props.maskErase;
   const brushRef = props.brushRef.current;
@@ -49,7 +60,9 @@ export const createMask = (props: createMaskProps) => {
   const selectedLayer = props.selectedLayer ?? null;
   const scale = props.scale ?? 1;
   const brushSize = props.brushSize;
-  const renderTextures = props.renderTextures;
+  const isDrawing = props.isDrawing;
+
+  const renderTextures = image.renderTextures;
   const layer = renderTextures?.find((rt) => rt.id === selectedLayer);
 
   const gradient = new FillGradient({
@@ -138,6 +151,8 @@ export const createMask = (props: createMaskProps) => {
 
     if (selectedLayer !== null) paint(localPos.x, localPos.y);
   });
+
+ 
 
   useEffect(() => {
     hoverMaskGraphRef.current.clear();

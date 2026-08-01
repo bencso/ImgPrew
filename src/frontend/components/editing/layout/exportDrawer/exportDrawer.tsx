@@ -92,7 +92,6 @@ export default function ExportDrawer() {
               }),
             );
 
-            //TODO: Az a baj, hogy a haldSprite nem az egész  hanem csak ahogy rajzolva van a maszk ugy (mert ugye a képből vesszük ki)
             masksImageHalds.push(
               await appRef.current.renderer.extract.base64({
                 target: imageMask.haldSprite,

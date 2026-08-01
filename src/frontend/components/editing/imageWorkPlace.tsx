@@ -30,23 +30,21 @@ export default function ImageWorkPlace() {
     webglFilterRef,
     isDrawing,
     setIsDrawing,
-    renderSpriteRef,
     textureRef,
   } = useWorkSession();
 
   const { setCropBox, setTextPosition, setTextRelativePosition } =
     useSessionStore();
 
-  const image = useSessionStore((state) =>
-    state.sessionData.find((si) => si.id === selectedImg),
-  );
+  let image = useSessionStore
+    .getState()
+    .sessionData.find((si) => si.id === selectedImg);
 
   const [draggableText, setDraggable] = useState<string | null>(null);
   const lastX = useRef<number | null>(null);
   const lastY = useRef<number | null>(null);
 
   const box = image?.box;
-  const renderTextures = image?.renderTextures;
   const expandMode = image?.expandMode;
   const copyrightImage = image?.copyrightImage;
   const texts = image?.texts ?? [];
@@ -54,8 +52,6 @@ export default function ImageWorkPlace() {
   const borderSize = image?.borderSize;
   const imgW = image?.dimesions?.width ?? 1;
   const imgH = image?.dimesions?.height ?? 1;
-  const masks = image?.masks;
-  const brushSize = maskBrushSize;
   const cropboxScale = Math.min(
     (canvasRef.current?.clientWidth ?? 0) / imgW,
     (canvasRef.current?.clientHeight ?? 0) / imgH,
@@ -100,11 +96,10 @@ export default function ImageWorkPlace() {
 
   createMask({
     appRef,
-    brushSize,
+    brushSize: maskBrushSize,
     hoverMaskGraphRef,
     lastX,
     lastY,
-    masks,
     selectedImg,
     isDrawing,
     setIsDrawing,
@@ -116,8 +111,8 @@ export default function ImageWorkPlace() {
     scale: cropboxScale,
     spriteRef,
     webglFilterRef,
-    renderTextures,
     textureRef,
+    image,
   });
 
   const canvasH = canvasRef.current?.clientHeight ?? 1080;
