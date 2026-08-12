@@ -61,6 +61,7 @@
   },
   "optionalDependencies": {
     "bufferutil": "^4.1.0",
+    "lightningcss-linux-arm64-musl": "^1.32.0",
     "utf-8-validate": "^6.0.6"
   }
 }

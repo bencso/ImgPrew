@@ -19,7 +19,6 @@ import {
 } from "react";
 import { drawLine } from "./drawLine";
 import { CustomImage, MasksLayers } from "@/interfaces/interface";
-import { applyFilters } from "./applyFilters";
 
 interface createMaskProps {
   appRef: RefObject<Application<Renderer> | null>;
@@ -82,11 +81,11 @@ export const createMask = (props: createMaskProps) => {
 
     if (maskErase === false) {
       brushRef.blendMode = "normal";
-      brushRef.circle(x, y, brushSize / scale);
+      brushRef.circle(x/scale, y/scale, brushSize / scale);
       brushRef.fill(gradient);
     } else {
       brushRef.blendMode = "erase";
-      brushRef.circle(x, y, brushSize / scale);
+      brushRef.circle(x/scale, y/scale, brushSize / scale);
       brushRef.fill(gradient);
     }
 

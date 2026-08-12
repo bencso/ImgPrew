@@ -1,5 +1,6 @@
 //TODO: Refaktorálás
 import { allFiltersFragment } from "@/handlers/filters/allFiltersFragment";
+import { maskFiltersFragment } from "@/handlers/filters/maskFiltersFragment";
 import { getChannelOffsets } from "@/helper/lut/getChannelOffset";
 import { applyFilters } from "@/helper/mask/applyFilters";
 import { calcScale } from "@/helper/sizes/calcScale";
@@ -21,7 +22,7 @@ import {
   Texture,
   UniformGroup,
 } from "pixi.js";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function WebGlComponent() {
   const {
@@ -45,8 +46,13 @@ export default function WebGlComponent() {
     selectedLayer,
     isDrawing,
   } = useWorkSession();
-  const { sessionData, setImageSize, setRenderTexture, setFilter } =
-    useSessionStore();
+  const {
+    sessionData,
+    setImageSize,
+    setRenderTexture,
+    setFilter,
+    addNewRenderTexture,
+  } = useSessionStore();
 
   const filtersRef = useRef<Container | null>(null);
 
@@ -68,6 +74,8 @@ export default function WebGlComponent() {
   const box = image?.box;
   const cropSaved = image?.cropSave;
   const expandPadding = image?.expandSize?.padding;
+
+  const [isInit, setInit] = useState<boolean>(false);
 
   async function initApp() {
     const app = new Application();
@@ -97,25 +105,35 @@ export default function WebGlComponent() {
     })();
   }, []);
 
-  function createFirstLayer(w: number, h: number) {
-    if (!textureRef.current || !appRef.current) return;
+  //TODO: Performance hiba: javitani
+  useEffect(() => {
+    createFirstLayer();
+  }, [isInit, textureRef.current]);
 
-    const layer = new Container();
-    layer.label = `defaultImageLayer`;
+  function createFirstLayer() {
+    if (
+      !textureRef.current ||
+      image?.renderTextures?.find((rt) => rt.renderSprite.label === "elsolayer")
+    )
+      return;
+
+    let index = image?.renderTextures?.length ?? 0;
+    const channelOffset = getChannelOffsets(filters);
+
+    const size = image?.dimesions;
+    const renderSprite = new Sprite();
+    renderSprite.label = `elsolayer`;
 
     const maskTexture = RenderTexture.create({
-      height: h,
-      width: w,
+      width: size?.width,
+      height: size?.height,
     });
     maskTextureRef.current = maskTexture;
 
-    const fill = new Graphics();
-    fill.rect(0, 0, w, h).fill({
-      color: "#fff",
+    const resultTexture = RenderTexture.create({
+      width: size?.width,
+      height: size?.height,
     });
-    layer.addChild(fill);
-
-    const channelOffset = getChannelOffsets(filters);
 
     const filterUniforms = new UniformGroup({
       exposure_input: { value: filters.exposure / 5.0, type: "f32" },
@@ -155,20 +173,54 @@ export default function WebGlComponent() {
       },
       resources: {
         filterUniforms: filterUniforms,
-        layer_mask: maskTextureRef.current.source,
+        layer_mask: maskTexture.source,
       },
     });
+
+    const filterMask = Filter.from({
+      gl: {
+        fragment: maskFiltersFragment,
+        vertex: defaultFilterVert,
+      },
+      resources: {
+        filterUniforms: filterUniforms,
+      },
+    });
+
+    if (appRef.current) {
+      const hover = appRef.current.stage.getChildByLabel(
+        hoverMaskGraphRef.current.label,
+      );
+
+      if (hover) {
+        appRef.current.stage.removeChild(hover);
+        appRef.current.stage.addChild(hoverMaskGraphRef.current);
+      }
+    }
+
+    const fill = new Graphics();
+    fill.rect(0, 0, image?.dimesions?.width!, image?.dimesions?.height!).fill({
+      color: "#fff",
+    });
+
     webglFilterRef.current = filter;
 
-    setRenderTexture(selectedImg, maskTextureRef.current);
-    setFilter(selectedImg, filter);
-    setSelectLayer(null);
+    addNewRenderTexture(
+      selectedImg,
+      maskTexture,
+      image?.filter ?? filter,
+      resultTexture,
+      renderSprite,
+      filterMask,
+    );
 
-    appRef.current.renderer.render({
+    appRef.current?.renderer.render({
       container: fill,
       target: maskTexture,
       clear: false,
     });
+
+    setSelectLayer(index);
   }
 
   async function loadImage() {
@@ -232,11 +284,12 @@ export default function WebGlComponent() {
         spriteRef,
       });
       setSelectLayer(null);
-      createFirstLayer(5000, 5000);
     };
 
     if (sessionData.length > 0 && sessionData[selectedImg].blob)
       img.src = sessionData[selectedImg].blob;
+
+    setInit(true);
   }
 
   useEffect(() => {
@@ -244,8 +297,6 @@ export default function WebGlComponent() {
 
     const container = new Container();
     filtersRef.current = container;
-
-    loadImage();
 
     return () => {
       if (spriteRef.current) {

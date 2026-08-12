@@ -171,7 +171,7 @@ const LayersAccordion = () => {
       },
     });
 
-     const filterMask = Filter.from({
+    const filterMask = Filter.from({
       gl: {
         fragment: maskFiltersFragment,
         vertex: defaultFilterVert,
@@ -200,7 +200,7 @@ const LayersAccordion = () => {
       filter,
       resultTexture,
       renderSprite,
-      filterMask
+      filterMask,
     );
 
     setSelectLayer(index);
@@ -238,7 +238,7 @@ const LayersAccordion = () => {
                 <Avatar.Root shape="rounded">
                   <Avatar.Fallback name={layer.id.toString()} />
                 </Avatar.Root>
-                <HStack flex="1">{layer.id}</HStack>
+                <HStack flex="1">{layer.id > 0 ? layer.id : "Kép"}</HStack>
                 <Accordion.ItemIndicator />
               </Accordion.ItemTrigger>
               <Accordion.ItemContent>
@@ -246,8 +246,20 @@ const LayersAccordion = () => {
                   <Grid
                     w={"full"}
                     gap={2}
-                    gridTemplateColumns={isMd ? "repeat(2, 1fr)" : ""}
-                    gridTemplateRows={!isMd ? "repeat(2, 1fr)" : ""}
+                    gridTemplateColumns={
+                      isMd
+                        ? index > 0
+                          ? "repeat(2, 1fr)"
+                          : "repeat(1, 1fr)"
+                        : ""
+                    }
+                    gridTemplateRows={
+                      !isMd
+                        ? index > 0
+                          ? "repeat(2, 1fr)"
+                          : "repeat(1, 1fr)"
+                        : ""
+                    }
                   >
                     <GridItem>
                       <Button
@@ -255,7 +267,7 @@ const LayersAccordion = () => {
                         colorPalette="teal"
                         variant="outline"
                         onClick={() => {
-                          if (selectedLayer === layer.id) setSelectLayer(null);
+                          if (selectedLayer === layer.id) setSelectLayer(0);
                           else setSelectLayer(layer.id);
                         }}
                       >
@@ -264,32 +276,36 @@ const LayersAccordion = () => {
                           : "Kiválasztás"}
                       </Button>
                     </GridItem>
-                    <GridItem>
-                      <Button
-                        w={"full"}
-                        colorPalette="red"
-                        variant="solid"
-                        onClick={() => {
-                          const layerId = layer.id;
-                          deleteLayer(selectedImg, layerId);
+                    {index > 0 && (
+                      <GridItem>
+                        <Button
+                          w={"full"}
+                          colorPalette="red"
+                          variant="solid"
+                          onClick={() => {
+                            if (index <= 0) return;
 
-                          const selectedLayer = renderTextures.find(
-                            (ri) => ri.id === layer.id,
-                          );
+                            const layerId = layer.id;
+                            deleteLayer(selectedImg, layerId);
 
-                          setSelectLayer(null);
+                            const selectedLayer = renderTextures.find(
+                              (ri) => ri.id === layer.id,
+                            );
 
-                          if (!appRef.current) return;
-                          appRef.current.stage.removeChild(
-                            selectedLayer?.resultTexture,
-                          );
+                            setSelectLayer(null);
 
-                          setSelectLayer(null);
-                        }}
-                      >
-                        <LuTrash /> Törlés
-                      </Button>
-                    </GridItem>
+                            if (!appRef.current) return;
+                            appRef.current.stage.removeChild(
+                              selectedLayer?.resultTexture,
+                            );
+
+                            setSelectLayer(null);
+                          }}
+                        >
+                          <LuTrash /> Törlés
+                        </Button>
+                      </GridItem>
+                    )}
                   </Grid>
                 </Accordion.ItemBody>
               </Accordion.ItemContent>
