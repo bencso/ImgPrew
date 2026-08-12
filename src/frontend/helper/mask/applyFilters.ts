@@ -58,13 +58,11 @@ export function applyFilters(props: applyFiltersProps) {
           layer.haldSprite.filters = [layer.filterMask];
           renderSpriteRef.filters = [layer.filter];
 
-
           appRef.current.renderer.render({
             container: renderSpriteRef,
             target: layer.resultTexture,
             clear: true,
           });
-
 
           input = layer.resultTexture;
         }

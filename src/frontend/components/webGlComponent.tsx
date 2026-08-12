@@ -590,7 +590,7 @@ export default function WebGlComponent() {
   //! Tickert használunk, mert ez azt csinálja hogy "tick"-enként (frissítési ciklusonként / framenként)
   //! futtatja a filter frissítését a megadott sprite-tól kezdve. Ez azért előnyös, mert mindig csak azokat az elemeket frissítjük, amelyeknek szükségük van rá.
 
-  //! Ez performance szempontból jó, mert mikor rajzolunk, akkor alapból ha rajzoláshoz kötnénk az applyFilter()-t, akkor létrejönne mondjuk 1000 iteráció, 
+  //! Ez performance szempontból jó, mert mikor rajzolunk, akkor alapból ha rajzoláshoz kötnénk az applyFilter()-t, akkor létrejönne mondjuk 1000 iteráció,
   //! viszont ezzel nem minden iterációkor futtatjuk le az applyFilter()-t, hanem minden egyes tick-nél
   useEffect(() => {
     if (!appRef.current) return;

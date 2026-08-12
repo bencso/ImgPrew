@@ -10,6 +10,7 @@ import { createCPImage } from "@/helper/workplaceHelpers/createCPImage";
 import { createTexts } from "@/helper/workplaceHelpers/createTexts";
 import { createMask } from "@/helper/mask/createMask";
 import { MaskLayerBlock } from "./mask/layerBlock";
+import { initDevtools } from "@pixi/devtools";
 
 export default function ImageWorkPlace() {
   const {

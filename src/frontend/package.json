@@ -10,6 +10,7 @@
   "dependencies": {
     "@chakra-ui/react": "^3.36.0",
     "@emotion/react": "^11.14.0",
+    "@pixi/devtools": "^2.0.1",
     "@pixi/filter-adjustment": "^5.1.1",
     "@pixi/react": "^8.0.5",
     "@react-three/drei": "^10.7.7",

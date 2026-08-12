@@ -105,8 +105,6 @@ export const createMask = (props: createMaskProps) => {
   appRef.current?.stage.on("pointermove", (e) => {
     const localPos = e.global;
 
-    console.log(e);
-
     if (!localPos) return;
 
     const x = localPos.x;

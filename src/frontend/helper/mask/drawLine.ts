@@ -5,7 +5,7 @@ export function drawLine(
   x2: number,
   y2: number,
   brushSize: number,
-  paint: any,
+  paint: (x: number, y: number) => void,
 ) {
   // Különbség számítás
   const dx = x2 - x1;
@@ -14,8 +14,15 @@ export function drawLine(
   // Pitagorasz tétel
   const distance = Math.sqrt(dx * dx + dy * dy);
 
+  if (distance === 0) {
+    paint(x1, y1);
+    return;
+  }
+
+  const step = Math.max(1, brushSize * 0.25);
+
   // A két pont közötti távolság "megrajzolása"
-  for (let i = 0; i <= distance; i += brushSize) {
+  for (let i = 0; i <= distance; i += step) {
     const a = i / distance;
 
     const x = x1 + dx * a;
