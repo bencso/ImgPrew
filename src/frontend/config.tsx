@@ -1,5 +1,6 @@
 import { JSX, ReactNode } from "react";
 import {
+  LuBookText,
   LuGalleryThumbnails,
   LuHistory,
   LuHouse,
@@ -15,7 +16,6 @@ interface AppInfoBlock {
 
 export const appInfos: AppInfoBlock[] = [
   { icon: <LuHistory />, label: "Verziószám", value: "0.01" },
-  { icon: <LuUser />, label: "UID:", value: "30032211411UI" },
 ];
 //#endregion
 
@@ -28,14 +28,14 @@ export interface LinkType {
 
 export const links: LinkType[] = [
   {
-    name: "Főoldal",
-    link: "/dashboard",
+    name: "Főőodal",
+    link: "/",
     icon: <LuHouse size={22} />,
   },
   {
-    name: "Galéria",
-    link: "/dashboard/gallery",
-    icon: <LuGalleryThumbnails size={22} />,
+    name: "Leírás",
+    link: "/docs",
+    icon: <LuBookText size={22} />,
   },
 ];
 //#endregion

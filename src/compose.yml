@@ -1,35 +1,19 @@
 services:
-  db:
-    image: postgres:18
-    restart: unless-stopped
-    volumes:
-      - ./db/postgres:/var/lib/postgresql
-    ports:
-      - 5432:5432
-    env_file:
-      - ./db/.env
-    networks:
-      - wizpx_app
-
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile.development
-    image: frontend
     ports:
-      - 3000:3000
+      - "3000:3000"
     volumes:
       - ./frontend:/app
       - /app/node_modules
       - /app/.next
+    environment:
+      WATCHPACK_POLLING: "true"
     env_file:
       - ./frontend/.env
     restart: unless-stopped
-    healthcheck:
-      test: [ "CMD", "curl", "http://frontend:3000" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
     networks:
       - wizpx_app
 

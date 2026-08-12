@@ -1,23 +1,26 @@
 "use client";
 
-import { IconButton, Skeleton } from "@chakra-ui/react";
-import { useColorMode } from "@/components/ui/color-mode";
-import { LuMoon, LuSun } from "react-icons/lu";
-import { useEffect, useState } from "react";
+import { IconButton } from "@chakra-ui/react";
+import { useTheme } from "next-themes";
+import { ColorModeIcon } from "../ui/color-mode";
 
 export default function ColorModeSwitcher() {
-  const { toggleColorMode, colorMode } = useColorMode();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return <Skeleton boxSize="8" />;
+  const { theme, setTheme } = useTheme();
 
   return (
-    <IconButton onClick={toggleColorMode} variant="outline" size="sm">
-      {colorMode === "light" ? <LuSun /> : <LuMoon />}
+    <IconButton
+      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      variant="outline"
+      aria-label="Témaválasztás"
+      size="sm"
+      css={{
+        _icon: {
+          width: "5",
+          height: "5",
+        },
+      }}
+    >
+      <ColorModeIcon />
     </IconButton>
   );
 }

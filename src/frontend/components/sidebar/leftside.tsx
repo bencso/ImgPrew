@@ -2,9 +2,14 @@
 
 import ColormodeSwitcher from "@/components/sidebar/colormodeswitch";
 import LanguageSwitcher from "@/components/sidebar/languageswitch";
-import { ProfileMenu } from "@/components/sidebar/profilemenu";
 import { links, LinkType } from "@/config";
-import { Avatar, Box, Flex, IconButton, useBreakpointValue } from "@chakra-ui/react";
+import {
+  Avatar,
+  Box,
+  Flex,
+  IconButton,
+  useBreakpointValue,
+} from "@chakra-ui/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -20,7 +25,6 @@ export const LeftSide = () => {
     { fallback: "md" },
   );
 
-  //TODO: Ezt majd kitenni, hogy cookieba tárolja és onnan beolvasni
   const [collapsed, setCollapsed] = useState(false);
 
   return (
@@ -28,40 +32,13 @@ export const LeftSide = () => {
       p={0}
       justifyContent={"space-between"}
       flexDirection={"column"}
-      w={isMd ? collapsed ?  "20" : "50" : "full"}
+      w={isMd ? (collapsed ? "20" : "50") : "full"}
       h={isMd ? "full" : "fit"}
       gap={4}
       borderRightWidth={isMd ? "1px" : 0}
       borderColor="border.disabled"
     >
-      {
-        //#region Profilmenü
-      }
       <Box>
-        <ProfileMenu>
-          <Flex
-            cursor={"pointer"}
-            p="4"
-            justifyContent={ isMd && collapsed ? "center" : "left"}
-            borderBottomWidth={"1px"}
-            borderColor="border.disabled"
-            borderRadius={0}
-            color="fg.disabled"
-            backgroundColor="bg.emphasized"
-            alignItems={"center"}
-          >
-            <Flex gap={2} alignItems={"center"}>
-              <Avatar.Root color={"white"} bg={"teal"}>
-                <Avatar.Fallback name="Bencso" />
-              </Avatar.Root>
-
-              <Box fontWeight="bold" textStyle="label" color="fg.default" hidden={isMd && collapsed}>
-                Bencso
-              </Box>
-            </Flex>
-          </Flex>
-        </ProfileMenu>
-
         {
           //#endregion
           //#region LINKEK implementálása
@@ -80,7 +57,7 @@ export const LeftSide = () => {
                 borderColor="border.disabled"
                 textDecoration={"none"}
                 alignItems={"center"}
-                justifyContent={ collapsed ? "center" : "left"}
+                justifyContent={collapsed ? "center" : "left"}
                 gap={4}
                 borderLeftWidth="2px"
                 borderLeftColor={"border.disabled"}
@@ -96,7 +73,7 @@ export const LeftSide = () => {
                 }}
               >
                 {link.icon}
-                { !collapsed && link.name}
+                {!collapsed && link.name}
               </Box>
             </Link>
           );
@@ -109,19 +86,21 @@ export const LeftSide = () => {
         p="4"
         borderTopWidth="1px"
         hidden={!isMd}
-        flexDir={ collapsed ? "column-reverse" : "row"}
+        flexDir={collapsed ? "column-reverse" : "row"}
         borderColor="border.disabled"
         color="fg.disabled"
         alignItems={"center"}
         gap={4}
       >
-        <IconButton onClick={()=>{
-        setCollapsed((prev)=> !prev)
-       }} variant="outline" size="sm">
-        {
-          !collapsed ? <LuArrowLeftToLine/> :  <LuArrowRightToLine/>
-        }
-        </IconButton> 
+        <IconButton
+          onClick={() => {
+            setCollapsed((prev) => !prev);
+          }}
+          variant="outline"
+          size="sm"
+        >
+          {!collapsed ? <LuArrowLeftToLine /> : <LuArrowRightToLine />}
+        </IconButton>
         <InfoPopover />
         <ColormodeSwitcher />
         <LanguageSwitcher />

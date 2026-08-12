@@ -1,7 +1,6 @@
 //TODO: Refaktorálni, és bug vadászat (fontos rész)
 "use client";
 
-import { useColorMode } from "@/components/ui/color-mode";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import {
@@ -28,6 +27,7 @@ import {
   SuggestionMode,
   Theme,
 } from "emoji-picker-react";
+import { useTheme } from "next-themes";
 import dynamic from "next/dynamic";
 import { useMemo, useRef, useState } from "react";
 import { LuLaugh } from "react-icons/lu";
@@ -49,7 +49,7 @@ export default function CaptionBlock() {
   const { sessionData, setCaptionForImage, getCaptionForImage } =
     useSessionStore();
   const { selectedImg } = useWorkSession();
-  const { colorMode } = useColorMode();
+  const { theme } = useTheme();
   //#endregion
 
   //#region caption useStatek
@@ -86,10 +86,9 @@ export default function CaptionBlock() {
     useSessionStore(
       (s) => s.sessionData.find((img) => img.id === selectedImg)?.exifDatas,
       shallow,
-    )?.map((i: any)=>{
-    return i["item"]
-  }) || [];
-
+    )?.map((i: any) => {
+      return i["item"];
+    }) || [];
 
   const samples =
     useSessionStore(
@@ -425,7 +424,7 @@ export default function CaptionBlock() {
                   searchPlaceHolder="Keresés"
                   suggestedEmojisMode={SuggestionMode.FREQUENT}
                   skinTonePickerLocation={SkinTonePickerLocation.PREVIEW}
-                  theme={colorMode === "dark" ? Theme.DARK : Theme.LIGHT}
+                  theme={theme === "dark" ? Theme.DARK : Theme.LIGHT}
                   open={emojiOpen}
                   onEmojiClick={emojiClick}
                 />

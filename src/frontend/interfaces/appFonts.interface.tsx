@@ -2,7 +2,6 @@ import {
   Amatic_SC as AmaticFont,
   Cinzel as CinzelFont,
   Cormorant_Garamond as CormorantFont,
-  Finlandica as FinlandicaFont,
   Limelight as LimelightFont,
   Open_Sans as OpenSansFont,
   Playfair_Display as PlayfairFont,
@@ -27,12 +26,6 @@ export const Cormorant_Garamond = CormorantFont({
   weight: ["500", "600", "700"],
   subsets: ["latin", "latin-ext"],
   variable: "--font-cormorant_garamond",
-});
-
-export const Finlandica_Text = FinlandicaFont({
-  weight: ["500", "600", "700"],
-  subsets: ["latin", "latin-ext"],
-  variable: "--font-finlandica_text",
 });
 
 export const Limelight = LimelightFont({
@@ -89,12 +82,6 @@ export const appFonts = [
     name: "Cormorant Garamond",
     weights: ["500", "600", "700"],
     fontObject: Cormorant_Garamond,
-  },
-  {
-    id: "finlandica_text",
-    name: "Finlandica Text",
-    weights: ["500", "600", "700"],
-    fontObject: Finlandica_Text,
   },
   {
     id: "limelight",

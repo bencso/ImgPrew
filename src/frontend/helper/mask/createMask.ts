@@ -47,10 +47,7 @@ export const createMask = (props: createMaskProps) => {
   if (!image) return;
 
   const appRef = props.appRef;
-  const spriteRef = props.spriteRef;
-  const renderSpriteRef = props.spriteRef;
   const hoverMaskGraphRef = props.hoverMaskGraphRef;
-  const textureRef = props.textureRef;
 
   const selectedImg = props.selectedImg;
   const maskErase = props.maskErase;
@@ -60,7 +57,6 @@ export const createMask = (props: createMaskProps) => {
   const selectedLayer = props.selectedLayer ?? null;
   const scale = props.scale ?? 1;
   const brushSize = props.brushSize;
-  const isDrawing = props.isDrawing;
 
   const renderTextures = image.renderTextures;
   const layer = renderTextures?.find((rt) => rt.id === selectedLayer);
@@ -86,11 +82,11 @@ export const createMask = (props: createMaskProps) => {
 
     if (maskErase === false) {
       brushRef.blendMode = "normal";
-      brushRef.circle(x / scale, y / scale, brushSize / scale);
+      brushRef.circle(x, y, brushSize / scale);
       brushRef.fill(gradient);
     } else {
       brushRef.blendMode = "erase";
-      brushRef.circle(x / scale, y / scale, brushSize / scale);
+      brushRef.circle(x, y, brushSize / scale);
       brushRef.fill(gradient);
     }
 
@@ -108,6 +104,8 @@ export const createMask = (props: createMaskProps) => {
 
   appRef.current?.stage.on("pointermove", (e) => {
     const localPos = e.global;
+
+    console.log(e);
 
     if (!localPos) return;
 
@@ -151,8 +149,6 @@ export const createMask = (props: createMaskProps) => {
 
     if (selectedLayer !== null) paint(localPos.x, localPos.y);
   });
-
- 
 
   useEffect(() => {
     hoverMaskGraphRef.current.clear();

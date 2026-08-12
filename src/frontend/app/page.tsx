@@ -1,118 +1,80 @@
 "use client";
 
+import keyboardShortcuts from "@/handlers/shortcuts/keyboardShortcuts";
 import { useWorkSession } from "@/providers/sessionprovider";
-import {
-  AbsoluteCenter,
-  Box,
-  Button,
-  Heading,
-  Image,
-  Link,
-  Stack,
-  Text,
-} from "@chakra-ui/react";
-import { useState } from "react";
-import { FaGoogle } from "react-icons/fa";
-import { BeatLoader, PuffLoader } from "react-spinners";
+import { useSessionStore } from "@/stores/sessionData";
+import { useBreakpointValue } from "@chakra-ui/react";
+import dynamic from "next/dynamic";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Box, Flex } from "@chakra-ui/react";
+import SideBar from "@/components/editing/layout/sidebar";
+import { LeftSide } from "@/components/sidebar/leftside";
+import ImagesSide from "@/components/editing/layout/imagesSide";
+
+const UploadImageBlock = dynamic(
+  () => import("@/components/upload/uploadImageBlock"),
+  { ssr: false },
+);
+
+const ImageWorkPlace = dynamic(
+  () => import("@/components/editing/imageWorkPlace"),
+  { ssr: false },
+);
 
 export default function Page() {
-  const [loading, setLoading] = useState(false);
+  //#region contextek
+  const { step, setStep, setSelectedImg, selectedImg, appRef } =
+    useWorkSession();
+  const { sessionData, setHaldImage } = useSessionStore();
+  const [selectedImage, setSelectedImage] = useState<string>();
+
+  const path = usePathname();
+  const isEditor = path === "/";
+
+  //#region breakPoint beállíátoks (isMd)
+  const isMd = useBreakpointValue(
+    { base: false, sm: false, md: false, lg: true, xl: true },
+    { fallback: "md" },
+  );
+  //#endregion
+
+  keyboardShortcuts({
+    selectedImg,
+    setSelectedImage,
+    setSelectedImg,
+    setStep,
+    step,
+    setHaldImage,
+    appRef,
+  });
+
+  useEffect(() => {
+    if (sessionData.length > 0) setSelectedImage(sessionData[selectedImg].blob);
+  }, [selectedImg, sessionData]);
 
   return (
-    <AbsoluteCenter
-      w={"full"}
-      px={{
-        smDown: 4,
-        base: 8,
-      }}
-    >
-      <Stack
-        mx={4}
-        fontSize="sm"
-        w={{
-          smDown: "full",
-          base: "lg",
-        }}
-        px={{
-          smDown: 6,
-          base: 12,
-        }}
-        py={{
-          smDown: 8,
-          base: 10,
-        }}
-        borderRadius="xl"
-        backgroundColor={"bg.panel"}
-        borderColor={"border.muted"}
-        borderWidth={1}
-        gap={8}
-        boxShadow={"sm"}
-      >
-        <Stack gap={3} alignItems={"center"}>
-          <Image src={"/logo.png"} boxSize={16} />
-          <Heading
-            as={"h1"}
-            fontSize={{
-              smDown: "lg",
-              base: "2xl",
-            }}
-            fontWeight={"semibold"}
-            textAlign={"center"}
-          >
-            Folytasd ahol abbahagytad
-          </Heading>
-          <Text
-            fontSize={{
-              smDown: "sm",
-              base: "md",
-            }}
-            color="gray.500"
-            lineHeight={"tall"}
-            textAlign="center"
-            maxW="sm"
-          >
-            Jelentkezz be Google fiókoddal.
-          </Text>
-        </Stack>
-
-        <Stack gap={4}>
-          <Button
-            type="button"
-            w={"full"}
-            size={{
-              smDown: "sm",
-              base: "lg",
-            }}
-            loading={loading}
-            display={"flex"}
-            alignItems={"center"}
-            variant={"solid"}
-            gap={2}
-            colorPalette={"teal"}
-            spinner={<BeatLoader size={12} color={"#004d40"} />}
-          >
-            <FaGoogle /> Bejelentkezés Google-vel
-          </Button>
-
-          <Text
-            fontSize="xs"
-            color="gray.500"
-            textAlign="center"
-            maxW="xs"
-            lineHeight={"tall"}
-            mx="auto"
-          >
-            A bejelentkezéssel elfogadod a{" "}
-            <Link my={1} href="/adatvedelem">
-              felhasználási feltételeket
-            </Link>
-            és az
-            <Link ms={1} href="/adatvedelem">
-              adatvédelmi irányelveket.
-            </Link>
-          </Text>
-        </Stack>
-      </Stack>
-    </AbsoluteCenter>
+    <Flex h={"100vh"} direction={isMd ? "row" : "column"} w={"full"}>
+      <LeftSide />
+      <Flex flex={1} w="full" h={"100vh"} minH={"0"} direction="column">
+        <Flex
+          px={isMd ? 3 : 0}
+          h={"full"}
+          w={"full"}
+          flex={1}
+          bg={"bg.muted/30"}
+          direction={isMd ? "row" : "column"}
+          justifyContent={"center"}
+          alignItems={"center"}
+        >
+          {sessionData.length > 0 && isEditor && <ImagesSide />}
+          <Box h={"full"} w={"full"} p={4} boxSizing={"border-box"}>
+            {step === 0 && <UploadImageBlock />}
+            {step === 1 && selectedImage && <ImageWorkPlace />}
+          </Box>
+          {sessionData.length > 0 && isEditor && <SideBar />}
+        </Flex>
+      </Flex>
+    </Flex>
   );
 }
