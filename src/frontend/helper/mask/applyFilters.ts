@@ -1,7 +1,6 @@
 import { CustomImage } from "@/interfaces/interface";
 import { Application, Sprite, Texture } from "pixi.js";
 import { RefObject } from "react";
-import { start } from "repl";
 
 export interface applyFiltersProps {
   startIndex?: number;
@@ -23,15 +22,6 @@ export function applyFilters(props: applyFiltersProps) {
   const renderSpriteRef = props.renderSpriteRef.current;
 
   if (!appRef.current) return;
-
-  const imageFilter = image?.filter;
-
-  if (spriteRef.current && imageFilter && haldSprite) {
-    spriteRef.current.filters = lutFilter
-      ? [lutFilter, imageFilter]
-      : [imageFilter];
-    haldSprite.filters = lutFilter ? [lutFilter, imageFilter] : [imageFilter];
-  }
 
   if (
     image &&
@@ -57,7 +47,9 @@ export function applyFilters(props: applyFiltersProps) {
             layer.filter.resources.layer_mask = layer.maskTexture.source;
 
           layer.haldSprite.filters = [layer.filterMask];
-          renderSpriteRef.filters = [layer.filter];
+          renderSpriteRef.filters = lutFilter
+            ? [layer.filter, lutFilter]
+            : [layer.filter];
 
           appRef.current.renderer.render({
             container: renderSpriteRef,

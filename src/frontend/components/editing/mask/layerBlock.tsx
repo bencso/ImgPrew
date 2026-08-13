@@ -15,7 +15,6 @@ import {
   Container,
   defaultFilterVert,
   Filter,
-  Graphics,
   RenderTexture,
   Sprite,
   UniformGroup,

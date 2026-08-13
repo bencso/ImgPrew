@@ -223,7 +223,7 @@ export interface SessionStore {
     captionSamples?: string[] | undefined,
   ) => void;
   setRenderTexture: (id: number, renderTexture: RenderTexture) => void;
-   setFilter: (id: number, filter: Filter) => void;
+  setFilter: (id: number, filter: Filter) => void;
   //#endregion
 
   //#region LAYER
@@ -509,6 +509,8 @@ export interface WorkSessionContextProps {
   renderSpriteRef: RefObject<Sprite>;
   isDrawing: boolean;
   setIsDrawing: Dispatch<SetStateAction<boolean>>;
+  appIsReady: boolean;
+  setIsAppReady: Dispatch<SetStateAction<boolean>>;
 }
 //#endregion
 

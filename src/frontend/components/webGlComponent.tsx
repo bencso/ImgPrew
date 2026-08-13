@@ -4,7 +4,6 @@ import { maskFiltersFragment } from "@/handlers/filters/maskFiltersFragment";
 import { getChannelOffsets } from "@/helper/lut/getChannelOffset";
 import { applyFilters } from "@/helper/mask/applyFilters";
 import { calcScale } from "@/helper/sizes/calcScale";
-import { filters } from "@/interfaces/filters.interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { Box, parseColor } from "@chakra-ui/react";
@@ -44,15 +43,9 @@ export default function WebGlComponent() {
     webglFilterRef,
     renderSpriteRef,
     selectedLayer,
-    isDrawing,
+    setIsAppReady,
   } = useWorkSession();
-  const {
-    sessionData,
-    setImageSize,
-    setRenderTexture,
-    setFilter,
-    addNewRenderTexture,
-  } = useSessionStore();
+  const { sessionData, setImageSize, addNewRenderTexture } = useSessionStore();
 
   const filtersRef = useRef<Container | null>(null);
 
@@ -74,8 +67,12 @@ export default function WebGlComponent() {
   const box = image?.box;
   const cropSaved = image?.cropSave;
   const expandPadding = image?.expandSize?.padding;
+  const layer =
+    selectedLayer && image && image.renderTextures
+      ? image.renderTextures[selectedLayer]
+      : null;
 
-  const [isInit, setInit] = useState<boolean>(false);
+  const filters = image && image.filters;
 
   async function initApp() {
     const app = new Application();
@@ -86,6 +83,8 @@ export default function WebGlComponent() {
       antialias: true,
       backgroundAlpha: 0,
     });
+
+    app.ticker.stop();
 
     appRef.current = app;
 
@@ -102,18 +101,21 @@ export default function WebGlComponent() {
     (async () => {
       await initApp();
       await loadImage();
+      setIsAppReady(true);
     })();
   }, []);
 
-  //TODO: Performance hiba: javitani
   useEffect(() => {
     createFirstLayer();
-  }, [isInit, textureRef.current]);
+  }, [textureRef.current]);
 
   function createFirstLayer() {
     if (
       !textureRef.current ||
-      image?.renderTextures?.find((rt) => rt.renderSprite.label === "elsolayer")
+      image?.renderTextures?.find(
+        (rt) => rt.renderSprite.label === "elsolayer",
+      ) ||
+      !filters
     )
       return;
 
@@ -276,20 +278,11 @@ export default function WebGlComponent() {
         canvasRef.current.replaceChildren(appRef.current.canvas);
 
       updateLayout();
-      applyFilters({
-        image,
-        textureRef,
-        renderSpriteRef,
-        appRef,
-        spriteRef,
-      });
-      setSelectLayer(null);
+      setSelectLayer(0);
     };
 
     if (sessionData.length > 0 && sessionData[selectedImg].blob)
       img.src = sessionData[selectedImg].blob;
-
-    setInit(true);
   }
 
   useEffect(() => {
@@ -411,13 +404,6 @@ export default function WebGlComponent() {
         },
       });
 
-      applyFilters({
-        image,
-        textureRef,
-        renderSpriteRef,
-        appRef,
-        spriteRef,
-      });
       return;
     } else {
       const scale = Math.min(areaH / imgH, areaW / imgW);
@@ -605,15 +591,9 @@ export default function WebGlComponent() {
           },
         });
       }
-
-      applyFilters({
-        image,
-        textureRef,
-        renderSpriteRef,
-        appRef,
-        spriteRef,
-      });
     }
+
+    appRef.current?.renderer.render(appRef.current.stage);
   };
 
   useEffect(() => {
@@ -630,50 +610,20 @@ export default function WebGlComponent() {
     lutFilter,
   ]);
 
-  applyFilters({
-    image,
-    textureRef,
-    renderSpriteRef,
-    appRef,
-    spriteRef,
-  });
-
-  //! Tickert használunk, mert ez azt csinálja hogy "tick"-enként (frissítési ciklusonként / framenként)
-  //! futtatja a filter frissítését a megadott sprite-tól kezdve. Ez azért előnyös, mert mindig csak azokat az elemeket frissítjük, amelyeknek szükségük van rá.
-
-  //! Ez performance szempontból jó, mert mikor rajzolunk, akkor alapból ha rajzoláshoz kötnénk az applyFilter()-t, akkor létrejönne mondjuk 1000 iteráció,
-  //! viszont ezzel nem minden iterációkor futtatjuk le az applyFilter()-t, hanem minden egyes tick-nél
   useEffect(() => {
     if (!appRef.current) return;
 
-    const update = () => {
-      applyFilters({
-        renderSpriteRef,
-        spriteRef,
-        startIndex: selectedLayer ?? 0,
-        image,
-        appRef,
-        textureRef,
-      });
-    };
-
-    appRef.current.ticker.add(update);
-
-    return () => {
-      appRef.current?.ticker.remove(update);
-    };
-  }, [renderSpriteRef, spriteRef, selectedLayer, image, appRef, textureRef]);
-
-  useEffect(() => {
     applyFilters({
-      image,
-      textureRef,
       renderSpriteRef,
-      appRef,
       spriteRef,
       startIndex: selectedLayer ?? 0,
+      image,
+      appRef,
+      textureRef,
     });
-  }, [isDrawing]);
+
+    appRef.current?.renderer.render(appRef.current.stage);
+  }, [selectedLayer, filters, image]);
 
   useEffect(() => {
     const handleResize = () => {

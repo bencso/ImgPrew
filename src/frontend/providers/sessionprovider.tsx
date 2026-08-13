@@ -39,6 +39,7 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
     null,
   );
 
+  const [appIsReady, setIsAppReady] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const spriteRef = useRef<Sprite | null>(null);
@@ -121,7 +122,9 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       selectedLayerRef,
       renderSpriteRef,
       isDrawing,
-      setIsDrawing
+      setIsDrawing,
+      appIsReady,
+      setIsAppReady,
     }),
     [
       step,
@@ -154,6 +157,7 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       selectedLayerRef,
       renderSpriteRef,
       isDrawing,
+      appIsReady,
     ],
   );
 

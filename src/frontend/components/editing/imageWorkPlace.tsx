@@ -8,7 +8,7 @@ import { minMaxValidation } from "@/helper/errorHelper";
 import { CropGrid } from "../ui/cropgrid";
 import { createCPImage } from "@/helper/workplaceHelpers/createCPImage";
 import { createTexts } from "@/helper/workplaceHelpers/createTexts";
-import { createMask } from "@/helper/mask/createMask";
+import { useMask } from "@/helper/mask/useMask";
 import { MaskLayerBlock } from "./mask/layerBlock";
 import { initDevtools } from "@pixi/devtools";
 
@@ -32,6 +32,8 @@ export default function ImageWorkPlace() {
     isDrawing,
     setIsDrawing,
     textureRef,
+    renderSpriteRef,
+    appIsReady,
   } = useWorkSession();
 
   const { setCropBox, setTextPosition, setTextRelativePosition } =
@@ -61,41 +63,38 @@ export default function ImageWorkPlace() {
   const scale = selectedScale?.scale ?? 1;
 
   overlayRef.current?.removeChildren();
-
   if (appRef.current) {
     appRef.current.stage.hitArea = appRef.current.screen;
     appRef.current.stage.eventMode = "static";
     appRef.current.stage.interactiveChildren = true;
-    appRef.current.stage.off("pointerdown");
-    appRef.current.stage.off("pointermove");
-    appRef.current.stage.off("pointerup");
-    appRef.current.stage.off("pointerupoutside");
   }
 
-  createTexts({
-    texts,
-    scale,
-    appRef,
-    canvasRef,
-    borderSize,
-    overlayRef,
-    setDraggable,
-    setTextPosition,
-    setTextRelativePosition,
-    copyrightImage,
-    draggableText,
-    selectedImg,
-  });
+  useEffect(() => {
+    createTexts({
+      texts,
+      scale,
+      appRef,
+      canvasRef,
+      borderSize,
+      overlayRef,
+      setDraggable,
+      setTextPosition,
+      setTextRelativePosition,
+      copyrightImage,
+      draggableText,
+      selectedImg,
+    });
 
-  createCPImage({
-    overlayRef,
-    copyrightImage,
-    canvasRef,
-    scale,
-    borderSize,
-  });
+    createCPImage({
+      overlayRef,
+      copyrightImage,
+      canvasRef,
+      scale,
+      borderSize,
+    });
+  }, [selectedImg]);
 
-  createMask({
+  useMask({
     appRef,
     brushSize: maskBrushSize,
     hoverMaskGraphRef,
@@ -114,6 +113,8 @@ export default function ImageWorkPlace() {
     webglFilterRef,
     textureRef,
     image,
+    renderSpriteRef,
+    appIsReady,
   });
 
   const canvasH = canvasRef.current?.clientHeight ?? 1080;

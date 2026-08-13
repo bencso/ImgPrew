@@ -220,6 +220,9 @@ const sidebarElements = (
           onChange: (e: SliderValueChangeDetails) => {
             uniforms.gamma_input = Number(e.value);
           },
+          onChangeEnd: (e: SliderValueChangeDetails) => {
+            editFilters(selectedImg, "gamma", e.value, selectedLayer);
+          },
           clearFunc: () => {
             uniforms.gamma_input = 1;
             editFilters(selectedImg, "gamma", 1, selectedLayer);
@@ -236,6 +239,9 @@ const sidebarElements = (
             getFilterValue(selectedImg, "white", selectedLayer) ?? 255,
           onChange: (e: SliderValueChangeDetails) => {
             uniforms.white_input = Number(e.value) / 255.0;
+          },
+          onChangeEnd: (e: SliderValueChangeDetails) => {
+            editFilters(selectedImg, "white", e.value, selectedLayer);
           },
           clearFunc: () => {
             uniforms.white_input = 1;
