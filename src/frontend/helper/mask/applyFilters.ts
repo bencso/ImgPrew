@@ -15,7 +15,6 @@ export function applyFilters(props: applyFiltersProps) {
   const startIndex = props.startIndex ? props.startIndex : 0;
   const image = props.image;
   const lutFilter = image?.lutFilter;
-  const haldSprite = image?.haldSprite;
   const spriteRef = props.spriteRef;
   const appRef = props.appRef;
   const textureRef = props.textureRef;
@@ -38,6 +37,8 @@ export function applyFilters(props: applyFiltersProps) {
 
     for (let i = startIndex; i < layers.length; i++) {
       const layer = image.renderTextures[i];
+
+      console.log("asd13");
 
       if (spriteRef.current && renderSpriteRef) {
         renderSpriteRef.texture = input;

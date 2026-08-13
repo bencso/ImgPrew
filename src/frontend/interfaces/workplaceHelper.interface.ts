@@ -7,6 +7,8 @@ import {
 } from "./interface";
 import { Application, Container, ContainerChild, Renderer } from "pixi.js";
 
+export const previewScale = 0.35;
+
 export interface CreateCPImageProps {
   copyrightImage: CopyrightImage | undefined;
   canvasRef: RefObject<HTMLCanvasElement | null>;

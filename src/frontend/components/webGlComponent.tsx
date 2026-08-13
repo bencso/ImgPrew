@@ -4,6 +4,7 @@ import { maskFiltersFragment } from "@/handlers/filters/maskFiltersFragment";
 import { getChannelOffsets } from "@/helper/lut/getChannelOffset";
 import { applyFilters } from "@/helper/mask/applyFilters";
 import { calcScale } from "@/helper/sizes/calcScale";
+import { previewScale } from "@/interfaces/workplaceHelper.interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import { Box, parseColor } from "@chakra-ui/react";

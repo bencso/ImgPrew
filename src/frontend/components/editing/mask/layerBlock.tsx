@@ -23,6 +23,7 @@ import { allFiltersFragment } from "@/handlers/filters/allFiltersFragment";
 import { getChannelOffsets } from "@/helper/lut/getChannelOffset";
 import { filters } from "@/interfaces/filters.interface";
 import { maskFiltersFragment } from "@/handlers/filters/maskFiltersFragment";
+import { previewScale } from "@/interfaces/workplaceHelper.interface";
 
 //#region SIDEBAR ITEM
 export const MaskLayerBlock = () => {
@@ -291,14 +292,16 @@ const LayersAccordion = () => {
                               (ri) => ri.id === layer.id,
                             );
 
-                            setSelectLayer(null);
+                            setSelectLayer(0);
 
                             if (!appRef.current) return;
-                            appRef.current.stage.removeChild(
-                              selectedLayer?.resultTexture,
-                            );
+                            {
+                              appRef.current.stage.removeChild(
+                                selectedLayer?.resultTexture,
+                              );
+                            }
 
-                            setSelectLayer(null);
+                            setSelectLayer(0);
                           }}
                         >
                           <LuTrash /> Törlés

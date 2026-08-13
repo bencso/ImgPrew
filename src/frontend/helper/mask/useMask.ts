@@ -120,23 +120,17 @@ export const useMask = (props: createMaskProps) => {
       return;
 
     cur.brushRef.clear();
+    cur.brushRef.circle(
+      x / cur.scale,
+      y / cur.scale,
+      cur.brushSize / cur.scale,
+    );
+    cur.brushRef.fill(cur.gradient);
 
     if (cur.maskErase === false) {
       cur.brushRef.blendMode = "normal";
-      cur.brushRef.circle(
-        x / cur.scale,
-        y / cur.scale,
-        cur.brushSize / cur.scale,
-      );
-      cur.brushRef.fill(cur.gradient);
     } else {
       cur.brushRef.blendMode = "erase";
-      cur.brushRef.circle(
-        x / cur.scale,
-        y / cur.scale,
-        cur.brushSize / cur.scale,
-      );
-      cur.brushRef.fill(cur.gradient);
     }
 
     if (appRef.current) {
@@ -149,11 +143,8 @@ export const useMask = (props: createMaskProps) => {
         clear: false,
       });
 
-      if (cur.layer?.filter) {
+      if (cur.layer?.filter)
         cur.layer.filter.resources.layer_mask = maskTex.source;
-      }
-
-      appRef.current.renderer.render(appRef.current.stage);
     }
   }
 
@@ -183,8 +174,6 @@ export const useMask = (props: createMaskProps) => {
       appRef,
       textureRef: props.textureRef,
     });
-
-    appRef.current.renderer.render(appRef.current.stage);
   }
 
   const onPointerMove = (e: any) => {
@@ -195,12 +184,10 @@ export const useMask = (props: createMaskProps) => {
     const x = localPos.x;
     const y = localPos.y;
 
-    hoverMaskGraphRef.current.x = x;
-    hoverMaskGraphRef.current.y = y;
-
-    appRef.current?.renderer.render(appRef.current.stage);
-
     const cur = latestRef.current;
+
+    //TODO: Kitalálni valamit arra hogy a hover helyett igazándiból rajzolunk, és csak akkor renderelődik le a drága
+    // render ha végeztünk a rajzzal az onPointerUp-nál
 
     if (cur.isDrawing === false || cur.selectedLayer === null) return;
 
@@ -221,14 +208,24 @@ export const useMask = (props: createMaskProps) => {
     if (cur.layer?.filter)
       cur.layer.filter.resources.layer_mask =
         props.maskTextureRef.current?.source;
-
-    pushPaint();
   };
 
   const onPointerUp = () => {
     const cur = latestRef.current;
-    if (!cur.brushRef || cur.selectedLayer === null) return;
     props.setIsDrawing(false);
+
+    if (!cur.brushRef || cur.selectedLayer === null) return;
+
+    applyFilters({
+      renderSpriteRef: cur.renderSpriteRef,
+      spriteRef: props.spriteRef,
+      startIndex: cur.selectedLayer,
+      image: cur.image,
+      appRef,
+      textureRef: props.textureRef,
+    });
+
+    appRef.current?.renderer.render(appRef.current.stage);
   };
 
   const onPointerDown = (e: any) => {
@@ -266,15 +263,4 @@ export const useMask = (props: createMaskProps) => {
       }
     };
   }, [appIsReady]);
-
-  useEffect(() => {
-    if (!hoverMaskGraphRef.current) return;
-
-    hoverMaskGraphRef.current.clear();
-
-    if (selectedLayer !== null) {
-      hoverMaskGraphRef.current.circle(0, 0, brushSize);
-      hoverMaskGraphRef.current.fill(gradient);
-    }
-  }, [selectedImg, brushSize, sharpness, selectedLayer, gradient]);
 };
