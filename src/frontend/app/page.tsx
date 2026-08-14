@@ -23,14 +23,17 @@ const ImageWorkPlace = dynamic(
 );
 
 export default function Page() {
-  //#region contextek
+  //#region Az oldalon használt főbb kontextusok
   const { step, setStep, setSelectedImg, selectedImg, appRef } =
     useWorkSession();
   const { sessionData, setHaldImage } = useSessionStore();
   const [selectedImage, setSelectedImage] = useState<string>();
 
   const path = usePathname();
+
+  // Ellenőrizzük, hogy az editor oldalon vagyunk-e
   const isEditor = path === "/";
+  //#endregion
 
   //#region breakPoint beállíátoks (isMd)
   const isMd = useBreakpointValue(

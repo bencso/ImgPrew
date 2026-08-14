@@ -1,6 +1,10 @@
 //TODO: Refaktorálni, és bug vadászat (fontos rész)
 "use client";
 
+import { applyCaptionSample } from "@/helper/caption/applyCaptionSample";
+import { createTag } from "@/helper/caption/createTag";
+import { insertEmoji } from "@/helper/caption/insertEmoji";
+import { loadCaptionTextForImage } from "@/helper/caption/loadCaptionText";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
 import {
@@ -58,8 +62,7 @@ export default function CaptionBlock() {
   const [savedSelection, setSavedSelection] = useState<Range | null>(null);
   //#endregion
 
-  //#region EmojiPicker import és tagRegex
-  const tagRegex = /\[([^\]]+)\]/g;
+  //#region EmojiPicker import
   const EmojiPicker = dynamic(() => import("emoji-picker-react"), {
     ssr: false,
   });
@@ -72,15 +75,7 @@ export default function CaptionBlock() {
       setSavedSelection(selection.getRangeAt(0).cloneRange());
     }
   }
-
-  //#region Megtartott kijelölés újridézése
-  function restoreSelection() {
-    const selection = window.getSelection();
-    if (savedSelection && selection) {
-      selection.removeAllRanges();
-      selection.addRange(savedSelection);
-    }
-  }
+  //#endregion
 
   const exifs =
     useSessionStore(
@@ -101,178 +96,8 @@ export default function CaptionBlock() {
     setSelectedSample(null);
     exifs && setTags(exifs);
     samples && setCaptionSamples(samples);
-    loadCaptionTextForImage();
+    loadCaptionTextForImage(tags, editorRef, selectedImg, getCaptionForImage);
   }, [sessionData, selectedImg]);
-
-  //#region Captionök betöltése a képnek megfelelően
-
-  function loadCaptionTextForImage() {
-    const caption = getCaptionForImage(selectedImg);
-    if (caption !== null && editorRef.current) {
-      const editor = editorRef.current;
-      editor.textContent = "";
-
-      const escapedTags = [...tags]
-        .sort((a, b) => b.localeCompare(a))
-        .map((tag) => tag.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
-      const testRegex = new RegExp(`(${escapedTags.join("|")})`, "g");
-
-      const regexMatchTexts = caption
-        ?.match(testRegex)
-        ?.map((element) => element.replace("[", "").replace("]", ""));
-
-      caption
-        ?.split(testRegex)
-        .filter(Boolean)
-        .forEach((text) => {
-          if (text && regexMatchTexts?.includes(text)) {
-            insertTag(text);
-          } else {
-            const textNode = document.createTextNode(text);
-
-            const range = document.createRange();
-            range.selectNodeContents(editor);
-            range.collapse(false);
-
-            range.insertNode(textNode);
-
-            range.setStartAfter(textNode);
-            range.collapse(true);
-
-            const selection = window.getSelection();
-            selection?.removeAllRanges();
-            selection?.addRange(range);
-          }
-        });
-    } else if (editorRef && editorRef.current)
-      editorRef.current.textContent = "";
-  }
-  //#endregion
-
-  //#region CreateTag
-  function createTag(tag: string) {
-    const selection = window.getSelection();
-    editorRef.current?.focus();
-    if (!selection?.rangeCount) return;
-
-    const range = selection?.getRangeAt(0);
-    if (!editorRef.current?.contains(range?.startContainer)) return;
-
-    const span = document.createElement("span");
-    const nextNode = document.createTextNode(" ");
-    span.className = "customTag";
-    span.style.userSelect = "all";
-    span.contentEditable = "false";
-    span.textContent = tag;
-    Object.assign(span.style, {
-      display: "inline-flex",
-      alignItems: "center",
-      padding: "0.2rem 0.5rem",
-      borderRadius: "0.375rem",
-      backgroundColor: "#234E52",
-      color: "#E6FFFA",
-      fontSize: "0.875rem",
-      fontWeight: "500",
-      userSelect: "all",
-      cursor: "not-allowed",
-      margin: "0 0.25rem 0.25rem 0",
-      appearance: "none",
-    });
-
-    span.onclick = () => {
-      range.deleteContents();
-      span.remove();
-    };
-
-    if (range) {
-      range.deleteContents();
-      range.insertNode(nextNode);
-      range.insertNode(span);
-
-      range.setStartAfter(nextNode);
-      range.collapse(true);
-      selection?.removeAllRanges();
-      selection?.addRange(range);
-      editorRef.current?.focus();
-    }
-  }
-  //#endregion
-
-  //#region Emoji beillesztés
-  function emojiClick(emojiObject: EmojiClickData) {
-    restoreSelection();
-    const emoji = emojiObject.emoji;
-    const nextNode = document.createTextNode("");
-    nextNode.textContent = emoji;
-
-    const selection = window.getSelection();
-    if (!selection?.rangeCount) return;
-
-    const range = selection?.getRangeAt(0);
-    editorRef.current?.focus();
-    if (!editorRef.current?.contains(range?.startContainer)) return;
-
-    if (range) {
-      range.insertNode(nextNode);
-
-      range.setStartAfter(nextNode);
-      range.collapse(true);
-      selection?.removeAllRanges();
-      selection?.addRange(range);
-      editorRef.current?.focus();
-      setEmojiOpen(false);
-    }
-  }
-  //#endregion
-
-  //#region Tag beillesztés
-  function insertTag(text: string) {
-    if (tags.indexOf(text) > 0) {
-      createTag(text);
-    }
-  }
-  //#endregion
-
-  //#region Sample alkalmazása
-  function onClickApplyBtn() {
-    if (editorRef.current) {
-      editorRef.current.textContent = "";
-      const regexMatchTexts = selectedSample
-        ?.match(tagRegex)
-        ?.map((element) => element.replace("[", "").replace("]", ""));
-      selectedSample
-        ?.split(tagRegex)
-        .filter(Boolean)
-        .map((text) => {
-          editorRef.current?.focus();
-          if (
-            text &&
-            regexMatchTexts?.some((element) => element.toString() === text)
-          ) {
-            insertTag(text);
-          } else {
-            const nextNode = document.createTextNode(text);
-            const selection = window.getSelection();
-            if (!selection?.rangeCount) return;
-
-            const range = selection?.getRangeAt(0);
-            if (!editorRef.current?.contains(range?.startContainer)) return;
-            if (range) {
-              range.deleteContents();
-              range.insertNode(nextNode);
-              range.setStartAfter(nextNode);
-              range.collapse(true);
-              selection?.removeAllRanges();
-              selection?.addRange(range);
-              editorRef.current?.focus();
-            }
-          }
-        });
-    }
-
-    setCaptionForImage(selectedImg, editorRef.current?.textContent || "");
-  }
-  //#endregion
 
   const collection = createListCollection({
     items: captionSamples ?? [],
@@ -342,7 +167,13 @@ export default function CaptionBlock() {
               variant={"surface"}
               colorPalette={"teal"}
               onClick={() => {
-                onClickApplyBtn();
+                applyCaptionSample(
+                  editorRef,
+                  selectedSample,
+                  tags,
+                  selectedImg,
+                  setCaptionForImage,
+                );
               }}
             >
               Alkalmaz
@@ -380,10 +211,14 @@ export default function CaptionBlock() {
             >
               <ScrollArea.Content>
                 <Flex gap="1.5" flexWrap="nowrap" align="center" py="1">
-                  {tags.map((tag, index) => (
+                  {tags.map((text, index) => (
                     <Tag.Root
-                      key={tag + index}
-                      onClick={() => insertTag(tag)}
+                      key={text + index}
+                      onClick={() => {
+                        if (tags.indexOf(text) > 0) {
+                          createTag(text, editorRef);
+                        }
+                      }}
                       colorScheme="teal"
                       size="lg"
                       rounded="full"
@@ -392,7 +227,7 @@ export default function CaptionBlock() {
                         flexShrink: 0,
                       }}
                     >
-                      <Tag.Label>{tag}</Tag.Label>
+                      <Tag.Label>{text}</Tag.Label>
                     </Tag.Root>
                   ))}
                   <Box w="3rem" flexShrink={0} />
@@ -426,7 +261,10 @@ export default function CaptionBlock() {
                   skinTonePickerLocation={SkinTonePickerLocation.PREVIEW}
                   theme={theme === "dark" ? Theme.DARK : Theme.LIGHT}
                   open={emojiOpen}
-                  onEmojiClick={emojiClick}
+                  onEmojiClick={(e) => {
+                    insertEmoji(e, editorRef, savedSelection);
+                    setEmojiOpen(false);
+                  }}
                 />
               </Float>
             </Flex>

@@ -169,7 +169,7 @@ export const useSessionStore = createWithEqualityFn<SessionStore>()(
     //#endregion
 
     //#region "Copyright" kép
-    uploadCopyrightImage: async (id: number, blob: ArrayBuffer) => {
+    saveCopyrightImage: async (id: number, blob: ArrayBuffer) => {
       const blobConvert = new Blob([blob], { type: "image/png" });
       const url = URL.createObjectURL(blobConvert);
 

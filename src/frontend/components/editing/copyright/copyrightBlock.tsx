@@ -1,23 +1,16 @@
-import { toaster } from "@/components/ui/toaster";
 import { UPLOAD_ACCEPTED_FILES } from "@/interfaces/upload.interface";
 import { useWorkSession } from "@/providers/sessionprovider";
 import { useSessionStore } from "@/stores/sessionData";
-import {
-  Box,
-  FileUpload,
-  Flex,
-  Icon,
-  Stack,
-  useFileUpload,
-} from "@chakra-ui/react";
+import { Box, FileUpload, Flex, Icon, Stack } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { LuCopyright } from "react-icons/lu";
 import { shallow } from "zustand/shallow";
 import { CopyrightImageSettingBlock } from "./copyrightSettingBlock";
+import { uploadCopyrightImage } from "@/helper/copyrightImage/uploadCopyrightImage";
 
 export default function CopyrightBlock() {
   const { selectedImg, setCopyrightImageRef } = useWorkSession();
-  const { uploadCopyrightImage, clearCopyrightImage } = useSessionStore();
+  const { saveCopyrightImage, clearCopyrightImage } = useSessionStore();
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
 
   const copyrightImage =
@@ -38,31 +31,12 @@ export default function CopyrightBlock() {
     })();
   }, [copyrightImage]);
 
-  const fileUpload = useFileUpload({
-    maxFiles: 1,
-    accept: UPLOAD_ACCEPTED_FILES.join(","),
-    onFileReject(details) {
-      if (details.files.length > 0) {
-        toaster.create({
-          title: "Hiba történt feltöltés közben!",
-          description: `Maximum 1 fájlt tölthetsz fel.`,
-          type: "error",
-        });
-      }
-      return (details.files = []);
-    },
-    onFileAccept(details) {
-      if (details.files.length > 0)
-        details.files[0]
-          .arrayBuffer()
-          .then((buffer) => uploadCopyrightImage(selectedImg, buffer));
-    },
-  });
+  const uploadImage = uploadCopyrightImage(saveCopyrightImage, selectedImg);
 
   return (
     <Box>
       <Flex gap={2}>
-        <FileUpload.RootProvider value={fileUpload} w="full">
+        <FileUpload.RootProvider value={uploadImage} w="full">
           <FileUpload.HiddenInput />
           {!copyrightImage ? (
             <FileUpload.Dropzone

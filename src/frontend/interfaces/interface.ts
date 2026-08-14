@@ -237,7 +237,7 @@ export interface SessionStore {
   //#endregion
 
   //#region Copyright kép
-  uploadCopyrightImage: (id: number, blob: ArrayBuffer) => void;
+  saveCopyrightImage: (id: number, blob: ArrayBuffer) => void;
   clearCopyrightImage: (id: number) => void;
   setCopyrightImagePosition: (
     id: number,

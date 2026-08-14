@@ -32,6 +32,7 @@ import {
   YPositions,
 } from "@/interfaces/interface";
 import PIXI, { Sprite } from "pixi.js";
+import { exportSelectedImage } from "@/helper/export/exportSelectedImage";
 
 export default function ExportDrawer() {
   const images = useSessionStore((s) => s.sessionData);
@@ -59,277 +60,6 @@ export default function ExportDrawer() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const selectedImage = images.find((i) => i.id === selected);
-
-  async function exportSelectedImage(id: number) {
-    const exportData = await exportImageSettings(id);
-
-    let selectedImage = images.find((i) => i.id === id);
-    if (!selectedImage) return;
-
-    let haldImage = exportData.hald ?? "";
-    let masksImages = [];
-    let masksImageHalds = [];
-
-    if (id === selectedImg) {
-      if (selectedImage && appRef.current) {
-        haldImage = await appRef.current.renderer.extract.base64({
-          target: selectedImage.haldSprite,
-          format: "png",
-          resolution: 1,
-        });
-      }
-
-      const imageMasks = selectedImage.renderTextures;
-
-      
-        if (imageMasks && imageMasks.length > 0 && appRef.current) {
-          for (const imageMask of imageMasks) {
-            masksImages.push(
-              await appRef.current.renderer.extract.base64({
-                target: imageMask.maskTexture,
-                format: "png",
-                resolution: 1,
-              }),
-            );
-
-            masksImageHalds.push(
-              await appRef.current.renderer.extract.base64({
-                target: imageMask.haldSprite,
-                format: "png",
-                resolution: 1,
-              }),
-            );
-        }
-      }
-    }
-
-    if (exportData.hald === undefined && appRef.current) {
-      setSelectedImg(id);
-      haldImage = await appRef.current.renderer.extract.base64({
-        target: selectedImage.haldSprite,
-        format: "png",
-        resolution: 1,
-      });
-    }
-
-    const scale = calcScale({
-      workPlaceRef,
-      appRef,
-      textureRef,
-      spriteRef,
-      expandMode: selectedImage.expandMode,
-      expandSize: selectedImage.expandSize,
-      canvasRef,
-      cropSaved: selectedImage.cropSave,
-      box: selectedImage.box,
-      borderSize: selectedImage.borderSize,
-      imageSize: selectedImage.dimesions,
-    });
-
-    let copyrightImage = null;
-    let cpImagePostion = {
-      x: 0,
-      y: 0,
-    };
-
-    const cpRelativePosition = selectedImage.copyrightImage?.relativePosition;
-
-    const blob = await fetch(selectedImage.blob).then((res) => res.blob());
-    const haldBlob = await fetch(haldImage).then((res) => res.blob());
-
-    const imageBlobFile = new File([blob], `image_${selectedImage.id}`);
-    const haldFile = new File([haldBlob], `hald_${selectedImage.id}`);
-
-    if (selectedImage.copyrightImage?.blob) {
-      let copyrightBlob = await fetch(selectedImage.copyrightImage.blob).then(
-        (res) => res.blob(),
-      );
-
-      copyrightImage = new File(
-        [copyrightBlob],
-        `copyright_${selectedImage.id}`,
-      );
-
-      if (
-        isXPositions(cpRelativePosition?.x) &&
-        isYPositions(cpRelativePosition?.y)
-      ) {
-        const position = calculatePosition({
-          positionX: cpRelativePosition?.x,
-          positionY: cpRelativePosition?.y,
-          elementRef: {
-            offsetHeight: Number(
-              selectedImage.copyrightImage?.size?.height ?? 0,
-            ),
-            offsetWidth: Number(selectedImage.copyrightImage?.size?.width ?? 0),
-          },
-          referenceElement: canvasRef,
-          imageScale: scale,
-          borderSize: selectedImage.borderSize,
-        });
-
-        cpImagePostion = {
-          x: position.x,
-          y: position.y,
-        };
-      }
-    }
-
-    let texts: (
-      | {
-          uiWidth: number;
-          uiAscent: number;
-          uiDescent: number;
-          id: string;
-          text: string;
-          position: DraggableImageEventPosition;
-          relativePosition?: { x: XPositions | number; y: YPositions | number };
-          enabled: boolean;
-          fontSize: number;
-          fontFamily: string;
-          fontWeight: number;
-          color: string;
-          opacity: number;
-        }
-      | undefined
-    )[] = [];
-
-    if (selectedImage.texts && selectedImage.texts.length > 0) {
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-
-      texts = selectedImage.texts?.map((text) => {
-        if (!ctx) return;
-        ctx.font = `${text.fontSize * scale}px ${text.fontFamily}`;
-
-        const textFont = ctx.measureText(text.text);
-        const textSize = {
-          offsetHeight: textFont.fontBoundingBoxAscent / scale,
-          offsetWidth: textFont.width / scale,
-        };
-
-        let textPosition = text.position;
-        const relativePosition = text.relativePosition;
-
-        textPosition = {
-          x: Number(textPosition.x),
-          y: Number(textPosition.y),
-        };
-
-        if (
-          isXPositions(relativePosition?.x) &&
-          isYPositions(relativePosition?.y)
-        ) {
-          textPosition = calculatePosition({
-            positionX: relativePosition?.x,
-            positionY: relativePosition?.y,
-            elementRef: textSize,
-            referenceElement: canvasRef,
-            imageScale: scale,
-            borderSize: selectedImage.borderSize,
-          });
-        }
-
-        return {
-          ...text,
-          uiWidth: textFont.width / scale,
-          uiAscent: textFont.fontBoundingBoxAscent / scale,
-          uiDescent: textFont.fontBoundingBoxDescent / scale,
-        };
-      });
-    }
-
-    const expandSize =
-      selectedImage.expandMode === "expand"
-        ? {
-            ...selectedImage.expandSize,
-            padding: selectedImage.expandSize?.padding ?? 0,
-          }
-        : {
-            width: selectedImage.box?.width ?? 0,
-            height: selectedImage.box?.height ?? 0,
-            padding: 0,
-          };
-
-    const expandPosition =
-      selectedImage.expandMode === "crop"
-        ? {
-            x: selectedImage.box?.x ?? 0,
-            y: selectedImage.box?.y ?? 0,
-          }
-        : { x: 0, y: 0 };
-
-    const body = {
-      extension: selectedImage.exportSettings?.fileExtension ?? "jpg",
-      exif_data: selectedImage.exportSettings?.exifDatas ?? [],
-      border_size: selectedImage.borderSize?.x ?? 0,
-      border_color: selectedImage.expandBackground ?? "#fff",
-      copyright_image_size: selectedImage.copyrightImage?.size?.width ?? 0,
-      copyright_image_position: cpImagePostion,
-      copyright_image_opacity: selectedImage.copyrightImage?.opacity,
-      texts: texts,
-      optimize: selectedImage.exportSettings?.optimize ?? false,
-      expand_mode: selectedImage.expandMode ?? "no",
-      expand_size: expandSize,
-      expand_position: expandPosition,
-      expand_color: selectedImage.expandBackground ?? "#fff",
-      masks_number: masksImages.length,
-    };
-
-    const formData = new FormData();
-
-    formData.append("file", imageBlobFile);
-    formData.append("lut", haldFile, "hald.png");
-
-    if (copyrightImage)
-      formData.append("copyright_image", copyrightImage, "copyright.png");
-
-    if (masksImages.length > 0) {
-      for (let index = 0; index < masksImages.length; index++) {
-        const mask = masksImages[index];
-
-        const maskFile = new File([mask], `mask_${index}`);
-        formData.append(`masks_files`, maskFile, `mask_${index}.png`);
-      }
-    }
-
-    if (masksImageHalds.length > 0) {
-      for (let index = 0; index < masksImageHalds.length; index++) {
-        const haldImage = masksImageHalds[index];
-
-        const haldImageFile = new File([haldImage], `mask_hald_${index}`);
-        formData.append(
-          `masks_hald_files`,
-          haldImageFile,
-          `mask_hald_${index}.png`,
-        );
-      }
-    }
-
-    formData.append("body", JSON.stringify(body));
-
-    await fetch("/api/images/export", {
-      method: "POST",
-      body: formData,
-    })
-      .catch(() => null)
-      .then(async (res) => {
-        if (res) {
-          const blob = await res?.blob();
-          const imageUrl = URL.createObjectURL(blob);
-
-          setSuccessfulyImages((prev) => [
-            ...prev,
-            {
-              title: String(selectedImage.id),
-              data: imageUrl,
-              extension: body.extension,
-            } as SuccessfullyImagesProps,
-          ]);
-          setSuccessfullyImageShow(true);
-        }
-      });
-  }
 
   return (
     <>
@@ -450,7 +180,20 @@ export default function ExportDrawer() {
                       setIsLoading(true);
                       setSuccessfulyImages([]);
 
-                      await exportSelectedImage(selected).then(() => {
+                      await exportSelectedImage(
+                        selected,
+                        appRef,
+                        exportImageSettings,
+                        images,
+                        spriteRef,
+                        textureRef,
+                        setSelectedImg,
+                        workPlaceRef,
+                        canvasRef,
+                        selectedImg,
+                        setSuccessfulyImages,
+                        setSuccessfullyImageShow,
+                      ).then(() => {
                         setIsLoading(false);
                       });
                     }}
@@ -473,7 +216,20 @@ export default function ExportDrawer() {
 
                       try {
                         for (const image of images) {
-                          await exportSelectedImage(image.id);
+                          await exportSelectedImage(
+                            selected,
+                            appRef,
+                            exportImageSettings,
+                            images,
+                            spriteRef,
+                            textureRef,
+                            setSelectedImg,
+                            workPlaceRef,
+                            canvasRef,
+                            selectedImg,
+                            setSuccessfulyImages,
+                            setSuccessfullyImageShow,
+                          );
                         }
                       } catch (error) {
                         console.error("Hiba az exportáláskor:", error);
