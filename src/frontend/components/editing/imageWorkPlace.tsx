@@ -10,7 +10,6 @@ import { createCPImage } from "@/helper/workplaceHelpers/createCPImage";
 import { createTexts } from "@/helper/workplaceHelpers/createTexts";
 import { useMask } from "@/helper/mask/useMask";
 import { MaskLayerBlock } from "./mask/layerBlock";
-import { initDevtools } from "@pixi/devtools";
 
 export default function ImageWorkPlace() {
   const {
@@ -20,7 +19,7 @@ export default function ImageWorkPlace() {
     canvasRef,
     overlayRef,
     appRef,
-    hoverMaskGraphRef,
+    temporarySpriteRef,
     maskBrushSize,
     maskErase,
     brushRef,
@@ -62,7 +61,6 @@ export default function ImageWorkPlace() {
 
   const scale = selectedScale?.scale ?? 1;
 
-  overlayRef.current?.removeChildren();
   if (appRef.current) {
     appRef.current.stage.hitArea = appRef.current.screen;
     appRef.current.stage.eventMode = "static";
@@ -97,7 +95,7 @@ export default function ImageWorkPlace() {
   useMask({
     appRef,
     brushSize: maskBrushSize,
-    hoverMaskGraphRef,
+    temporarySpriteRef,
     lastX,
     lastY,
     selectedImg,

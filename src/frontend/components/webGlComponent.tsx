@@ -38,7 +38,7 @@ export default function WebGlComponent() {
     canvasRef,
     brushRef,
     maskTextureRef,
-    hoverMaskGraphRef,
+    temporarySpriteRef,
     selectedLayerRef,
     setSelectLayer,
     webglFilterRef,
@@ -79,9 +79,8 @@ export default function WebGlComponent() {
     const app = new Application();
 
     await app.init({
-      resolution: window.devicePixelRatio,
+      resolution: Math.min(window.devicePixelRatio, 1),
       autoDensity: true,
-      antialias: true,
       backgroundAlpha: 0,
     });
 
@@ -192,12 +191,11 @@ export default function WebGlComponent() {
 
     if (appRef.current) {
       const hover = appRef.current.stage.getChildByLabel(
-        hoverMaskGraphRef.current.label,
+        temporarySpriteRef.current.label,
       );
 
-      if (hover) {
-        appRef.current.stage.removeChild(hover);
-        appRef.current.stage.addChild(hoverMaskGraphRef.current);
+      if (!hover) {
+        appRef.current.stage.addChild(temporarySpriteRef.current);
       }
     }
 
@@ -239,8 +237,14 @@ export default function WebGlComponent() {
       const source = new ImageSource({ resource: img });
       const texture = new Texture({ source });
       const overlay = new Container();
+
       overlay.label = "overlayContainer";
-      const hoverGraph = new Graphics();
+
+      const temporaryTexture = RenderTexture.create({
+        width: img.width,
+        height: img.height,
+      });
+      const temporaryTextureSprite = new Sprite(temporaryTexture);
 
       textureRef.current = texture;
       renderSpriteRef.current.texture = texture;
@@ -254,6 +258,7 @@ export default function WebGlComponent() {
 
       if (prevStage) appRef.current.stage.removeChild(prevStage);
       appRef.current.stage.addChild(renderSprite);
+
       if (!appRef.current.stage.getChildByLabel("overlayContainer"))
         appRef.current.stage.addChild(overlay);
 
@@ -265,7 +270,7 @@ export default function WebGlComponent() {
 
       maskTextureRef.current = image.renderTexture;
 
-      appRef.current.stage.addChild(hoverGraph);
+      appRef.current.stage.addChild(temporaryTextureSprite);
 
       const brush = new Graphics();
 
@@ -273,7 +278,7 @@ export default function WebGlComponent() {
 
       spriteRef.current = renderSprite;
       overlayRef.current = overlay;
-      hoverMaskGraphRef.current = hoverGraph;
+      temporarySpriteRef.current = temporaryTextureSprite;
 
       if (canvasRef.current)
         canvasRef.current.replaceChildren(appRef.current.canvas);

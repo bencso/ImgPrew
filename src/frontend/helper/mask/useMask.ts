@@ -1,5 +1,6 @@
 import {
   Application,
+  Container,
   FillGradient,
   Filter,
   Graphics,
@@ -17,7 +18,6 @@ import {
   useMemo,
   useRef,
 } from "react";
-import { drawLine } from "./drawLine";
 import { CustomImage } from "@/interfaces/interface";
 import { applyFilters } from "./applyFilters";
 
@@ -28,7 +28,7 @@ interface createMaskProps {
   lastY: RefObject<number | null>;
   lastX: RefObject<number | null>;
   brushSize: number;
-  hoverMaskGraphRef: RefObject<Graphics>;
+  temporarySpriteRef: RefObject<Sprite>;
   selectedImg: number;
   maskErase: boolean;
   brushRef: RefObject<Graphics | null>;
@@ -46,12 +46,10 @@ interface createMaskProps {
 
 export const useMask = (props: createMaskProps) => {
   const appRef = props.appRef;
-  const hoverMaskGraphRef = props.hoverMaskGraphRef;
+  const temporarySpriteRef = props.temporarySpriteRef;
   const image = props.image;
 
-  const selectedImg = props.selectedImg;
   const maskErase = props.maskErase;
-  const brushRef = props.brushRef.current;
   const renderTexture = props.maskTextureRef.current;
   const sharpness = props.sharpness ?? 0;
   const selectedLayer = props.selectedLayer ?? null;
@@ -63,8 +61,10 @@ export const useMask = (props: createMaskProps) => {
   const renderTextures = image?.renderTextures;
   const layer = renderTextures?.find((rt) => rt.id === selectedLayer);
 
-  const isDrawedRef = useRef(false);
-  const commitRef = useRef<number | null>(null);
+  const pending: { x: number; y: number }[] = [];
+  const reqAnimFramId = useRef<null | number>(null);
+  const frameSkip = useRef(0);
+  const emptyContainerRef = useRef(new Container());
 
   const gradient = useMemo(
     () =>
@@ -84,6 +84,20 @@ export const useMask = (props: createMaskProps) => {
     [sharpness],
   );
 
+  const brushTexture = useMemo(() => {
+    if (!appRef.current) return undefined;
+
+    const graph = new Graphics();
+    graph.circle(0, 0, 100);
+    graph.fill(gradient);
+    const texture = appRef.current.renderer.generateTexture(graph);
+    graph.destroy();
+
+    return texture;
+  }, [gradient, appIsReady]);
+
+  const brushSpriteRef = useRef(new Sprite(brushTexture));
+
   const latestRef = useRef({
     selectedLayer,
     brushSize,
@@ -92,11 +106,13 @@ export const useMask = (props: createMaskProps) => {
     image,
     layer,
     gradient,
-    brushRef,
     renderTexture,
     renderTextures,
     renderSpriteRef,
     isDrawing: props.isDrawing,
+    temporarySpriteRef,
+    brushTexture,
+    pending,
   });
 
   latestRef.current = {
@@ -107,73 +123,69 @@ export const useMask = (props: createMaskProps) => {
     image,
     layer,
     gradient,
-    brushRef,
     renderTexture,
     renderTextures,
     renderSpriteRef,
     isDrawing: props.isDrawing,
+    temporarySpriteRef,
+    brushTexture,
+    pending,
   };
 
-  function paint(x: number, y: number) {
-    const cur = latestRef.current;
-    if (!cur.brushRef || cur.selectedLayer === null || !cur.renderTextures)
-      return;
+  //TODO: Még annyit lehetne hogy a kép ne teljese res-be legyen és a performance egész jó lehet
 
-    cur.brushRef.clear();
-    cur.brushRef.circle(
-      x / cur.scale,
-      y / cur.scale,
-      cur.brushSize / cur.scale,
-    );
-    cur.brushRef.fill(cur.gradient);
+  function pushPoint() {
+    reqAnimFramId.current = null;
 
-    if (cur.maskErase === false) {
-      cur.brushRef.blendMode = "normal";
-    } else {
-      cur.brushRef.blendMode = "erase";
+    const current = latestRef.current;
+
+    const queue = current.pending.splice(0, current.pending.length);
+    if (queue.length === 0 || !current.brushTexture) return;
+
+    const batchContainer = new Container();
+    const brushScale = current.brushSize / current.scale / 100;
+
+    for (const point of queue) {
+      const pointSprite = new Sprite(current.brushTexture);
+      pointSprite.position.set(
+        point.x / current.scale,
+        point.y / current.scale,
+      );
+      pointSprite.scale.set(brushScale);
+      pointSprite.blendMode = current.maskErase ? "erase" : "normal";
+      batchContainer.addChild(pointSprite);
     }
 
-    if (appRef.current) {
-      const maskTex = cur.renderTextures[cur.selectedLayer]?.maskTexture;
-      if (!maskTex) return;
+    appRef.current?.renderer.render({
+      container: batchContainer,
+      target: current.temporarySpriteRef.current.texture,
+      clear: false,
+    });
 
-      appRef.current.renderer.render({
-        container: cur.brushRef,
-        target: maskTex,
-        clear: false,
-      });
+    batchContainer.destroy({ children: true, texture: false });
 
-      if (cur.layer?.filter)
-        cur.layer.filter.resources.layer_mask = maskTex.source;
-    }
+    frameSkip.current++;
+
+    if (frameSkip.current % 9 === 0)
+      appRef.current?.renderer.render(appRef.current.stage);
+
+    if (current.pending.length > 0 && reqAnimFramId.current === null)
+      reqAnimFramId.current = requestAnimationFrame(pushPoint);
   }
 
-  function pushPaint() {
-    isDrawedRef.current = true;
+  function commitPoint(x: number, y: number) {
+    const current = latestRef.current;
 
-    if (commitRef.current !== null) return;
+    if (current.selectedLayer === null) return;
 
-    commitRef.current = requestAnimationFrame(() => {
-      commitRef.current = null;
-      if (isDrawedRef.current) {
-        isDrawedRef.current = false;
-        commitPaint();
-      }
-    });
-  }
+    current.pending.push({ x, y });
 
-  function commitPaint() {
-    const cur = latestRef.current;
-    if (!appRef.current || cur.selectedLayer === null) return;
+    if (current.layer?.filter)
+      current.layer.filter.resources.layer_mask =
+        props.maskTextureRef.current?.source;
 
-    applyFilters({
-      renderSpriteRef: cur.renderSpriteRef,
-      spriteRef: props.spriteRef,
-      startIndex: cur.selectedLayer,
-      image: cur.image,
-      appRef,
-      textureRef: props.textureRef,
-    });
+    if (reqAnimFramId.current === null)
+      reqAnimFramId.current = requestAnimationFrame(pushPoint);
   }
 
   const onPointerMove = (e: any) => {
@@ -184,43 +196,49 @@ export const useMask = (props: createMaskProps) => {
     const x = localPos.x;
     const y = localPos.y;
 
-    const cur = latestRef.current;
+    const current = latestRef.current;
 
-    //TODO: Kitalálni valamit arra hogy a hover helyett igazándiból rajzolunk, és csak akkor renderelődik le a drága
-    // render ha végeztünk a rajzzal az onPointerUp-nál
-
-    if (cur.isDrawing === false || cur.selectedLayer === null) return;
-
-    if (props.lastX.current && props.lastY.current) {
-      drawLine(
-        props.lastX.current,
-        props.lastY.current,
-        x,
-        y,
-        cur.brushSize,
-        paint,
-      );
-    }
+    if (current.isDrawing === false || current.selectedLayer === null) return;
+    if (props.lastX.current && props.lastY.current) commitPoint(x, y);
 
     props.lastX.current = x;
     props.lastY.current = y;
-
-    if (cur.layer?.filter)
-      cur.layer.filter.resources.layer_mask =
-        props.maskTextureRef.current?.source;
   };
 
   const onPointerUp = () => {
-    const cur = latestRef.current;
+    const current = latestRef.current;
     props.setIsDrawing(false);
 
-    if (!cur.brushRef || cur.selectedLayer === null) return;
+    if (
+      !brushSpriteRef.current ||
+      current.selectedLayer === null ||
+      !current.renderTextures ||
+      current.renderTextures.length <= 0 ||
+      !appRef.current
+    )
+      return;
+
+    const maskTex = current.renderTextures[current.selectedLayer]?.maskTexture;
+
+    if (!maskTex) return;
+
+    appRef.current?.renderer.render({
+      container: current.temporarySpriteRef.current,
+      target: maskTex,
+      clear: false,
+    });
+
+    appRef.current.renderer.render({
+      container: emptyContainerRef.current,
+      target: current.temporarySpriteRef.current.texture,
+      clear: true,
+    });
 
     applyFilters({
-      renderSpriteRef: cur.renderSpriteRef,
+      renderSpriteRef: current.renderSpriteRef,
       spriteRef: props.spriteRef,
-      startIndex: cur.selectedLayer,
-      image: cur.image,
+      startIndex: current.selectedLayer,
+      image: current.image,
       appRef,
       textureRef: props.textureRef,
     });
@@ -230,18 +248,20 @@ export const useMask = (props: createMaskProps) => {
 
   const onPointerDown = (e: any) => {
     props.setIsDrawing(true);
+
     const localPos = e.global;
 
     if (!localPos) return;
 
-    props.lastX.current = localPos.x;
-    props.lastY.current = localPos.y;
+    const x = localPos.x;
+    const y = localPos.y;
 
-    const cur = latestRef.current;
-    if (cur.selectedLayer !== null) {
-      paint(localPos.x, localPos.y);
-      pushPaint();
-    }
+    props.lastX.current = x;
+    props.lastY.current = y;
+
+    const current = latestRef.current;
+
+    if (current.selectedLayer !== null) commitPoint(x, y);
   };
 
   useEffect(() => {
@@ -256,11 +276,6 @@ export const useMask = (props: createMaskProps) => {
       stage.off("pointermove", onPointerMove);
       stage.off("pointerup", onPointerUp);
       stage.off("pointerdown", onPointerDown);
-
-      if (commitRef.current !== null) {
-        cancelAnimationFrame(commitRef.current);
-        commitRef.current = null;
-      }
     };
   }, [appIsReady]);
 };

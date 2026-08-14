@@ -100,7 +100,7 @@ const LayersAccordion = () => {
     setSelectLayer,
     textureRef,
     webglFilterRef,
-    hoverMaskGraphRef,
+    temporarySpriteRef,
   } = useWorkSession();
 
   const image = sessionData.find((i) => i.id == selectedImg);
@@ -183,12 +183,11 @@ const LayersAccordion = () => {
 
     if (appRef.current) {
       const hover = appRef.current.stage.getChildByLabel(
-        hoverMaskGraphRef.current.label,
+        temporarySpriteRef.current.label,
       );
 
       if (hover) {
-        appRef.current.stage.removeChild(hover);
-        appRef.current.stage.addChild(hoverMaskGraphRef.current);
+        appRef.current.stage.addChild(temporarySpriteRef.current);
       }
     }
 

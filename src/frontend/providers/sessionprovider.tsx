@@ -63,8 +63,8 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
   const [maskSharpness, setMaskSharpness] = useState<number>(0);
   const [isDrawing, setIsDrawing] = useState<boolean>(false);
 
-  const hoverGraph = new Graphics();
-  const hoverMaskGraphRef = useRef<Graphics>(hoverGraph);
+  const temporarySprite = new Sprite();
+  const temporarySpriteRef = useRef<Sprite>(temporarySprite);
 
   const [selectedChannel, setSelectedChannel] = useState<string>("red");
   const { functions, editFunction } = useFunctionsStore();
@@ -108,7 +108,7 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       textPositions,
       setTextPositions,
       overlayRef,
-      hoverMaskGraphRef,
+      temporarySpriteRef,
       maskErase,
       setMaskEraseMode,
       maskBrushSize,
@@ -147,7 +147,7 @@ export function WorkSessionProvider({ children }: WorkSessionProviderProps) {
       imageScale,
       textPositions,
       overlayRef,
-      hoverMaskGraphRef,
+      temporarySpriteRef,
       maskErase,
       maskBrushSize,
       maskTextureRef,

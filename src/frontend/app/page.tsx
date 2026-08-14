@@ -53,7 +53,6 @@ export default function Page() {
     if (sessionData.length > 0) setSelectedImage(sessionData[selectedImg].blob);
   }, [selectedImg, sessionData]);
 
-
   return (
     <Flex h={"100vh"} direction={isMd ? "row" : "column"} w={"full"}>
       <LeftSide />

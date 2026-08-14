@@ -494,7 +494,7 @@ export interface WorkSessionContextProps {
     >
   >;
   overlayRef: RefObject<Container<ContainerChild> | null>;
-  hoverMaskGraphRef: RefObject<Graphics>;
+  temporarySpriteRef: RefObject<Sprite>;
   maskErase: boolean;
   setMaskEraseMode: Dispatch<SetStateAction<boolean>>;
   maskBrushSize: number;

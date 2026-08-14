@@ -38,8 +38,6 @@ export function applyFilters(props: applyFiltersProps) {
     for (let i = startIndex; i < layers.length; i++) {
       const layer = image.renderTextures[i];
 
-      console.log("asd13");
-
       if (spriteRef.current && renderSpriteRef) {
         renderSpriteRef.texture = input;
 
